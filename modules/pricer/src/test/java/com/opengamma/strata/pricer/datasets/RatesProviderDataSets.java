@@ -19,6 +19,7 @@ import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
 import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
+import static com.opengamma.strata.basics.index.OvernightIndices.USD_SOFR;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 
 import java.time.LocalDate;
@@ -194,6 +195,7 @@ public class RatesProviderDataSets {
         .fxRateProvider(FX_MATRIX_USD)
         .discountCurve(USD, USD_DSC)
         .overnightIndexCurve(USD_FED_FUND, USD_DSC)
+        .overnightIndexCurve(USD_SOFR, USD_DSC)
         .iborIndexCurve(USD_LIBOR_3M, USD_L3)
         .iborIndexCurve(USD_LIBOR_6M, USD_L6)
         .build();

@@ -10,6 +10,8 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.strata.basics.index.OvernightIndices.EUR_ESTR;
+import static com.opengamma.strata.basics.index.OvernightIndices.USD_SOFR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static com.opengamma.strata.product.swap.SwapIndices.EUR_EURIBOR_1100_5Y;
 
@@ -163,6 +165,7 @@ public class SwaptionSabrRateVolatilityDataSet {
   public static ImmutableRatesProvider getRatesProviderUsd(LocalDate valuationDate) {
     return ImmutableRatesProvider.builder(valuationDate)
         .discountCurve(USD, CURVE_DSC_USD)
+        .overnightIndexCurve(USD_SOFR, CURVE_DSC_USD)
         .iborIndexCurve(USD_LIBOR_3M, CURVE_FWD_USD)
         .build();
   }
@@ -275,6 +278,7 @@ public class SwaptionSabrRateVolatilityDataSet {
   public static ImmutableRatesProvider getRatesProviderEur(LocalDate valuationDate) {
     return ImmutableRatesProvider.builder(valuationDate)
         .discountCurve(EUR, CURVE_DSC_EUR)
+        .overnightIndexCurve(EUR_ESTR, CURVE_DSC_EUR)
         .iborIndexCurve(EUR_EURIBOR_6M, CURVE_FWD_EUR)
         .build();
   }
