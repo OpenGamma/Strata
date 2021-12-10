@@ -127,7 +127,7 @@ public final class EtdVariant
   }
 
   /**
-   * The Eurex Government Bond Option.
+   * The physically settled option.
    *
    * @return the variant
    */
@@ -187,6 +187,9 @@ public final class EtdVariant
     this.optionType = optionType;
     if (type == EtdExpiryType.MONTHLY) {
       ArgChecker.isTrue(dateCode == null, "Monthly variant must have no dateCode");
+      ArgChecker.isTrue(
+          settlementType == null || settlementType == EtdSettlementType.PHYSICAL,
+          "Monthly variant only supports physical settlement");
       ArgChecker.isTrue(optionType == null, "Monthly variant must have no optionType");
       this.code = "";
     } else if (type == EtdExpiryType.WEEKLY) {

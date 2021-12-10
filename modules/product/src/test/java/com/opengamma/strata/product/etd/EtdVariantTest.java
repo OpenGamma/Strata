@@ -78,6 +78,17 @@ public class EtdVariantTest {
     assertThat(EtdVariant.parseCode(test.getCode())).isEqualTo(test);
   }
 
+
+  @Test
+  public void test_physically_settled_option() {
+    EtdVariant test = EtdVariant.ofPhysicallySettledOption();
+    assertThat(test.getType()).isEqualTo(EtdExpiryType.MONTHLY);
+    assertThat(test.getDateCode()).isNotPresent();
+    assertThat(test.getSettlementType().get()).isEqualTo(EtdSettlementType.PHYSICAL);
+    assertThat(test.getOptionType()).isNotPresent();
+    assertThat(test.getCode()).isEmpty();
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_of() {

@@ -232,7 +232,7 @@ public final class CsvLoaderUtils {
         }
       }
     } else {
-      if (settleType.get().getCode().equals("E")) {
+      if (settleType.get().equals(EtdSettlementType.PHYSICAL) && type.equals(EtdType.OPTION)) {
         return Pair.of(yearMonth, EtdVariant.ofPhysicallySettledOption());
       }
       if (day == 0) {
