@@ -14,8 +14,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.CalculationFunction;
 import com.opengamma.strata.calc.runner.CalculationParameters;
@@ -110,7 +110,7 @@ public class CmsTradeCalculationFunction
     // extract data from product
     Cms product = trade.getProduct();
     Set<Currency> currencies = product.allPaymentCurrencies();
-    IborIndex cmsIndex = trade.getProduct().getCmsLeg().getUnderlyingIndex();
+    RateIndex cmsIndex = trade.getProduct().getCmsLeg().getUnderlyingIndex();
     Set<Index> payIndices = trade.getProduct().allRateIndices();
     Set<Index> indices = ImmutableSet.<Index>builder().add(cmsIndex).addAll(payIndices).build();
 

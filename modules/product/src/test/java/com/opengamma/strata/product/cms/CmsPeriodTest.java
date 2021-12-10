@@ -24,7 +24,7 @@ import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.SwapIndices;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedFloatSwapConvention;
 
 /**
  * Test {@link CmsPeriod}.
@@ -151,7 +151,7 @@ public class CmsPeriodTest {
 
   //-------------------------------------------------------------------------
   static CmsPeriod sutCap() {
-    FixedIborSwapConvention conv = INDEX.getTemplate().getConvention();
+    FixedFloatSwapConvention conv = INDEX.getTemplate().getConvention();
     ResolvedSwap swap = conv.toTrade(FIXING, START, END, BuySell.BUY, 1d, 0.01).getProduct().resolve(REF_DATA);
     return CmsPeriod.builder()
         .currency(GBP)
@@ -171,7 +171,7 @@ public class CmsPeriodTest {
   }
 
   static CmsPeriod sutFloor() {
-    FixedIborSwapConvention conv = INDEX.getTemplate().getConvention();
+    FixedFloatSwapConvention conv = INDEX.getTemplate().getConvention();
     ResolvedSwap swap = conv.toTrade(FIXING, START, END, BuySell.BUY, 1d, 0.01).getProduct().resolve(REF_DATA);
     return CmsPeriod.builder()
         .currency(GBP)
@@ -191,7 +191,7 @@ public class CmsPeriodTest {
   }
 
   static CmsPeriod sutCoupon() {
-    FixedIborSwapConvention conv = INDEX.getTemplate().getConvention();
+    FixedFloatSwapConvention conv = INDEX.getTemplate().getConvention();
     ResolvedSwap swap = conv.toTrade(FIXING, START, END, BuySell.BUY, 1d, 0.01).getProduct().resolve(REF_DATA);
     return CmsPeriod.builder()
         .currency(GBP)
@@ -210,7 +210,7 @@ public class CmsPeriodTest {
   }
 
   static CmsPeriod sut2() {
-    FixedIborSwapConvention conv = INDEX.getTemplate().getConvention();
+    FixedFloatSwapConvention conv = INDEX.getTemplate().getConvention();
     ResolvedSwap swap = conv.toTrade(FIXING.plusDays(1), START.plusDays(1), END.plusDays(1), BuySell.BUY, 1d, 1d)
         .getProduct().resolve(REF_DATA);
     return CmsPeriod.builder()
