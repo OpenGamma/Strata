@@ -78,7 +78,6 @@ public class EtdVariantTest {
     assertThat(EtdVariant.parseCode(test.getCode())).isEqualTo(test);
   }
 
-
   @Test
   public void test_physically_settled_option() {
     EtdVariant test = EtdVariant.ofPhysicallySettledOption();
