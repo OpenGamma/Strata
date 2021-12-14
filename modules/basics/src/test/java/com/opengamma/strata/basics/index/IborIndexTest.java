@@ -334,6 +334,29 @@ public class IborIndexTest {
   }
 
   @Test
+  public void test_usdTermSofr() {
+    assertThat(IborIndex.of("USD-TERMSOFR-1M").getName()).isEqualTo("USD-TERMSOFR-1M");
+    assertThat(IborIndex.of("USD-TERMSOFR-3M").getName()).isEqualTo("USD-TERMSOFR-3M");
+    assertThat(IborIndex.of("USD-TERMSOFR-6M").getName()).isEqualTo("USD-TERMSOFR-6M");
+    assertThat(IborIndex.of("USD-TERMSOFR-12M").getName()).isEqualTo("USD-TERMSOFR-12M");
+  }
+
+  @Test
+  public void test_gbpTermSonia() {
+    assertThat(IborIndex.of("GBP-TERMSONIA-1M").getName()).isEqualTo("GBP-TERMSONIA-1M");
+    assertThat(IborIndex.of("GBP-TERMSONIA-3M").getName()).isEqualTo("GBP-TERMSONIA-3M");
+    assertThat(IborIndex.of("GBP-TERMSONIA-6M").getName()).isEqualTo("GBP-TERMSONIA-6M");
+    assertThat(IborIndex.of("GBP-TERMSONIA-12M").getName()).isEqualTo("GBP-TERMSONIA-12M");
+  }
+
+  @Test
+  public void test_jpyTorf() {
+    assertThat(IborIndex.of("JPY-TORF-1M").getName()).isEqualTo("JPY-TORF-1M");
+    assertThat(IborIndex.of("JPY-TORF-3M").getName()).isEqualTo("JPY-TORF-3M");
+    assertThat(IborIndex.of("JPY-TORF-6M").getName()).isEqualTo("JPY-TORF-6M");
+  }
+
+  @Test
   public void test_bbsw1m() {
     IborIndex test = IborIndex.of("AUD-BBSW-1M");
     assertThat(test.getCurrency()).isEqualTo(AUD);
