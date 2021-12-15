@@ -714,12 +714,12 @@ public final class SabrExtrapolationReplicationCmsPeriodPricer {
           .of(forward + shift, timeToExpiry, sabrPoint, cutOffStrike + shift, mu);
       this.putCall = cmsPeriod.getCmsPeriodType().equals(CmsPeriodType.FLOORLET) ? PutCall.PUT : PutCall.CALL;
       this.strike = strike;
-      this.factor = g(forward) / h(forward);
       this.g0 = new double[4];
       g0[0] = nbFixedPeriod * tau;
       g0[1] = -0.5 * nbFixedPeriod * (nbFixedPeriod + 1.0d) * tau * tau;
       g0[2] = -2.0d / 3.0d * g0[1] * (nbFixedPeriod + 2.0d) * tau;
       g0[3] = -3.0d / 4.0d * g0[2] * (nbFixedPeriod + 2.0d) * tau;
+      this.factor = g(forward) / h(forward);
     }
 
     /**
