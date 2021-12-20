@@ -5,8 +5,13 @@
  */
 package com.opengamma.strata.product.swap.type;
 
+import java.time.LocalDate;
+
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.product.TradeTemplate;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
@@ -33,5 +38,29 @@ public interface FixedFloatSwapTemplate
    * @return the tenor
    */
   public abstract Tenor getTenor();
+  
+  /**
+   * Creates a trade based on this template.
+   * <p>
+   * This returns a trade based on the specified trade date.
+   * <p>
+   * The notional is unsigned, with buy/sell determining the direction of the trade.
+   * If buying the swap, the floating rate is received from the counterparty, with the fixed rate being paid.
+   * If selling the swap, the floating rate is paid to the counterparty, with the fixed rate being received.
+   * 
+   * @param tradeDate  the date of the trade
+   * @param buySell  the buy/sell flag
+   * @param notional  the notional amount, in the payment currency of the template
+   * @param fixedRate  the fixed rate, typically derived from the market
+   * @param refData  the reference data, used to resolve the trade dates
+   * @return the trade
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   */
+  public abstract SwapTrade createTrade(
+      LocalDate tradeDate,
+      BuySell buySell,
+      double notional,
+      double fixedRate,
+      ReferenceData refData);
 
 }

@@ -45,6 +45,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.swap.type.FixedFloatSwapConvention;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
@@ -417,7 +418,7 @@ public final class SabrSwaptionCalibrator {
       SurfaceInterpolator interpolator) {
 
     int nbTenors = tenors.size();
-    FixedIborSwapConvention convention = sabr.getConvention();
+    FixedFloatSwapConvention convention = sabr.getConvention();
     DayCount dayCount = sabr.getDayCount();
     BusinessDayAdjustment bda = convention.getFloatingLeg().getStartDateBusinessDayAdjustment();
     LocalDate calibrationDate = sabr.getValuationDate();
