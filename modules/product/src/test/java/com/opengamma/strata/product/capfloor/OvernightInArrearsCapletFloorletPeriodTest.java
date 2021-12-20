@@ -24,9 +24,9 @@ import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.rate.OvernightCompoundedRateComputation;
 
 /**
- * Test {@link OvernightInarrearsCapletFloorletPeriod}.
+ * Test {@link OvernightInArrearsCapletFloorletPeriod}.
  */
-public class OvernightInarrearsCapletFloorletPeriodTest {
+public class OvernightInArrearsCapletFloorletPeriodTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double STRIKE = 0.04;
@@ -38,11 +38,11 @@ public class OvernightInarrearsCapletFloorletPeriodTest {
   private static final double NOTIONAL = 1.e6;
   private static final OvernightCompoundedRateComputation RATE_COMP =
       OvernightCompoundedRateComputation.of(GBP_SONIA, START, END, REF_DATA);
-  private static final double YEAR_FRACTION = 0.251d;
+  private static final double YEAR_FRACTION = 0.251d; 
 
   @Test
   public void test_builder_min() {
-    OvernightInarrearsCapletFloorletPeriod test = OvernightInarrearsCapletFloorletPeriod.builder()
+    OvernightInArrearsCapletFloorletPeriod test = OvernightInArrearsCapletFloorletPeriod.builder()
         .notional(NOTIONAL)
         .startDate(START)
         .endDate(END)
@@ -68,7 +68,7 @@ public class OvernightInarrearsCapletFloorletPeriodTest {
 
   @Test
   public void test_builder_full() {
-    OvernightInarrearsCapletFloorletPeriod test = OvernightInarrearsCapletFloorletPeriod.builder()
+    OvernightInArrearsCapletFloorletPeriod test = OvernightInArrearsCapletFloorletPeriod.builder()
         .notional(NOTIONAL)
         .startDate(START)
         .endDate(END)
@@ -100,19 +100,19 @@ public class OvernightInarrearsCapletFloorletPeriodTest {
   public void test_builder_fail() {
     // rate observation missing
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> OvernightInarrearsCapletFloorletPeriod.builder()
+        .isThrownBy(() -> OvernightInArrearsCapletFloorletPeriod.builder()
             .notional(NOTIONAL)
             .caplet(STRIKE)
             .build());
     // cap and floor missing
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> OvernightInarrearsCapletFloorletPeriod.builder()
+        .isThrownBy(() -> OvernightInArrearsCapletFloorletPeriod.builder()
             .notional(NOTIONAL)
             .overnightRate(RATE_COMP)
             .build());
     // cap and floor present
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> OvernightInarrearsCapletFloorletPeriod.builder()
+        .isThrownBy(() -> OvernightInArrearsCapletFloorletPeriod.builder()
             .notional(NOTIONAL)
             .caplet(STRIKE)
             .floorlet(STRIKE)
@@ -123,7 +123,7 @@ public class OvernightInarrearsCapletFloorletPeriodTest {
   //-------------------------------------------------------------------------
   @Test
   public void coverage() {
-    OvernightInarrearsCapletFloorletPeriod test = OvernightInarrearsCapletFloorletPeriod.builder()
+    OvernightInArrearsCapletFloorletPeriod test = OvernightInArrearsCapletFloorletPeriod.builder()
         .notional(NOTIONAL)
         .startDate(START)
         .endDate(END)
@@ -132,7 +132,7 @@ public class OvernightInarrearsCapletFloorletPeriodTest {
         .overnightRate(RATE_COMP)
         .build();
     coverImmutableBean(test);
-    OvernightInarrearsCapletFloorletPeriod test2 = OvernightInarrearsCapletFloorletPeriod.builder()
+    OvernightInArrearsCapletFloorletPeriod test2 = OvernightInArrearsCapletFloorletPeriod.builder()
         .notional(2 * NOTIONAL)
         .startDate(START.plusDays(1))
         .endDate(END.plusDays(1))
@@ -145,7 +145,7 @@ public class OvernightInarrearsCapletFloorletPeriodTest {
 
   @Test
   public void test_serialization() {
-    OvernightInarrearsCapletFloorletPeriod test = OvernightInarrearsCapletFloorletPeriod.builder()
+    OvernightInArrearsCapletFloorletPeriod test = OvernightInArrearsCapletFloorletPeriod.builder()
         .notional(NOTIONAL)
         .startDate(START)
         .endDate(END)
