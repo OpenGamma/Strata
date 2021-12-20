@@ -335,18 +335,26 @@ public class IborIndexTest {
 
   @Test
   public void test_usdTermSofr() {
-    assertThat(IborIndex.of("USD-TERMSOFR-1M").getName()).isEqualTo("USD-TERMSOFR-1M");
-    assertThat(IborIndex.of("USD-TERMSOFR-3M").getName()).isEqualTo("USD-TERMSOFR-3M");
-    assertThat(IborIndex.of("USD-TERMSOFR-6M").getName()).isEqualTo("USD-TERMSOFR-6M");
-    assertThat(IborIndex.of("USD-TERMSOFR-12M").getName()).isEqualTo("USD-TERMSOFR-12M");
+    assertThat(IborIndex.of("USD-SOFRCMETERM-1M").getName()).isEqualTo("USD-SOFRCMETERM-1M");
+    assertThat(IborIndex.of("USD-SOFRCMETERM-3M").getName()).isEqualTo("USD-SOFRCMETERM-3M");
+    assertThat(IborIndex.of("USD-SOFRCMETERM-6M").getName()).isEqualTo("USD-SOFRCMETERM-6M");
+    assertThat(IborIndex.of("USD-SOFRCMETERM-12M").getName()).isEqualTo("USD-SOFRCMETERM-12M");
   }
 
   @Test
-  public void test_gbpTermSonia() {
-    assertThat(IborIndex.of("GBP-TERMSONIA-1M").getName()).isEqualTo("GBP-TERMSONIA-1M");
-    assertThat(IborIndex.of("GBP-TERMSONIA-3M").getName()).isEqualTo("GBP-TERMSONIA-3M");
-    assertThat(IborIndex.of("GBP-TERMSONIA-6M").getName()).isEqualTo("GBP-TERMSONIA-6M");
-    assertThat(IborIndex.of("GBP-TERMSONIA-12M").getName()).isEqualTo("GBP-TERMSONIA-12M");
+  public void test_gbpSoniaIceTerm() {
+    assertThat(IborIndex.of("GBP-SONIAICETERM-1M").getName()).isEqualTo("GBP-SONIAICETERM-1M");
+    assertThat(IborIndex.of("GBP-SONIAICETERM-3M").getName()).isEqualTo("GBP-SONIAICETERM-3M");
+    assertThat(IborIndex.of("GBP-SONIAICETERM-6M").getName()).isEqualTo("GBP-SONIAICETERM-6M");
+    assertThat(IborIndex.of("GBP-SONIAICETERM-12M").getName()).isEqualTo("GBP-SONIAICETERM-12M");
+  }
+
+  @Test
+  public void test_gbpSoniaRefinitivTerm() {
+    assertThat(IborIndex.of("GBP-SONIAREFINITIVTERM-1M").getName()).isEqualTo("GBP-SONIAREFINITIVTERM-1M");
+    assertThat(IborIndex.of("GBP-SONIAREFINITIVTERM-3M").getName()).isEqualTo("GBP-SONIAREFINITIVTERM-3M");
+    assertThat(IborIndex.of("GBP-SONIAREFINITIVTERM-6M").getName()).isEqualTo("GBP-SONIAREFINITIVTERM-6M");
+    assertThat(IborIndex.of("GBP-SONIAREFINITIVTERM-12M").getName()).isEqualTo("GBP-SONIAREFINITIVTERM-12M");
   }
 
   @Test
