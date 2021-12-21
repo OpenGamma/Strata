@@ -27,9 +27,11 @@ import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.index.PriceIndices;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedFloatSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedFloatSwapTemplate;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
+import com.opengamma.strata.product.swap.type.FixedOvernightSwapConventions;
 
 /**
  * Test {@link SwapIndex}.
@@ -39,6 +41,7 @@ public class SwapIndexTest {
   private static ZoneId LONDON = ZoneId.of("Europe/London");
   private static ZoneId NEY_YORK = ZoneId.of("America/New_York");
   private static ZoneId FRANKFURT = ZoneId.of("Europe/Berlin");  // Frankfurt not defined in TZDB
+  private static ZoneId TOKYO = ZoneId.of("Asia/Tokyo");
 
   @Test
   public void test_notFound() {
@@ -63,8 +66,8 @@ public class SwapIndexTest {
       SwapIndex index = mapAll.get(name);
       assertThat(SwapIndex.of(name)).isEqualTo(index);
       assertThat(index.isActive()).isTrue();
-      FixedIborSwapTemplate temp = index.getTemplate();
-      FixedIborSwapConvention conv = temp.getConvention();
+      FixedFloatSwapTemplate temp = index.getTemplate();
+      FixedFloatSwapConvention conv = temp.getConvention();
       Tenor tenor = temp.getTenor();
       LocalTime time = index.getFixingTime();
       ZoneId zone = index.getFixingZone();
@@ -72,15 +75,23 @@ public class SwapIndexTest {
       assertThat(name.contains(tenor.toString())).isTrue();
       if (name.startsWith("USD")) {
         assertThat(name.contains("1100") || name.contains("1500")).isTrue();
-        assertThat(conv.equals(FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M)).isTrue();
+        if (name.contains("LIBOR")) {
+          assertThat(conv.equals(FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M)).isTrue();
+        } else {
+          assertThat(conv.equals(FixedOvernightSwapConventions.USD_FIXED_1Y_SOFR_OIS)).isTrue();
+        }
         assertThat(zone.equals(NEY_YORK)).isTrue();
       }
       if (name.startsWith("GBP")) {
         assertThat(name.contains("1100")).isTrue();
-        if (tenor.equals(Tenor.TENOR_1Y)) {
-          assertThat(conv.equals(FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M)).isTrue();
+        if (name.contains("LIBOR")) {
+          if (tenor.equals(Tenor.TENOR_1Y)) {
+            assertThat(conv.equals(FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M)).isTrue();
+          } else {
+            assertThat(conv.equals(FixedIborSwapConventions.GBP_FIXED_6M_LIBOR_6M)).isTrue();
+          }
         } else {
-          assertThat(conv.equals(FixedIborSwapConventions.GBP_FIXED_6M_LIBOR_6M)).isTrue();
+          assertThat(conv.equals(FixedOvernightSwapConventions.GBP_FIXED_1Y_SONIA_OIS)).isTrue();
         }
         assertThat(zone.equals(LONDON)).isTrue();
       }
@@ -93,6 +104,14 @@ public class SwapIndexTest {
         }
         assertThat(zone.equals(FRANKFURT)).isTrue();
       }
+      if (name.startsWith("JPY")) {
+        assertThat(name.contains("1030") || name.contains("1530")).isTrue();
+        assertThat(conv.equals(FixedOvernightSwapConventions.JPY_FIXED_1Y_TONAR_OIS)).isTrue();
+        assertThat(zone.equals(TOKYO)).isTrue();
+      }
+      if (name.contains("1030")) {
+        assertThat(time.equals(LocalTime.of(10, 30))).isTrue();
+      }
       if (name.contains("1100")) {
         assertThat(time.equals(LocalTime.of(11, 0))).isTrue();
       }
@@ -102,7 +121,11 @@ public class SwapIndexTest {
       if (name.contains("1500")) {
         assertThat(time.equals(LocalTime.of(15, 0))).isTrue();
       }
-      assertThat(index.calculateFixingDateTime(date(2015, 6, 30))).isEqualTo(date(2015, 6, 30).atTime(time).atZone(zone));
+      if (name.contains("1530")) {
+        assertThat(time.equals(LocalTime.of(15, 30))).isTrue();
+      }
+      assertThat(index.calculateFixingDateTime(date(2015, 6, 30)))
+          .isEqualTo(date(2015, 6, 30).atTime(time).atZone(zone));
     }
   }
 
@@ -116,6 +139,8 @@ public class SwapIndexTest {
 
         {SwapIndices.EUR_EURIBOR_1100_12Y, "EUR-EURIBOR-1100-12Y"},
         {SwapIndices.GBP_LIBOR_1100_2Y, "GBP-LIBOR-1100-2Y"},
+        {SwapIndices.GBP_SONIA_1100_10Y, "GBP-SONIA-1100-10Y"},
+        {SwapIndices.USD_SOFR_1100_15Y, "USD-SOFR-1100-15Y"}
     };
   }
 
