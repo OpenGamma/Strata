@@ -34,7 +34,7 @@ import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
@@ -257,7 +257,7 @@ public final class CmsLeg
    * 
    * @return the index
    */
-  public IborIndex getUnderlyingIndex() {
+  public RateIndex getUnderlyingIndex() {
     return index.getTemplate().getConvention().getFloatingLeg().getIndex();
   }
 

@@ -17,13 +17,13 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
-import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
+import com.opengamma.strata.product.swap.type.FixedFloatSwapTemplate;
 
 /**
  * A swap index.
  * <p>
- * Swap rates for CHF, EUR, GBP, JPY and USD are established by ISDA in co-operation with
- * Reuters (now Thomson Reuters) and Intercapital Brokers (now ICAP plc). 
+ * Swap rates for different currencies are published by several providers. The indices
+ * can be related to IBOR-linked swaps or Overnight-linked swaps.
  * Ref: https://quant.opengamma.io/Interest-Rate-Instruments-and-Market-Conventions.pdf
  * <p>
  * The most common implementations are provided in {@link SwapIndices}.
@@ -88,11 +88,11 @@ public interface SwapIndex
   public abstract ZoneId getFixingZone();
 
   /**
-   * Gets the template for creating Fixed-Ibor swap.
+   * Gets the template for creating Fixed-Float swap.
    * 
    * @return the template
    */
-  public abstract FixedIborSwapTemplate getTemplate();
+  public abstract FixedFloatSwapTemplate getTemplate();
 
   //-------------------------------------------------------------------------
   /**
