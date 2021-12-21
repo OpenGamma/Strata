@@ -6,6 +6,7 @@
 package com.opengamma.strata.product.swap.type;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.RateIndex;
@@ -43,5 +44,19 @@ public interface FloatRateSwapLegConvention
    * @return the payment day offset
    */
   public abstract DaysAdjustment getPaymentDateOffset();
+
+  /**
+   * Gets the business day adjustment to apply to the start date.
+   * 
+   * @return the start date business day adjustment, not null
+   */
+  public abstract BusinessDayAdjustment getStartDateBusinessDayAdjustment();
+
+  /**
+   * Gets the business day adjustment to apply to the end date.
+   * 
+   * @return the end date business day adjustment, not null
+   */
+  public abstract BusinessDayAdjustment getEndDateBusinessDayAdjustment();
 
 }
