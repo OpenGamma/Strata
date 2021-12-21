@@ -38,7 +38,7 @@ public interface FixedFloatSwapTemplate
    * @return the tenor
    */
   public abstract Tenor getTenor();
-  
+
   /**
    * Creates a trade based on this template.
    * <p>
