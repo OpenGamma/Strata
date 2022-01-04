@@ -89,7 +89,6 @@ public class BlackFxVanillaOptionTradePricerTest {
   private static final BlackFxVanillaOptionTradePricer PRICER_TRADE = BlackFxVanillaOptionTradePricer.DEFAULT;
   private static final DiscountingPaymentPricer PRICER_PAYMENT = DiscountingPaymentPricer.DEFAULT;
   private static final double TOL = 1.0e-13;
-  private static final double PERCENTAGE_TOL = 1.0e-4;
 
   @Test
   public void test_presentValue() {
