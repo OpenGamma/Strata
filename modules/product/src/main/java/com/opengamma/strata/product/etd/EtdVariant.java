@@ -84,6 +84,19 @@ public final class EtdVariant
   }
 
   /**
+   * The monthly ETD with specific settlement type.
+   *
+   * @param settlementType the settlement type
+   * @return the variant
+   */
+  public static EtdVariant ofMonthly(EtdSettlementType settlementType) {
+    if (EtdSettlementType.CASH.equals(settlementType)) {
+      return MONTHLY;
+    }
+    return new EtdVariant(EtdExpiryType.MONTHLY, null, settlementType, null);
+  }
+
+  /**
    * The standard weekly ETD.
    * 
    * @param week  the week number
@@ -127,15 +140,6 @@ public final class EtdVariant
   }
 
   /**
-   * The physically settled option.
-   *
-   * @return the variant
-   */
-  public static EtdVariant ofPhysicallySettledOption() {
-    return new EtdVariant(EtdExpiryType.MONTHLY, null, EtdSettlementType.PHYSICAL, null);
-  }
-
-  /**
    * Parses the variant code.
    * 
    * @param code the variant code
@@ -145,6 +149,8 @@ public final class EtdVariant
     switch (code.length()) {
       case 0:
         return MONTHLY;
+      case 1:
+        return ofMonthly(EtdSettlementType.parseCode(code));
       case 2: {
         if (code.charAt(0) == 'W') {
           return ofWeekly(Integer.parseInt(code.substring(1)));
@@ -188,10 +194,10 @@ public final class EtdVariant
     if (type == EtdExpiryType.MONTHLY) {
       ArgChecker.isTrue(dateCode == null, "Monthly variant must have no dateCode");
       ArgChecker.isTrue(
-          settlementType == null || settlementType == EtdSettlementType.PHYSICAL,
-          "Monthly variant only supports physical settlement");
+          settlementType == null || settlementType != EtdSettlementType.CASH,
+          "Monthly variant cannot have explicit cash settlement");
       ArgChecker.isTrue(optionType == null, "Monthly variant must have no optionType");
-      this.code = "";
+      this.code = settlementType != null ? settlementType.getCode() : "";
     } else if (type == EtdExpiryType.WEEKLY) {
       ArgChecker.notNull(dateCode, "dateCode");
       ArgChecker.isTrue(dateCode >= 1 && dateCode <= 5, "Week must be from 1 to 5");
@@ -222,7 +228,7 @@ public final class EtdVariant
    * @return true if this is a Flex Future or Flex Option
    */
   public boolean isFlex() {
-    return settlementType != null;
+    return type == EtdExpiryType.DAILY && settlementType != null;
   }
 
   /**
