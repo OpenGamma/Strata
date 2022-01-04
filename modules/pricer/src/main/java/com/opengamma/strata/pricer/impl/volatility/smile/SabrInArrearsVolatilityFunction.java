@@ -68,23 +68,23 @@ public final class SabrInArrearsVolatilityFunction
     double rho = parameters.getRho();
     double nu = parameters.getNu();
     double tau = 2 * q * tau0 + tau1;
-    double tau_2 = tau * tau;
-    double tau_3 = tau_2 * tau;
-    double tau0_2 = tau0 * tau0;
-    double tau0_3 = tau0_2 * tau0;
-    double tau1_2 = tau1 * tau1;
-    double tau1_3 = tau1_2 * tau1;
+    double tauP2 = tau * tau;
+    double tauP3 = tauP2 * tau;
+    double tau0P2 = tau0 * tau0;
+    double tau0P3 = tau0P2 * tau0;
+    double tau1P2 = tau1 * tau1;
+    double tau1P3 = tau1P2 * tau1;
     double gamma1 =
-        tau * (2 * tau_3 + tau1_3 + q * (4 * q - 2) * tau0_3 + 6 * q * tau0_2 * tau1) / ((4 * q + 3) * (2 * q + 1));
+        tau * (2 * tauP3 + tau1P3 + q * (4 * q - 2) * tau0P3 + 6 * q * tau0P2 * tau1) / ((4 * q + 3) * (2 * q + 1));
     double gamma2 = 3 * q * rho * rho * (tau1 - tau0) * (tau1 - tau0) *
-        (3 * tau_2 - tau1_2 + 5 * q * tau0_2 + 4 * tau0 * tau1) / ((4 * q + 3) * (3 * q + 2) * (3 * q + 2));
+        (3 * tauP2 - tau1P2 + 5 * q * tau0P2 + 4 * tau0 * tau1) / ((4 * q + 3) * (3 * q + 2) * (3 * q + 2));
     double gamma = gamma1 + gamma2;
-    double rhoHat = rho * (3 * tau_2 + 2 * q * tau0_2 + tau1_2) / (Math.sqrt(gamma) * (6 * q + 4));
-    double nuHat_2 = nu * nu * gamma * (2 * q + 1) / (tau_3 * tau1);
-    double nuHat = Math.sqrt(nuHat_2);
-    double h = nu * nu * (tau_2 + 2 * q * tau0_2 + tau1_2) / (2 * tau1 * tau * (q + 1)) - nuHat_2;
-    double alphaHat_2 = alpha * alpha / (2 * q + 1) * tau / tau1 * Math.exp(0.5 * h * tau1);
-    double alphaHat = Math.sqrt(alphaHat_2);
+    double rhoHat = rho * (3 * tauP2 + 2 * q * tau0P2 + tau1P2) / (Math.sqrt(gamma) * (6 * q + 4));
+    double nuHatP2 = nu * nu * gamma * (2 * q + 1) / (tauP3 * tau1);
+    double nuHat = Math.sqrt(nuHatP2);
+    double h = nu * nu * (tauP2 + 2 * q * tau0P2 + tau1P2) / (2 * tau1 * tau * (q + 1)) - nuHatP2;
+    double alphaHatP2 = alpha * alpha / (2 * q + 1) * tau / tau1 * Math.exp(0.5 * h * tau1);
+    double alphaHat = Math.sqrt(alphaHatP2);
     return SabrFormulaData.of(alphaHat, beta, rhoHat, nuHat);
   }
 
@@ -132,7 +132,7 @@ public final class SabrInArrearsVolatilityFunction
    * The effective SABR parameters and their derivatives from the raw SABR parameters and the times. 
    * Formula in the case tau0 <= 0;
    * <p>
-   * The results are provided as a list of ValueDerivatives corresppnding to alpha, beta, rho and nu and 
+   * The results are provided as a list of ValueDerivatives corresponding to alpha, beta, rho and nu and 
    * with each derivatives part containing the derivatives with respect to alpha, beta, rho, nu, tau0 and tau1.
    * 
    * @param parameters  the raw SABR parameters
@@ -172,14 +172,14 @@ public final class SabrInArrearsVolatilityFunction
     results.add(ValueDerivatives // alpha and derivatives
         .of(alphaHat, DoubleArray.of(alphaBarAlpha, 0, rhoBarAlpha, nuBarAlpha, tau0BarAlpha, tau1BarAlpha)));
     // beta
-    results.add(ValueDerivatives // alpha and derivatives
+    results.add(ValueDerivatives // beta and derivatives
         .of(beta, DoubleArray.of(0, 1.0d, 0, 0, 0, 0)));
     // rho
     double rhoHatBarRho = 1.0;
     double rhoBarRho = rhoHat / rho * rhoHatBarRho;
     double zetaBarRho = -0.5 * rhoHat / zeta * rhoHatBarRho;
     rhoBarRho += 3.0d / (4 * q + 3) * rho * 4 * q / ((3 * q + 2) * (3 * q + 2)) * zetaBarRho;
-    results.add(ValueDerivatives // alpha and derivatives
+    results.add(ValueDerivatives // rho and derivatives
         .of(rhoHat, DoubleArray.of(0, 0, rhoBarRho, 0, 0, 0)));
     // nu
     double nuHatBarNu = 1.0;
@@ -187,7 +187,7 @@ public final class SabrInArrearsVolatilityFunction
     double nuBarNu = 2 * nuHat2 / nu * nuHat2BarNu;
     double zetaBarNu = nuHat2 / zeta * nuHat2BarNu;
     double rhoBarNu = 3.0d / (4 * q + 3) * rho * 4 * q / ((3 * q + 2) * (3 * q + 2)) * zetaBarNu;
-    results.add(ValueDerivatives // alpha and derivatives
+    results.add(ValueDerivatives // nu and derivatives
         .of(nuHat, DoubleArray.of(0, 0, rhoBarNu, nuBarNu, 0, 0)));
     return results;
   }
@@ -210,21 +210,21 @@ public final class SabrInArrearsVolatilityFunction
     double rho = parameters.getRho();
     double nu = parameters.getNu();
     double tau = 2 * q * tau0 + tau1;
-    double tau_2 = tau * tau;
-    double tau_3 = tau_2 * tau;
-    double tau0_2 = tau0 * tau0;
-    double tau0_3 = tau0_2 * tau0;
-    double tau1_2 = tau1 * tau1;
-    double tau1_3 = tau1_2 * tau1;
+    double tauP2 = tau * tau;
+    double tauP3 = tauP2 * tau;
+    double tau0P2 = tau0 * tau0;
+    double tau0P3 = tau0P2 * tau0;
+    double tau1P2 = tau1 * tau1;
+    double tau1P3 = tau1P2 * tau1;
     double gamma1 =
-        tau * (2 * tau_3 + tau1_3 + q * (4 * q - 2) * tau0_3 + 6 * q * tau0_2 * tau1) / ((4 * q + 3) * (2 * q + 1));
+        tau * (2 * tauP3 + tau1P3 + q * (4 * q - 2) * tau0P3 + 6 * q * tau0P2 * tau1) / ((4 * q + 3) * (2 * q + 1));
     double gamma2 = 3 * q * rho * rho * (tau1 - tau0) * (tau1 - tau0) *
-        (3 * tau_2 - tau1_2 + 5 * q * tau0_2 + 4 * tau0 * tau1) / ((4 * q + 3) * (3 * q + 2) * (3 * q + 2));
+        (3 * tauP2 - tau1P2 + 5 * q * tau0P2 + 4 * tau0 * tau1) / ((4 * q + 3) * (3 * q + 2) * (3 * q + 2));
     double gamma = gamma1 + gamma2;
-    double rhoHat = rho * (3 * tau_2 + 2 * q * tau0_2 + tau1_2) / (Math.sqrt(gamma) * (6 * q + 4));
-    double nuHat_2 = nu * nu * gamma * (2 * q + 1) / (tau_3 * tau1);
-    double nuHat = Math.sqrt(nuHat_2);
-    double h = nu * nu * (tau_2 + 2 * q * tau0_2 + tau1_2) / (2 * tau1 * tau * (q + 1)) - nuHat_2;
+    double rhoHat = rho * (3 * tauP2 + 2 * q * tau0P2 + tau1P2) / (Math.sqrt(gamma) * (6 * q + 4));
+    double nuHatP2 = nu * nu * gamma * (2 * q + 1) / (tauP3 * tau1);
+    double nuHat = Math.sqrt(nuHatP2);
+    double h = nu * nu * (tauP2 + 2 * q * tau0P2 + tau1P2) / (2 * tau1 * tau * (q + 1)) - nuHatP2;
     double alphaHat2 = alpha * alpha / (2 * q + 1) * tau / tau1 * Math.exp(0.5 * h * tau1);
     double alphaHat = Math.sqrt(alphaHat2);
     /* Backward sweep */
@@ -237,120 +237,120 @@ public final class SabrInArrearsVolatilityFunction
     double tau1BarAlpha = -alphaHat2 / tau1 * alphaHat2BarAlpha;
     tau1BarAlpha += alphaHat2 * 0.5 * h * alphaHat2BarAlpha; // OK
     double hBarAlpha = alphaHat2 * 0.5 * tau1 * alphaHat2BarAlpha;
-    double nuBarAlpha = 2 * (h + nuHat_2) / nu * hBarAlpha;
-    double tau_2BarAlpha = nu * nu / (2 * tau1 * tau * (q + 1)) * hBarAlpha;
-    double tau0_2BarAlpha = nu * nu * 2 * q / (2 * tau1 * tau * (q + 1)) * hBarAlpha;
-    double tau1_2BarAlpha = nu * nu / (2 * tau1 * tau * (q + 1)) * hBarAlpha;
-    tau1BarAlpha += -(h + nuHat_2) / tau1 * hBarAlpha; // OK
-    tauBarAlpha += -(h + nuHat_2) / tau * hBarAlpha;
+    double nuBarAlpha = 2 * (h + nuHatP2) / nu * hBarAlpha;
+    double tauP2BarAlpha = nu * nu / (2 * tau1 * tau * (q + 1)) * hBarAlpha;
+    double tau0P2BarAlpha = nu * nu * 2 * q / (2 * tau1 * tau * (q + 1)) * hBarAlpha;
+    double tau1P2BarAlpha = nu * nu / (2 * tau1 * tau * (q + 1)) * hBarAlpha;
+    tau1BarAlpha += -(h + nuHatP2) / tau1 * hBarAlpha; // OK
+    tauBarAlpha += -(h + nuHatP2) / tau * hBarAlpha;
     double nuHat2BarAlpha = -hBarAlpha;
-    nuBarAlpha += 2 * nuHat_2 / nu * nuHat2BarAlpha;
-    double gammaBarAlpha = nuHat_2 / gamma * nuHat2BarAlpha;
-    double tau_3BarAlpha = -nuHat_2 / tau_3 * nuHat2BarAlpha;
-    tau1BarAlpha += -nuHat_2 / tau1 * nuHat2BarAlpha; // OK
+    nuBarAlpha += 2 * nuHatP2 / nu * nuHat2BarAlpha;
+    double gammaBarAlpha = nuHatP2 / gamma * nuHat2BarAlpha;
+    double tauP3BarAlpha = -nuHatP2 / tauP3 * nuHat2BarAlpha;
+    tau1BarAlpha += -nuHatP2 / tau1 * nuHat2BarAlpha; // OK
     double gamma1BarAlpha = gammaBarAlpha;
     double gamma2BarAlpha = gammaBarAlpha;
     double rhoBarAlpha = 2 * gamma2 / rho * gamma2BarAlpha;
     tau1BarAlpha += 2 * gamma2 / (tau1 - tau0) * gamma2BarAlpha;
-    tau1BarAlpha += gamma2 / (3 * tau_2 - tau1_2 + 5 * q * tau0_2 + 4 * tau0 * tau1) * 4 * tau0 * gamma2BarAlpha; // OK
+    tau1BarAlpha += gamma2 / (3 * tauP2 - tau1P2 + 5 * q * tau0P2 + 4 * tau0 * tau1) * 4 * tau0 * gamma2BarAlpha;
     double tau0BarAlpha = -2 * gamma2 / (tau1 - tau0) * gamma2BarAlpha;
-    tau_2BarAlpha += gamma2 / (3 * tau_2 - tau1_2 + 5 * q * tau0_2 + 4 * tau0 * tau1) * 3 * gamma2BarAlpha;
-    tau1_2BarAlpha += -gamma2 / (3 * tau_2 - tau1_2 + 5 * q * tau0_2 + 4 * tau0 * tau1) * gamma2BarAlpha;
-    tau0_2BarAlpha += gamma2 / (3 * tau_2 - tau1_2 + 5 * q * tau0_2 + 4 * tau0 * tau1) * 5 * q * gamma2BarAlpha;
-    tau0BarAlpha += gamma2 / (3 * tau_2 - tau1_2 + 5 * q * tau0_2 + 4 * tau0 * tau1) * 4 * tau1 * gamma2BarAlpha;
+    tauP2BarAlpha += gamma2 / (3 * tauP2 - tau1P2 + 5 * q * tau0P2 + 4 * tau0 * tau1) * 3 * gamma2BarAlpha;
+    tau1P2BarAlpha += -gamma2 / (3 * tauP2 - tau1P2 + 5 * q * tau0P2 + 4 * tau0 * tau1) * gamma2BarAlpha;
+    tau0P2BarAlpha += gamma2 / (3 * tauP2 - tau1P2 + 5 * q * tau0P2 + 4 * tau0 * tau1) * 5 * q * gamma2BarAlpha;
+    tau0BarAlpha += gamma2 / (3 * tauP2 - tau1P2 + 5 * q * tau0P2 + 4 * tau0 * tau1) * 4 * tau1 * gamma2BarAlpha;
     tauBarAlpha += gamma1 / tau * gamma1BarAlpha;
-    tau_3BarAlpha += tau * 2 / ((4 * q + 3) * (2 * q + 1)) * gamma1BarAlpha;
-    double tau1_3BarAlpha = tau / ((4 * q + 3) * (2 * q + 1)) * gamma1BarAlpha; // OK
-    double tau0_3BarAlpha = tau * q * (4 * q - 2) / ((4 * q + 3) * (2 * q + 1)) * gamma1BarAlpha;
-    tau0_2BarAlpha += tau * 6 * q * tau1 / ((4 * q + 3) * (2 * q + 1)) * gamma1BarAlpha;
-    tau1BarAlpha += tau * 6 * q * tau0_2 / ((4 * q + 3) * (2 * q + 1)) * gamma1BarAlpha; // OK
-    tau1_2BarAlpha += tau1 * tau1_3BarAlpha; // OK
-    tau1BarAlpha += tau1_2 * tau1_3BarAlpha;
-    tau1BarAlpha += 2 * tau1 * tau1_2BarAlpha;
-    tau0_2BarAlpha += tau0 * tau0_3BarAlpha;
-    tau0BarAlpha += tau0_2 * tau0_3BarAlpha;
-    tau0BarAlpha += 2 * tau0 * tau0_2BarAlpha;
-    tau_2BarAlpha += tau * tau_3BarAlpha;
-    tauBarAlpha += tau_2 * tau_3BarAlpha;
-    tauBarAlpha += 2 * tau * tau_2BarAlpha;
+    tauP3BarAlpha += tau * 2 / ((4 * q + 3) * (2 * q + 1)) * gamma1BarAlpha;
+    double tau1P3BarAlpha = tau / ((4 * q + 3) * (2 * q + 1)) * gamma1BarAlpha;
+    double tau0P3BarAlpha = tau * q * (4 * q - 2) / ((4 * q + 3) * (2 * q + 1)) * gamma1BarAlpha;
+    tau0P2BarAlpha += tau * 6 * q * tau1 / ((4 * q + 3) * (2 * q + 1)) * gamma1BarAlpha;
+    tau1BarAlpha += tau * 6 * q * tau0P2 / ((4 * q + 3) * (2 * q + 1)) * gamma1BarAlpha;
+    tau1P2BarAlpha += tau1 * tau1P3BarAlpha;
+    tau1BarAlpha += tau1P2 * tau1P3BarAlpha;
+    tau1BarAlpha += 2 * tau1 * tau1P2BarAlpha;
+    tau0P2BarAlpha += tau0 * tau0P3BarAlpha;
+    tau0BarAlpha += tau0P2 * tau0P3BarAlpha;
+    tau0BarAlpha += 2 * tau0 * tau0P2BarAlpha;
+    tauP2BarAlpha += tau * tauP3BarAlpha;
+    tauBarAlpha += tauP2 * tauP3BarAlpha;
+    tauBarAlpha += 2 * tau * tauP2BarAlpha;
     tau0BarAlpha += 2 * q * tauBarAlpha;
     tau1BarAlpha += tauBarAlpha;
     results.add(ValueDerivatives // alpha and derivatives
         .of(alphaHat, DoubleArray.of(alphaBarAlpha, 0, rhoBarAlpha, nuBarAlpha, tau0BarAlpha, tau1BarAlpha)));
     // beta
-    results.add(ValueDerivatives // alpha and derivatives
+    results.add(ValueDerivatives // beta and derivatives
         .of(beta, DoubleArray.of(0, 1.0d, 0, 0, 0, 0)));
     // rho
     double rhoHatBarRho = 1.0;
     double rhoBarRho = rhoHat / rho * rhoHatBarRho;
     double tau2BarRho = rho * 3 / (Math.sqrt(gamma) * (6 * q + 4)) * rhoHatBarRho;
-    double tau0_2BarRho = rho * 2 * q / (Math.sqrt(gamma) * (6 * q + 4)) * rhoHatBarRho;
-    double tau1_2BarRho = rho / (Math.sqrt(gamma) * (6 * q + 4)) * rhoHatBarRho;
+    double tau0P2BarRho = rho * 2 * q / (Math.sqrt(gamma) * (6 * q + 4)) * rhoHatBarRho;
+    double tau1P2BarRho = rho / (Math.sqrt(gamma) * (6 * q + 4)) * rhoHatBarRho;
     double gammaBarRho = -0.5 * rhoHat / gamma * rhoHatBarRho;
     double gamma1BarRho = gammaBarRho;
     double gamma2BarRho = gammaBarRho;
     rhoBarRho += 2 * gamma2 / rho * gamma2BarRho;
     double tau1BarRho = 2 * gamma2 / (tau1 - tau0) * gamma2BarRho;
-    tau1BarRho += gamma2 / (3 * tau_2 - tau1_2 + 5 * q * tau0_2 + 4 * tau0 * tau1) * 4 * tau0 * gamma2BarRho;
+    tau1BarRho += gamma2 / (3 * tauP2 - tau1P2 + 5 * q * tau0P2 + 4 * tau0 * tau1) * 4 * tau0 * gamma2BarRho;
     double tau0BarRho = -2 * gamma2 / (tau1 - tau0) * gamma2BarRho;
-    tau2BarRho += gamma2 / (3 * tau_2 - tau1_2 + 5 * q * tau0_2 + 4 * tau0 * tau1) * 3 * gamma2BarRho;
-    tau1_2BarRho += -gamma2 / (3 * tau_2 - tau1_2 + 5 * q * tau0_2 + 4 * tau0 * tau1) * gamma2BarRho;
-    tau0_2BarRho += gamma2 / (3 * tau_2 - tau1_2 + 5 * q * tau0_2 + 4 * tau0 * tau1) * 5 * q * gamma2BarRho;
-    tau0BarRho += gamma2 / (3 * tau_2 - tau1_2 + 5 * q * tau0_2 + 4 * tau0 * tau1) * 4 * tau1 * gamma2BarRho;
+    tau2BarRho += gamma2 / (3 * tauP2 - tau1P2 + 5 * q * tau0P2 + 4 * tau0 * tau1) * 3 * gamma2BarRho;
+    tau1P2BarRho += -gamma2 / (3 * tauP2 - tau1P2 + 5 * q * tau0P2 + 4 * tau0 * tau1) * gamma2BarRho;
+    tau0P2BarRho += gamma2 / (3 * tauP2 - tau1P2 + 5 * q * tau0P2 + 4 * tau0 * tau1) * 5 * q * gamma2BarRho;
+    tau0BarRho += gamma2 / (3 * tauP2 - tau1P2 + 5 * q * tau0P2 + 4 * tau0 * tau1) * 4 * tau1 * gamma2BarRho;
     double tauBarRho = gamma1 / tau * gamma1BarRho;
     double tau3BarRho = tau * 2 / ((4 * q + 3) * (2 * q + 1)) * gamma1BarRho;
     double tau13BarRho = tau / ((4 * q + 3) * (2 * q + 1)) * gamma1BarRho;
     double tau03BarRho = tau * q * (4 * q - 2) / ((4 * q + 3) * (2 * q + 1)) * gamma1BarRho;
-    tau0_2BarRho += tau * 6 * q * tau1 / ((4 * q + 3) * (2 * q + 1)) * gamma1BarRho;
-    tau1BarRho += tau * 6 * q * tau0_2 / ((4 * q + 3) * (2 * q + 1)) * gamma1BarRho;
-    tau1_2BarRho += tau1 * tau13BarRho;
-    tau1BarRho += tau1_2 * tau13BarRho;
-    tau1BarRho += 2 * tau1 * tau1_2BarRho;
-    tau0_2BarRho += tau0 * tau03BarRho;
-    tau0BarRho += tau0_2 * tau03BarRho;
-    tau0BarRho += 2 * tau0 * tau0_2BarRho;
+    tau0P2BarRho += tau * 6 * q * tau1 / ((4 * q + 3) * (2 * q + 1)) * gamma1BarRho;
+    tau1BarRho += tau * 6 * q * tau0P2 / ((4 * q + 3) * (2 * q + 1)) * gamma1BarRho;
+    tau1P2BarRho += tau1 * tau13BarRho;
+    tau1BarRho += tau1P2 * tau13BarRho;
+    tau1BarRho += 2 * tau1 * tau1P2BarRho;
+    tau0P2BarRho += tau0 * tau03BarRho;
+    tau0BarRho += tau0P2 * tau03BarRho;
+    tau0BarRho += 2 * tau0 * tau0P2BarRho;
     tau2BarRho += tau * tau3BarRho;
-    tauBarRho += tau_2 * tau3BarRho;
+    tauBarRho += tauP2 * tau3BarRho;
     tauBarRho += 2 * tau * tau2BarRho;
     tau0BarRho += 2 * q * tauBarRho;
     tau1BarRho += tauBarRho;
-    results.add(ValueDerivatives // alpha and derivatives
+    results.add(ValueDerivatives // rho and derivatives
         .of(rhoHat, DoubleArray.of(0, 0, rhoBarRho, 0, tau0BarRho, tau1BarRho)));
     // nu
     double nuHatBarNu = 1.0;
     double nuHat2BarNu = 0.5 / nuHat * nuHatBarNu;
-    double nuBarNu = 2 * nuHat_2 / nu * nuHat2BarNu;
-    double gammaBarNu = nuHat_2 / gamma * nuHat2BarNu;
-    double tau1BarNu = -nuHat_2 / tau1 * nuHat2BarNu;
-    double tau_3BarNu = -nuHat_2 / tau_3 * nuHat2BarNu;
+    double nuBarNu = 2 * nuHatP2 / nu * nuHat2BarNu;
+    double gammaBarNu = nuHatP2 / gamma * nuHat2BarNu;
+    double tau1BarNu = -nuHatP2 / tau1 * nuHat2BarNu;
+    double tauP3BarNu = -nuHatP2 / tauP3 * nuHat2BarNu;
     double gamma1BarNu = gammaBarNu;
     double gamma2BarNu = gammaBarNu;
     double rhoBarNu = 2 * gamma2 / rho * gamma2BarNu;
     tau1BarNu += 2 * gamma2 / (tau1 - tau0) * gamma2BarNu;
-    tau1BarNu += gamma2 / (3 * tau_2 - tau1_2 + 5 * q * tau0_2 + 4 * tau0 * tau1) * 4 * tau0 * gamma2BarNu;
+    tau1BarNu += gamma2 / (3 * tauP2 - tau1P2 + 5 * q * tau0P2 + 4 * tau0 * tau1) * 4 * tau0 * gamma2BarNu;
     double tau0BarNu = -2 * gamma2 / (tau1 - tau0) * gamma2BarNu;
-    double tau_2BarNu = gamma2 / (3 * tau_2 - tau1_2 + 5 * q * tau0_2 + 4 * tau0 * tau1) * 3 * gamma2BarNu;
-    double tau1_2BarNu = -gamma2 / (3 * tau_2 - tau1_2 + 5 * q * tau0_2 + 4 * tau0 * tau1) * gamma2BarNu;
-    double tau0_2BarNu = gamma2 / (3 * tau_2 - tau1_2 + 5 * q * tau0_2 + 4 * tau0 * tau1) * 5 * q * gamma2BarNu;
-    tau0BarNu += gamma2 / (3 * tau_2 - tau1_2 + 5 * q * tau0_2 + 4 * tau0 * tau1) * 4 * tau1 * gamma2BarNu;
+    double tauP2BarNu = gamma2 / (3 * tauP2 - tau1P2 + 5 * q * tau0P2 + 4 * tau0 * tau1) * 3 * gamma2BarNu;
+    double tau1P2BarNu = -gamma2 / (3 * tauP2 - tau1P2 + 5 * q * tau0P2 + 4 * tau0 * tau1) * gamma2BarNu;
+    double tau0P2BarNu = gamma2 / (3 * tauP2 - tau1P2 + 5 * q * tau0P2 + 4 * tau0 * tau1) * 5 * q * gamma2BarNu;
+    tau0BarNu += gamma2 / (3 * tauP2 - tau1P2 + 5 * q * tau0P2 + 4 * tau0 * tau1) * 4 * tau1 * gamma2BarNu;
     double tauBarNu = gamma1 / tau * gamma1BarNu;
-    tau_3BarNu += tau * 2 / ((4 * q + 3) * (2 * q + 1)) * gamma1BarNu;
-    double tau1_3BarNu = tau / ((4 * q + 3) * (2 * q + 1)) * gamma1BarNu; // OK
-    double tau0_3BarNu = tau * q * (4 * q - 2) / ((4 * q + 3) * (2 * q + 1)) * gamma1BarNu;
-    tau0_2BarNu += tau * 6 * q * tau1 / ((4 * q + 3) * (2 * q + 1)) * gamma1BarNu;
-    tau1BarNu += tau * 6 * q * tau0_2 / ((4 * q + 3) * (2 * q + 1)) * gamma1BarNu; // OK
-    tau1_2BarNu += tau1 * tau1_3BarNu;
-    tau1BarNu += tau1_2 * tau1_3BarNu;
-    tau1BarNu += 2 * tau1 * tau1_2BarNu;
-    tau0_2BarNu += tau0 * tau0_3BarNu;
-    tau0BarNu += tau0_2 * tau0_3BarNu;
-    tau0BarNu += 2 * tau0 * tau0_2BarNu;
-    tau_2BarNu += tau * tau_3BarNu;
-    tauBarNu += tau_2 * tau_3BarNu;
-    tauBarNu += 2 * tau * tau_2BarNu;
+    tauP3BarNu += tau * 2 / ((4 * q + 3) * (2 * q + 1)) * gamma1BarNu;
+    double tau1P3BarNu = tau / ((4 * q + 3) * (2 * q + 1)) * gamma1BarNu;
+    double tau0P3BarNu = tau * q * (4 * q - 2) / ((4 * q + 3) * (2 * q + 1)) * gamma1BarNu;
+    tau0P2BarNu += tau * 6 * q * tau1 / ((4 * q + 3) * (2 * q + 1)) * gamma1BarNu;
+    tau1BarNu += tau * 6 * q * tau0P2 / ((4 * q + 3) * (2 * q + 1)) * gamma1BarNu;
+    tau1P2BarNu += tau1 * tau1P3BarNu;
+    tau1BarNu += tau1P2 * tau1P3BarNu;
+    tau1BarNu += 2 * tau1 * tau1P2BarNu;
+    tau0P2BarNu += tau0 * tau0P3BarNu;
+    tau0BarNu += tau0P2 * tau0P3BarNu;
+    tau0BarNu += 2 * tau0 * tau0P2BarNu;
+    tauP2BarNu += tau * tauP3BarNu;
+    tauBarNu += tauP2 * tauP3BarNu;
+    tauBarNu += 2 * tau * tauP2BarNu;
     tau0BarNu += 2 * q * tauBarNu;
     tau1BarNu += tauBarNu;
-    results.add(ValueDerivatives // alpha and derivatives
+    results.add(ValueDerivatives // nu and derivatives
         .of(nuHat, DoubleArray.of(0, 0, rhoBarNu, nuBarNu, tau0BarNu, tau1BarNu)));
     return results;
   }
