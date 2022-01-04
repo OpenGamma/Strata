@@ -24,6 +24,13 @@ public final class FixedInflationSwapConventions {
    */
   public static final FixedInflationSwapConvention GBP_FIXED_ZC_GB_HICP =
       FixedInflationSwapConvention.of(StandardFixedInflationSwapConventions.GBP_FIXED_ZC_GB_HICP.getName());
+  /**
+   * GBP vanilla fixed vs UK HICP swap.
+   * Both legs are zero-coupon; the fixed rate is compounded.
+   * @deprecated Use {@link #GBP_FIXED_ZC_GB_HICP}.
+   */
+  @Deprecated
+  public static final FixedInflationSwapConvention GBP_FIXED_ZC_GB_HCIP = GBP_FIXED_ZC_GB_HICP;
 
   /**
    * GBP vanilla fixed vs UK RPI swap.
