@@ -129,6 +129,7 @@ public final class FixedOvernightSwapTemplate
    * @return the trade
    * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
+  @Override
   public SwapTrade createTrade(
       LocalDate tradeDate,
       BuySell buySell,

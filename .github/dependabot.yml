@@ -1,11 +1,4 @@
 version: 2
-registries:
-  maven-repository-opengamma-jfrog-io-opengamma-all:
-    type: maven-repository
-    url: https://opengamma.jfrog.io/opengamma/all
-    username: dependabot
-    password: "${{secrets.MAVEN_REPOSITORY_OPENGAMMA_JFROG_IO_OPENGAMMA_ALL_PASSWORD}}"
-
 updates:
 - package-ecosystem: maven
   directory: "/"
@@ -57,5 +50,3 @@ updates:
   - dependency-name: org.testng:testng
     versions:
     - "> 6.14.2, < 6.15"
-  registries:
-  - maven-repository-opengamma-jfrog-io-opengamma-all

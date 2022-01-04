@@ -387,6 +387,7 @@ public final class OvernightRateSwapLegConvention
    * 
    * @return the start date business day adjustment, not null
    */
+  @Override
   public BusinessDayAdjustment getStartDateBusinessDayAdjustment() {
     return startDateBusinessDayAdjustment != null ? startDateBusinessDayAdjustment : getAccrualBusinessDayAdjustment();
   }
@@ -402,6 +403,7 @@ public final class OvernightRateSwapLegConvention
    * 
    * @return the end date business day adjustment, not null
    */
+  @Override
   public BusinessDayAdjustment getEndDateBusinessDayAdjustment() {
     return endDateBusinessDayAdjustment != null ? endDateBusinessDayAdjustment : getAccrualBusinessDayAdjustment();
   }
