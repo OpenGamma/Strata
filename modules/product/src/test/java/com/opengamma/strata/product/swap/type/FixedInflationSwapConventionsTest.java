@@ -21,12 +21,14 @@ import com.opengamma.strata.basics.index.PriceIndices;
 public class FixedInflationSwapConventionsTest {
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("deprecation")
   public static Object[][] data_float_leg() {
     return new Object[][] {
         {FixedInflationSwapConventions.CHF_FIXED_ZC_CH_CPI, PriceIndices.CH_CPI},
         {FixedInflationSwapConventions.EUR_FIXED_ZC_EU_AI_CPI, PriceIndices.EU_AI_CPI},
         {FixedInflationSwapConventions.EUR_FIXED_ZC_EU_EXT_CPI, PriceIndices.EU_EXT_CPI},
         {FixedInflationSwapConventions.EUR_FIXED_ZC_FR_CPI, PriceIndices.FR_EXT_CPI},
+        {FixedInflationSwapConventions.GBP_FIXED_ZC_GB_HICP, PriceIndices.GB_HICP},
         {FixedInflationSwapConventions.GBP_FIXED_ZC_GB_HCIP, PriceIndices.GB_HICP},
         {FixedInflationSwapConventions.GBP_FIXED_ZC_GB_RPI, PriceIndices.GB_RPI},
         {FixedInflationSwapConventions.GBP_FIXED_ZC_GB_RPIX, PriceIndices.GB_RPIX},

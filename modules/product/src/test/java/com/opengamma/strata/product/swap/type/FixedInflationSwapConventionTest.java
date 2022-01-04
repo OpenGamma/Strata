@@ -127,7 +127,7 @@ public class FixedInflationSwapConventionTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_name() {
     return new Object[][] {
-        {FixedInflationSwapConventions.GBP_FIXED_ZC_GB_HCIP, "GBP-FIXED-ZC-GB-HCIP"},
+        {FixedInflationSwapConventions.GBP_FIXED_ZC_GB_HICP, "GBP-FIXED-ZC-GB-HICP"},
         {FixedInflationSwapConventions.USD_FIXED_ZC_US_CPI, "USD-FIXED-ZC-US-CPI"},
     };
   }

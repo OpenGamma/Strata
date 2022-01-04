@@ -45,12 +45,12 @@ final class StandardFixedInflationSwapConventions {
   private static final Period LAG_2M = Period.ofMonths(2);
 
   /**
-   * GBP vanilla fixed vs UK HCIP swap.
+   * GBP vanilla fixed vs UK HICP swap.
    * Both legs are zero-coupon; the fixed rate is compounded.
    */
-  public static final FixedInflationSwapConvention GBP_FIXED_ZC_GB_HCIP =
+  public static final FixedInflationSwapConvention GBP_FIXED_ZC_GB_HICP =
       ImmutableFixedInflationSwapConvention.of(
-          "GBP-FIXED-ZC-GB-HCIP",
+          "GBP-FIXED-ZC-GB-HICP",
           fixedLegZcConvention(GBP, GBLO),
           InflationRateSwapLegConvention.of(
               PriceIndices.GB_HICP,
