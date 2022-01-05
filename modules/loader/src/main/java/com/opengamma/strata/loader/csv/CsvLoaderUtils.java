@@ -214,10 +214,10 @@ public final class CsvLoaderUtils {
     YearMonth yearMonth = row.getValue(EXPIRY_FIELD, LoaderUtils::parseYearMonth);
     int week = row.findValue(EXPIRY_WEEK_FIELD, LoaderUtils::parseInteger).orElse(0);
     int day = row.findValue(EXPIRY_DAY_FIELD, LoaderUtils::parseInteger).orElse(0);
-    Optional<EtdSettlementType> settleType = row.findValue(SETTLEMENT_TYPE_FIELD, CsvLoaderUtils::parseEtdSettlementType);
-    Optional<EtdOptionType> optionType = row.findValue(EXERCISE_STYLE_FIELD, CsvLoaderUtils::parseEtdOptionType);
+    Optional<EtdSettlementType> settleTypeOpt = row.findValue(SETTLEMENT_TYPE_FIELD, CsvLoaderUtils::parseEtdSettlementType);
+    Optional<EtdOptionType> optionTypeOpt = row.findValue(EXERCISE_STYLE_FIELD, CsvLoaderUtils::parseEtdOptionType);
     // check valid combinations
-    if (!settleType.isPresent()) {
+    if (!settleTypeOpt.isPresent()) {
       if (day == 0) {
         if (week == 0) {
           return Pair.of(yearMonth, EtdVariant.ofMonthly());
@@ -232,19 +232,24 @@ public final class CsvLoaderUtils {
         }
       }
     } else {
+      EtdSettlementType settleType = settleTypeOpt.get();
       if (day == 0) {
+        // allow only this special case of physical options for now
+        if (settleType.equals(EtdSettlementType.PHYSICAL) && type.equals(EtdType.OPTION)) {
+          return Pair.of(yearMonth, EtdVariant.ofMonthly(EtdSettlementType.PHYSICAL));
+        }
         throw new IllegalArgumentException("ETD date columns conflict, must set expiry day for Flex " + type);
       }
       if (week != 0) {
         throw new IllegalArgumentException("ETD date columns conflict, cannot set expiry week for Flex " + type);
       }
       if (type == EtdType.FUTURE) {
-        return Pair.of(yearMonth, EtdVariant.ofFlexFuture(day, settleType.get()));
+        return Pair.of(yearMonth, EtdVariant.ofFlexFuture(day, settleType));
       } else {
-        if (!optionType.isPresent()) {
+        if (!optionTypeOpt.isPresent()) {
           throw new IllegalArgumentException("ETD option type not found for Flex Option");
         }
-        return Pair.of(yearMonth, EtdVariant.ofFlexOption(day, settleType.get(), optionType.get()));
+        return Pair.of(yearMonth, EtdVariant.ofFlexOption(day, settleType, optionTypeOpt.get()));
       }
     }
   }
