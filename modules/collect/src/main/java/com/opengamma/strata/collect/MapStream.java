@@ -287,8 +287,8 @@ public final class MapStream<K, V>
    * @param predicate  a predicate function applied to each key and value in the stream
    * @return a stream including the entries for which the predicate function returned true
    */
-  public MapStream<K, V> filter(BiFunction<? super K, ? super V, Boolean> predicate) {
-    return wrap(underlying.filter(e -> predicate.apply(e.getKey(), e.getValue())));
+  public MapStream<K, V> filter(BiPredicate<? super K, ? super V> predicate) {
+    return wrap(underlying.filter(e -> predicate.test(e.getKey(), e.getValue())));
   }
 
   /**
