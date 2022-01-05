@@ -267,6 +267,82 @@ public final class SwapIndices {
 
   //-------------------------------------------------------------------------
   /**
+   * GBP SONIA 1100 for tenor 1Y
+   */
+  public static final SwapIndex GBP_SONIA_1100_1Y = SwapIndex.of("GBP-SONIA-1100-1Y");
+
+  /**
+   * GBP SONIA 1100 for tenor 2Y
+   */
+  public static final SwapIndex GBP_SONIA_1100_2Y = SwapIndex.of("GBP-SONIA-1100-2Y");
+
+  /**
+   * GBP SONIA 1100 for tenor 3Y
+   */
+  public static final SwapIndex GBP_SONIA_1100_3Y = SwapIndex.of("GBP-SONIA-1100-3Y");
+
+  /**
+   * GBP SONIA 1100 for tenor 4Y
+   */
+  public static final SwapIndex GBP_SONIA_1100_4Y = SwapIndex.of("GBP-SONIA-1100-4Y");
+
+  /**
+   * GBP SONIA 1100 for tenor 5Y
+   */
+  public static final SwapIndex GBP_SONIA_1100_5Y = SwapIndex.of("GBP-SONIA-1100-5Y");
+
+  /**
+   * GBP SONIA 1100 for tenor 6Y
+   */
+  public static final SwapIndex GBP_SONIA_1100_6Y = SwapIndex.of("GBP-SONIA-1100-6Y");
+
+  /**
+   * GBP SONIA 1100 for tenor 7Y
+   */
+  public static final SwapIndex GBP_SONIA_1100_7Y = SwapIndex.of("GBP-SONIA-1100-7Y");
+
+  /**
+   * GBP SONIA 1100 for tenor 8Y
+   */
+  public static final SwapIndex GBP_SONIA_1100_8Y = SwapIndex.of("GBP-SONIA-1100-8Y");
+
+  /**
+   * GBP SONIA 1100 for tenor 9Y
+   */
+  public static final SwapIndex GBP_SONIA_1100_9Y = SwapIndex.of("GBP-SONIA-1100-9Y");
+
+  /**
+   * GBP SONIA 1100 for tenor 10Y
+   */
+  public static final SwapIndex GBP_SONIA_1100_10Y = SwapIndex.of("GBP-SONIA-1100-10Y");
+
+  /**
+   * GBP SONIA 1100 for tenor 12Y
+   */
+  public static final SwapIndex GBP_SONIA_1100_12Y = SwapIndex.of("GBP-SONIA-1100-12Y");
+
+  /**
+   * GBP SONIA 1100 for tenor 15Y
+   */
+  public static final SwapIndex GBP_SONIA_1100_15Y = SwapIndex.of("GBP-SONIA-1100-15Y");
+
+  /**
+   * GBP SONIA 1100 for tenor 20Y
+   */
+  public static final SwapIndex GBP_SONIA_1100_20Y = SwapIndex.of("GBP-SONIA-1100-20Y");
+
+  /**
+   * GBP SONIA 1100 for tenor 25Y
+   */
+  public static final SwapIndex GBP_SONIA_1100_25Y = SwapIndex.of("GBP-SONIA-1100-25Y");
+
+  /**
+   * GBP SONIA 1100 for tenor 30Y
+   */
+  public static final SwapIndex GBP_SONIA_1100_30Y = SwapIndex.of("GBP-SONIA-1100-30Y");
+
+  //-------------------------------------------------------------------------
+  /**
    * Restricted constructor.
    */
   private SwapIndices() {
