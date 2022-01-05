@@ -45,8 +45,6 @@ final class SwaptionTradeCsvPluginTest {
   private static final ResourceLocator CSV_FILE =
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/swaption_trades.csv");
 
-  private static final SwaptionTradeCsvPlugin PLUGIN = SwaptionTradeCsvPlugin.INSTANCE;
-
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2015, 8, 7);
   private static final LocalDate SWAPTION_EXERCISE_DATE = VAL_DATE.plusYears(5);

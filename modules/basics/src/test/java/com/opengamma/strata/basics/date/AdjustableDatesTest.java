@@ -27,12 +27,9 @@ public class AdjustableDatesTest {
   private static final BusinessDayAdjustment BDA_FOLLOW_SAT_SUN =
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendarIds.SAT_SUN);
 
-  private static final LocalDate THU_2014_07_10 = LocalDate.of(2014, 7, 10);
   private static final LocalDate FRI_2014_07_11 = LocalDate.of(2014, 7, 11);
-  private static final LocalDate SAT_2014_07_12 = LocalDate.of(2014, 7, 12);
   private static final LocalDate SUN_2014_07_13 = LocalDate.of(2014, 7, 13);
   private static final LocalDate MON_2014_07_14 = LocalDate.of(2014, 7, 14);
-  private static final LocalDate TUE_2014_07_15 = LocalDate.of(2014, 7, 15);
 
   //-------------------------------------------------------------------------
   @Test

@@ -7,7 +7,6 @@ package com.opengamma.strata.measure.cms;
 
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
-import java.util.Optional;
 
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -17,11 +16,8 @@ import org.joda.beans.gen.BeanDefinition;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.basics.CalculationTarget;
-import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.measure.swaption.SwaptionMarketDataLookup;
-import com.opengamma.strata.product.cms.CmsTrade;
 
 /**
  * The additional parameters necessary for pricing CMS using SABR extrapolation replication.

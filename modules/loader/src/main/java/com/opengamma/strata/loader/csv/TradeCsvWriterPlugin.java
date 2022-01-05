@@ -37,7 +37,7 @@ public interface TradeCsvWriterPlugin<T extends Trade> extends Named {
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static TradeCsvWriterPlugin of(String uniqueName) {
+  public static TradeCsvWriterPlugin<?> of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return extendedEnum().lookup(uniqueName);
   }
@@ -50,7 +50,7 @@ public interface TradeCsvWriterPlugin<T extends Trade> extends Named {
    *
    * @return the extended enum helper
    */
-  public static ExtendedEnum<TradeCsvWriterPlugin> extendedEnum() {
+  public static ExtendedEnum<TradeCsvWriterPlugin<?>> extendedEnum() {
     return TradeCsvWriter.ENUM_LOOKUP;
   }
 
