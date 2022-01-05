@@ -334,6 +334,37 @@ public class IborIndexTest {
   }
 
   @Test
+  public void test_usdTermSofr() {
+    assertThat(IborIndex.of("USD-SOFRCMETERM-1M").getName()).isEqualTo("USD-SOFRCMETERM-1M");
+    assertThat(IborIndex.of("USD-SOFRCMETERM-3M").getName()).isEqualTo("USD-SOFRCMETERM-3M");
+    assertThat(IborIndex.of("USD-SOFRCMETERM-6M").getName()).isEqualTo("USD-SOFRCMETERM-6M");
+    assertThat(IborIndex.of("USD-SOFRCMETERM-12M").getName()).isEqualTo("USD-SOFRCMETERM-12M");
+  }
+
+  @Test
+  public void test_gbpSoniaIceTerm() {
+    assertThat(IborIndex.of("GBP-SONIAICETERM-1M").getName()).isEqualTo("GBP-SONIAICETERM-1M");
+    assertThat(IborIndex.of("GBP-SONIAICETERM-3M").getName()).isEqualTo("GBP-SONIAICETERM-3M");
+    assertThat(IborIndex.of("GBP-SONIAICETERM-6M").getName()).isEqualTo("GBP-SONIAICETERM-6M");
+    assertThat(IborIndex.of("GBP-SONIAICETERM-12M").getName()).isEqualTo("GBP-SONIAICETERM-12M");
+  }
+
+  @Test
+  public void test_gbpSoniaRefinitivTerm() {
+    assertThat(IborIndex.of("GBP-SONIAREFINITIVTERM-1M").getName()).isEqualTo("GBP-SONIAREFINITIVTERM-1M");
+    assertThat(IborIndex.of("GBP-SONIAREFINITIVTERM-3M").getName()).isEqualTo("GBP-SONIAREFINITIVTERM-3M");
+    assertThat(IborIndex.of("GBP-SONIAREFINITIVTERM-6M").getName()).isEqualTo("GBP-SONIAREFINITIVTERM-6M");
+    assertThat(IborIndex.of("GBP-SONIAREFINITIVTERM-12M").getName()).isEqualTo("GBP-SONIAREFINITIVTERM-12M");
+  }
+
+  @Test
+  public void test_jpyTorf() {
+    assertThat(IborIndex.of("JPY-TORF-1M").getName()).isEqualTo("JPY-TORF-1M");
+    assertThat(IborIndex.of("JPY-TORF-3M").getName()).isEqualTo("JPY-TORF-3M");
+    assertThat(IborIndex.of("JPY-TORF-6M").getName()).isEqualTo("JPY-TORF-6M");
+  }
+
+  @Test
   public void test_bbsw1m() {
     IborIndex test = IborIndex.of("AUD-BBSW-1M");
     assertThat(test.getCurrency()).isEqualTo(AUD);

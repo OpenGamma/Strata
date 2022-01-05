@@ -27,6 +27,9 @@ import com.opengamma.strata.collect.named.Named;
  * trimmed arithmetic mean of estimated rates contributed by banks or based on 
  * traded volumes.
  * <p>
+ * With the Ibor transition in progress, the term rates have been incorporated
+ * in this object as they have the same features, even if based on different financial realities.
+ * <p>
  * The index is defined by three dates.
  * The fixing date is the date on which the index is to be observed.
  * The effective date is the date on which the implied deposit starts.

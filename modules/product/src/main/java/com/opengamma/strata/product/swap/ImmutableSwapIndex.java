@@ -24,7 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.strata.product.swap.type.FixedFloatSwapTemplate;
+import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
 
 /**
  * A swap index implementation based on an immutable set of rules.
@@ -65,10 +65,10 @@ public final class ImmutableSwapIndex
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final ZoneId fixingZone;
   /**
-   * The template for creating a Fixed-Ibor or Fixed-Overnight swap.
+   * The template for creating Fixed-Ibor swap.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final FixedFloatSwapTemplate template;
+  private final FixedIborSwapTemplate template;
 
   //-------------------------------------------------------------------------
   /**
@@ -84,7 +84,7 @@ public final class ImmutableSwapIndex
       String name,
       LocalTime fixingTime,
       ZoneId fixingZone,
-      FixedFloatSwapTemplate template) {
+      FixedIborSwapTemplate template) {
 
     return new ImmutableSwapIndex(name, true, fixingTime, fixingZone, template);
   }
@@ -154,7 +154,7 @@ public final class ImmutableSwapIndex
       boolean active,
       LocalTime fixingTime,
       ZoneId fixingZone,
-      FixedFloatSwapTemplate template) {
+      FixedIborSwapTemplate template) {
     JodaBeanUtils.notEmpty(name, "name");
     JodaBeanUtils.notNull(fixingTime, "fixingTime");
     JodaBeanUtils.notNull(fixingZone, "fixingZone");
@@ -216,11 +216,11 @@ public final class ImmutableSwapIndex
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the template for creating a Fixed-Ibor or Fixed-Overnight swap.
+   * Gets the template for creating Fixed-Ibor swap.
    * @return the value of the property, not null
    */
   @Override
-  public FixedFloatSwapTemplate getTemplate() {
+  public FixedIborSwapTemplate getTemplate() {
     return template;
   }
 
@@ -266,8 +266,8 @@ public final class ImmutableSwapIndex
     /**
      * The meta-property for the {@code template} property.
      */
-    private final MetaProperty<FixedFloatSwapTemplate> template = DirectMetaProperty.ofImmutable(
-        this, "template", ImmutableSwapIndex.class, FixedFloatSwapTemplate.class);
+    private final MetaProperty<FixedIborSwapTemplate> template = DirectMetaProperty.ofImmutable(
+        this, "template", ImmutableSwapIndex.class, FixedIborSwapTemplate.class);
     /**
      * The meta-properties.
      */
@@ -354,7 +354,7 @@ public final class ImmutableSwapIndex
      * The meta-property for the {@code template} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FixedFloatSwapTemplate> template() {
+    public MetaProperty<FixedIborSwapTemplate> template() {
       return template;
     }
 
@@ -397,7 +397,7 @@ public final class ImmutableSwapIndex
     private boolean active;
     private LocalTime fixingTime;
     private ZoneId fixingZone;
-    private FixedFloatSwapTemplate template;
+    private FixedIborSwapTemplate template;
 
     /**
      * Restricted constructor.
@@ -453,7 +453,7 @@ public final class ImmutableSwapIndex
           this.fixingZone = (ZoneId) newValue;
           break;
         case -1321546630:  // template
-          this.template = (FixedFloatSwapTemplate) newValue;
+          this.template = (FixedIborSwapTemplate) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -525,11 +525,11 @@ public final class ImmutableSwapIndex
     }
 
     /**
-     * Sets the template for creating a Fixed-Ibor or Fixed-Overnight swap.
+     * Sets the template for creating Fixed-Ibor swap.
      * @param template  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder template(FixedFloatSwapTemplate template) {
+    public Builder template(FixedIborSwapTemplate template) {
       JodaBeanUtils.notNull(template, "template");
       this.template = template;
       return this;
