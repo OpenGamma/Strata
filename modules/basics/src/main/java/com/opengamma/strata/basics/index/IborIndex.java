@@ -22,9 +22,13 @@ import com.opengamma.strata.collect.named.Named;
 /**
  * An inter-bank lending rate index, such as Libor or Euribor.
  * <p>
- * An index represented by this class relates to inter-bank lending for periods
+ * An index represented by this class relates to bank borrowing for periods
  * from one day to one year. They are typically calculated and published as the
- * trimmed arithmetic mean of estimated rates contributed by banks.
+ * trimmed arithmetic mean of estimated rates contributed by banks or based on 
+ * traded volumes.
+ * <p>
+ * With the Ibor transition in progress, the term rates have been incorporated
+ * in this object as they have the same features, even if based on different financial realities.
  * <p>
  * The index is defined by three dates.
  * The fixing date is the date on which the index is to be observed.

@@ -48,8 +48,8 @@ import com.opengamma.strata.product.swap.FixingRelativeTo;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapIndex;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
-import com.opengamma.strata.product.swap.type.IborRateSwapLegConvention;
+import com.opengamma.strata.product.swap.type.FixedFloatSwapConvention;
+import com.opengamma.strata.product.swap.type.FloatRateSwapLegConvention;
 
 /**
  * A CMS leg of a constant maturity swap (CMS) product.
@@ -180,18 +180,20 @@ public final class CmsLeg
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
     if (builder.index != null) {
-      IborRateSwapLegConvention iborLeg = builder.index.getTemplate().getConvention().getFloatingLeg();
+      FixedFloatSwapConvention swapConvention = builder.index.getTemplate().getConvention();
+      FloatRateSwapLegConvention floatLeg = builder.index.getTemplate().getConvention().getFloatingLeg();
       if (builder.fixingDateOffset == null) {
-        builder.fixingDateOffset = iborLeg.getFixingDateOffset();
+        DaysAdjustment offset = swapConvention.getSpotDateOffset();
+        builder.fixingDateOffset = offset.toBuilder().days(-offset.getDays()).build();
       }
       if (builder.dayCount == null) {
-        builder.dayCount = iborLeg.getDayCount();
+        builder.dayCount = floatLeg.getDayCount();
       }
       if (builder.paymentDateOffset == null) {
-        builder.paymentDateOffset = iborLeg.getPaymentDateOffset();
+        builder.paymentDateOffset = floatLeg.getPaymentDateOffset();
       }
       if (builder.currency == null) {
-        builder.currency = iborLeg.getCurrency();
+        builder.currency = floatLeg.getCurrency();
       }
     }
   }
@@ -251,7 +253,7 @@ public final class CmsLeg
   }
 
   /**
-   * Gets the underlying Ibor index that the leg is based on.
+   * Gets the underlying Rate index that the leg is based on.
    * 
    * @return the index
    */
@@ -300,7 +302,7 @@ public final class CmsLeg
 
   // creates and resolves the underlying swap
   private ResolvedSwap createUnderlyingSwap(LocalDate fixingDate, ReferenceData refData) {
-    FixedIborSwapConvention conv = index.getTemplate().getConvention();
+    FixedFloatSwapConvention conv = index.getTemplate().getConvention();
     LocalDate effectiveDate = conv.calculateSpotDateFromTradeDate(fixingDate, refData);
     LocalDate maturityDate = effectiveDate.plus(index.getTemplate().getTenor());
     Swap swap = conv.toTrade(fixingDate, effectiveDate, maturityDate, BuySell.BUY, 1d, 1d).getProduct();

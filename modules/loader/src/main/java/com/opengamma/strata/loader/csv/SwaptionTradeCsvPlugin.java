@@ -6,6 +6,9 @@
 package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXERCISE_DATES_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXERCISE_DATES_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXERCISE_DATES_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_DATE_CAL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_DATE_CNV_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_DATE_FIELD;
@@ -30,11 +33,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.date.AdjustableDates;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.BusinessDayConvention;
+import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.loader.LoaderUtils;
@@ -48,6 +59,7 @@ import com.opengamma.strata.product.swaption.CashSwaptionSettlement;
 import com.opengamma.strata.product.swaption.CashSwaptionSettlementMethod;
 import com.opengamma.strata.product.swaption.PhysicalSwaptionSettlement;
 import com.opengamma.strata.product.swaption.Swaption;
+import com.opengamma.strata.product.swaption.SwaptionExercise;
 import com.opengamma.strata.product.swaption.SwaptionSettlement;
 import com.opengamma.strata.product.swaption.SwaptionTrade;
 
@@ -125,17 +137,19 @@ final class SwaptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
     AdjustablePayment premium = CsvLoaderUtils.tryParsePremiumFromDefaultFields(row)
         .orElse(AdjustablePayment.of(underlying.getLegs().get(0).getCurrency(), 0d, expiryDate));
 
-    Swaption swaption = Swaption.builder()
+    Swaption.Builder swaption = Swaption.builder()
         .longShort(longShort)
         .swaptionSettlement(settlement)
         .expiryDate(expiryDate)
         .expiryTime(expiryTime)
         .expiryZone(expiryZone)
-        .underlying(underlying)
-        .build();
+        .underlying(underlying);
+
+    parseSwaptionExercise(row).ifPresent(swaption::exerciseInfo);
+
     return SwaptionTrade.builder()
         .info(info)
-        .product(swaption)
+        .product(swaption.build())
         .premium(premium)
         .build();
   }
@@ -156,9 +170,8 @@ final class SwaptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
   public Set<String> headers(List<SwaptionTrade> trades) {
     LinkedHashSet<String> headers = new LinkedHashSet<>(
         FullSwapTradeCsvPlugin.INSTANCE.headers(trades.stream()
-        .map(t -> t.getProduct().getUnderlying())
-        .map(swap -> SwapTrade.of(TradeInfo.empty(), swap))
-        .collect(toImmutableList())));
+            .map(trade -> SwapTrade.of(TradeInfo.empty(), trade.getProduct().getUnderlying()))
+            .collect(toImmutableList())));
     headers.add(LONG_SHORT_FIELD);
     headers.add(PAYOFF_SETTLEMENT_TYPE_FIELD);
     headers.add(PAYOFF_SETTLEMENT_DATE_FIELD);
@@ -176,6 +189,11 @@ final class SwaptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
     headers.add(PREMIUM_DIRECTION_FIELD);
     headers.add(PREMIUM_CURRENCY_FIELD);
     headers.add(PREMIUM_AMOUNT_FIELD);
+    if (trades.stream().anyMatch(trade -> trade.getProduct().getExerciseInfo().isPresent())) {
+      headers.add(EXERCISE_DATES_FIELD);
+      headers.add(EXERCISE_DATES_CAL_FIELD);
+      headers.add(EXERCISE_DATES_CNV_FIELD);
+    }
     return headers;
   }
 
@@ -194,8 +212,61 @@ final class SwaptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
     csv.writeCell(EXPIRY_TIME_FIELD, product.getExpiryTime());
     csv.writeCell(EXPIRY_ZONE_FIELD, product.getExpiryZone().getId());
     CsvWriterUtils.writePremiumFields(csv, trade.getPremium());
+
+    trade.getProduct().getExerciseInfo()
+        .ifPresent(exercise -> writeSwaptionExercise(csv, exercise, product.getExpiryDate()));
+
     csv.writeNewLine();
     variableElements.writeLines(csv);
+  }
+
+  private void writeSwaptionExercise(
+      CsvRowOutputWithHeaders csv,
+      SwaptionExercise exercise,
+      AdjustableDate expiryDate) {
+
+    Function<AdjustableDate, String> extractUnadjustedDate = date -> date.getUnadjusted().toString();
+
+    List<AdjustableDate> dates = exercise.getDateDefinition().toAdjustableDateList();
+    if (exercise.isEuropean() && !dates.contains(expiryDate) || exercise.isBermudan()) {
+      csv.writeCell(EXERCISE_DATES_FIELD, pipeJoined(dates, extractUnadjustedDate));
+      csv.writeCell(EXERCISE_DATES_CAL_FIELD, exercise.getDateDefinition().getAdjustment().getCalendar());
+      csv.writeCell(EXERCISE_DATES_CNV_FIELD, exercise.getDateDefinition().getAdjustment().getConvention());
+    } else if (exercise.isAmerican()) {
+      //To implement if/when we support American swaptions. A frequency might have to be added.
+    }
+  }
+
+  private String pipeJoined(List<AdjustableDate> dates, Function<AdjustableDate, String> mapper) {
+    return dates.stream().map(mapper).collect(Collectors.joining("|"));
+  }
+
+  private static Optional<SwaptionExercise> parseSwaptionExercise(CsvRow row) {
+
+    Optional<String> exerciseDatesString = row.findValue(CsvLoaderColumns.EXERCISE_DATES_FIELD);
+    if (!exerciseDatesString.isPresent()) {
+      return Optional.empty();
+    }
+
+    Function<String, List<String>> pipeSplitter = s -> Stream.of(s.split("\\|")).collect(Collectors.toList());
+    List<LocalDate> dates = exerciseDatesString
+        .map(pipeSplitter)
+        .orElse(ImmutableList.of())
+        .stream()
+        .map(LoaderUtils::parseDate)
+        .collect(Collectors.toList());
+
+    BusinessDayConvention convention = row.getValue(EXERCISE_DATES_CNV_FIELD, LoaderUtils::parseBusinessDayConvention);
+    HolidayCalendarId calendar = row.getValue(EXERCISE_DATES_CAL_FIELD, HolidayCalendarId::of);
+    BusinessDayAdjustment bdAdjustment = BusinessDayAdjustment.of(convention, calendar);
+
+    SwaptionExercise exercise;
+    if (dates.size() == 1) {
+      exercise = SwaptionExercise.ofEuropean(AdjustableDate.of(dates.get(0), bdAdjustment), DaysAdjustment.NONE);
+    } else {
+      exercise = SwaptionExercise.ofBermudan(AdjustableDates.of(bdAdjustment, dates), DaysAdjustment.NONE);
+    }
+    return Optional.of(exercise);
   }
 
   private void writeSettlement(CsvRowOutputWithHeaders csv, Swaption product) {

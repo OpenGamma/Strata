@@ -456,6 +456,26 @@ public final class ArrayByteSource extends BeanByteSource implements ImmutableBe
   }
 
   /**
+   * Encodes the byte source.
+   * 
+   * @param codec  the codec to use
+   * @return the encoded form
+   */
+  public ArrayByteSource encode(ByteSourceCodec codec) {
+    return codec.encode(array, fileName);
+  }
+
+  /**
+   * Decodes the byte source.
+   * 
+   * @param codec  the codec to use
+   * @return the decoded form
+   */
+  public ArrayByteSource decode(ByteSourceCodec codec) {
+    return codec.decode(array, fileName);
+  }
+
+  /**
    * Encodes the byte source using hex, sometimes referred to as base-16, returning a string.
    * 
    * @return the hex encoded string

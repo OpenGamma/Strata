@@ -61,7 +61,7 @@ import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
  */
 @BeanDefinition
 public final class OvernightRateSwapLegConvention
-    implements SwapLegConvention, ImmutableBean, Serializable {
+    implements FloatRateSwapLegConvention, ImmutableBean, Serializable {
 
   /**
    * The Overnight index.
@@ -69,7 +69,7 @@ public final class OvernightRateSwapLegConvention
    * The floating rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-SONIA'.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final OvernightIndex index;
   /**
    * The method of accruing overnight interest, defaulted to 'Compounded'.
@@ -323,6 +323,7 @@ public final class OvernightRateSwapLegConvention
    * 
    * @return the start date business day adjustment, not null
    */
+  @Override
   public Currency getCurrency() {
     return currency != null ? currency : index.getCurrency();
   }
@@ -339,6 +340,7 @@ public final class OvernightRateSwapLegConvention
    * 
    * @return the day count, not null
    */
+  @Override
   public DayCount getDayCount() {
     return dayCount != null ? dayCount : index.getDayCount();
   }
@@ -385,6 +387,7 @@ public final class OvernightRateSwapLegConvention
    * 
    * @return the start date business day adjustment, not null
    */
+  @Override
   public BusinessDayAdjustment getStartDateBusinessDayAdjustment() {
     return startDateBusinessDayAdjustment != null ? startDateBusinessDayAdjustment : getAccrualBusinessDayAdjustment();
   }
@@ -400,6 +403,7 @@ public final class OvernightRateSwapLegConvention
    * 
    * @return the end date business day adjustment, not null
    */
+  @Override
   public BusinessDayAdjustment getEndDateBusinessDayAdjustment() {
     return endDateBusinessDayAdjustment != null ? endDateBusinessDayAdjustment : getAccrualBusinessDayAdjustment();
   }
@@ -462,6 +466,7 @@ public final class OvernightRateSwapLegConvention
    * 
    * @return the payment date offset, not null
    */
+  @Override
   public DaysAdjustment getPaymentDateOffset() {
     return paymentDateOffset != null ? paymentDateOffset : DaysAdjustment.NONE;
   }
@@ -626,6 +631,7 @@ public final class OvernightRateSwapLegConvention
    * It will be a well known market index such as 'GBP-SONIA'.
    * @return the value of the property, not null
    */
+  @Override
   public OvernightIndex getIndex() {
     return index;
   }

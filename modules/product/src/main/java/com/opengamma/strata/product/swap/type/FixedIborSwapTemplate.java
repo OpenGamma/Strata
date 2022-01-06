@@ -28,7 +28,6 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.TradeTemplate;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.SwapTrade;
 
@@ -51,7 +50,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
  */
 @BeanDefinition
 public final class FixedIborSwapTemplate
-    implements TradeTemplate, ImmutableBean, Serializable {
+    implements FixedFloatSwapTemplate, ImmutableBean, Serializable {
 
   /**
    * The period between the spot value date and the start date.
@@ -66,12 +65,12 @@ public final class FixedIborSwapTemplate
    * <p>
    * This is the period from the first accrual date to the last accrual date.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Tenor tenor;
   /**
    * The market convention of the swap.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final FixedIborSwapConvention convention;
 
   //-------------------------------------------------------------------------
@@ -130,6 +129,7 @@ public final class FixedIborSwapTemplate
    * @return the trade
    * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
+  @Override
   public SwapTrade createTrade(
       LocalDate tradeDate,
       BuySell buySell,
@@ -203,6 +203,7 @@ public final class FixedIborSwapTemplate
    * This is the period from the first accrual date to the last accrual date.
    * @return the value of the property, not null
    */
+  @Override
   public Tenor getTenor() {
     return tenor;
   }
@@ -212,6 +213,7 @@ public final class FixedIborSwapTemplate
    * Gets the market convention of the swap.
    * @return the value of the property, not null
    */
+  @Override
   public FixedIborSwapConvention getConvention() {
     return convention;
   }

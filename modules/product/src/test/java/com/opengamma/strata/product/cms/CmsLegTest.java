@@ -43,7 +43,7 @@ import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapIndex;
 import com.opengamma.strata.product.swap.SwapIndices;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedFloatSwapConvention;
 
 /**
  * Test {@link CmsLeg}.
@@ -362,7 +362,7 @@ public class CmsLegTest {
   }
 
   private ResolvedSwap createUnderlyingSwap(LocalDate fixingDate) {
-    FixedIborSwapConvention conv = INDEX.getTemplate().getConvention();
+    FixedFloatSwapConvention conv = INDEX.getTemplate().getConvention();
     LocalDate effectiveDate = conv.calculateSpotDateFromTradeDate(fixingDate, REF_DATA);
     LocalDate maturityDate = effectiveDate.plus(INDEX.getTemplate().getTenor());
     Swap swap = conv.toTrade(fixingDate, effectiveDate, maturityDate, BuySell.BUY, 1d, 1d).getProduct();

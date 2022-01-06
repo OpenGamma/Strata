@@ -30,7 +30,7 @@ import com.opengamma.strata.product.cms.CmsPeriod;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.Swap;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedFloatSwapConvention;
 
 /**
  * Test {@link DiscountingCmsPeriodPricer}.
@@ -360,7 +360,7 @@ public class DiscountingCmsPeriodPricerTest {
 
   // creates and resolves the underlying swap
   private static ResolvedSwap createUnderlyingSwap(LocalDate fixingDate) {
-    FixedIborSwapConvention conv = EUR_EURIBOR_1100_5Y.getTemplate().getConvention();
+    FixedFloatSwapConvention conv = EUR_EURIBOR_1100_5Y.getTemplate().getConvention();
     LocalDate effectiveDate = conv.calculateSpotDateFromTradeDate(fixingDate, REF_DATA);
     LocalDate maturityDate = effectiveDate.plus(EUR_EURIBOR_1100_5Y.getTemplate().getTenor());
     Swap swap = conv.toTrade(fixingDate, effectiveDate, maturityDate, BuySell.BUY, 1d, 1d).getProduct();

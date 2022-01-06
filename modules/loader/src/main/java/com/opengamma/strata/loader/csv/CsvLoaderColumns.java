@@ -347,11 +347,17 @@ public final class CsvLoaderColumns {
   /** CSV header (Position/Security). */
   public static final String SETTLEMENT_TYPE_FIELD = "Settlement Type";
   /** CSV header (Position/Security). */
+  public static final String EXERCISE_DATES_FIELD = "Exercise Dates";
+  /** CSV header (Position/Security). */
+  public static final String EXERCISE_DATES_CNV_FIELD = "Exercise Dates Convention";
+  /** CSV header (Position/Security). */
+  public static final String EXERCISE_DATES_CAL_FIELD = "Exercise Dates Calendar";
+  /** CSV header (Position/Security). */
   public static final String EXERCISE_STYLE_FIELD = "Exercise Style";
   /** CSV header (Position/Security). */
-  public static final String VERSION_FIELD = "Version";
-  /** CSV header (Position/Security). */
   public static final String EXERCISE_PRICE_FIELD = "Exercise Price";
+  /** CSV header (Position/Security). */
+  public static final String VERSION_FIELD = "Version";
   /** CSV header (Position/Security). */
   public static final String UNDERLYING_CURRENCY_FIELD = "Underlying Currency";
   /** CSV header (Position/Security). */

@@ -55,7 +55,7 @@ import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
  */
 @BeanDefinition
 public final class IborRateSwapLegConvention
-    implements SwapLegConvention, ImmutableBean, Serializable {
+    implements FloatRateSwapLegConvention, ImmutableBean, Serializable {
 
   /**
    * The Ibor index.
@@ -63,7 +63,7 @@ public final class IborRateSwapLegConvention
    * The floating rate to be paid is based on this index
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final IborIndex index;
 
   /**
@@ -248,6 +248,7 @@ public final class IborRateSwapLegConvention
    * 
    * @return the start date business day adjustment, not null
    */
+  @Override
   public Currency getCurrency() {
     return currency != null ? currency : index.getCurrency();
   }
@@ -264,6 +265,7 @@ public final class IborRateSwapLegConvention
    * 
    * @return the day count, not null
    */
+  @Override
   public DayCount getDayCount() {
     return dayCount != null ? dayCount : index.getDayCount();
   }
@@ -310,6 +312,7 @@ public final class IborRateSwapLegConvention
    * 
    * @return the start date business day adjustment, not null
    */
+  @Override
   public BusinessDayAdjustment getStartDateBusinessDayAdjustment() {
     return startDateBusinessDayAdjustment != null ? startDateBusinessDayAdjustment : getAccrualBusinessDayAdjustment();
   }
@@ -325,6 +328,7 @@ public final class IborRateSwapLegConvention
    * 
    * @return the end date business day adjustment, not null
    */
+  @Override
   public BusinessDayAdjustment getEndDateBusinessDayAdjustment() {
     return endDateBusinessDayAdjustment != null ? endDateBusinessDayAdjustment : getAccrualBusinessDayAdjustment();
   }
@@ -420,6 +424,7 @@ public final class IborRateSwapLegConvention
    * 
    * @return the payment date offset, not null
    */
+  @Override
   public DaysAdjustment getPaymentDateOffset() {
     return paymentDateOffset != null ? paymentDateOffset : DaysAdjustment.NONE;
   }
@@ -588,6 +593,7 @@ public final class IborRateSwapLegConvention
    * It will be a well known market index such as 'GBP-LIBOR-3M'.
    * @return the value of the property, not null
    */
+  @Override
   public IborIndex getIndex() {
     return index;
   }

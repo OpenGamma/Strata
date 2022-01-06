@@ -270,6 +270,16 @@ public final class MapStream<K, V>
 
   //-------------------------------------------------------------------------
   /**
+   * Returns a stream where the keys and values are swapped.
+   *
+   * @return a stream with swapped keys and values
+   */
+  public MapStream<V, K> inverse() {
+    return wrap(underlying.map(e -> entry(e.getValue(), e.getKey())));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Filters the stream by applying the predicate function to each key and value.
    * <p>
    * Entries are included in the returned stream if the predicate function returns true.
@@ -386,6 +396,20 @@ public final class MapStream<K, V>
    */
   public <R> MapStream<K, R> mapValues(BiFunction<? super K, ? super V, ? extends R> mapper) {
     return wrap(underlying.map(e -> entry(e.getKey(), mapper.apply(e.getKey(), e.getValue()))));
+  }
+
+  /**
+   * Transforms the entries in the stream by applying a mapper function to each key and value.
+   * <p>
+   * The result of this method is a {@code MapStream}, unlike {@link #map(BiFunction)}.
+   *
+   * @param mapper  a mapper function whose return value is the new key-value entry
+   * @param <RK>  the type of the new keys
+   * @param <RV>  the type of the new values
+   * @return a stream of entries with the keys and values transformed
+   */
+  public <RK, RV> MapStream<RK, RV> mapBoth(BiFunction<? super K, ? super V, Entry<RK, RV>> mapper) {
+    return wrap(underlying.map(e -> mapper.apply(e.getKey(), e.getValue())));
   }
 
   /**
@@ -706,6 +730,17 @@ public final class MapStream<K, V>
   }
 
   /**
+   * Returns a stream built from a map of the entries in the stream, grouped by key.
+   * <p>
+   * Entries are grouped based on the equality of the key.
+   *
+   * @return a stream where the values have been grouped
+   */
+  public MapStream<K, List<V>> groupingAndThen() {
+    return MapStream.of(toMapGrouping());
+  }
+
+  /**
    * Returns an immutable map built from the entries in the stream, grouping by key.
    * <p>
    * Entries are grouped based on the equality of the key.
@@ -716,12 +751,27 @@ public final class MapStream<K, V>
    * @param <A>  the internal collector type
    * @param <R>  the type of the combined values
    * @param valueCollector  the collector used to combined the values
-   * @return a stream where the values have been grouped
+   * @return an immutable map built from the entries in the stream
    */
   public <A, R> ImmutableMap<K, R> toMapGrouping(Collector<? super V, A, R> valueCollector) {
     return underlying.collect(collectingAndThen(
         groupingBy(Entry::getKey, LinkedHashMap::new, mapping(Entry::getValue, valueCollector)),
         ImmutableMap::copyOf));
+  }
+
+  /**
+   * Returns a stream built from a map of the entries in the stream, grouped by key.
+   * <p>
+   * Entries are grouped based on the equality of the key.
+   * The collector allows the values to be flexibly combined.
+   *
+   * @param <A>  the internal collector type
+   * @param <R>  the type of the combined values
+   * @param valueCollector  the collector used to combined the values
+   * @return a stream where the values have been grouped
+   */
+  public <A, R> MapStream<K, R> groupingAndThen(Collector<? super V, A, R> valueCollector) {
+    return MapStream.of(toMapGrouping(valueCollector));
   }
 
   //-------------------------------------------------------------------------

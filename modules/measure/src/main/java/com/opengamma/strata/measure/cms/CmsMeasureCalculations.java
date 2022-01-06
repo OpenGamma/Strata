@@ -6,7 +6,7 @@
 package com.opengamma.strata.measure.cms;
 
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
@@ -75,7 +75,7 @@ final class CmsMeasureCalculations {
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
-    IborIndex index = cmsLegIborIndex(trade);
+    RateIndex index = cmsLegRateIndex(trade);
     return MultiCurrencyScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> presentValue(
@@ -100,7 +100,7 @@ final class CmsMeasureCalculations {
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
-    IborIndex index = cmsLegIborIndex(trade);
+    RateIndex index = cmsLegRateIndex(trade);
     return MultiCurrencyScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> pv01RatesCalibratedSum(
@@ -126,7 +126,7 @@ final class CmsMeasureCalculations {
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
-    IborIndex index = cmsLegIborIndex(trade);
+    RateIndex index = cmsLegRateIndex(trade);
     return ScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> pv01RatesCalibratedBucketed(
@@ -152,7 +152,7 @@ final class CmsMeasureCalculations {
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
-    IborIndex index = cmsLegIborIndex(trade);
+    RateIndex index = cmsLegRateIndex(trade);
     return MultiCurrencyScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> pv01RatesMarketQuoteSum(
@@ -179,7 +179,7 @@ final class CmsMeasureCalculations {
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
-    IborIndex index = cmsLegIborIndex(trade);
+    RateIndex index = cmsLegRateIndex(trade);
     return ScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> pv01RatesMarketQuoteBucketed(
@@ -215,7 +215,7 @@ final class CmsMeasureCalculations {
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
-    IborIndex index = cmsLegIborIndex(trade);
+    RateIndex index = cmsLegRateIndex(trade);
     return MultiCurrencyScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> currencyExposure(
@@ -240,7 +240,7 @@ final class CmsMeasureCalculations {
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
-    IborIndex index = cmsLegIborIndex(trade);
+    RateIndex index = cmsLegRateIndex(trade);
     return MultiCurrencyScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> currentCash(
@@ -259,8 +259,8 @@ final class CmsMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
-  // returns the Ibor index or the CMS leg
-  static IborIndex cmsLegIborIndex(ResolvedCmsTrade trade) {
+  // returns the Rate index or the CMS leg
+  static RateIndex cmsLegRateIndex(ResolvedCmsTrade trade) {
     return trade.getProduct().getCmsLeg().getUnderlyingIndex();
   }
 
