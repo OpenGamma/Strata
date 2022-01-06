@@ -68,7 +68,6 @@ enum StandardDayCounts implements DayCount {
         return 0d;
       }
       // calculation is based on the schedule period, firstDate assumed to be the start of the period
-      LocalDate scheduleStartDate = scheduleInfo.getStartDate();
       LocalDate scheduleEndDate = scheduleInfo.getEndDate();
       LocalDate nextCouponDate = scheduleInfo.getPeriodEndDate(firstDate);
       Frequency freq = scheduleInfo.getFrequency();
@@ -77,13 +76,9 @@ enum StandardDayCounts implements DayCount {
       if (nextCouponDate.equals(scheduleEndDate)) {
         return finalPeriod(firstDate, secondDate, freq, eom);
       }
-      // initial period
-      if (firstDate.equals(scheduleStartDate)) {
-        return initPeriod(firstDate, secondDate, nextCouponDate, freq, eom);
-      }
-      double actualDays = daysBetween(firstDate, secondDate);
-      double periodDays = daysBetween(firstDate, nextCouponDate);
-      return actualDays / (freq.eventsPerYear() * periodDays);
+      // handle initial period, and all other cases where need to determine the previous coupon date
+      // whether that is real or nominal
+      return initPeriod(firstDate, secondDate, nextCouponDate, freq, eom);
     }
 
     // calculate nominal periods backwards from couponDate
