@@ -11,6 +11,7 @@ import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -29,6 +30,7 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
  */
 public class HolidayCalendarIdTest {
 
+  private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final Object ANOTHER_TYPE = "";
 
   @Test
@@ -59,6 +61,19 @@ public class HolidayCalendarIdTest {
   }
 
   @Test
+  public void test_of_combined_resolve() {
+    HolidayCalendarId holidayCalendarId = HolidayCalendarId.of("CZPR+USNY");
+    HolidayCalendar holidayCalendar = holidayCalendarId.resolve(REF_DATA);
+    assertEquals("CZPR+USNY", holidayCalendar.getName());
+    LocalDate usHoliday = LocalDate.of(2019, 7, 4);
+    LocalDate czHoliday = LocalDate.of(2019, 5, 8);
+    LocalDate newYearDay = LocalDate.of(2019, 1, 1);
+    assertEquals(false, holidayCalendar.isBusinessDay(usHoliday));
+    assertEquals(false, holidayCalendar.isBusinessDay(czHoliday));
+    assertEquals(false, holidayCalendar.isBusinessDay(newYearDay));
+  }
+
+  @Test
   public void test_of_linked() {
     HolidayCalendarId test = HolidayCalendarId.of("GB~EU");
     assertThat(test.getName()).isEqualTo("EU~GB");
@@ -83,6 +98,19 @@ public class HolidayCalendarIdTest {
     assertThat(test.getName()).isEqualTo("EU+Fri/Sat~GB");
     assertThat(test.getReferenceDataType()).isEqualTo(HolidayCalendar.class);
     assertThat(test.toString()).isEqualTo("EU+Fri/Sat~GB");
+  }
+
+  @Test
+  public void test_of_linked_resolve() {
+    HolidayCalendarId holidayCalendarId = HolidayCalendarId.of("CZPR~USNY");
+    HolidayCalendar holidayCalendar = holidayCalendarId.resolve(REF_DATA);
+    assertEquals("CZPR~USNY", holidayCalendar.getName());
+    LocalDate usHoliday = LocalDate.of(2019, 7, 4);
+    LocalDate czHoliday = LocalDate.of(2019, 5, 8);
+    LocalDate newYearDay = LocalDate.of(2019, 1, 1);
+    assertEquals(true, holidayCalendar.isBusinessDay(usHoliday));
+    assertEquals(true, holidayCalendar.isBusinessDay(czHoliday));
+    assertEquals(false, holidayCalendar.isBusinessDay(newYearDay));
   }
 
   @Test
