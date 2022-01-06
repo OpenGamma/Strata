@@ -99,10 +99,10 @@ public class BasisFunctionGenerator {
     };
   }
 
-  private List<Function<Double, Double>> generateSet(final double[] knots, final int degree, final List<Function<Double, Double>> degreeM1Set) {
+  private List<Function<Double, Double>> generateSet(double[] knots, int degree, List<Function<Double, Double>> degreeM1Set) {
 
     int nSplines = knots.length - degree - 1;
-    final List<Function<Double, Double>> functions = new ArrayList<>(nSplines);
+    List<Function<Double, Double>> functions = new ArrayList<>(nSplines);
     for (int i = 0; i < nSplines; i++) {
       functions.add(generate(knots, degree, i, degreeM1Set));
     }
@@ -117,7 +117,7 @@ public class BasisFunctionGenerator {
    * @param degreeM1Set Set of basis functions one degree lower than required (can be null)
    * @return The basis function
    */
-  private Function<Double, Double> generate(final double[] knots, final int degree, final int index, final List<Function<Double, Double>> degreeM1Set) {
+  private Function<Double, Double> generate(double[] knots, int degree, int index, List<Function<Double, Double>> degreeM1Set) {
 
     if (degree == 0) {
       return new Function<Double, Double>() {

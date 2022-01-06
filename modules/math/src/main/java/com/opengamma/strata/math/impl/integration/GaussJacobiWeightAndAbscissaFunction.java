@@ -21,7 +21,8 @@ import com.opengamma.strata.math.impl.rootfinding.NewtonRaphsonSingleRootFinder;
  * weights $w_i$ are given by:
  * $$
  * \begin{align*}
- * w_i = \frac{2^{\alpha + \beta}(2n + \alpha + \beta)\Gamma(\alpha + n)\Gamma(\beta + n)}{n!\Gamma(n + \alpha + \beta + 1)J_i'(x_i) J_{i - 1}}
+ * w_i = \frac{2^{\alpha + \beta}(2n + \alpha + \beta)\Gamma(\alpha + n)\Gamma(\beta + n)}
+ * {n!\Gamma(n + \alpha + \beta + 1)J_i'(x_i) J_{i - 1}}
  * \end{align*}
  * $$
  * where $x_i$ is the $i^{th}$ root of the orthogonal polynomial, $J_i$ is the

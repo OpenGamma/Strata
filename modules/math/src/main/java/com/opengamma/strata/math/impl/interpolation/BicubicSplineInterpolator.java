@@ -13,8 +13,10 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction1D;
 
 /**
- *  Given a set of data (x0Values_i, x1Values_j, yValues_{ij}), derive the piecewise bicubic function, f(x0,x1) = sum_{i=0}^{3} sum_{j=0}^{3} coefMat_{ij} (x0-x0Values_i)^{3-i} (x1-x1Values_j)^{3-j},
- *  for the region x0Values_i < x0 < x0Values_{i+1}, x1Values_j < x1 < x1Values_{j+1}  such that f(x0Values_a, x1Values_b) = yValues_{ab} where a={i,i+1}, b={j,j+1}. 
+ *  Given a set of data (x0Values_i, x1Values_j, yValues_{ij}), derive the piecewise bicubic function,
+ *  f(x0,x1) = sum_{i=0}^{3} sum_{j=0}^{3} coefMat_{ij} (x0-x0Values_i)^{3-i} (x1-x1Values_j)^{3-j},
+ *  for the region x0Values_i < x0 < x0Values_{i+1}, x1Values_j < x1 < x1Values_{j+1}  such that
+ *  f(x0Values_a, x1Values_b) = yValues_{ab} where a={i,i+1}, b={j,j+1}. 
  *  1D piecewise polynomial interpolation methods are called to determine first derivatives and cross derivative at data points
  *  Note that the value of the cross derivative at {ij} is not "accurate" if yValues_{ij} = 0.
  */
@@ -147,7 +149,8 @@ public class BicubicSplineInterpolator extends PiecewisePolynomialInterpolator2D
                     Math.pow((x1Values[j + 1] - x1Values[j]), m);
             ArgChecker.isFalse(Double.isNaN(coefMatTmp[order - l - 1][order - m - 1]), "Too large/small input");
             ArgChecker.isFalse(Double.isInfinite(coefMatTmp[order - l - 1][order - m - 1]), "Too large/small input");
-            ref += coefMatTmp[order - l - 1][order - m - 1] * Math.pow((x0Values[i + 1] - x0Values[i]), l) * Math.pow((x1Values[j + 1] - x1Values[j]), m);
+            ref += coefMatTmp[order - l - 1][order - m - 1] * Math.pow((x0Values[i + 1] - x0Values[i]), l) *
+                Math.pow((x1Values[j + 1] - x1Values[j]), m);
           }
         }
         final double bound = Math.max(Math.abs(ref) + Math.abs(yValues[i + 1][j + 1]), 0.1);

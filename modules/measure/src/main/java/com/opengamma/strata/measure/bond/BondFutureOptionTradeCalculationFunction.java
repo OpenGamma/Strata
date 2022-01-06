@@ -57,8 +57,10 @@ import com.opengamma.strata.product.bond.ResolvedBondFutureOptionTrade;
  * 
  * @param <T> the trade or position type
  */
+//CSOFF: LineLengthCheck
 public class BondFutureOptionTradeCalculationFunction<T extends SecuritizedProductPortfolioItem<BondFutureOption> & Resolvable<ResolvedBondFutureOptionTrade>>
     implements CalculationFunction<T> {
+//CSON: LineLengthCheck
 
   /**
    * The trade instance

@@ -14,7 +14,8 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 /**
  * Result of interpolation by piecewise polynomial containing
  * knots: Positions of knots
- * coefMatrix: Coefficient matrix whose i-th row vector is { a_n, a_{n-1}, ...} for the i-th interval, where a_n, a_{n-1},... are coefficients of f(x) = a_n (x-x_i)^n + a_{n-1} (x-x_i)^{n-1} + ....
+ * coefMatrix: Coefficient matrix whose i-th row vector is { a_n, a_{n-1}, ...}
+ * for the i-th interval, where a_n, a_{n-1},... are coefficients of f(x) = a_n (x-x_i)^n + a_{n-1} (x-x_i)^{n-1} + ....
  * In multidimensional cases, coefficients for the i-th interval of the j-th spline is in (j*(i-1) + i) -th row vector.
  * nIntervals: Number of intervals, which should be (Number of knots) - 1
  * order: Number of coefficients in polynomial, which is equal to (polynomial degree) + 1
@@ -34,7 +35,13 @@ public class PiecewisePolynomialResultsWithSensitivity extends PiecewisePolynomi
    * @param dim  the dim
    * @param coeffSense the sensitivity of the coefficients to the nodes (y-values)
    */
-  public PiecewisePolynomialResultsWithSensitivity(DoubleArray knots, DoubleMatrix coefMatrix, int order, int dim, final DoubleMatrix[] coeffSense) {
+  public PiecewisePolynomialResultsWithSensitivity(
+      DoubleArray knots,
+      DoubleMatrix coefMatrix,
+      int order,
+      int dim,
+      final DoubleMatrix[] coeffSense) {
+
     super(knots, coefMatrix, order, dim);
     if (dim != 1) {
       throw new UnsupportedOperationException();

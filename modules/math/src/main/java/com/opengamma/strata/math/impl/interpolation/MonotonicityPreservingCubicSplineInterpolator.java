@@ -17,10 +17,12 @@ import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivit
 
 /**
  * Filter for local monotonicity of cubic spline interpolation based on 
- * R. L. Dougherty, A. Edelman, and J. M. Hyman, "Nonnegativity-, Monotonicity-, or Convexity-Preserving Cubic and Quintic Hermite Interpolation" 
+ * R. L. Dougherty, A. Edelman, and J. M. Hyman, "Nonnegativity-, Monotonicity-, or Convexity-Preserving Cubic
+ * and Quintic Hermite Interpolation" 
  * Mathematics Of Computation, v. 52, n. 186, April 1989, pp. 471-494. 
- * 
- * First, interpolant is computed by another cubic interpolation method. Then the first derivatives are modified such that local monotonicity conditions are satisfied. 
+ * <p>
+ * First, interpolant is computed by another cubic interpolation method.
+ * Then the first derivatives are modified such that local monotonicity conditions are satisfied. 
  */
 public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePolynomialInterpolator {
   private final HermiteCoefficientsProvider _solver = new HermiteCoefficientsProvider();
@@ -43,7 +45,9 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     ArgChecker.notNull(xValues, "xValues");
     ArgChecker.notNull(yValues, "yValues");
 
-    ArgChecker.isTrue(xValues.length == yValues.length | xValues.length + 2 == yValues.length, "(xValues length = yValues length) or (xValues length + 2 = yValues length)");
+    ArgChecker.isTrue(
+        xValues.length == yValues.length | xValues.length + 2 == yValues.length,
+        "(xValues length = yValues length) or (xValues length + 2 = yValues length)");
     ArgChecker.isTrue(xValues.length > 4, "Data points should be more than 4");
 
     final int nDataPts = xValues.length;
@@ -166,7 +170,9 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     ArgChecker.notNull(xValues, "xValues");
     ArgChecker.notNull(yValues, "yValues");
 
-    ArgChecker.isTrue(xValues.length == yValues.length | xValues.length + 2 == yValues.length, "(xValues length = yValues length) or (xValues length + 2 = yValues length)");
+    ArgChecker.isTrue(
+        xValues.length == yValues.length | xValues.length + 2 == yValues.length,
+        "(xValues length = yValues length) or (xValues length + 2 = yValues length)");
     ArgChecker.isTrue(xValues.length > 4, "Data points should be more than 4");
 
     final int nDataPts = xValues.length;
@@ -240,7 +246,8 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
 
       final double[] initialFirst = _function.differentiate(resultWithSensitivity, xValues).rowArray(0);
       final DoubleArray[] initialFirstSense = _function.differentiateNodeSensitivity(resultWithSensitivity, xValues);
-      firstWithSensitivity = firstDerivativeWithSensitivityCalculator(intervals, slopes, slopesSensitivity, slopesAbsSensitivity, initialFirst, initialFirstSense);
+      firstWithSensitivity = firstDerivativeWithSensitivityCalculator(
+          intervals, slopes, slopesSensitivity, slopesAbsSensitivity, initialFirst, initialFirstSense);
     }
     final DoubleMatrix[] resMatrix = _solver.solveWithSensitivity(yValuesSrt, intervals, slopes, slopesSensitivity, firstWithSensitivity);
 
@@ -275,50 +282,55 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
    * @param initialFirst  the initial first
    * @return first derivative 
    */
-  private double[] firstDerivativeCalculator(final double[] intervals, final double[] slopes, final double[] initialFirst) {
-    final int nDataPts = intervals.length + 1;
+  private double[] firstDerivativeCalculator(double[] intervals, double[] slopes, double[] initialFirst) {
+    int nDataPts = intervals.length + 1;
     double[] res = new double[nDataPts];
-    final double[][] pSlopes = parabolaSlopesCalculator(intervals, slopes);
+    double[][] pSlopes = parabolaSlopesCalculator(intervals, slopes);
 
     for (int i = 1; i < nDataPts - 1; ++i) {
       double refValue = 3. * Math.min(Math.abs(slopes[i - 1]), Math.min(Math.abs(slopes[i]), Math.abs(pSlopes[i - 1][1])));
       if (i > 1) {
-        final double sig1 = Math.signum(pSlopes[i - 1][1]);
-        final double sig2 = Math.signum(pSlopes[i - 1][0]);
-        final double sig3 = Math.signum(slopes[i - 1] - slopes[i - 2]);
-        final double sig4 = Math.signum(slopes[i] - slopes[i - 1]);
+        double sig1 = Math.signum(pSlopes[i - 1][1]);
+        double sig2 = Math.signum(pSlopes[i - 1][0]);
+        double sig3 = Math.signum(slopes[i - 1] - slopes[i - 2]);
+        double sig4 = Math.signum(slopes[i] - slopes[i - 1]);
         if (Math.abs(sig1 - sig2) <= 0. && Math.abs(sig2 - sig3) <= 0. && Math.abs(sig3 - sig4) <= 0.) {
           refValue = Math.max(refValue, 1.5 * Math.min(Math.abs(pSlopes[i - 1][0]), Math.abs(pSlopes[i - 1][1])));
         }
       }
       if (i < nDataPts - 2) {
-        final double sig1 = Math.signum(-pSlopes[i - 1][1]);
-        final double sig2 = Math.signum(-pSlopes[i - 1][2]);
-        final double sig3 = Math.signum(slopes[i + 1] - slopes[i]);
-        final double sig4 = Math.signum(slopes[i] - slopes[i - 1]);
+        double sig1 = Math.signum(-pSlopes[i - 1][1]);
+        double sig2 = Math.signum(-pSlopes[i - 1][2]);
+        double sig3 = Math.signum(slopes[i + 1] - slopes[i]);
+        double sig4 = Math.signum(slopes[i] - slopes[i - 1]);
         if (Math.abs(sig1 - sig2) <= 0. && Math.abs(sig2 - sig3) <= 0. && Math.abs(sig3 - sig4) <= 0.) {
           refValue = Math.max(refValue, 1.5 * Math.min(Math.abs(pSlopes[i - 1][2]), Math.abs(pSlopes[i - 1][1])));
         }
       }
-      res[i] = Math.signum(initialFirst[i]) != Math.signum(pSlopes[i - 1][1]) ? 0. : Math.signum(initialFirst[i]) * Math.min(Math.abs(initialFirst[i]), refValue);
+      res[i] = Math.signum(initialFirst[i]) != Math.signum(pSlopes[i - 1][1]) ?
+          0. :
+          Math.signum(initialFirst[i]) * Math.min(Math.abs(initialFirst[i]), refValue);
     }
-    res[0] = Math.signum(initialFirst[0]) != Math.signum(slopes[0]) ? 0. : Math.signum(initialFirst[0]) * Math.min(Math.abs(initialFirst[0]), 3. * Math.abs(slopes[0]));
-    res[nDataPts - 1] = Math.signum(initialFirst[nDataPts - 1]) != Math.signum(slopes[nDataPts - 2]) ? 0. : Math.signum(initialFirst[nDataPts - 1])
-        * Math.min(Math.abs(initialFirst[nDataPts - 1]), 3. * Math.abs(slopes[nDataPts - 2]));
+    res[0] = Math.signum(initialFirst[0]) != Math.signum(slopes[0]) ?
+        0. :
+        Math.signum(initialFirst[0]) * Math.min(Math.abs(initialFirst[0]), 3. * Math.abs(slopes[0]));
+    res[nDataPts - 1] = Math.signum(initialFirst[nDataPts - 1]) != Math.signum(slopes[nDataPts - 2]) ?
+        0. :
+        Math.signum(initialFirst[nDataPts - 1]) * Math.min(Math.abs(initialFirst[nDataPts - 1]), 3. * Math.abs(slopes[nDataPts - 2]));
     return res;
   }
 
-  private DoubleArray[] firstDerivativeWithSensitivityCalculator(final double[] intervals, final double[] slopes, final double[][] slopesSensitivity,
-      final double[][] slopesAbsSensitivity, final double[] initialFirst, final DoubleArray[] initialFirstSense) {
-    final int nDataPts = intervals.length + 1;
-    final DoubleArray[] res = new DoubleArray[nDataPts + 1];
-    final double[] first = new double[nDataPts];
-    final double[][] pSlopes = parabolaSlopesCalculator(intervals, slopes);
-    final DoubleMatrix[] pSlopesAbsSensitivity = parabolaSlopesAbstSensitivityCalculator(intervals, slopesSensitivity, pSlopes);
+  private DoubleArray[] firstDerivativeWithSensitivityCalculator(double[] intervals, double[] slopes, double[][] slopesSensitivity,
+      double[][] slopesAbsSensitivity, double[] initialFirst, DoubleArray[] initialFirstSense) {
+    int nDataPts = intervals.length + 1;
+    DoubleArray[] res = new DoubleArray[nDataPts + 1];
+    double[] first = new double[nDataPts];
+    double[][] pSlopes = parabolaSlopesCalculator(intervals, slopes);
+    DoubleMatrix[] pSlopesAbsSensitivity = parabolaSlopesAbstSensitivityCalculator(intervals, slopesSensitivity, pSlopes);
 
     for (int i = 1; i < nDataPts - 1; ++i) {
-      final double[] tmpSense = new double[nDataPts];
-      final double sigInitialFirst = Math.signum(initialFirst[i]);
+      double[] tmpSense = new double[nDataPts];
+      double sigInitialFirst = Math.signum(initialFirst[i]);
       if (sigInitialFirst * Math.signum(pSlopes[i - 1][1]) < 0.) {
         first[i] = 0.;
         Arrays.fill(tmpSense, 0.);
@@ -330,13 +342,13 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
             slopesAbsSensitivity[i],
             Math.abs(pSlopes[i - 1][1]),
             pSlopesAbsSensitivity[1].rowArray(i - 1));
-        final double[] refSense = new double[nDataPts];
+        double[] refSense = new double[nDataPts];
         System.arraycopy(refValueWithSense, 1, refSense, 0, nDataPts);
         if (i > 1) {
-          final double sig1 = Math.signum(pSlopes[i - 1][1]);
-          final double sig2 = Math.signum(pSlopes[i - 1][0]);
-          final double sig3 = Math.signum(slopes[i - 1] - slopes[i - 2]);
-          final double sig4 = Math.signum(slopes[i] - slopes[i - 1]);
+          double sig1 = Math.signum(pSlopes[i - 1][1]);
+          double sig2 = Math.signum(pSlopes[i - 1][0]);
+          double sig3 = Math.signum(slopes[i - 1] - slopes[i - 2]);
+          double sig4 = Math.signum(slopes[i] - slopes[i - 1]);
           if (Math.abs(sig1 - sig2) <= 0. && Math.abs(sig2 - sig3) <= 0. && Math.abs(sig3 - sig4) <= 0.) {
             refValueWithSense = modifyRefValueWithSensitivity(
                 refValueWithSense[0],
@@ -348,10 +360,10 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
           }
         }
         if (i < nDataPts - 2) {
-          final double sig1 = Math.signum(-pSlopes[i - 1][1]);
-          final double sig2 = Math.signum(-pSlopes[i - 1][2]);
-          final double sig3 = Math.signum(slopes[i + 1] - slopes[i]);
-          final double sig4 = Math.signum(slopes[i] - slopes[i - 1]);
+          double sig1 = Math.signum(-pSlopes[i - 1][1]);
+          double sig2 = Math.signum(-pSlopes[i - 1][2]);
+          double sig3 = Math.signum(slopes[i + 1] - slopes[i]);
+          double sig4 = Math.signum(slopes[i] - slopes[i - 1]);
           if (Math.abs(sig1 - sig2) <= 0. && Math.abs(sig2 - sig3) <= 0. && Math.abs(sig3 - sig4) <= 0.) {
             refValueWithSense = modifyRefValueWithSensitivity(
                 refValueWithSense[0],
@@ -362,7 +374,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
                 pSlopesAbsSensitivity[1].rowArray(i - 1));
           }
         }
-        final double absFirst = Math.abs(initialFirst[i]);
+        double absFirst = Math.abs(initialFirst[i]);
         if (Math.abs(absFirst - refValueWithSense[0]) < SMALL) {
           first[i] = absFirst <= refValueWithSense[0] ? initialFirst[i] : sigInitialFirst * refValueWithSense[0];
           for (int k = 0; k < nDataPts; ++k) {
@@ -383,8 +395,8 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
       res[i + 1] = DoubleArray.copyOf(tmpSense);
     }
 
-    final double[] tmpSenseIni = new double[nDataPts];
-    final double sigFirstIni = Math.signum(initialFirst[0]);
+    double[] tmpSenseIni = new double[nDataPts];
+    double sigFirstIni = Math.signum(initialFirst[0]);
     if (sigFirstIni * Math.signum(slopes[0]) < 0.) {
       first[0] = 0.;
       Arrays.fill(tmpSenseIni, 0.);
@@ -395,8 +407,8 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
         tmpSenseIni[0] = -1.5 / intervals[0];
         tmpSenseIni[1] = 1.5 / intervals[0];
       } else {
-        final double absFirst = Math.abs(initialFirst[0]);
-        final double modSlope = 3. * Math.abs(slopes[0]);
+        double absFirst = Math.abs(initialFirst[0]);
+        double modSlope = 3. * Math.abs(slopes[0]);
         if (Math.abs(absFirst - modSlope) < SMALL) {
           first[0] = absFirst <= modSlope ? initialFirst[0] : sigFirstIni * modSlope;
           for (int k = 0; k < nDataPts; ++k) {
@@ -405,7 +417,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
         } else {
           if (absFirst < modSlope) {
             first[0] = initialFirst[0];
-            final double factor = Math.abs(initialFirst[0]) < SMALL ? 0.5 : 1.;
+            double factor = Math.abs(initialFirst[0]) < SMALL ? 0.5 : 1.;
             for (int k = 0; k < nDataPts; ++k) {
               tmpSenseIni[k] = factor * initialFirstSense[0].get(k);
             }
@@ -420,8 +432,8 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     }
     res[1] = DoubleArray.copyOf(tmpSenseIni);
 
-    final double[] tmpSenseFin = new double[nDataPts];
-    final double sigFirstFin = Math.signum(initialFirst[nDataPts - 1]);
+    double[] tmpSenseFin = new double[nDataPts];
+    double sigFirstFin = Math.signum(initialFirst[nDataPts - 1]);
     if (sigFirstFin * Math.signum(slopes[nDataPts - 2]) < 0.) {
       first[nDataPts - 1] = 0.;
       Arrays.fill(tmpSenseFin, 0.);
@@ -432,8 +444,8 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
         tmpSenseFin[nDataPts - 2] = -1.5 / intervals[nDataPts - 2];
         tmpSenseFin[nDataPts - 1] = 1.5 / intervals[nDataPts - 2];
       } else {
-        final double absFirst = Math.abs(initialFirst[nDataPts - 1]);
-        final double modSlope = 3. * Math.abs(slopes[nDataPts - 2]);
+        double absFirst = Math.abs(initialFirst[nDataPts - 1]);
+        double modSlope = 3. * Math.abs(slopes[nDataPts - 2]);
         if (Math.abs(absFirst - modSlope) < SMALL) {
           first[nDataPts - 1] = absFirst <= modSlope ? initialFirst[nDataPts - 1] : sigFirstFin * modSlope;
           for (int k = 0; k < nDataPts; ++k) {
@@ -443,7 +455,7 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
         } else {
           if (absFirst < modSlope) {
             first[nDataPts - 1] = initialFirst[nDataPts - 1];
-            final double factor = Math.abs(initialFirst[nDataPts - 1]) < SMALL ? 0.5 : 1.;
+            double factor = Math.abs(initialFirst[nDataPts - 1]) < SMALL ? 0.5 : 1.;
             for (int k = 0; k < nDataPts; ++k) {
               tmpSenseFin[k] = factor * initialFirstSense[nDataPts - 1].get(k);
             }
@@ -467,8 +479,8 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
    * @param slopes  the slopes
    * @return Parabola slopes, each row vactor is (p^{-1}, p^{0}, p^{1}) for xValues_1,...,xValues_{nDataPts-2}
    */
-  private double[][] parabolaSlopesCalculator(final double[] intervals, final double[] slopes) {
-    final int nData = intervals.length + 1;
+  private double[][] parabolaSlopesCalculator(double[] intervals, double[] slopes) {
+    int nData = intervals.length + 1;
     double[][] res = new double[nData - 2][3];
 
     res[0][0] = Double.POSITIVE_INFINITY;
@@ -477,25 +489,33 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     for (int i = 1; i < nData - 3; ++i) {
       res[i][0] = (slopes[i] * (2. * intervals[i] + intervals[i - 1]) - slopes[i - 1] * intervals[i]) / (intervals[i - 1] + intervals[i]);
       res[i][1] = (slopes[i] * intervals[i + 1] + slopes[i + 1] * intervals[i]) / (intervals[i] + intervals[i + 1]);
-      res[i][2] = (slopes[i + 1] * (2. * intervals[i + 1] + intervals[i + 2]) - slopes[i + 2] * intervals[i + 1]) / (intervals[i + 1] + intervals[i + 2]);
+      res[i][2] = (slopes[i + 1] * (2. * intervals[i + 1] + intervals[i + 2]) - slopes[i + 2] * intervals[i + 1]) /
+          (intervals[i + 1] + intervals[i + 2]);
     }
-    res[nData - 3][0] = (slopes[nData - 3] * (2. * intervals[nData - 3] + intervals[nData - 4]) - slopes[nData - 4] * intervals[nData - 3]) / (intervals[nData - 4] + intervals[nData - 3]);
-    res[nData - 3][1] = (slopes[nData - 3] * intervals[nData - 2] + slopes[nData - 2] * intervals[nData - 3]) / (intervals[nData - 3] + intervals[nData - 2]);
+    res[nData - 3][0] =
+        (slopes[nData - 3] * (2. * intervals[nData - 3] + intervals[nData - 4]) - slopes[nData - 4] * intervals[nData - 3]) /
+            (intervals[nData - 4] + intervals[nData - 3]);
+    res[nData - 3][1] = (slopes[nData - 3] * intervals[nData - 2] + slopes[nData - 2] * intervals[nData - 3]) /
+        (intervals[nData - 3] + intervals[nData - 2]);
     res[nData - 3][2] = Double.POSITIVE_INFINITY;
     return res;
   }
 
-  private DoubleMatrix[] parabolaSlopesAbstSensitivityCalculator(final double[] intervals, final double[][] slopeSensitivity, final double[][] parabolaSlopes) {
-    final DoubleMatrix[] res = new DoubleMatrix[3];
-    final int nData = intervals.length + 1;
+  private DoubleMatrix[] parabolaSlopesAbstSensitivityCalculator(
+      double[] intervals,
+      double[][] slopeSensitivity,
+      double[][] parabolaSlopes) {
 
-    final double[][] left = new double[nData - 3][nData];
-    final double[][] center = new double[nData - 2][nData];
-    final double[][] right = new double[nData - 3][nData];
+    DoubleMatrix[] res = new DoubleMatrix[3];
+    int nData = intervals.length + 1;
+
+    double[][] left = new double[nData - 3][nData];
+    double[][] center = new double[nData - 2][nData];
+    double[][] right = new double[nData - 3][nData];
     for (int i = 0; i < nData - 3; ++i) {
-      final double sigLeft = Math.signum(parabolaSlopes[i + 1][0]);
-      final double sigCenter = Math.signum(parabolaSlopes[i][1]);
-      final double sigRight = Math.signum(parabolaSlopes[i][2]);
+      double sigLeft = Math.signum(parabolaSlopes[i + 1][0]);
+      double sigCenter = Math.signum(parabolaSlopes[i][1]);
+      double sigRight = Math.signum(parabolaSlopes[i][2]);
       if (sigLeft == 0.) {
         Arrays.fill(left[i], 0.);
       }
@@ -506,20 +526,24 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
         Arrays.fill(right[i], 0.);
       }
       for (int k = 0; k < nData; ++k) {
-        left[i][k] = sigLeft * (slopeSensitivity[i + 1][k] * (2. * intervals[i + 1] + intervals[i]) - slopeSensitivity[i][k] * intervals[i + 1]) /
+        left[i][k] =
+            sigLeft * (slopeSensitivity[i + 1][k] * (2. * intervals[i + 1] + intervals[i]) - slopeSensitivity[i][k] * intervals[i + 1]) /
+                (intervals[i] + intervals[i + 1]);
+        center[i][k] = sigCenter * (slopeSensitivity[i][k] * intervals[i + 1] + slopeSensitivity[i + 1][k] * intervals[i]) /
             (intervals[i] + intervals[i + 1]);
-        center[i][k] = sigCenter * (slopeSensitivity[i][k] * intervals[i + 1] + slopeSensitivity[i + 1][k] * intervals[i]) / (intervals[i] + intervals[i + 1]);
-        right[i][k] = sigRight * (slopeSensitivity[i + 1][k] * (2. * intervals[i + 1] + intervals[i + 2]) - slopeSensitivity[i + 2][k] * intervals[i + 1]) /
+        right[i][k] = sigRight *
+            (slopeSensitivity[i + 1][k] * (2. * intervals[i + 1] + intervals[i + 2]) - slopeSensitivity[i + 2][k] * intervals[i + 1]) /
             (intervals[i + 1] + intervals[i + 2]);
       }
     }
-    final double sigCenterFin = Math.signum(parabolaSlopes[nData - 3][1]);
+    double sigCenterFin = Math.signum(parabolaSlopes[nData - 3][1]);
     if (sigCenterFin == 0.) {
       Arrays.fill(center[nData - 3], 0.);
     }
     for (int k = 0; k < nData; ++k) {
-      center[nData - 3][k] = sigCenterFin * (slopeSensitivity[nData - 3][k] * intervals[nData - 2] + slopeSensitivity[nData - 2][k] * intervals[nData - 3]) /
-          (intervals[nData - 3] + intervals[nData - 2]);
+      center[nData - 3][k] =
+          sigCenterFin * (slopeSensitivity[nData - 3][k] * intervals[nData - 2] + slopeSensitivity[nData - 2][k] * intervals[nData - 3]) /
+              (intervals[nData - 3] + intervals[nData - 2]);
     }
     res[0] = DoubleMatrix.copyOf(left);
     res[1] = DoubleMatrix.copyOf(center);
@@ -528,14 +552,14 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     return res;
   }
 
-  private DoubleMatrix[] slopesSensitivityWithAbsCalculator(final double[] intervals, final double[] slopes) {
-    final int nDataPts = intervals.length + 1;
-    final DoubleMatrix[] res = new DoubleMatrix[2];
-    final double[][] slopesSensitivity = new double[nDataPts - 1][nDataPts];
-    final double[][] absSlopesSensitivity = new double[nDataPts - 1][nDataPts];
+  private DoubleMatrix[] slopesSensitivityWithAbsCalculator(double[] intervals, double[] slopes) {
+    int nDataPts = intervals.length + 1;
+    DoubleMatrix[] res = new DoubleMatrix[2];
+    double[][] slopesSensitivity = new double[nDataPts - 1][nDataPts];
+    double[][] absSlopesSensitivity = new double[nDataPts - 1][nDataPts];
 
     for (int i = 0; i < nDataPts - 1; ++i) {
-      final double sign = Math.signum(slopes[i]);
+      double sign = Math.signum(slopes[i]);
       Arrays.fill(slopesSensitivity[i], 0.);
       Arrays.fill(absSlopesSensitivity[i], 0.);
       slopesSensitivity[i][i] = -1. / intervals[i];
@@ -554,12 +578,18 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     return res;
   }
 
-  private double[] factoredMinWithSensitivityFinder(final double val1, final double[] val1Sensitivity, final double val2, final double[] val2Sensitivity, final double val3,
-      final double[] val3Sensitivity) {
-    final int nData = val1Sensitivity.length;
-    final double[] res = new double[nData + 1];
+  private double[] factoredMinWithSensitivityFinder(
+      double val1,
+      double[] val1Sensitivity,
+      double val2,
+      double[] val2Sensitivity,
+      double val3,
+      double[] val3Sensitivity) {
+
+    int nData = val1Sensitivity.length;
+    double[] res = new double[nData + 1];
     double tmpRef = 0.;
-    final double[] tmpSensitivity = new double[nData];
+    double[] tmpSensitivity = new double[nData];
 
     if (val1 < val2) {
       tmpRef = val1;
@@ -595,14 +625,20 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     return res;
   }
 
-  private double[] modifyRefValueWithSensitivity(final double refVal, final double[] refValSensitivity, final double val1, final double[] val1Sensitivity, final double val2,
-      final double[] val2Sensitivity) {
-    final int nData = refValSensitivity.length;
-    final double absVal1 = Math.abs(val1);
-    final double absVal2 = Math.abs(val2);
-    final double[] res = new double[nData + 1];
+  private double[] modifyRefValueWithSensitivity(
+      double refVal,
+      double[] refValSensitivity,
+      double val1,
+      double[] val1Sensitivity,
+      double val2,
+      double[] val2Sensitivity) {
+
+    int nData = refValSensitivity.length;
+    double absVal1 = Math.abs(val1);
+    double absVal2 = Math.abs(val2);
+    double[] res = new double[nData + 1];
     double tmpRef = 0.;
-    final double[] tmpSensitivity = new double[nData];
+    double[] tmpSensitivity = new double[nData];
 
     if (absVal1 == absVal2) {
       tmpRef = 1.5 * absVal1;
@@ -645,8 +681,8 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
     return res;
   }
 
-  private boolean checkSymm(final double[] slopes) {
-    final int nDataM2 = slopes.length - 1;
+  private boolean checkSymm(double[] slopes) {
+    int nDataM2 = slopes.length - 1;
     for (int i = 0; i < nDataM2; ++i) {
       if (Math.abs(Math.abs(slopes[i]) - Math.abs(slopes[i + 1])) < SMALL) {
         return true;

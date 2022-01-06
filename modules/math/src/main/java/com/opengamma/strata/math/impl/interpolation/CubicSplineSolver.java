@@ -31,7 +31,8 @@ abstract class CubicSplineSolver {
    * If (xValues length) + 2 = (yValues length), Clamped endpoint conditions are used 
    * @param xValues X values of data
    * @param yValues Y values of data
-   * @return Coefficient matrix whose i-th row vector is (a_0,a_1,...) for i-th intervals, where a_0,a_1,... are coefficients of f(x) = a_0 + a_1 x^1 + ....
+   * @return Coefficient matrix whose i-th row vector is (a_0,a_1,...) for
+   *  i-th intervals, where a_0,a_1,... are coefficients of f(x) = a_0 + a_1 x^1 + ....
    *   Note that the degree of polynomial is NOT necessarily 3
    */
   public abstract DoubleMatrix solve(double[] xValues, double[] yValues);
@@ -42,7 +43,8 @@ abstract class CubicSplineSolver {
    * If (xValues length) + 2 = (yValues length), Clamped endpoint conditions are used 
    * @param xValues X values of data
    * @param yValues Y values of data
-   * @return Array of  matrices: the 0-th element is Coefficient Matrix (same as the solve method above), the i-th element is \frac{\partial a^{i-1}_j}{\partial yValues_k} 
+   * @return Array of  matrices: the 0-th element is Coefficient Matrix (same as the solve method above),
+   *  the i-th element is \frac{\partial a^{i-1}_j}{\partial yValues_k} 
    *   where a_0^i,a_1^i,... are coefficients of f^i(x) = a_0^i + a_1^i (x - xValues_{i}) + .... with x \in [xValues_{i}, xValues_{i+1}]
    */
   public abstract DoubleMatrix[] solveWithSensitivity(double[] xValues, double[] yValues);
@@ -53,7 +55,8 @@ abstract class CubicSplineSolver {
    * If (xValues length) + 2 = (yValuesMatrix NumberOfColumn), Clamped endpoint conditions are used 
    * @param xValues X values of data
    * @param yValuesMatrix Y values of data, where NumberOfRow defines dimension of the spline
-   * @return A set of coefficient matrices whose i-th row vector is (a_0,a_1,...) for the i-th interval, where a_0,a_1,... are coefficients of f(x) = a_0 + a_1 x^1 + .... 
+   * @return A set of coefficient matrices whose i-th row vector is (a_0,a_1,...) for the i-th interval,
+   *  where a_0,a_1,... are coefficients of f(x) = a_0 + a_1 x^1 + .... 
    *   Each matrix corresponds to an interpolation (xValues, yValuesMatrix RowVector)
    *   Note that the degree of polynomial is NOT necessarily 3
    */
@@ -89,7 +92,8 @@ abstract class CubicSplineSolver {
    * @param yValues Y values of Data
    * @param intervals {xValues[1]-xValues[0], xValues[2]-xValues[1],...}
    * @param solnVector Values of second derivative at knots
-   * @return Coefficient matrix whose i-th row vector is {a_0,a_1,...} for i-th intervals, where a_0,a_1,... are coefficients of f(x) = a_0 + a_1 x^1 + ....
+   * @return Coefficient matrix whose i-th row vector is {a_0,a_1,...} for i-th intervals,
+   *  where a_0,a_1,... are coefficients of f(x) = a_0 + a_1 x^1 + ....
    */
   protected DoubleMatrix getCommonSplineCoeffs(double[] xValues, double[] yValues, double[] intervals, double[] solnVector) {
 
@@ -98,7 +102,8 @@ abstract class CubicSplineSolver {
     for (int i = 0; i < nDataPts - 1; ++i) {
       res[i][0] = solnVector[i + 1] / 6. / intervals[i] - solnVector[i] / 6. / intervals[i];
       res[i][1] = 0.5 * solnVector[i];
-      res[i][2] = yValues[i + 1] / intervals[i] - yValues[i] / intervals[i] - intervals[i] * solnVector[i] / 2. - intervals[i] * solnVector[i + 1] / 6. + intervals[i] * solnVector[i] / 6.;
+      res[i][2] = yValues[i + 1] / intervals[i] - yValues[i] / intervals[i] - intervals[i] * solnVector[i] /
+          2. - intervals[i] * solnVector[i + 1] / 6. + intervals[i] * solnVector[i] / 6.;
       res[i][3] = yValues[i];
     }
     return DoubleMatrix.copyOf(res);
@@ -120,7 +125,8 @@ abstract class CubicSplineSolver {
       for (int k = 0; k < nDataPts; ++k) {
         res[i][0][k] = solnMatrix[i + 1][k] / 6. / intervals[i] - solnMatrix[i][k] / 6. / intervals[i];
         res[i][1][k] = 0.5 * solnMatrix[i][k];
-        res[i][2][k] += -intervals[i] * solnMatrix[i][k] / 2. - intervals[i] * solnMatrix[i + 1][k] / 6. + intervals[i] * solnMatrix[i][k] / 6.;
+        res[i][2][k] += -intervals[i] * solnMatrix[i][k] / 2. - intervals[i] * solnMatrix[i + 1][k] /
+            6. + intervals[i] * solnMatrix[i][k] / 6.;
       }
     }
 
@@ -132,7 +138,8 @@ abstract class CubicSplineSolver {
   }
 
   /**
-   * Cubic spline and its node sensitivity are respectively obtained by solving a linear problem Ax=b where A is a square matrix and x,b are vector and AN=L where N,L are matrices 
+   * Cubic spline and its node sensitivity are respectively obtained by solving a linear problem Ax=b
+   * where A is a square matrix and x,b are vector and AN=L where N,L are matrices 
    * @param xValues X values of data
    * @param yValues Y values of data
    * @param intervals {xValues[1]-xValues[0], xValues[2]-xValues[1],...}
@@ -199,7 +206,8 @@ abstract class CubicSplineSolver {
     Arrays.fill(res, 0.);
 
     for (int i = 1; i < nDataPts - 1; ++i) {
-      res[i] = 6. * yValues[i + 1] / intervals[i] - 6. * yValues[i] / intervals[i] - 6. * yValues[i] / intervals[i - 1] + 6. * yValues[i - 1] / intervals[i - 1];
+      res[i] = 6. * yValues[i + 1] / intervals[i] - 6. * yValues[i] / intervals[i] - 6. *
+          yValues[i] / intervals[i - 1] + 6. * yValues[i - 1] / intervals[i - 1];
     }
 
     return res;
@@ -244,7 +252,8 @@ abstract class CubicSplineSolver {
   }
 
   /**
-   * Cubic spline and its node sensitivity are respectively obtained by solving a linear problem Ax=b where A is a square matrix and x,b are vector and AN=L where N,L are matrices 
+   * Cubic spline and its node sensitivity are respectively obtained by solving a linear problem Ax=b
+   * where A is a square matrix and x,b are vector and AN=L where N,L are matrices 
    * @param doubMat1 The matrix A
    * @param doubVec The vector b
    * @param doubMat2 The matrix L

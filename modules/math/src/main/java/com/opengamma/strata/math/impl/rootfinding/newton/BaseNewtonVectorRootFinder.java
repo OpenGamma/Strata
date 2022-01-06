@@ -22,7 +22,8 @@ import com.opengamma.strata.math.impl.rootfinding.VectorRootFinder;
 import com.opengamma.strata.math.rootfind.NewtonVectorRootFinder;
 
 /**
- * Base implementation for all Newton-Raphson style multi-dimensional root finding (i.e. using the Jacobian matrix as a basis for some iterative process)
+ * Base implementation for all Newton-Raphson style multi-dimensional root finding
+ * (i.e. using the Jacobian matrix as a basis for some iterative process)
  */
 // CSOFF: JavadocMethod
 public class BaseNewtonVectorRootFinder

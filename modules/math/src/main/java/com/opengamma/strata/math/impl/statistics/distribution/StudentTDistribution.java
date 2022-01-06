@@ -19,7 +19,8 @@ import com.opengamma.strata.math.impl.function.special.InverseIncompleteBetaFunc
  * Student's T-distribution is a continuous probability distribution with probability density function
  * $$
  * \begin{align*}
- * f(x) = \frac{\Gamma\left(\frac{\nu + 1}{2}\right)}{\sqrt{\nu\pi}\Gamma(\left(\frac{\nu}{2}\right)}\left(1 + \frac{x^2}{\nu}\right)^{-\frac{1}{2}(\nu + 1)}
+ * f(x) = \frac{\Gamma\left(\frac{\nu + 1}{2}\right)}{\sqrt{\nu\pi}\Gamma(\left(\frac{\nu}{2}\right)}\
+ * left(1 + \frac{x^2}{\nu}\right)^{-\frac{1}{2}(\nu + 1)}
  * \end{align*}
  * $$
  * where $\nu$ is the number of degrees of freedom and $\Gamma$ is the Gamma function ({@link GammaFunction}).

@@ -15,7 +15,8 @@ import com.opengamma.strata.math.linearalgebra.Decomposition;
 public class CholeskyDecompositionOpenGamma implements Decomposition<CholeskyDecompositionResult> {
 
   /**
-   * The input matrix symmetry is checked. If the relative difference abs(Aij-Aji) > max(abs(Aij), abs(Aji)) * e_sym, the matrix is considered non-symmetric.
+   * The input matrix symmetry is checked.
+   * If the relative difference abs(Aij-Aji) > max(abs(Aij), abs(Aji)) * e_sym, the matrix is considered non-symmetric.
    * The default value for the threshold e_sym.
    */
   public static final double DEFAULT_SYMMETRY_THRESHOLD = 1.0E-10;

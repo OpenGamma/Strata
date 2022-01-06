@@ -14,8 +14,9 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
  * of a model live in some hyper-volume in R^n, but we wish to work with unconstrained variables in R^m. <p>
  * The model parameters are denoted as <b>y</b> and the unconstrained variables as <b>y*</b>, which are related by the vector function
  * <b>y*</b> = f(<b>y</b>), and its inverse  <b>y</b> = f<sup>-1</sup>(<b>y*</b>). The i,j element of the Jacobian is the rate of change of 
- * the i<sup>th</sup> element of <b>y*</b> with respect to the  j <sup>th</sup> element of <b>y</b>, which is a (matrix) function of <b>y</b>,
- * i.e. <b>J</b>(<b>y</b>). The inverse Jacobian is the rate of change of <b>y</b> with respect to  <b>y*</b>, i.e. <b>J</b><sup>-1</sup>(<b>y*</b>).
+ * the i<sup>th</sup> element of <b>y*</b> with respect to the  j <sup>th</sup> element of <b>y</b>, which is a (matrix) function
+ * of <b>y</b>, i.e. <b>J</b>(<b>y</b>). The inverse Jacobian is the rate of change of <b>y</b> with respect to 
+ * <b>y*</b>, i.e. <b>J</b><sup>-1</sup>(<b>y*</b>).
  * These four functions must be provided by implementations of this interface. 
  */
 //CSOFF: JavadocMethod

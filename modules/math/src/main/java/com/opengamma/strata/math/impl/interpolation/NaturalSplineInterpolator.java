@@ -41,7 +41,8 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
   /**
    * @param xValues X values of data
    * @param yValues Y values of data
-   * @return {@link PiecewisePolynomialResult} containing knots, coefficients of piecewise polynomials, number of intervals, degree of polynomials, dimension of spline
+   * @return {@link PiecewisePolynomialResult} containing knots, coefficients of piecewise polynomials,
+   *  number of intervals, degree of polynomials, dimension of spline
    */
   @Override
   public PiecewisePolynomialResult interpolate(final double[] xValues, final double[] yValues) {
@@ -84,7 +85,8 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
   /**
    * @param xValues X values of data
    * @param yValuesMatrix Y values of data, where NumberOfRow defines dimension of the spline
-   * @return {@link PiecewisePolynomialResult} containing knots, coefficients of piecewise polynomials, number of intervals, degree of polynomials, dimension of spline
+   * @return {@link PiecewisePolynomialResult} containing knots, coefficients of piecewise polynomials,
+   *  number of intervals, degree of polynomials, dimension of spline
    */
   @Override
   public PiecewisePolynomialResult interpolate(final double[] xValues, final double[][] yValuesMatrix) {

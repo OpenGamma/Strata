@@ -54,8 +54,10 @@ import com.opengamma.strata.product.bond.ResolvedFixedCouponBondTrade;
  * 
  * @param <T> the trade or position type
  */
+//CSOFF: LineLengthCheck
 public class FixedCouponBondTradeCalculationFunction<T extends SecuritizedProductPortfolioItem<FixedCouponBond> & Resolvable<ResolvedFixedCouponBondTrade>>
     implements CalculationFunction<T> {
+//CSON: LineLengthCheck
 
   /**
    * The trade instance

@@ -33,9 +33,10 @@ import com.opengamma.strata.math.impl.function.DoubleFunction1D;
  * currently does not attempt to correct for this: if the value of $x$ goes beyond the initial range of values $x_{low}$
  * and $x_{high}$, an exception is thrown.
  * <p>
- * If the function that is provided does not override the {@link com.opengamma.strata.math.impl.function.DoubleFunction1D#derivative()} method, then 
- * the derivative is approximated using finite difference. This is undesirable for several reasons: (i) the extra function evaluations will lead
- * to slower convergence; and (ii) the choice of shift size is very important (too small and the result will be dominated by rounding errors, too large
+ * If the function that is provided does not override the {@link com.opengamma.strata.math.impl.function.DoubleFunction1D#derivative()}
+ * method, then  the derivative is approximated using finite difference. This is undesirable for several reasons:
+ * (i) the extra function evaluations will lead to slower convergence; and 
+ * (ii) the choice of shift size is very important (too small and the result will be dominated by rounding errors, too large
  * and convergence will be even slower). Use of another root-finder is recommended in this case.
  */
 // CSOFF: JavadocMethod

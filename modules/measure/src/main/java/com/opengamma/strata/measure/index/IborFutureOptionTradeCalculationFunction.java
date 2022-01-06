@@ -65,8 +65,10 @@ import com.opengamma.strata.product.index.ResolvedIborFutureOptionTrade;
  * 
  * @param <T> the trade or position type
  */
+//CSOFF: LineLengthCheck
 public class IborFutureOptionTradeCalculationFunction<T extends SecuritizedProductPortfolioItem<IborFutureOption> & Resolvable<ResolvedIborFutureOptionTrade>>
     implements CalculationFunction<T> {
+//CSON: LineLengthCheck
 
   /**
    * The trade instance

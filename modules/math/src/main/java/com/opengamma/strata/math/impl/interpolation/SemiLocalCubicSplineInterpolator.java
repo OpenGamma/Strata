@@ -205,7 +205,8 @@ public class SemiLocalCubicSplineInterpolator extends PiecewisePolynomialInterpo
         if (Math.abs(slopesExt[i + 1] - slopesExt[i]) == 0.) {
           res[i] = slopesExt[i];
         } else {
-          res[i] = (Math.abs(slopesExt[i + 3] - slopesExt[i + 2]) * slopesExt[i + 1] + Math.abs(slopesExt[i + 1] - slopesExt[i]) * slopesExt[i + 2]) /
+          res[i] = (Math.abs(slopesExt[i + 3] - slopesExt[i + 2]) * slopesExt[i + 1] +
+              Math.abs(slopesExt[i + 1] - slopesExt[i]) * slopesExt[i + 2]) /
               (Math.abs(slopesExt[i + 3] - slopesExt[i + 2]) + Math.abs(slopesExt[i + 1] - slopesExt[i]));
         }
       }

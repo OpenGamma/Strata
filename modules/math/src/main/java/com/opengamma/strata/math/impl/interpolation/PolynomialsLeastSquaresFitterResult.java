@@ -25,7 +25,7 @@ public class PolynomialsLeastSquaresFitterResult {
    * @param dof Degrees of freedom = Number of data points - (degrees of Polynomial + 1) 
    * @param diffNorm Square norm of the vector, "residuals," whose components are yData_i - f(xData_i)
    */
-  public PolynomialsLeastSquaresFitterResult(final double[] coefficients, final DoubleMatrix rMatrix, final int dof, final double diffNorm) {
+  public PolynomialsLeastSquaresFitterResult(double[] coefficients, DoubleMatrix rMatrix, int dof, double diffNorm) {
 
     _coefficients = coefficients;
     _rMatrix = rMatrix;
@@ -42,7 +42,7 @@ public class PolynomialsLeastSquaresFitterResult {
    * @param diffNorm Norm of the vector, "residuals," whose components are yData_i - f(xData_i)
    * @param meanAndStd Vector (mean , standard deviation) used in normalization 
    */
-  public PolynomialsLeastSquaresFitterResult(final double[] coefficients, final DoubleMatrix rMatrix, final int dof, final double diffNorm, final double[] meanAndStd) {
+  public PolynomialsLeastSquaresFitterResult(double[] coefficients, DoubleMatrix rMatrix, int dof, double diffNorm, double[] meanAndStd) {
 
     _coefficients = coefficients;
     _rMatrix = rMatrix;

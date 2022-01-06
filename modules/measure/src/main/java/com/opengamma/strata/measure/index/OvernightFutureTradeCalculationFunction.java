@@ -63,8 +63,10 @@ import com.opengamma.strata.product.index.ResolvedOvernightFutureTrade;
  * 
  * @param <T> the trade or position type
  */
+//CSOFF: LineLengthCheck
 public class OvernightFutureTradeCalculationFunction<T extends SecuritizedProductPortfolioItem<OvernightFuture> & Resolvable<ResolvedOvernightFutureTrade>>
     implements CalculationFunction<T> {
+//CSON: LineLengthCheck
 
   /**
    * The trade instance

@@ -30,7 +30,8 @@ public class LaguerrePolynomialRealRootFinder implements Polynomial1DRootFinder<
 
   /**
    * {@inheritDoc}
-   * @throws MathException If there are no real roots; if the Commons method could not evaluate the function; if the Commons method could not converge.
+   * @throws MathException If there are no real roots; if the Commons method could not evaluate the function;
+   *  if the Commons method could not converge.
    */
   @Override
   public Double[] getRoots(RealPolynomialFunction1D function) {

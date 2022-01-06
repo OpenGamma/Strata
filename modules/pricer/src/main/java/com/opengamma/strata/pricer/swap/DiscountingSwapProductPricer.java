@@ -205,7 +205,8 @@ public class DiscountingSwapProductPricer {
     RatePaymentPeriod payment = (RatePaymentPeriod) firstPeriod;
     if (payment.getAccrualPeriods().size() == 1) {
       RateAccrualPeriod firstAccrualPeriod = payment.getAccrualPeriods().get(0);
-      if (firstAccrualPeriod.getRateComputation() instanceof FixedOvernightCompoundedAnnualRateComputation) { // check for future value notional
+      // check for future value notional
+      if (firstAccrualPeriod.getRateComputation() instanceof FixedOvernightCompoundedAnnualRateComputation) {
         double accrualFactor = payment.getAccrualPeriods().get(0).getYearFraction();
         double notional = payment.getNotional();
         double df = provider.discountFactor(ccyFixedLeg, payment.getPaymentDate());
@@ -406,7 +407,8 @@ public class DiscountingSwapProductPricer {
       double notional = payment.getNotional();
       double df = provider.discountFactor(ccyFixedLeg, payment.getPaymentDate());
       double otherLegsConvertedPvBar = -Math.pow(-otherLegsConvertedPv  / (notional * df) + 1.0d, 1.0 / af - 1.0d) / (af * notional * df);
-      double dfBar = Math.pow(-otherLegsConvertedPv  / (notional * df) + 1.0d, 1.0 / af - 1.0d) * otherLegsConvertedPv / (af * notional * df * df);
+      double dfBar = Math.pow(
+          -otherLegsConvertedPv / (notional * df) + 1.0d, 1.0 / af - 1.0d) * otherLegsConvertedPv / (af * notional * df * df);
       PointSensitivityBuilder otherLegsConvertedPvDr = PointSensitivityBuilder.none();
       for (ResolvedSwapLeg leg : swap.getLegs()) {
         if (leg != fixedLeg) {
@@ -416,7 +418,8 @@ public class DiscountingSwapProductPricer {
         }
       }
       otherLegsConvertedPvDr = otherLegsConvertedPvDr.withCurrency(ccyFixedLeg);
-      PointSensitivityBuilder dfDr = provider.discountFactors(ccyFixedLeg).zeroRatePointSensitivity(fixedLeg.getPaymentPeriods().get(0).getPaymentDate());
+      PointSensitivityBuilder dfDr = provider.discountFactors(
+          ccyFixedLeg).zeroRatePointSensitivity(fixedLeg.getPaymentPeriods().get(0).getPaymentDate());
       return dfDr.multipliedBy(dfBar).combinedWith(otherLegsConvertedPvDr.multipliedBy(otherLegsConvertedPvBar));
     }
     double fixedLegEventsPv = legPricer.presentValueEventsInternal(fixedLeg, provider);

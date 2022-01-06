@@ -163,7 +163,9 @@ public final class SabrExtrapolationRightFunction {
     this.mu = mu;
     if (timeToExpiry > SMALL_EXPIRY) {
       parameter = computesFittingParameters();
-    } else { // Implementation note: when time to expiry is very small, the price above the cut-off strike and its derivatives should be 0 (or at least very small).
+    } else {
+      // Implementation note: when time to expiry is very small,
+      // the price above the cut-off strike and its derivatives should be 0 (or at least very small).
       parameter = new double[] {SMALL_PARAMETER, 0.0, 0.0};
       parameterDerivativeForward = new double[3];
       parameterDerivativeSabr = new double[4][3];
@@ -377,7 +379,8 @@ public final class SabrExtrapolationRightFunction {
     priceK[1] = bsD[1] + bsD[3] * vD[1];
     priceK[2] = bsD2[1][1] + bsD2[1][2] * vD[1] + (bsD2[2][1] + bsD2[2][2] * vD[1]) * vD[1] + bsD[3] * vD2[1][1];
     if (Math.abs(priceK[0]) < SMALL_PRICE && Math.abs(priceK[1]) < SMALL_PRICE && Math.abs(priceK[2]) < SMALL_PRICE) {
-      // Implementation note: If value and its derivatives is too small, then parameters are such that the extrapolated price is "very small".
+      // Implementation note:
+      // If value and its derivatives is too small, then parameters are such that the extrapolated price is "very small".
       return new double[] {-100.0, 0, 0};
     }
     Function<Double, Double> toSolveC = getCFunction(priceK, cutOffStrike, mu);
@@ -402,7 +405,8 @@ public final class SabrExtrapolationRightFunction {
    */
   private double[] computesParametersDerivativeForward() {
     if (Math.abs(priceK[0]) < SMALL_PRICE && Math.abs(priceK[1]) < SMALL_PRICE && Math.abs(priceK[2]) < SMALL_PRICE) {
-      // Implementation note: If value and its derivatives is too small, then parameters are such that the extrapolated price is "very small".
+      // Implementation note:
+      // If value and its derivatives is too small, then parameters are such that the extrapolated price is "very small".
       return new double[] {0.0, 0.0, 0.0};
     }
     // Derivative of price with respect to forward.
@@ -469,7 +473,8 @@ public final class SabrExtrapolationRightFunction {
   private double[][] computesParametersDerivativeSabr() {
     double[][] result = new double[4][3];
     if (Math.abs(priceK[0]) < SMALL_PRICE && Math.abs(priceK[1]) < SMALL_PRICE && Math.abs(priceK[2]) < SMALL_PRICE) {
-      // Implementation note: If value and its derivatives is too small, then parameters are such that the extrapolated price is "very small".
+      // Implementation note:
+      // If value and its derivatives is too small, then parameters are such that the extrapolated price is "very small".
       return result;
     }
     // Derivative of price with respect to SABR parameters.

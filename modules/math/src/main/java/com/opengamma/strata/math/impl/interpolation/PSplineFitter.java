@@ -27,13 +27,25 @@ public class PSplineFitter {
    * @param xa The lowest value of x 
    * @param xb The highest value of x 
    * @param nKnots Number of knots (note, the actual number of basis splines and thus fitted weights, equals nKnots + degree-1)
-   * @param degree The degree of the basis function - 0 is piecewise constant, 1 is a sawtooth function (i.e. two straight lines joined in the middle), 2 gives three 
-   *   quadratic sections joined together, etc. For a large value of degree, the basis function tends to a gaussian 
+   * @param degree The degree of the basis function - 0 is piecewise constant, 1 is a sawtooth function
+   *  (i.e. two straight lines joined in the middle), 2 gives three 
+   *  quadratic sections joined together, etc. For a large value of degree, the basis function tends to a gaussian 
    * @param lambda The weight given to the penalty function 
-   * @param differenceOrder applies the penalty the nth order difference in the weights, so a differenceOrder of 2 will penalise large 2nd derivatives etc
+   * @param differenceOrder applies the penalty the nth order difference in the weights,
+   *  so a differenceOrder of 2 will penalise large 2nd derivatives etc
    * @return The results of the fit
    */
-  public GeneralizedLeastSquareResults<Double> solve(List<Double> x, List<Double> y, List<Double> sigma, double xa, double xb, int nKnots, int degree, double lambda, int differenceOrder) {
+  public GeneralizedLeastSquareResults<Double> solve(
+      List<Double> x,
+      List<Double> y,
+      List<Double> sigma,
+      double xa,
+      double xb,
+      int nKnots,
+      int degree,
+      double lambda,
+      int differenceOrder) {
+
     List<Function<Double, Double>> bSplines = _generator.generateSet(BasisFunctionKnots.fromUniform(xa, xb, nKnots, degree));
     return _gls.solve(x, y, sigma, bSplines, lambda, differenceOrder);
   }
@@ -56,8 +68,17 @@ public class PSplineFitter {
    *   will penalize large 2nd derivatives etc. A difference differenceOrder can be used in each dimension 
    * @return The results of the fit
    */
-  public GeneralizedLeastSquareResults<double[]> solve(List<double[]> x, List<Double> y, List<Double> sigma, double[] xa, double[] xb, int[] nKnots, int[] degree, double[] lambda,
+  public GeneralizedLeastSquareResults<double[]> solve(
+      List<double[]> x,
+      List<Double> y,
+      List<Double> sigma,
+      double[] xa,
+      double[] xb,
+      int[] nKnots,
+      int[] degree,
+      double[] lambda,
       int[] differenceOrder) {
+
     BasisFunctionKnots[] knots = new BasisFunctionKnots[xa.length];
     for (int i = 0; i < xa.length; i++) {
       knots[i] = BasisFunctionKnots.fromUniform(xa[i], xb[i], nKnots[i], degree[i]);

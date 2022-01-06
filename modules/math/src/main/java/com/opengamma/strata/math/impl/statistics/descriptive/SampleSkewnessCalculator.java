@@ -15,7 +15,8 @@ import com.opengamma.strata.collect.ArgChecker;
  * unbiased estimator of the sample skewness is
  * $$
  * \begin{align*}
- * \mu_3 = \frac{\sqrt{n(n-1)}}{n-2}\frac{\frac{1}{n}\sum_{i=1}^n (x_i - \overline{x})^3}{\left(\frac{1}{n}\sum_{i=1}^n (x_i - \overline{x})^2\right)^\frac{3}{2}}
+ * \mu_3 = \frac{\sqrt{n(n-1)}}{n-2}\frac{\frac{1}{n}\sum_{i=1}^n 
+ * (x_i - \overline{x})^3}{\left(\frac{1}{n}\sum_{i=1}^n (x_i - \overline{x})^2\right)^\frac{3}{2}}
  * \end{align*}
  * $$
  * where $\overline{x}$ is the sample mean.

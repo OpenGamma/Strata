@@ -625,10 +625,12 @@ public class NonLinearLeastSquare {
     return new LeastSquareResults(newChiSqr, newTheta, covariance, inverseJacobian);
   }
 
-  private DoubleArray getError(final Function<DoubleArray, DoubleArray> func, final DoubleArray observedValues, final DoubleArray sigma, final DoubleArray theta) {
+  private DoubleArray getError(Function<DoubleArray, DoubleArray> func, DoubleArray observedValues, DoubleArray sigma, DoubleArray theta) {
     int n = observedValues.size();
     DoubleArray modelValues = func.apply(theta);
-    ArgChecker.isTrue(n == modelValues.size(), "Number of data points different between model (" + modelValues.size() + ") and observed (" + n + ")");
+    ArgChecker.isTrue(
+        n == modelValues.size(),
+        "Number of data points different between model (" + modelValues.size() + ") and observed (" + n + ")");
     return DoubleArray.of(n, i -> (observedValues.get(i) - modelValues.get(i)) / sigma.get(i));
   }
 
@@ -647,7 +649,7 @@ public class NonLinearLeastSquare {
     return DoubleMatrix.copyOf(res);
   }
 
-  private DoubleMatrix getJacobian(final Function<DoubleArray, DoubleMatrix> jac, final DoubleArray sigma, final DoubleArray theta) {
+  private DoubleMatrix getJacobian(Function<DoubleArray, DoubleMatrix> jac, DoubleArray sigma, DoubleArray theta) {
     DoubleMatrix res = jac.apply(theta);
     double[][] data = res.toArray();
     int n = res.rowCount();

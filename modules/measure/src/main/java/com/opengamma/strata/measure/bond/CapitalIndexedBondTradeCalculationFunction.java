@@ -56,8 +56,10 @@ import com.opengamma.strata.product.bond.ResolvedCapitalIndexedBondTrade;
  * 
  * @param <T> the trade or position type
  */
+// CSOFF: LineLengthCheck
 public class CapitalIndexedBondTradeCalculationFunction<T extends SecuritizedProductPortfolioItem<CapitalIndexedBond> & Resolvable<ResolvedCapitalIndexedBondTrade>>
     implements CalculationFunction<T> {
+// CSON: LineLengthCheck
 
   /**
    * The trade instance

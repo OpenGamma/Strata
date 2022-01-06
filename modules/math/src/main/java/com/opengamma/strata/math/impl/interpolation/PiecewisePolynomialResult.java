@@ -11,7 +11,8 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 /**
  * Result of interpolation by piecewise polynomial containing
  * _knots: Positions of knots
- * _coefMatrix: Coefficient matrix whose i-th row vector is { a_n, a_{n-1}, ...} for the i-th interval, where a_n, a_{n-1},... are coefficients of f(x) = a_n (x-x_i)^n + a_{n-1} (x-x_i)^{n-1} + ....
+ * _coefMatrix: Coefficient matrix whose i-th row vector is { a_n, a_{n-1}, ...}
+ * for the i-th interval, where a_n, a_{n-1},... are coefficients of f(x) = a_n (x-x_i)^n + a_{n-1} (x-x_i)^{n-1} + ....
  * In multidimensional cases, coefficients for the i-th interval of the j-th spline is in (j*(i-1) + i) -th row vector.
  * _nIntervals: Number of intervals, which should be (Number of knots) - 1
  * _order: Number of coefficients in polynomial, which is equal to (polynomial degree) + 1

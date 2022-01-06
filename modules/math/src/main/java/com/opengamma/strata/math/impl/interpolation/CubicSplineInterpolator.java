@@ -26,7 +26,8 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
    * If (xValues length) + 2 = (yValues length), Clamped endpoint conditions are used.
    * @param xValues X values of data
    * @param yValues Y values of data
-   * @return {@link PiecewisePolynomialResult} containing knots, coefficients of piecewise polynomials, number of intervals, degree of polynomials, dimension of spline
+   * @return {@link PiecewisePolynomialResult} containing knots, coefficients of piecewise polynomials,
+   *  number of intervals, degree of polynomials, dimension of spline
    */
   @Override
   public PiecewisePolynomialResult interpolate(final double[] xValues, final double[] yValues) {
@@ -34,7 +35,9 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
     ArgChecker.notNull(xValues, "xValues");
     ArgChecker.notNull(yValues, "yValues");
 
-    ArgChecker.isTrue(xValues.length == yValues.length | xValues.length + 2 == yValues.length, "(xValues length = yValues length) or (xValues length + 2 = yValues length)");
+    ArgChecker.isTrue(
+        xValues.length == yValues.length | xValues.length + 2 == yValues.length,
+        "(xValues length = yValues length) or (xValues length + 2 = yValues length)");
     ArgChecker.isTrue(xValues.length > 1, "Data points should be more than 1");
 
     final int nDataPts = xValues.length;
@@ -82,7 +85,8 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
    * If (xValues length) + 2 = (yValuesMatrix NumberOfColumn), Clamped endpoint conditions are used.
    * @param xValues X values of data
    * @param yValuesMatrix Y values of data, where NumberOfRow defines dimension of the spline
-   * @return {@link PiecewisePolynomialResult} containing knots, coefficients of piecewise polynomials, number of intervals, degree of polynomials, dimension of spline
+   * @return {@link PiecewisePolynomialResult} containing knots, coefficients of piecewise polynomials,
+   *  number of intervals, degree of polynomials, dimension of spline
    */
   @Override
   public PiecewisePolynomialResult interpolate(final double[] xValues, final double[][] yValuesMatrix) {
@@ -161,7 +165,9 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
     ArgChecker.notNull(xValues, "xValues");
     ArgChecker.notNull(yValues, "yValues");
 
-    ArgChecker.isTrue(xValues.length == yValues.length | xValues.length + 2 == yValues.length, "(xValues length = yValues length) or (xValues length + 2 = yValues length)");
+    ArgChecker.isTrue(
+        xValues.length == yValues.length | xValues.length + 2 == yValues.length,
+        "(xValues length = yValues length) or (xValues length + 2 = yValues length)");
     ArgChecker.isTrue(xValues.length > 1, "Data points should be more than 1");
 
     final int nDataPts = xValues.length;

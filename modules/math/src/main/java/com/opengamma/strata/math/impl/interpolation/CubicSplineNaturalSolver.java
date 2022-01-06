@@ -13,24 +13,25 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 public class CubicSplineNaturalSolver extends CubicSplineSolver {
 
   @Override
-  public DoubleMatrix solve(final double[] xValues, final double[] yValues) {
-    final double[] intervals = getDiffs(xValues);
-    return getCommonSplineCoeffs(xValues, yValues, intervals, matrixEqnSolver(getMatrix(intervals), getCommonVectorElements(yValues, intervals)));
+  public DoubleMatrix solve(double[] xValues, double[] yValues) {
+    double[] intervals = getDiffs(xValues);
+    return getCommonSplineCoeffs(
+        xValues, yValues, intervals, matrixEqnSolver(getMatrix(intervals), getCommonVectorElements(yValues, intervals)));
   }
 
   @Override
-  public DoubleMatrix[] solveWithSensitivity(final double[] xValues, final double[] yValues) {
-    final double[] intervals = getDiffs(xValues);
-    final double[][] toBeInv = getMatrix(intervals);
-    final double[] commonVector = getCommonVectorElements(yValues, intervals);
-    final double[][] commonVecSensitivity = getCommonVectorSensitivity(intervals);
+  public DoubleMatrix[] solveWithSensitivity(double[] xValues, double[] yValues) {
+    double[] intervals = getDiffs(xValues);
+    double[][] toBeInv = getMatrix(intervals);
+    double[] commonVector = getCommonVectorElements(yValues, intervals);
+    double[][] commonVecSensitivity = getCommonVectorSensitivity(intervals);
 
     return getCommonCoefficientWithSensitivity(xValues, yValues, intervals, toBeInv, commonVector, commonVecSensitivity);
   }
 
   @Override
-  public DoubleMatrix[] solveMultiDim(final double[] xValues, final DoubleMatrix yValuesMatrix) {
-    final int dim = yValuesMatrix.rowCount();
+  public DoubleMatrix[] solveMultiDim(double[] xValues, DoubleMatrix yValuesMatrix) {
+    int dim = yValuesMatrix.rowCount();
     DoubleMatrix[] coefMatrix = new DoubleMatrix[dim];
 
     for (int i = 0; i < dim; ++i) {
@@ -45,9 +46,8 @@ public class CubicSplineNaturalSolver extends CubicSplineSolver {
    * @param intervals {xValues[1]-xValues[0], xValues[2]-xValues[1],...}
    * @return Matrix A
    */
-  private double[][] getMatrix(final double[] intervals) {
-
-    final int nData = intervals.length + 1;
+  private double[][] getMatrix(double[] intervals) {
+    int nData = intervals.length + 1;
     double[][] res = new double[nData][nData];
 
     res = getCommonMatrixElements(intervals);

@@ -55,7 +55,8 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    * @param strikes  the ordered values of strikes
    * @param timeToExpiry  the time-to-expiry
    * @param impliedVols  the market implied volatilities
-   * @param error  the 'measurement' error to apply to the market volatility of a particular option TODO: Review should this be part of  EuropeanOptionMarketData?
+   * @param error  the 'measurement' error to apply to the market volatility of a particular option
+   *  TODO: Review should this be part of  EuropeanOptionMarketData?
    * @param model  the volatility function provider
    */
   public SmileModelFitter(

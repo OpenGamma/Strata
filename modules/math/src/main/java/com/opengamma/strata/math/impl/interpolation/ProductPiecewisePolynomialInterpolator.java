@@ -15,9 +15,11 @@ import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivit
 
 /**
  * Given a data set {xValues[i], yValues[i]}, interpolate {xValues[i], xValues[i] * yValues[i]} by a piecewise polynomial function. 
- * The interpolation can be clamped at {xValuesClamped[j], xValuesClamped[j] * yValuesClamped[j]}, i.e., {xValuesClamped[j], yValuesClamped[j]}, 
+ * The interpolation can be clamped at {xValuesClamped[j], xValuesClamped[j] * yValuesClamped[j]},
+ * i.e., {xValuesClamped[j], yValuesClamped[j]}, 
  * where the extra points can be inside or outside the data range. 
- * By default right extrapolation is completed with a linear function, whereas default left extrapolation uses polynomial coefficients for the leftmost interval 
+ * By default right extrapolation is completed with a linear function, whereas default left extrapolation
+ * uses polynomial coefficients for the leftmost interval 
  * and left linear extrapolation can be straightforwardly computed from the coefficients.
  * This default setting is changed by adding extra node points outside the data range. 
  */

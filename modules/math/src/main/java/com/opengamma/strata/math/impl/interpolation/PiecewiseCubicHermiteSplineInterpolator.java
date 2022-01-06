@@ -18,7 +18,8 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
  * Fritsch, F. N.; Carlson, R. E. (1980) 
  * "Monotone Piecewise Cubic Interpolation", SIAM Journal on Numerical Analysis 17 (2): 238–246. 
  * Fritsch, F. N. and Butland, J. (1984)
- * "A method for constructing local monotone piecewise cubic interpolants", SIAM Journal on Scientific and Statistical Computing 5 (2): 300-304.
+ * "A method for constructing local monotone piecewise cubic interpolants",
+ * SIAM Journal on Scientific and Statistical Computing 5 (2): 300-304.
  */
 public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomialInterpolator {
 
@@ -120,7 +121,8 @@ public class PiecewiseCubicHermiteSplineInterpolator extends PiecewisePolynomial
   /**
    * @param xValues X values of data
    * @param yValues Y values of data
-   * @return Coefficient matrix whose i-th row vector is {a3, a2, a1, a0} of f(x) = a3 * (x-x_i)^3 + a2 * (x-x_i)^2 +... for the i-th interval
+   * @return Coefficient matrix whose i-th row vector is
+   *  {a3, a2, a1, a0} of f(x) = a3 * (x-x_i)^3 + a2 * (x-x_i)^2 +... for the i-th interval
    */
   private DoubleMatrix solve(final double[] xValues, final double[] yValues) {
 

@@ -19,7 +19,8 @@ public abstract class PiecewisePolynomialInterpolator {
    * 
    * @param xValues X values of data
    * @param yValues Y values of data
-   * @return {@link PiecewisePolynomialResult} containing knots, coefficients of piecewise polynomials, number of intervals, degree of polynomials, dimension of spline
+   * @return {@link PiecewisePolynomialResult} containing knots, coefficients of piecewise polynomials,
+   *  number of intervals, degree of polynomials, dimension of spline
    */
   public abstract PiecewisePolynomialResult interpolate(final double[] xValues, final double[] yValues);
 
@@ -28,7 +29,8 @@ public abstract class PiecewisePolynomialInterpolator {
    * 
    * @param xValues X values of data
    * @param yValuesMatrix Y values of data
-   * @return Coefficient matrix whose i-th row vector is {a_n, a_{n-1}, ... } of f(x) = a_n * (x-x_i)^n + a_{n-1} * (x-x_i)^{n-1} +... for the i-th interval
+   * @return Coefficient matrix whose i-th row vector is {a_n, a_{n-1}, ... } 
+   *  of f(x) = a_n * (x-x_i)^n + a_{n-1} * (x-x_i)^{n-1} +... for the i-th interval
    */
   public abstract PiecewisePolynomialResult interpolate(final double[] xValues, final double[][] yValuesMatrix);
 

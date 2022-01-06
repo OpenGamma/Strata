@@ -16,8 +16,10 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
  * Result by piecewise polynomial f(x0,x1) containing
  * _knots0: Positions of knots in x0 direction
  * _knots1: Positions of knots in x1 direction
- * _coefMatrix: Coefficient matrix whose (i,j) element is a DoubleMatrix containing coefficients for the square, _knots0_i < x0 < _knots0_{i+1}, _knots1_j < x1 < _knots1_{j+1},
- * Each DoubleMatrix is c_ij where f(x0,x1) = sum_{i=0}^{order0-1} sum_{j=0}^{order1-1} coefMat_{ij} (x0-knots0_i)^{order0-1-i} (x1-knots1_j)^{order0-1-j}
+ * _coefMatrix: Coefficient matrix whose (i,j) element is a DoubleMatrix containing coefficients
+ * for the square, _knots0_i < x0 < _knots0_{i+1}, _knots1_j < x1 < _knots1_{j+1},
+ * Each DoubleMatrix is c_ij where f(x0,x1) = sum_{i=0}^{order0-1} sum_{j=0}^{order1-1}
+ * coefMat_{ij} (x0-knots0_i)^{order0-1-i} (x1-knots1_j)^{order0-1-j}
  * _nIntervals: Number of intervals in x0 direction and x1 direction, respectively, which should be (Number of knots) - 1
  * _order: Number of coefficients in polynomial in terms of x0 and x1, respectively, which is equal to (polynomial degree) + 1
  */
@@ -36,8 +38,7 @@ public class PiecewisePolynomialResult2D {
    * @param coefMatrix The coefficient matrix
    * @param order The order of the polynomial
    */
-  public PiecewisePolynomialResult2D(final DoubleArray knots0, final DoubleArray knots1, final DoubleMatrix[][] coefMatrix, final int[] order) {
-
+  public PiecewisePolynomialResult2D(DoubleArray knots0, DoubleArray knots1, DoubleMatrix[][] coefMatrix, int[] order) {
     _knots0 = knots0;
     _knots1 = knots1;
     _coefMatrix = coefMatrix;
@@ -52,7 +53,7 @@ public class PiecewisePolynomialResult2D {
    * @return _knots0 and _knots1 contained in a ArrayList
    */
   public ArrayList<DoubleArray> getKnots2D() {
-    final ArrayList<DoubleArray> res = new ArrayList<>();
+    ArrayList<DoubleArray> res = new ArrayList<>();
     res.add(_knots0);
     res.add(_knots1);
 

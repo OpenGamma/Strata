@@ -6,8 +6,9 @@
 package com.opengamma.strata.math.impl.minimization;
 
 /**
- * Interface for objects containing functions that can transform constrained model parameters into unconstrained fitting parameters and vice versa. It also
- * provides functions that will provide the gradient of the functions that perform these transformations. Let y be the model parameter and
+ * Interface for objects containing functions that can transform constrained model parameters into
+ * unconstrained fitting parameters and vice versa. It also provides functions that will provide the gradient
+ * of the functions that perform these transformations. Let y be the model parameter and
  * yStar the transformed (fitting) parameter, then we write y* = f(y)
  */
 public interface ParameterLimitsTransform {

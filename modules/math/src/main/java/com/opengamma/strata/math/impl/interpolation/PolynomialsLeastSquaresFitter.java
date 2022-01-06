@@ -50,7 +50,8 @@ public class PolynomialsLeastSquaresFitter {
    * @param yData Y values of data
    * @param degree Degree of polynomial which fits the given data
    * @param normalize Normalize xData by mean and standard deviation if normalize == true
-   * @return PolynomialsLeastSquaresRegressionResult containing coefficients, rMatrix, degrees of freedom, norm of residuals, and mean, standard deviation
+   * @return PolynomialsLeastSquaresRegressionResult containing coefficients, rMatrix, degrees of freedom,
+   *  norm of residuals, and mean, standard deviation
    */
   public PolynomialsLeastSquaresFitterResult regressVerbose(
       double[] xData,
