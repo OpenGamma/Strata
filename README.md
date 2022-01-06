@@ -1,13 +1,13 @@
 Strata
 ======
 
-[![Build Status](https://travis-ci.org/OpenGamma/Strata.svg?branch=master)](https://travis-ci.org/OpenGamma/Strata) [![License](http://img.shields.io/:license-apache-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
+[![Strata Build Status](https://circleci.com/gh/OpenGamma/Strata.svg?style=shield)](https://strata.opengamma.io) [![License](http://img.shields.io/:license-apache-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
-This repository contains the source code of Strata, the open source analytics and market risk library from OpenGamma.
+This repository contains the source code of [Strata](https://strata.opengamma.io),
+the open source analytics and market risk library from [OpenGamma](https://opengamma.com/).
 
 Strata is released as Open Source Software under the
 [Apache v2.0 license](https://www.apache.org/licenses/LICENSE-2.0.html). 
-Commercial support is [available](https://opengamma.com/) from the authors.
 
 [![OpenGamma](https://s3-eu-west-1.amazonaws.com/og-public-downloads/og-logo-alpha.png "OpenGamma")](https://opengamma.com/)
 
@@ -15,7 +15,7 @@ Commercial support is [available](https://opengamma.com/) from the authors.
 Using Strata
 ------------
 
-Documentation for Strata can be found at https://strata.opengamma.io.
+Documentation for Strata can be found at the [Strata home page](https://strata.opengamma.io).
 
 To use Strata Java SE 8u40 or later is required.
 The JAR files are available in [Maven Central](https://search.maven.org/search?q=g:com.opengamma.strata):
@@ -24,7 +24,7 @@ The JAR files are available in [Maven Central](https://search.maven.org/search?q
 <dependency>
   <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-measure</artifactId>
-  <version>2.10.0</version>
+  <version>2.11.0</version>
 </dependency>
 ```
 
@@ -59,7 +59,7 @@ On Java 8, this will be excluded from compilation if JavaFX is not available in 
 On Java 11, OpenJFX is included as a jar file from Maven Central, so the GUI is always compiled.
 
 We recommend builds of OpenJDK from providers other than Oracle, notably
-[Amazon Corretto](https://aws.amazon.com/corretto/) and [AdoptOpenJDK](https://adoptopenjdk.net/).
+[Amazon Corretto](https://aws.amazon.com/corretto/) and [Adoptium](https://adoptium.net/).
 
 For more information about developing code on Strata
 see the [documentation](https://strata.opengamma.io).
