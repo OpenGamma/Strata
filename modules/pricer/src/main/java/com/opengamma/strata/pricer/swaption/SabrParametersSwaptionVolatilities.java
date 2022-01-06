@@ -43,7 +43,7 @@ import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.model.SabrInterestRateParameters;
 import com.opengamma.strata.product.common.PutCall;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedFloatSwapConvention;
 
 /**
  * Volatility environment for swaptions in the SABR model.
@@ -67,7 +67,7 @@ public final class SabrParametersSwaptionVolatilities
    * The swap convention that the volatilities are to be used for.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final FixedIborSwapConvention convention;
+  private final FixedFloatSwapConvention convention;
   /**
    * The valuation date-time.
    * <p>
@@ -125,7 +125,7 @@ public final class SabrParametersSwaptionVolatilities
    */
   public static SabrParametersSwaptionVolatilities of(
       SwaptionVolatilitiesName name,
-      FixedIborSwapConvention convention,
+      FixedFloatSwapConvention convention,
       ZonedDateTime valuationDateTime,
       SabrInterestRateParameters parameters) {
 
@@ -355,7 +355,7 @@ public final class SabrParametersSwaptionVolatilities
 
   private SabrParametersSwaptionVolatilities(
       SwaptionVolatilitiesName name,
-      FixedIborSwapConvention convention,
+      FixedFloatSwapConvention convention,
       ZonedDateTime valuationDateTime,
       SabrInterestRateParameters parameters,
       List<DoubleArray> dataSensitivityAlpha,
@@ -397,7 +397,7 @@ public final class SabrParametersSwaptionVolatilities
    * @return the value of the property, not null
    */
   @Override
-  public FixedIborSwapConvention getConvention() {
+  public FixedFloatSwapConvention getConvention() {
     return convention;
   }
 
@@ -546,8 +546,8 @@ public final class SabrParametersSwaptionVolatilities
     /**
      * The meta-property for the {@code convention} property.
      */
-    private final MetaProperty<FixedIborSwapConvention> convention = DirectMetaProperty.ofImmutable(
-        this, "convention", SabrParametersSwaptionVolatilities.class, FixedIborSwapConvention.class);
+    private final MetaProperty<FixedFloatSwapConvention> convention = DirectMetaProperty.ofImmutable(
+        this, "convention", SabrParametersSwaptionVolatilities.class, FixedFloatSwapConvention.class);
     /**
      * The meta-property for the {@code valuationDateTime} property.
      */
@@ -653,7 +653,7 @@ public final class SabrParametersSwaptionVolatilities
      * The meta-property for the {@code convention} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FixedIborSwapConvention> convention() {
+    public MetaProperty<FixedFloatSwapConvention> convention() {
       return convention;
     }
 
@@ -747,7 +747,7 @@ public final class SabrParametersSwaptionVolatilities
   public static final class Builder extends DirectFieldsBeanBuilder<SabrParametersSwaptionVolatilities> {
 
     private SwaptionVolatilitiesName name;
-    private FixedIborSwapConvention convention;
+    private FixedFloatSwapConvention convention;
     private ZonedDateTime valuationDateTime;
     private SabrInterestRateParameters parameters;
     private List<DoubleArray> dataSensitivityAlpha;
@@ -809,7 +809,7 @@ public final class SabrParametersSwaptionVolatilities
           this.name = (SwaptionVolatilitiesName) newValue;
           break;
         case 2039569265:  // convention
-          this.convention = (FixedIborSwapConvention) newValue;
+          this.convention = (FixedFloatSwapConvention) newValue;
           break;
         case -949589828:  // valuationDateTime
           this.valuationDateTime = (ZonedDateTime) newValue;
@@ -871,7 +871,7 @@ public final class SabrParametersSwaptionVolatilities
      * @param convention  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder convention(FixedIborSwapConvention convention) {
+    public Builder convention(FixedFloatSwapConvention convention) {
       JodaBeanUtils.notNull(convention, "convention");
       this.convention = convention;
       return this;
