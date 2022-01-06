@@ -74,16 +74,18 @@ public final class TradeCsvWriter {
   /**
    * The lookup of trade parsers.
    */
-  static final ExtendedEnum<TradeCsvWriterPlugin> ENUM_LOOKUP = ExtendedEnum.of(TradeCsvWriterPlugin.class);
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  static final ExtendedEnum<TradeCsvWriterPlugin<?>> ENUM_LOOKUP =
+      ExtendedEnum.of((Class<TradeCsvWriterPlugin<?>>) (Class) TradeCsvWriterPlugin.class);
 
   /**
    * The lookup of trade parsers.
    */
-  private static final ImmutableMap<Class<?>, TradeCsvWriterPlugin> PLUGINS =
+  private static final ImmutableMap<Class<?>, TradeCsvWriterPlugin<?>> PLUGINS =
       MapStream.of(TradeCsvWriterPlugin.extendedEnum().lookupAllNormalized().values())
           .flatMapKeys(plugin -> plugin.supportedTradeTypes().stream())
           .toMap((a, b) -> {
-            System.err.println("Two plugins declare the same product type: " + ((TradeCsvWriterPlugin) a).supportedTradeTypes());
+            System.err.println("Two plugins declare the same product type: " + a.supportedTradeTypes());
             return a;
           });
 

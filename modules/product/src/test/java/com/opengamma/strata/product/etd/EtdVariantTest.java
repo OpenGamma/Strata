@@ -31,6 +31,30 @@ public class EtdVariantTest {
   }
 
   @Test
+  public void test_monthlySettlementType() {
+    EtdVariant test = EtdVariant.ofMonthly(EtdSettlementType.PHYSICAL);
+    assertThat(test.getType()).isEqualTo(EtdExpiryType.MONTHLY);
+    assertThat(test.getDateCode()).isNotPresent();
+    assertThat(test.getSettlementType()).hasValue(EtdSettlementType.PHYSICAL);
+    assertThat(test.getOptionType()).isNotPresent();
+    assertThat(test.isFlex()).isFalse();
+    assertThat(test.getCode()).isEqualTo("E");
+    assertThat(EtdVariant.parseCode(test.getCode())).isEqualTo(test);
+  }
+
+  @Test
+  public void test_monthlySettlementTypeCash() {
+    EtdVariant test = EtdVariant.ofMonthly(EtdSettlementType.CASH);
+    assertThat(test.getType()).isEqualTo(EtdExpiryType.MONTHLY);
+    assertThat(test.getDateCode()).isNotPresent();
+    assertThat(test.getSettlementType()).isEmpty();
+    assertThat(test.getOptionType()).isNotPresent();
+    assertThat(test.isFlex()).isFalse();
+    assertThat(test.getCode()).isEmpty();
+    assertThat(EtdVariant.parseCode(test.getCode())).isEqualTo(test);
+  }
+
+  @Test
   public void test_weekly() {
     EtdVariant test = EtdVariant.ofWeekly(2);
     assertThat(test.getType()).isEqualTo(EtdExpiryType.WEEKLY);
@@ -59,7 +83,7 @@ public class EtdVariantTest {
     EtdVariant test = EtdVariant.ofFlexFuture(2, EtdSettlementType.CASH);
     assertThat(test.getType()).isEqualTo(EtdExpiryType.DAILY);
     assertThat(test.getDateCode().getAsInt()).isEqualTo(2);
-    assertThat(test.getSettlementType().get()).isEqualTo(EtdSettlementType.CASH);
+    assertThat(test.getSettlementType()).hasValue(EtdSettlementType.CASH);
     assertThat(test.getOptionType()).isNotPresent();
     assertThat(test.isFlex()).isTrue();
     assertThat(test.getCode()).isEqualTo("02C");
@@ -71,8 +95,8 @@ public class EtdVariantTest {
     EtdVariant test = EtdVariant.ofFlexOption(24, EtdSettlementType.CASH, EtdOptionType.AMERICAN);
     assertThat(test.getType()).isEqualTo(EtdExpiryType.DAILY);
     assertThat(test.getDateCode().getAsInt()).isEqualTo(24);
-    assertThat(test.getSettlementType().get()).isEqualTo(EtdSettlementType.CASH);
-    assertThat(test.getOptionType().get()).isEqualTo(EtdOptionType.AMERICAN);
+    assertThat(test.getSettlementType()).hasValue(EtdSettlementType.CASH);
+    assertThat(test.getOptionType()).hasValue(EtdOptionType.AMERICAN);
     assertThat(test.isFlex()).isTrue();
     assertThat(test.getCode()).isEqualTo("24CA");
     assertThat(EtdVariant.parseCode(test.getCode())).isEqualTo(test);

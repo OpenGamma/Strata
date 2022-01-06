@@ -7,7 +7,6 @@ package com.opengamma.strata.basics.location;
 
 import java.io.Serializable;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,7 +18,6 @@ import org.joda.convert.ToString;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
