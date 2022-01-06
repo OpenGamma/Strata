@@ -45,6 +45,7 @@ import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
 import com.opengamma.strata.product.common.PutCall;
+import com.opengamma.strata.product.swap.type.FixedFloatSwapConvention;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**

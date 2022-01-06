@@ -21,7 +21,7 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.product.common.PutCall;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedFloatSwapConvention;
 
 /**
  * Test {@link SwaptionVolatilities}.
@@ -47,7 +47,7 @@ public class SwaptionVolatilitiesTest {
     }
 
     @Override
-    public FixedIborSwapConvention getConvention() {
+    public FixedFloatSwapConvention getConvention() {
       return GBP_FIXED_1Y_LIBOR_3M;
     }
 
