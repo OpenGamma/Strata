@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
+import static com.opengamma.strata.basics.index.OvernightIndices.EUR_ESTR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 
 import java.time.LocalDate;
@@ -74,6 +75,7 @@ public class IborCapletFloorletDataSet {
   public static ImmutableRatesProvider createRatesProvider(LocalDate valuationDate) {
     return ImmutableRatesProvider.builder(valuationDate)
         .discountCurves(ImmutableMap.of(EUR, DSC_CURVE))
+        .overnightIndexCurve(EUR_ESTR, DSC_CURVE)
         .indexCurves(ImmutableMap.of(EUR_EURIBOR_3M, FWD3_CURVE, EUR_EURIBOR_6M, FWD6_CURVE))
         .fxRateProvider(FxMatrix.empty())
         .build();
@@ -104,6 +106,8 @@ public class IborCapletFloorletDataSet {
   private static final DoubleArray EXPIRIES = DoubleArray.of(0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 5.0, 5.0, 5.0);
   private static final DoubleArray STRIKES = DoubleArray.of(0.01, 0.02, 0.03, 0.01, 0.02, 0.03, 0.01, 0.02, 0.03);
   private static final DoubleArray BLACK_VOLS = DoubleArray.of(0.35, 0.30, 0.28, 0.34, 0.25, 0.23, 0.25, 0.20, 0.18);
+  private static final DoubleArray BLACK_VOLS_FLAT =
+      DoubleArray.of(0.35, 0.35, 0.35, 0.34, 0.34, 0.34, 0.33, 0.33, 0.33);
   private static final SurfaceMetadata BLACK_METADATA =
       Surfaces.blackVolatilityByExpiryStrike("Black Vol", ACT_ACT_ISDA);
   private static final Surface BLACK_SURFACE_EXP_STR =
@@ -117,6 +121,8 @@ public class IborCapletFloorletDataSet {
       Surfaces.blackVolatilityByExpiryStrike("Shifted Black vol", ACT_ACT_ISDA);
   private static final Surface SHIFTED_BLACK_SURFACE_EXP_STR =
       InterpolatedNodalSurface.of(SHIFTED_BLACK_METADATA, EXPIRIES, SHIFTED_STRIKES, BLACK_VOLS, INTERPOLATOR_2D);
+  private static final Surface SHIFTED_BLACK_SURFACE_EXP_FLAT =
+      InterpolatedNodalSurface.of(SHIFTED_BLACK_METADATA, EXPIRIES, SHIFTED_STRIKES, BLACK_VOLS_FLAT, INTERPOLATOR_2D);
   private static final Curve SHIFT_CURVE = ConstantCurve.of("const shift", SHIFT);
 
   /**
@@ -130,6 +136,19 @@ public class IborCapletFloorletDataSet {
       ZonedDateTime valuationDate,
       IborIndex index) {
     return BlackIborCapletFloorletExpiryStrikeVolatilities.of(index, valuationDate, BLACK_SURFACE_EXP_STR);
+  }
+
+  /**
+   * Creates volatilities provider with specified date and index.
+   * 
+   * @param valuationDate  the valuation date
+   * @param index  the index
+   * @return  the volatilities provider
+   */
+  public static BlackIborCapletFloorletExpiryStrikeVolatilities createBlackVolatilitiesFlat(
+      ZonedDateTime valuationDate,
+      IborIndex index) {
+    return BlackIborCapletFloorletExpiryStrikeVolatilities.of(index, valuationDate, SHIFTED_BLACK_SURFACE_EXP_FLAT);
   }
 
   /**

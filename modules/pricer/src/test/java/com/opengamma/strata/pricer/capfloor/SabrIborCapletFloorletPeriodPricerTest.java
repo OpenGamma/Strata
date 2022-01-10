@@ -151,7 +151,7 @@ public class SabrIborCapletFloorletPeriodPricerTest {
   // Black vols
   private static final BlackIborCapletFloorletExpiryStrikeVolatilities VOLS_BLACK = IborCapletFloorletDataSet
       .createBlackVolatilities(VALUATION, EUR_EURIBOR_3M);
-  // constatnt shift
+  // constant shift
   private static final double SHIFT = IborCapletFloorletSabrRateVolatilityDataSet.CONST_SHIFT;
 
   private static final double TOL = 1.0e-14;

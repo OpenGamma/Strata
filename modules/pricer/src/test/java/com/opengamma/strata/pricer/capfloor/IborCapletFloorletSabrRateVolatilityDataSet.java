@@ -7,6 +7,8 @@ package com.opengamma.strata.pricer.capfloor;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
+import static com.opengamma.strata.basics.index.OvernightIndices.EUR_ESTR;
+import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.FLAT;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 
 import java.time.LocalDate;
@@ -43,7 +45,8 @@ public class IborCapletFloorletSabrRateVolatilityDataSet {
   private static final InterpolatedNodalCurve EUR_DSC_CURVE =
       InterpolatedNodalCurve.of(EUR_DSC_META, EUR_DSC_TIME, EUR_DSC_RATE, LINEAR);
   private static final DoubleArray EUR_FWD_TIME = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0);
-  private static final DoubleArray EUR_FWD_RATE = DoubleArray.of(0.0150, 0.0125, 0.0150, 0.0175, 0.0175, 0.0190, 0.0200, 0.0210);
+  private static final DoubleArray EUR_FWD_RATE =
+      DoubleArray.of(0.0150, 0.0125, 0.0150, 0.0175, 0.0175, 0.0190, 0.0200, 0.0210);
   private static final CurveName EUR_FWD_NAME = CurveName.of("EUR-FWD");
   private static final CurveMetadata EUR_FWD_META = Curves.zeroRates(EUR_FWD_NAME, ACT_ACT_ISDA);
   private static final InterpolatedNodalCurve EUR_FWD_CURVE =
@@ -78,17 +81,17 @@ public class IborCapletFloorletSabrRateVolatilityDataSet {
       CURVE_ALPHA_FLAT, CURVE_BETA_FLAT, CURVE_RHO_FLAT, CURVE_NU_FLAT, SabrVolatilityFormula.hagan());
 
   private static final DoubleArray ALPHA_VALUE = DoubleArray.of(0.035, 0.057, 0.044, 0.033, 0.032, 0.022);
-  private static final DoubleArray BETA_VALUE = DoubleArray.of(0.5, 0.6, 0.4, 0.1, 0.8, 0.2, 0.2);
-  private static final DoubleArray RHO_VALUE = DoubleArray.of(-0.75, -0.2, 0.05, 0.25, -0.25, 0.15, 0.22);
+  private static final DoubleArray BETA_VALUE = DoubleArray.of(0.5, 0.4, 0.4, 0.25, 0.2, 0.2, 0.2);
+  private static final DoubleArray RHO_VALUE = DoubleArray.of(-0.55, -0.2, -0.22, -0.25, -0.25, -0.15, -0.22);
   private static final DoubleArray NU_VALUE = DoubleArray.of(0.35, 0.45, 0.59, 0.52, 0.51, 0.32, 0.44);
   private static final InterpolatedNodalCurve CURVE_ALPHA = InterpolatedNodalCurve.of(
-      META_ALPHA, ALPHA_TIME, ALPHA_VALUE, LINEAR);
+      META_ALPHA, ALPHA_TIME, ALPHA_VALUE, LINEAR, FLAT, FLAT);
   private static final InterpolatedNodalCurve CURVE_BETA = InterpolatedNodalCurve.of(
-      META_BETA, BETA_TIME, BETA_VALUE, LINEAR);
+      META_BETA, BETA_TIME, BETA_VALUE, LINEAR, FLAT, FLAT);
   private static final InterpolatedNodalCurve CURVE_RHO = InterpolatedNodalCurve.of(
-      META_RHO, RHO_TIME, RHO_VALUE, LINEAR);
+      META_RHO, RHO_TIME, RHO_VALUE, LINEAR, FLAT, FLAT);
   private static final InterpolatedNodalCurve CURVE_NU = InterpolatedNodalCurve.of(
-      META_NU, NU_TIME, NU_VALUE, LINEAR);
+      META_NU, NU_TIME, NU_VALUE, LINEAR, FLAT, FLAT);
   private static final DoubleArray SHIFT_TIME = DoubleArray.of(0.0, 5.0, 10.0, 100.0);
   private static final DoubleArray SHIFT_VALUE = DoubleArray.of(0.01, 0.02, 0.012, 0.01);
   static final CurveMetadata META_SHIFT = DefaultCurveMetadata.builder()
@@ -128,10 +131,14 @@ public class IborCapletFloorletSabrRateVolatilityDataSet {
    * @param timeSeries  the time series
    * @return the rates provider
    */
-  public static ImmutableRatesProvider getRatesProvider(LocalDate valuationDate, IborIndex index,
+  public static ImmutableRatesProvider getRatesProvider(
+      LocalDate valuationDate,
+      IborIndex index,
       LocalDateDoubleTimeSeries timeSeries) {
+
     return ImmutableRatesProvider.builder(valuationDate)
         .discountCurve(EUR, EUR_DSC_CURVE)
+        .overnightIndexCurve(EUR_ESTR, EUR_DSC_CURVE)
         .iborIndexCurve(index, EUR_FWD_CURVE)
         .timeSeries(index, timeSeries)
         .build();
@@ -161,6 +168,106 @@ public class IborCapletFloorletSabrRateVolatilityDataSet {
    */
   public static SabrParametersIborCapletFloorletVolatilities getVolatilities(ZonedDateTime dateTime, IborIndex index) {
     return SabrParametersIborCapletFloorletVolatilities.of(NAME, index, dateTime, SABR_PARAM_CONST_SHIFT);
+  }
+
+  /**
+   * Obtains  {@code SabrParametersIborCapletFloorletVolatilities} with constant shift for specified valuation date
+   * and the Alpha parameter of a given index shifted.
+   * 
+   * @param dateTime  the valuation date time
+   * @param index  the index
+   * @param paramIndex  the parameter to be shifted
+   * @param shift  the shift
+   * @return the volatility provider
+   */
+  public static SabrParametersIborCapletFloorletVolatilities getVolatilitiesShiftAlpha(
+      ZonedDateTime dateTime,
+      IborIndex index,
+      int paramIndex,
+      double shift) {
+
+    double[] alphaShifted = ALPHA_VALUE.toArray();
+    alphaShifted[paramIndex] += shift;
+    InterpolatedNodalCurve curveAlpha = InterpolatedNodalCurve.of(
+        META_ALPHA, ALPHA_TIME, DoubleArray.ofUnsafe(alphaShifted), LINEAR, FLAT, FLAT);
+    SabrParameters sabrParameters = SabrParameters.of(
+        curveAlpha, CURVE_BETA, CURVE_RHO, CURVE_NU, CURVE_CONST_SHIFT, SabrVolatilityFormula.hagan());
+    return SabrParametersIborCapletFloorletVolatilities.of(NAME, index, dateTime, sabrParameters);
+  }
+
+  /**
+   * Obtains  {@code SabrParametersIborCapletFloorletVolatilities} with constant shift for specified valuation date
+   * and the Beta parameter of a given index shifted.
+   * 
+   * @param dateTime  the valuation date time
+   * @param index  the index
+   * @param paramIndex  the parameter to be shifted
+   * @param shift  the shift
+   * @return the volatility provider
+   */
+  public static SabrParametersIborCapletFloorletVolatilities getVolatilitiesShiftBeta(
+      ZonedDateTime dateTime,
+      IborIndex index,
+      int paramIndex,
+      double shift) {
+
+    double[] betaShifted = BETA_VALUE.toArray();
+    betaShifted[paramIndex] += shift;
+    InterpolatedNodalCurve curveBeta = InterpolatedNodalCurve.of(
+        META_BETA, BETA_TIME, DoubleArray.ofUnsafe(betaShifted), LINEAR, FLAT, FLAT);
+    SabrParameters sabrParameters = SabrParameters.of(
+        CURVE_ALPHA, curveBeta, CURVE_RHO, CURVE_NU, CURVE_CONST_SHIFT, SabrVolatilityFormula.hagan());
+    return SabrParametersIborCapletFloorletVolatilities.of(NAME, index, dateTime, sabrParameters);
+  }
+
+  /**
+   * Obtains  {@code SabrParametersIborCapletFloorletVolatilities} with constant shift for specified valuation date
+   * and the Rho parameter of a given index shifted.
+   * 
+   * @param dateTime  the valuation date time
+   * @param index  the index
+   * @param paramIndex  the parameter to be shifted
+   * @param shift  the shift
+   * @return the volatility provider
+   */
+  public static SabrParametersIborCapletFloorletVolatilities getVolatilitiesShiftRho(
+      ZonedDateTime dateTime,
+      IborIndex index,
+      int paramIndex,
+      double shift) {
+
+    double[] rhoShifted = RHO_VALUE.toArray();
+    rhoShifted[paramIndex] += shift;
+    InterpolatedNodalCurve curveRho = InterpolatedNodalCurve.of(
+        META_RHO, RHO_TIME, DoubleArray.ofUnsafe(rhoShifted), LINEAR, FLAT, FLAT);
+    SabrParameters sabrParameters = SabrParameters.of(
+        CURVE_ALPHA, CURVE_BETA, curveRho, CURVE_NU, CURVE_CONST_SHIFT, SabrVolatilityFormula.hagan());
+    return SabrParametersIborCapletFloorletVolatilities.of(NAME, index, dateTime, sabrParameters);
+  }
+
+  /**
+   * Obtains  {@code SabrParametersIborCapletFloorletVolatilities} with constant shift for specified valuation date
+   * and the Nu parameter of a given index shifted.
+   * 
+   * @param dateTime  the valuation date time
+   * @param index  the index
+   * @param paramIndex  the parameter to be shifted
+   * @param shift  the shift
+   * @return the volatility provider
+   */
+  public static SabrParametersIborCapletFloorletVolatilities getVolatilitiesShiftNu(
+      ZonedDateTime dateTime,
+      IborIndex index,
+      int paramIndex,
+      double shift) {
+
+    double[] nuShifted = NU_VALUE.toArray();
+    nuShifted[paramIndex] += shift;
+    InterpolatedNodalCurve curveNu = InterpolatedNodalCurve.of(
+        META_NU, NU_TIME, DoubleArray.ofUnsafe(nuShifted), LINEAR, FLAT, FLAT);
+    SabrParameters sabrParameters = SabrParameters.of(
+        CURVE_ALPHA, CURVE_BETA, CURVE_RHO, curveNu, CURVE_CONST_SHIFT, SabrVolatilityFormula.hagan());
+    return SabrParametersIborCapletFloorletVolatilities.of(NAME, index, dateTime, sabrParameters);
   }
 
 }
