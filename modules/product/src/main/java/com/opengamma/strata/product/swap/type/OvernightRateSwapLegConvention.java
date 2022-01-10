@@ -370,6 +370,7 @@ public final class OvernightRateSwapLegConvention
    * 
    * @return the business day adjustment, not null
    */
+  @Override
   public BusinessDayAdjustment getAccrualBusinessDayAdjustment() {
     return accrualBusinessDayAdjustment != null ?
         accrualBusinessDayAdjustment :

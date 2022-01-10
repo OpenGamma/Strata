@@ -59,4 +59,11 @@ public interface FloatRateSwapLegConvention
    */
   public abstract BusinessDayAdjustment getEndDateBusinessDayAdjustment();
 
+  /**
+   * Gets the business day adjustment to apply to accrual schedule dates.
+   *
+   * @return the accrual schedule dates business day adjustment, not null
+   */
+  public abstract BusinessDayAdjustment getAccrualBusinessDayAdjustment();
+
 }

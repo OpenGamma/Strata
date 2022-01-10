@@ -295,6 +295,7 @@ public final class IborRateSwapLegConvention
    * 
    * @return the business day adjustment, not null
    */
+  @Override
   public BusinessDayAdjustment getAccrualBusinessDayAdjustment() {
     return accrualBusinessDayAdjustment != null ?
         accrualBusinessDayAdjustment :
