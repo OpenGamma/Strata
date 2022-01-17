@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.capfloor;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.dateUtc;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,6 +14,8 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.function.Function;
@@ -21,6 +24,15 @@ import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.BusinessDayConventions;
+import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.PeriodAdditionConventions;
+import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.date.TenorAdjustment;
+import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.ImmutableIborIndex;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -47,7 +59,21 @@ public class BlackIborCapletFloorletPeriodPricerTest {
   private static final ZonedDateTime VALUATION = dateUtc(2008, 8, 18);
   private static final LocalDate FIXING = LocalDate.of(2011, 1, 3);
   private static final double NOTIONAL = 1000000; //1m
-  private static final double STRIKE = 0.01;
+  private static final double STRIKE = 0.01;  
+  private static final IborIndex EUR_ESTRTERM_3M = ImmutableIborIndex.builder()
+      .name("EUR-ESTRTERM-3M")
+      .currency(EUR)
+      .dayCount(DayCounts.ACT_360)
+      .fixingCalendar(EUTA)
+      .fixingTime(LocalTime.of(11, 0))
+      .fixingZone(ZoneId.of("Europe/Brussels"))
+      .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, EUTA))
+      .effectiveDateOffset(DaysAdjustment.ofBusinessDays(2, EUTA))
+      .maturityDateOffset(TenorAdjustment.of(
+          Tenor.TENOR_3M,
+          PeriodAdditionConventions.LAST_BUSINESS_DAY,
+          BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, EUTA)))
+      .build();
   private static final IborRateComputation RATE_COMP = IborRateComputation.of(EUR_EURIBOR_3M, FIXING, REF_DATA);
   private static final IborCapletFloorletPeriod CAPLET_LONG = IborCapletFloorletPeriod.builder()
       .caplet(STRIKE)
@@ -174,6 +200,31 @@ public class BlackIborCapletFloorletPeriodPricerTest {
     assertThat(computedCaplet.getAmount()).isCloseTo(expectedCaplet, offset(NOTIONAL * TOL));
     assertThat(computedFloorlet.getCurrency()).isEqualTo(EUR);
     assertThat(computedFloorlet.getAmount()).isCloseTo(expectedFloorlet, offset(NOTIONAL * TOL));
+  }
+  
+  /* Test the pricer on OIS Term rate. */
+  @Test
+  public void test_presentValue_formula_oistermrate() {
+    ImmutableRatesProvider ratesOnTerm = RATES.toBuilder()
+        .iborIndexCurve(EUR_ESTRTERM_3M, RATES.getDiscountCurves().get(EUR)).build();
+    IborRateComputation rateComputationOisTerm = IborRateComputation.of(EUR_ESTRTERM_3M, FIXING, REF_DATA);
+    IborCapletFloorletPeriod capletOnTerm = IborCapletFloorletPeriod.builder()
+        .caplet(STRIKE)
+        .startDate(rateComputationOisTerm.getEffectiveDate())
+        .endDate(rateComputationOisTerm.getMaturityDate())
+        .yearFraction(rateComputationOisTerm.getYearFraction())
+        .notional(NOTIONAL)
+        .iborRate(rateComputationOisTerm)
+        .build();
+    CurrencyAmount computedCaplet = PRICER.presentValue(capletOnTerm, ratesOnTerm, VOLS);
+    double forward = ratesOnTerm.iborIndexRates(EUR_ESTRTERM_3M).rate(RATE_COMP.getObservation());
+    double expiry = VOLS.relativeTime(CAPLET_LONG.getFixingDateTime());
+    double volatility = VOLS.volatility(expiry, STRIKE, forward);
+    double df = ratesOnTerm.discountFactor(EUR, CAPLET_LONG.getPaymentDate());
+    double expectedCaplet = NOTIONAL * df * CAPLET_LONG.getYearFraction() *
+        BlackFormulaRepository.price(forward, STRIKE, expiry, volatility, true);
+    assertThat(computedCaplet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedCaplet.getAmount()).isCloseTo(expectedCaplet, offset(NOTIONAL * TOL));
   }
 
   @Test
