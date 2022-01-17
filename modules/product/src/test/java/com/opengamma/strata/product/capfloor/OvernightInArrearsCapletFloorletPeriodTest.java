@@ -38,7 +38,7 @@ public class OvernightInArrearsCapletFloorletPeriodTest {
   private static final double NOTIONAL = 1.e6;
   private static final OvernightCompoundedRateComputation RATE_COMP =
       OvernightCompoundedRateComputation.of(GBP_SONIA, START, END, REF_DATA);
-  private static final double YEAR_FRACTION = 0.251d; 
+  private static final double YEAR_FRACTION = 0.251d;
 
   @Test
   public void test_builder_min() {
