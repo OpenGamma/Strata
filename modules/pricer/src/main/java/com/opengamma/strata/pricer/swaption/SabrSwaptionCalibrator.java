@@ -190,7 +190,7 @@ public final class SabrSwaptionCalibrator {
       boolean stopOnMathException) {
 
     SwaptionVolatilitiesName name = definition.getName();
-    FixedIborSwapConvention convention = definition.getConvention();
+    FixedFloatSwapConvention convention = definition.getConvention();
     DayCount dayCount = definition.getDayCount();
     SurfaceInterpolator interpolator = definition.getInterpolator();
 
