@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2022 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -11,7 +11,6 @@ import static com.opengamma.strata.market.model.SabrParameterType.NU;
 import static com.opengamma.strata.market.model.SabrParameterType.RHO;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
 
@@ -38,7 +37,7 @@ public class SabrOvernightInArrearsCapletFloorletPeriodPricer {
   /**
    * The default function for Asian in-arrears effective parameters.
    */
-  private final SabrInArrearsVolatilityFunction sabrInarrearsFunction;
+  private final SabrInArrearsVolatilityFunction sabrInArrearsFunction;
 
   /**
    * Default implementation.
@@ -52,7 +51,7 @@ public class SabrOvernightInArrearsCapletFloorletPeriodPricer {
    * @param sabrInarrearsFunction  the function for Asian in-arrears effective parameters
    */
   private SabrOvernightInArrearsCapletFloorletPeriodPricer(SabrInArrearsVolatilityFunction sabrInarrearsFunction) {
-    this.sabrInarrearsFunction = sabrInarrearsFunction;
+    this.sabrInArrearsFunction = sabrInarrearsFunction;
   }
 
   /**
@@ -109,7 +108,7 @@ public class SabrOvernightInArrearsCapletFloorletPeriodPricer {
     double nu = sabrVolatilities.nu(startTime);
     double shift = sabrVolatilities.shift(startTime);
     SabrFormulaData sabr = SabrFormulaData.of(alpha, beta, rho, nu);
-    SabrFormulaData sabrAdjusted = sabrInarrearsFunction.effectiveSabr(sabr, startTime, endTime);
+    SabrFormulaData sabrAdjusted = sabrInArrearsFunction.effectiveSabr(sabr, startTime, endTime);
     double volatility = sabrVolatilities.getParameters().getSabrVolatilityFormula()
         .volatility(forward + shift, strike + shift, endTime,
             sabrAdjusted.getAlpha(), sabrAdjusted.getBeta(), sabrAdjusted.getRho(), sabrAdjusted.getNu());
@@ -159,7 +158,7 @@ public class SabrOvernightInArrearsCapletFloorletPeriodPricer {
     double nu = sabrVolatilities.nu(startTime);
     double shift = sabrVolatilities.shift(startTime);
     SabrFormulaData sabr = SabrFormulaData.of(alpha, beta, rho, nu);
-    SabrFormulaData sabrAdjusted = sabrInarrearsFunction.effectiveSabr(sabr, startTime, endTime);
+    SabrFormulaData sabrAdjusted = sabrInArrearsFunction.effectiveSabr(sabr, startTime, endTime);
     ValueDerivatives volatility = sabrVolatilities.getParameters().getSabrVolatilityFormula()
         .volatilityAdjoint(forward + shift, strike + shift, endTime,
             sabrAdjusted.getAlpha(), sabrAdjusted.getBeta(), sabrAdjusted.getRho(), sabrAdjusted.getNu());
@@ -200,8 +199,8 @@ public class SabrOvernightInArrearsCapletFloorletPeriodPricer {
     OvernightCompoundedRateComputation onComputation = period.getOvernightRate();
     LocalDate startDate = onComputation.getStartDate();
     LocalDate endDate = onComputation.getEndDate();
-    double startTime = sabrVolatilities.relativeTime(startDate.atStartOfDay(ZoneId.of("Europe/Brussels"))); // xxx
-    double endTime = sabrVolatilities.relativeTime(endDate.atStartOfDay(ZoneId.of("Europe/Brussels"))); // xxx
+    double startTime = sabrVolatilities.relativeTime(startDate.atStartOfDay(ZoneOffset.UTC));
+    double endTime = sabrVolatilities.relativeTime(endDate.atStartOfDay(ZoneOffset.UTC));
     double df = ratesProvider.discountFactor(currency, period.getPaymentDate());
     PutCall putCall = period.getPutCall();
     double strike = period.getStrike();
@@ -213,7 +212,7 @@ public class SabrOvernightInArrearsCapletFloorletPeriodPricer {
     double nu = sabrVolatilities.nu(startTime);
     double shift = sabrVolatilities.shift(startTime);
     SabrFormulaData sabr = SabrFormulaData.of(alpha, beta, rho, nu);
-    List<ValueDerivatives> sabrAdjusted = sabrInarrearsFunction.effectiveSabrAd(sabr, startTime, endTime);
+    List<ValueDerivatives> sabrAdjusted = sabrInArrearsFunction.effectiveSabrAd(sabr, startTime, endTime);
     ValueDerivatives volatility = sabrVolatilities.getParameters().getSabrVolatilityFormula()
         .volatilityAdjoint(forward + shift, strike + shift, endTime,
             sabrAdjusted.get(0).getValue(), sabrAdjusted.get(1).getValue(),
@@ -232,7 +231,6 @@ public class SabrOvernightInArrearsCapletFloorletPeriodPricer {
     paramHat = paramHat.plus(sabrAdjusted.get(1).getDerivatives().multipliedBy(betaHatBar));
     paramHat = paramHat.plus(sabrAdjusted.get(2).getDerivatives().multipliedBy(rhoHatBar));
     paramHat = paramHat.plus(sabrAdjusted.get(3).getDerivatives().multipliedBy(nuHatBar));
-
     IborCapletFloorletVolatilitiesName name = sabrVolatilities.getName();
     return PointSensitivityBuilder.of(
         IborCapletFloorletSabrSensitivity.of(name, startTime, ALPHA, currency, paramHat.get(0)),
