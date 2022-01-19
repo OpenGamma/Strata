@@ -44,6 +44,7 @@ import com.opengamma.strata.market.surface.SurfaceInfoType;
 import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
 import com.opengamma.strata.product.common.PutCall;
+import com.opengamma.strata.product.swap.type.FixedFloatSwapConvention;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
@@ -59,7 +60,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
    * The swap convention that the volatilities are to be used for.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final FixedIborSwapConvention convention;
+  private final FixedFloatSwapConvention convention;
   /**
    * The valuation date-time.
    * <p>
@@ -101,7 +102,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
    * @return the volatilities
    */
   public static NormalSwaptionExpiryTenorVolatilities of(
-      FixedIborSwapConvention convention,
+      FixedFloatSwapConvention convention,
       ZonedDateTime valuationDateTime,
       Surface surface) {
 
@@ -110,7 +111,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
 
   @ImmutableConstructor
   private NormalSwaptionExpiryTenorVolatilities(
-      FixedIborSwapConvention convention,
+      FixedFloatSwapConvention convention,
       ZonedDateTime valuationDateTime,
       Surface surface) {
 
@@ -280,7 +281,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
    * @return the value of the property, not null
    */
   @Override
-  public FixedIborSwapConvention getConvention() {
+  public FixedFloatSwapConvention getConvention() {
     return convention;
   }
 
@@ -356,8 +357,8 @@ public final class NormalSwaptionExpiryTenorVolatilities
     /**
      * The meta-property for the {@code convention} property.
      */
-    private final MetaProperty<FixedIborSwapConvention> convention = DirectMetaProperty.ofImmutable(
-        this, "convention", NormalSwaptionExpiryTenorVolatilities.class, FixedIborSwapConvention.class);
+    private final MetaProperty<FixedFloatSwapConvention> convention = DirectMetaProperty.ofImmutable(
+        this, "convention", NormalSwaptionExpiryTenorVolatilities.class, FixedFloatSwapConvention.class);
     /**
      * The meta-property for the {@code valuationDateTime} property.
      */
@@ -416,7 +417,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
      * The meta-property for the {@code convention} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FixedIborSwapConvention> convention() {
+    public MetaProperty<FixedFloatSwapConvention> convention() {
       return convention;
     }
 
@@ -467,7 +468,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
    */
   private static final class Builder extends DirectPrivateBeanBuilder<NormalSwaptionExpiryTenorVolatilities> {
 
-    private FixedIborSwapConvention convention;
+    private FixedFloatSwapConvention convention;
     private ZonedDateTime valuationDateTime;
     private Surface surface;
 
@@ -496,7 +497,7 @@ public final class NormalSwaptionExpiryTenorVolatilities
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 2039569265:  // convention
-          this.convention = (FixedIborSwapConvention) newValue;
+          this.convention = (FixedFloatSwapConvention) newValue;
           break;
         case -949589828:  // valuationDateTime
           this.valuationDateTime = (ZonedDateTime) newValue;
