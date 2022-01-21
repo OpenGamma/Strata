@@ -38,6 +38,7 @@ import com.opengamma.strata.pricer.swaption.SwaptionVolatilitiesId;
 public class SwaptionMarketDataLookupTest {
 
   private static final SwaptionVolatilitiesId VOL_ID1 = SwaptionVolatilitiesId.of("USD1");
+  private static final SwaptionVolatilitiesId VOL_ID2 = SwaptionVolatilitiesId.of("USD2");
   private static final SwaptionVolatilities MOCK_VOLS = mock(SwaptionVolatilities.class);
   private static final MarketData MOCK_MARKET_DATA = mock(MarketData.class);
   private static final ScenarioMarketData MOCK_CALC_MARKET_DATA = mock(ScenarioMarketData.class);
@@ -66,7 +67,7 @@ public class SwaptionMarketDataLookupTest {
 
   @Test
   public void test_of_map() {
-    ImmutableMap<RateIndex, SwaptionVolatilitiesId> ids = ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1);
+    ImmutableMap<RateIndex, SwaptionVolatilitiesId> ids = ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID2);
     SwaptionMarketDataLookup test = SwaptionMarketDataLookup.of(ids);
     assertThat(test.queryType()).isEqualTo(SwaptionMarketDataLookup.class);
     assertThat(test.getVolatilityIndices()).containsOnly(USD_LIBOR_3M, USD_LIBOR_6M);

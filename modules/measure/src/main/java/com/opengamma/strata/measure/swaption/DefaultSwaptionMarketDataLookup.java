@@ -8,6 +8,7 @@ package com.opengamma.strata.measure.swaption;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.joda.beans.ImmutableBean;
@@ -95,13 +96,15 @@ final class DefaultSwaptionMarketDataLookup
   //-------------------------------------------------------------------------
   @Override
   public FunctionRequirements requirements(Set<RateIndex> indices) {
+    ImmutableSet.Builder<SwaptionVolatilitiesId> requiredIndices = ImmutableSet.builder();
     for (RateIndex index : indices) {
-      if (!volatilityIds.keySet().contains(index)) {
+      if (!volatilityIds.containsKey(index)) {
         throw new IllegalArgumentException(msgIndexNotFound(index));
       }
+      requiredIndices.add(Objects.requireNonNull(volatilityIds.get(index)));
     }
     return FunctionRequirements.builder()
-        .valueRequirements(ImmutableSet.copyOf(volatilityIds.values()))
+        .valueRequirements(requiredIndices.build())
         .build();
   }
 

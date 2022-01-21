@@ -38,6 +38,7 @@ import com.opengamma.strata.pricer.capfloor.IborCapletFloorletVolatilitiesId;
 public class IborCapFloorMarketDataLookupTest {
 
   private static final IborCapletFloorletVolatilitiesId VOL_ID1 = IborCapletFloorletVolatilitiesId.of("USD1");
+  private static final IborCapletFloorletVolatilitiesId VOL_ID2 = IborCapletFloorletVolatilitiesId.of("USD2");
   private static final IborCapletFloorletVolatilities MOCK_VOLS = mock(IborCapletFloorletVolatilities.class);
   private static final MarketData MOCK_MARKET_DATA = mock(MarketData.class);
   private static final ScenarioMarketData MOCK_CALC_MARKET_DATA = mock(ScenarioMarketData.class);
@@ -65,7 +66,7 @@ public class IborCapFloorMarketDataLookupTest {
 
   @Test
   public void test_of_map() {
-    ImmutableMap<IborIndex, IborCapletFloorletVolatilitiesId> ids = ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1);
+    ImmutableMap<IborIndex, IborCapletFloorletVolatilitiesId> ids = ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID2);
     IborCapFloorMarketDataLookup test = IborCapFloorMarketDataLookup.of(ids);
     assertThat(test.queryType()).isEqualTo(IborCapFloorMarketDataLookup.class);
     assertThat(test.getVolatilityIndices()).containsOnly(USD_LIBOR_3M, USD_LIBOR_6M);

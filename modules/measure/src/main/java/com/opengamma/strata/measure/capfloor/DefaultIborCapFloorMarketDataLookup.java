@@ -8,6 +8,7 @@ package com.opengamma.strata.measure.capfloor;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.joda.beans.ImmutableBean;
@@ -32,6 +33,7 @@ import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.pricer.capfloor.IborCapletFloorletVolatilities;
 import com.opengamma.strata.pricer.capfloor.IborCapletFloorletVolatilitiesId;
+import com.opengamma.strata.pricer.swaption.SwaptionVolatilitiesId;
 
 /**
  * The cap/floor lookup, used to select volatilities for pricing.
@@ -96,13 +98,15 @@ final class DefaultIborCapFloorMarketDataLookup
   //-------------------------------------------------------------------------
   @Override
   public FunctionRequirements requirements(Set<IborIndex> indices) {
-    for (Index index : indices) {
-      if (!volatilityIds.keySet().contains(index)) {
+    ImmutableSet.Builder<IborCapletFloorletVolatilitiesId> requiredIndices = ImmutableSet.builder();
+    for (IborIndex index : indices) {
+      if (!volatilityIds.containsKey(index)) {
         throw new IllegalArgumentException(msgIndexNotFound(index));
       }
+      requiredIndices.add(Objects.requireNonNull(volatilityIds.get(index)));
     }
     return FunctionRequirements.builder()
-        .valueRequirements(ImmutableSet.copyOf(volatilityIds.values()))
+        .valueRequirements(requiredIndices.build())
         .build();
   }
 
