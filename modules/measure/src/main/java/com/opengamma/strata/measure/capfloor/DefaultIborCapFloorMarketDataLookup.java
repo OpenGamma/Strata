@@ -33,7 +33,6 @@ import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.pricer.capfloor.IborCapletFloorletVolatilities;
 import com.opengamma.strata.pricer.capfloor.IborCapletFloorletVolatilitiesId;
-import com.opengamma.strata.pricer.swaption.SwaptionVolatilitiesId;
 
 /**
  * The cap/floor lookup, used to select volatilities for pricing.
