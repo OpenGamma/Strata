@@ -110,6 +110,9 @@ public class IborCapletFloorletSabrRateVolatilityDataSet {
   static final SabrParameters SABR_PARAM_CONST_SHIFT = SabrParameters.of(
       CURVE_ALPHA, CURVE_BETA, CURVE_RHO, CURVE_NU, CURVE_CONST_SHIFT, SabrVolatilityFormula.hagan());
 
+  static final SabrParameters SABR_PARAM_NO_SHIFT = SabrParameters.of(
+      CURVE_ALPHA, CURVE_BETA, CURVE_RHO, CURVE_NU, SabrVolatilityFormula.hagan());
+
   static final IborCapletFloorletVolatilitiesName NAME = IborCapletFloorletVolatilitiesName.of("Test-SABR");
 
   // create a list of SimpleCurveParameterMetadata
