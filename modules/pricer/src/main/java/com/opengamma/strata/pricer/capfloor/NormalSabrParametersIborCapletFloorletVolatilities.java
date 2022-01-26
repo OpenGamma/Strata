@@ -50,6 +50,8 @@ import com.opengamma.strata.product.common.PutCall;
  * Volatility environment for caplet/floorlet in the SABR model.
  * <p>
  * The volatility is represented in terms of SABR model parameters.
+ * <p>
+ * Volatility produces normal volatilities
  */
 @BeanDefinition(builderScope = "private")
 public final class NormalSabrParametersIborCapletFloorletVolatilities
