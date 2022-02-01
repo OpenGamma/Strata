@@ -6,7 +6,6 @@
 package com.opengamma.strata.pricer.capfloor;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
-import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 
 /**
@@ -14,15 +13,10 @@ import com.opengamma.strata.market.param.ParameterPerturbation;
  * <p>
  * The volatility is represented in terms of SABR model parameters.
  * <p>
- * The prices are calculated using the SABR implied volatility with respect to the Black formula.
+ * The prices are calculated using the SABR implied volatility.
  */
 public interface SabrIborCapletFloorletVolatilities
     extends IborCapletFloorletVolatilities {
-
-  @Override
-  public default ValueType getVolatilityType() {
-    return ValueType.BLACK_VOLATILITY; // SABR implemented with Black implied volatility
-  }
 
   @Override
   public abstract SabrIborCapletFloorletVolatilities withParameter(int parameterIndex, double newValue);
