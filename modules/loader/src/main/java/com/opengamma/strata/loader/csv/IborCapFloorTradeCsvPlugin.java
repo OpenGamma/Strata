@@ -50,7 +50,9 @@ import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -200,6 +202,10 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
     Index index = row.getValue(INDEX_FIELD, LoaderUtils::findIndex);
     if (index instanceof IborIndex) {
       return (IborIndex) index;
+    } else if (index.equals(OvernightIndices.GBP_SONIA)) {
+      return IborIndices.GBP_SONIAICETERM_3M;
+    } else if (index.equals(OvernightIndices.USD_SOFR)) {
+      return IborIndices.USD_SOFRCMETERM_3M;
     } else {
       throw new IllegalArgumentException("Index " + index.getName() + "is not an IBOR index");
     }

@@ -63,6 +63,58 @@ public final class IborIndices {
 
   //-------------------------------------------------------------------------
   /**
+   * The 1 month ICE SONIA term rate index for GBP.
+   * <p>
+   * The ICE Sterling Overnight Index Average (SONIA) term rate index.
+   */
+  public static final IborIndex GBP_SONIAICETERM_1M = IborIndex.of("GBP-SONIAICETERM-1M");
+  /**
+   * The 3 month ICE SONIA term rate index for GBP.
+   * <p>
+   * The ICE Sterling Overnight Index Average (SONIA) term rate index.
+   */
+  public static final IborIndex GBP_SONIAICETERM_3M = IborIndex.of("GBP-SONIAICETERM-3M");
+  /**
+   * The 6 month ICE SONIA term rate index for GBP.
+   * <p>
+   * The ICE Sterling Overnight Index Average (SONIA) term rate index.
+   */
+  public static final IborIndex GBP_SONIAICETERM_6M = IborIndex.of("GBP-SONIAICETERM-6M");
+  /**
+   * The 12 month ICE SONIA term rate index for GBP.
+   * <p>
+   * The ICE Sterling Overnight Index Average (SONIA) term rate index.
+   */
+  public static final IborIndex GBP_SONIAICETERM_12M = IborIndex.of("GBP-SONIAICETERM-12M");
+
+  //-------------------------------------------------------------------------
+  /**
+   * The 1 month Refinitiv SONIA term rate index for GBP.
+   * <p>
+   * The Refinitiv Sterling Overnight Index Average (SONIA) term rate index.
+   */
+  public static final IborIndex GBP_SONIAREFINITIVTERM_1M = IborIndex.of("GBP-SONIAREFINITIVTERM-1M");
+  /**
+   * The 3 month Refinitiv SONIA term rate index for GBP.
+   * <p>
+   * The Refinitiv Sterling Overnight Index Average (SONIA) term rate index.
+   */
+  public static final IborIndex GBP_SONIAREFINITIVTERM_3M = IborIndex.of("GBP-SONIAREFINITIVTERM-3M");
+  /**
+   * The 6 month Refinitiv SONIA term rate index for GBP.
+   * <p>
+   * The Refinitiv Sterling Overnight Index Average (SONIA) term rate index.
+   */
+  public static final IborIndex GBP_SONIAREFINITIVTERM_6M = IborIndex.of("GBP-SONIAREFINITIVTERM-6M");
+  /**
+   * The 12 month Refinitiv SONIA term rate index for GBP.
+   * <p>
+   * The Refinitiv Sterling Overnight Index Average (SONIA) term rate index.
+   */
+  public static final IborIndex GBP_SONIAREFINITIVTERM_12M = IborIndex.of("GBP-SONIAREFINITIVTERM-12M");
+
+  //-------------------------------------------------------------------------
+  /**
    * The 1 week LIBOR index for CHF.
    * <p>
    * The "London Interbank Offered Rate".
@@ -177,6 +229,26 @@ public final class IborIndices {
 
   //-------------------------------------------------------------------------
   /**
+   * The 1 month TORF index for JPY.
+   * <p>
+   * The "Tokyo Term Risk Free Rate".
+   */
+  public static final IborIndex JPY_TORF_1M = IborIndex.of("JPY-TORF-1M");
+  /**
+   * The 3 month TORF index for JPY.
+   * <p>
+   * The "Tokyo Term Risk Free Rate".
+   */
+  public static final IborIndex JPY_TORF_3M = IborIndex.of("JPY-TORF-3M");
+  /**
+   * The 6 month TORF index for JPY.
+   * <p>
+   * The "Tokyo Term Risk Free Rate".
+   */
+  public static final IborIndex JPY_TORF_6M = IborIndex.of("JPY-TORF-6M");
+
+  //-------------------------------------------------------------------------
+  /**
    * The 1 week LIBOR index for USD.
    * <p>
    * The "London Interbank Offered Rate".
@@ -212,6 +284,58 @@ public final class IborIndices {
    * The "London Interbank Offered Rate".
    */
   public static final IborIndex USD_LIBOR_12M = IborIndex.of("USD-LIBOR-12M");
+
+  //-------------------------------------------------------------------------
+  /**
+   * The 1 month BSBY index for USD.
+   * <p>
+   * The "Bloomberg Short-Term Bank Yield".
+   */
+  public static final IborIndex USD_BSBY_1M = IborIndex.of("USD-BSBY-1M");
+  /**
+   * The 3 month BSBY index for USD.
+   * <p>
+   * The "Bloomberg Short-Term Bank Yield".
+   */
+  public static final IborIndex USD_BSBY_3M = IborIndex.of("USD-BSBY-3M");
+  /**
+   * The 6 month BSBY index for USD.
+   * <p>
+   * The "Bloomberg Short-Term Bank Yield".
+   */
+  public static final IborIndex USD_BSBY_6M = IborIndex.of("USD-BSBY-6M");
+  /**
+   * The 12 month BSBY index for USD.
+   * <p>
+   * The "Bloomberg Short-Term Bank Yield".
+   */
+  public static final IborIndex USD_BSBY_12M = IborIndex.of("USD-BSBY-12M");
+
+  //-------------------------------------------------------------------------
+  /**
+   * The 1 month CME term SOFR rate index for USD.
+   * <p>
+   * The "CME Term Secured Overnight Financing Rate Index".
+   */
+  public static final IborIndex USD_SOFRCMETERM_1M = IborIndex.of("USD-SOFRCMETERM-1M");
+  /**
+   * The 3 month CME term SOFR rate index for USD.
+   * <p>
+   * The "CME Term Secured Overnight Financing Rate Index".
+   */
+  public static final IborIndex USD_SOFRCMETERM_3M = IborIndex.of("USD-SOFRCMETERM-3M");
+  /**
+   * The 6 month CME term SOFR rate index for USD.
+   * <p>
+   * The "CME Term Secured Overnight Financing Rate Index".
+   */
+  public static final IborIndex USD_SOFRCMETERM_6M = IborIndex.of("USD-SOFRCMETERM-6M");
+  /**
+   * The 12 month CME term SOFR rate index for USD.
+   * <p>
+   * The "CME Term Secured Overnight Financing Rate Index".
+   */
+  public static final IborIndex USD_SOFRCMETERM_12M = IborIndex.of("USD-SOFRCMETERM-12M");
 
   //-------------------------------------------------------------------------
   /**
