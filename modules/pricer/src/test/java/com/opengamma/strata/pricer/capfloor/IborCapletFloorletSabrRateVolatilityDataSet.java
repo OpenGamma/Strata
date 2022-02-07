@@ -22,6 +22,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.ConstantCurve;
+import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
@@ -116,6 +117,18 @@ public class IborCapletFloorletSabrRateVolatilityDataSet {
   static final SabrParameters SABR_PARAM_NORMAL = SabrParameters.of(
       CURVE_ALPHA, CURVE_BETA, CURVE_RHO, CURVE_NU, SabrHaganNormalVolatilityFormula.DEFAULT);
 
+  private static final Curve CURVE_BETA_0 = ConstantCurve.of(
+      DefaultCurveMetadata.builder()
+          .curveName("Test-SABR-Beta-0")
+          .xValueType(ValueType.YEAR_FRACTION)
+          .yValueType(ValueType.SABR_BETA).build(),
+      0.0);
+  private static final DoubleArray ALPHA_VALUE_BETA0 = DoubleArray.of(0.01, 0.011, 0.01, 0.009, 0.01, 0.011);
+  private static final InterpolatedNodalCurve CURVE_ALPHA_BETA0 = InterpolatedNodalCurve.of(
+      META_ALPHA, ALPHA_TIME, ALPHA_VALUE_BETA0, LINEAR, FLAT, FLAT);
+  static final SabrParameters SABR_PARAM_NORMAL_BETA0 = SabrParameters.of(
+      CURVE_ALPHA_BETA0, CURVE_BETA_0, CURVE_RHO, CURVE_NU, SabrHaganNormalVolatilityFormula.DEFAULT);
+
   static final IborCapletFloorletVolatilitiesName NAME = IborCapletFloorletVolatilitiesName.of("Test-SABR");
 
   // create a list of SimpleCurveParameterMetadata
@@ -174,6 +187,18 @@ public class IborCapletFloorletSabrRateVolatilityDataSet {
    */
   public static SabrParametersIborCapletFloorletVolatilities getVolatilities(ZonedDateTime dateTime, IborIndex index) {
     return SabrParametersIborCapletFloorletVolatilities.of(NAME, index, dateTime, SABR_PARAM_CONST_SHIFT);
+  }
+
+  /**
+   * Obtains {@code SabrParametersIborCapletFloorletVolatilities} with normal volatility formula, 
+   * beta=0 and not shift for specified valuation date.
+   * 
+   * @param dateTime  the valuation date time
+   * @param index  the index
+   * @return the volatility provider
+   */
+  public static NormalSabrParametersIborCapletFloorletVolatilities getVolatilitiesNormalBeta0(ZonedDateTime dateTime, IborIndex index) {
+    return NormalSabrParametersIborCapletFloorletVolatilities.of(NAME, index, dateTime, SABR_PARAM_NORMAL_BETA0);
   }
 
   /**

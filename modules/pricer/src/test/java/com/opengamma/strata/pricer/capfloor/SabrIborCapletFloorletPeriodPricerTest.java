@@ -45,6 +45,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
+import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
 import com.opengamma.strata.pricer.impl.swap.DiscountingRatePaymentPeriodPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
@@ -153,8 +154,10 @@ public class SabrIborCapletFloorletPeriodPricerTest {
   // valuation date before fixing date
   private static final ImmutableRatesProvider RATES = IborCapletFloorletSabrRateVolatilityDataSet.getRatesProvider(
       VALUATION.toLocalDate(), EUR_EURIBOR_3M, LocalDateDoubleTimeSeries.empty());
-  private static final SabrParametersIborCapletFloorletVolatilities VOLS = IborCapletFloorletSabrRateVolatilityDataSet
-      .getVolatilities(VALUATION, EUR_EURIBOR_3M);
+  private static final SabrParametersIborCapletFloorletVolatilities VOLS = 
+      IborCapletFloorletSabrRateVolatilityDataSet.getVolatilities(VALUATION, EUR_EURIBOR_3M);
+  private static final SabrIborCapletFloorletVolatilities VOLS_NORMAL = 
+      IborCapletFloorletSabrRateVolatilityDataSet.getVolatilitiesNormalBeta0(VALUATION, EUR_EURIBOR_3M);
   // valuation date equal to fixing date
   private static final double OBS_INDEX = 0.013;
   private static final LocalDateDoubleTimeSeries TIME_SERIES = LocalDateDoubleTimeSeries.of(FIXING, OBS_INDEX);
@@ -213,6 +216,49 @@ public class SabrIborCapletFloorletPeriodPricerTest {
     CurrencyAmount computedFloorletBlack = PRICER_BASE.presentValue(FLOORLET_SHORT, RATES, vols);
     assertThat(computedCaplet.getAmount()).isCloseTo(computedCapletBlack.getAmount(), offset(NOTIONAL * TOL));
     assertThat(computedFloorlet.getAmount()).isCloseTo(computedFloorletBlack.getAmount(), offset(NOTIONAL * TOL));
+  }
+
+  /* Tests SABR pricer with normal volatility formula. */
+  @Test
+  public void test_presentValue_formula_normal_data() {
+    CurrencyAmount computedCaplet = PRICER.presentValue(CAPLET_LONG, RATES, VOLS_NORMAL);
+    CurrencyAmount computedFloorlet = PRICER.presentValue(FLOORLET_SHORT, RATES, VOLS_NORMAL);
+    double forward = RATES.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_COMP.getObservation());
+    double expiry = VOLS_NORMAL.relativeTime(CAPLET_LONG.getFixingDateTime());
+    double volatility = VOLS_NORMAL.volatility(expiry, STRIKE, forward);
+    double df = RATES.discountFactor(EUR, CAPLET_LONG.getPaymentDate());
+    double expectedCaplet = NOTIONAL * df * CAPLET_LONG.getYearFraction() * NormalFormulaRepository
+        .price(forward, STRIKE, expiry, volatility, CALL);
+    double expectedFloorlet = -NOTIONAL * df * FLOORLET_SHORT.getYearFraction() * NormalFormulaRepository
+        .price(forward, STRIKE, expiry, volatility, PUT);
+    assertThat(computedCaplet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedCaplet.getAmount()).isCloseTo(expectedCaplet, offset(NOTIONAL * TOL));
+    assertThat(computedFloorlet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedFloorlet.getAmount()).isCloseTo(expectedFloorlet, offset(NOTIONAL * TOL));
+    // negative strike
+    double negativeStrike = -0.01;
+    IborCapletFloorletPeriod capletLongNegativeStrike = CAPLET_LONG.toBuilder().caplet(negativeStrike).build();
+    IborCapletFloorletPeriod floorletShortNegativeStrike = FLOORLET_SHORT.toBuilder().floorlet(negativeStrike).build();
+    CurrencyAmount computedCapletNegativeStrike = PRICER.presentValue(capletLongNegativeStrike, RATES, VOLS_NORMAL);
+    CurrencyAmount computedFloorletNegativeStrike = PRICER.presentValue(floorletShortNegativeStrike, RATES, VOLS_NORMAL);
+    double volatilityNegativeStrike = VOLS_NORMAL.volatility(expiry, negativeStrike, forward);
+    double expectedCapletNegativeStrike = NOTIONAL * df * capletLongNegativeStrike.getYearFraction() * NormalFormulaRepository
+        .price(forward, negativeStrike, expiry, volatilityNegativeStrike, CALL);
+    double expectedFloorletNegativeStrike = -NOTIONAL * df * floorletShortNegativeStrike.getYearFraction() * NormalFormulaRepository
+        .price(forward, negativeStrike, expiry, volatilityNegativeStrike, PUT);
+    assertThat(computedCapletNegativeStrike.getCurrency()).isEqualTo(EUR);
+    assertThat(computedCapletNegativeStrike.getAmount()).isCloseTo(expectedCapletNegativeStrike, offset(NOTIONAL * TOL));
+    assertThat(computedFloorletNegativeStrike.getCurrency()).isEqualTo(EUR);
+    assertThat(computedFloorletNegativeStrike.getAmount()).isCloseTo(expectedFloorletNegativeStrike, offset(NOTIONAL * TOL));
+    // consistency with Normal
+    NormalIborCapletFloorletExpiryStrikeVolatilities normalVols = NormalIborCapletFloorletExpiryStrikeVolatilities
+        .of(EUR_EURIBOR_3M, VALUATION,
+            ConstantSurface.of("constVol", volatility)
+                .withMetadata(Surfaces.normalVolatilityByExpiryStrike("costVol", DayCounts.ACT_ACT_ISDA)));
+    CurrencyAmount computedCapletNormal = PRICER_BASE.presentValue(CAPLET_LONG, RATES, normalVols);
+    CurrencyAmount computedFloorletNormal = PRICER_BASE.presentValue(FLOORLET_SHORT, RATES, normalVols);
+    assertThat(computedCaplet.getAmount()).isCloseTo(computedCapletNormal.getAmount(), offset(NOTIONAL * TOL));
+    assertThat(computedFloorlet.getAmount()).isCloseTo(computedFloorletNormal.getAmount(), offset(NOTIONAL * TOL));
   }
 
   /* Test the pricer on OIS Term rate. */
