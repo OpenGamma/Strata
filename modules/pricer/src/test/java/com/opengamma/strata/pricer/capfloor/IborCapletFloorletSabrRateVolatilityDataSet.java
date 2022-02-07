@@ -29,6 +29,7 @@ import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
 import com.opengamma.strata.market.curve.SimpleCurveParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
+import com.opengamma.strata.pricer.impl.volatility.smile.SabrHaganNormalVolatilityFormula;
 import com.opengamma.strata.pricer.model.SabrParameters;
 import com.opengamma.strata.pricer.model.SabrVolatilityFormula;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -112,6 +113,8 @@ public class IborCapletFloorletSabrRateVolatilityDataSet {
 
   static final SabrParameters SABR_PARAM_NO_SHIFT = SabrParameters.of(
       CURVE_ALPHA, CURVE_BETA, CURVE_RHO, CURVE_NU, SabrVolatilityFormula.hagan());
+  static final SabrParameters SABR_PARAM_NORMAL = SabrParameters.of(
+      CURVE_ALPHA, CURVE_BETA, CURVE_RHO, CURVE_NU, SabrHaganNormalVolatilityFormula.DEFAULT);
 
   static final IborCapletFloorletVolatilitiesName NAME = IborCapletFloorletVolatilitiesName.of("Test-SABR");
 
