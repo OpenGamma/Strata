@@ -301,7 +301,7 @@ public class OvernightIndexTest {
     assertThat(test.getName()).isEqualTo("NZD-NZIONA");
     assertThat(test.getCurrency()).isEqualTo(NZD);
     assertThat(test.isActive()).isEqualTo(true);
-    assertThat(test.getFixingCalendar()).isEqualTo(HolidayCalendarId.of("NZBD"));
+    assertThat(test.getFixingCalendar()).isEqualTo(HolidayCalendarId.of("NZAU+NZWE"));
     assertThat(test.getPublicationDateOffset()).isEqualTo(0);
     assertThat(test.getEffectiveDateOffset()).isEqualTo(0);
     assertThat(test.getDayCount()).isEqualTo(ACT_365F);
