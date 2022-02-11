@@ -52,7 +52,8 @@ final class HolidaySafeReferenceData
   // split out for hotspot inlining
   @SuppressWarnings("unchecked")
   private <T> T tryDefaultValue(ReferenceDataId<T> id) {
-    if (id instanceof HolidayCalendarId) {
+    // if the id is a holiday calendar id and composite, return null so the calendars are handled separately
+    if (id instanceof HolidayCalendarId && !HolidayCalendarId.isCompositeCalendar((HolidayCalendarId) id)) {
       return (T) ImmutableHolidayCalendar.of((HolidayCalendarId) id, ImmutableList.of(), WEEKEND_DAYS);
     }
     return null;

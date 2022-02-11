@@ -141,6 +141,14 @@ public class HolidayCalendarIdTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_isCompositeCalendar() {
+    assertThat(HolidayCalendarId.isCompositeCalendar(HolidayCalendarId.of("GB+EU"))).isTrue();
+    assertThat(HolidayCalendarId.isCompositeCalendar(HolidayCalendarId.of("GB~EU"))).isTrue();
+    assertThat(HolidayCalendarId.isCompositeCalendar(HolidayCalendarId.of("GB"))).isFalse();
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_resolve_single() {
     HolidayCalendarId gb = HolidayCalendarId.of("GB");
     HolidayCalendarId eu = HolidayCalendarId.of("EU");

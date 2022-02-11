@@ -280,7 +280,7 @@ public interface HolidayCalendar
    * Combines this holiday calendar with another.
    * <p>
    * The resulting calendar will declare a day as a business day if it is a
-   * business day in both source calendars.
+   * business day in either source calendar.
    * 
    * @param other  the other holiday calendar
    * @return the combined calendar
@@ -300,7 +300,7 @@ public interface HolidayCalendar
    * Combines this holiday calendar with another.
    * <p>
    * The resulting calendar will declare a day as a business day if it is a
-   * business day in either source calendar.
+   * business day in both source calendars.
    * 
    * @param other  the other holiday calendar
    * @return the combined calendar
