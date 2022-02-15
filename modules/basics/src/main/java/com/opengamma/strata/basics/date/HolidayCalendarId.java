@@ -191,6 +191,17 @@ public final class HolidayCalendarId
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Checks if the holiday calendar is a combined or linked calendar.
+   *
+   * @param id the holiday calendar id
+   * @return if the holiday calendar is a combined or linked calendar
+   */
+  public static boolean isCompositeCalendar(HolidayCalendarId id) {
+    return id.getName().indexOf('~') >= 0 || id.getName().indexOf('+') >= 0;
+  }
+
+  //-------------------------------------------------------------------------
   // creates an identifier for a single calendar
   private HolidayCalendarId(String normalizedName) {
     this.name = normalizedName;
