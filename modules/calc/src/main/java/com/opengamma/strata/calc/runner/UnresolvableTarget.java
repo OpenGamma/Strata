@@ -21,8 +21,6 @@ import com.opengamma.strata.basics.ResolvableCalculationTarget;
 
 /**
  * A calculation target used when the actual target cannot be resolved.
- * <p>
- * This uses a single instance of {@link ExecutorService}.
  */
 @BeanDefinition(style = "light", constructorScope = "package")
 final class UnresolvableTarget implements CalculationTarget, ImmutableBean {
