@@ -45,8 +45,7 @@ public final class SabrHaganNormalVolatilityFormula
   //-------------------------------------------------------------------------
 
   @Override
-  public double
-      volatility(
+  public double volatility(
       double forward,
       double strike,
       double timeToExpiry,
@@ -75,7 +74,6 @@ public final class SabrHaganNormalVolatilityFormula
       return volatilityBeta0Adjoint(forward, strike, timeToExpiry, alpha, rho, nu);
     } // else
     return volatilityBetaNonZeroAdjoint(forward, strike, timeToExpiry, alpha, beta, rho, nu);
-
   }
   
   /**
