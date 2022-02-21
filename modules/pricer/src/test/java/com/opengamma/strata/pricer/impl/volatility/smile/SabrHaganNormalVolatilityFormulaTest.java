@@ -50,7 +50,7 @@ public class SabrHaganNormalVolatilityFormulaTest {
     }
   }
 
-  /* Tests the formula versus external hard-coded data */
+  /* Tests the formula versus external hard-coded data, negative forward */
   @Test
   public void externalData2() {
     double forward = -0.00256;
@@ -170,8 +170,8 @@ public class SabrHaganNormalVolatilityFormulaTest {
   @Test
   public void volatilityBeta0Adjoint() {
     double shiftFd = 1.0E-8;
-    double[] forward = {0.0100, 0.0150};
-    double[] strikes = {-0.0050, 0.0050, 0.0100, 0.0150, 0.0200};
+    double[] forward = {-0.0025, 0.00, 0.0100};
+    double[] strikes = {-0.0050, 0.0050, 0.0100, 0.0150};
     double[] time = {5.0, 10.0};
     double[] alpha = {0.01, 0.02};
     double[] rho = {-0.25, 0.50};
@@ -214,7 +214,6 @@ public class SabrHaganNormalVolatilityFormulaTest {
                     alpha[loopalpha], rho[looprho], nu[loopnu] + shiftFd);
                 double derivativeNuExpected = (valueNuP - valueExpected) / shiftFd;
                 assertThat(resultComputed.getDerivative(4)).isCloseTo(derivativeNuExpected, TOLERANCE_1);
-
               }
             }
           }
