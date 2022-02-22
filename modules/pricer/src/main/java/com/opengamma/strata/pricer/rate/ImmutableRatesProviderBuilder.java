@@ -17,6 +17,7 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
+import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.curve.Curve;
@@ -117,24 +118,21 @@ public final class ImmutableRatesProviderBuilder {
    * Adds an Ibor index forward curve to the provider.
    * <p>
    * This adds the specified forward curve to the provider.
-   * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
+   * This operates using {@link ImmutableRatesProviderBuilder#rateIndexCurve(RateIndex, Curve)}.
    * 
    * @param index  the index of the curve
    * @param forwardCurve  the Ibor index forward curve
    * @return this, for chaining
    */
   public ImmutableRatesProviderBuilder iborIndexCurve(IborIndex index, Curve forwardCurve) {
-    ArgChecker.notNull(index, "index");
-    ArgChecker.notNull(forwardCurve, "forwardCurve");
-    this.indexCurves.put(index, forwardCurve);
-    return this;
+    return rateIndexCurve(index, forwardCurve);
   }
 
   /**
    * Adds an Ibor index forward curve to the provider with associated time-series.
    * <p>
    * This adds the specified forward curve and time-series to the provider.
-   * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
+   * This operates using {@link ImmutableRatesProviderBuilder#rateIndexCurve(RateIndex, Curve, LocalDateDoubleTimeSeries)}.
    * 
    * @param index  the index of the curve
    * @param forwardCurve  the index forward curve
@@ -146,12 +144,7 @@ public final class ImmutableRatesProviderBuilder {
       Curve forwardCurve,
       LocalDateDoubleTimeSeries timeSeries) {
 
-    ArgChecker.notNull(index, "index");
-    ArgChecker.notNull(forwardCurve, "forwardCurve");
-    ArgChecker.notNull(timeSeries, "timeSeries");
-    this.indexCurves.put(index, forwardCurve);
-    this.timeSeries.put(index, timeSeries);
-    return this;
+    return rateIndexCurve(index, forwardCurve, timeSeries);
   }
 
   //-------------------------------------------------------------------------
@@ -159,24 +152,21 @@ public final class ImmutableRatesProviderBuilder {
    * Adds an Overnight index forward curve to the provider.
    * <p>
    * This adds the specified forward curve to the provider.
-   * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
+   * This operates using {@link ImmutableRatesProviderBuilder#rateIndexCurve(RateIndex, Curve)}.
    * 
    * @param index  the index of the curve
    * @param forwardCurve  the Overnight index forward curve
    * @return this, for chaining
    */
   public ImmutableRatesProviderBuilder overnightIndexCurve(OvernightIndex index, Curve forwardCurve) {
-    ArgChecker.notNull(index, "index");
-    ArgChecker.notNull(forwardCurve, "forwardCurve");
-    this.indexCurves.put(index, forwardCurve);
-    return this;
+    return rateIndexCurve(index, forwardCurve);
   }
 
   /**
    * Adds an Overnight index forward curve to the provider with associated time-series.
    * <p>
    * This adds the specified forward curve and time-series to the provider.
-   * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
+   * This operates using {@link ImmutableRatesProviderBuilder#rateIndexCurve(RateIndex, Curve, LocalDateDoubleTimeSeries)}.
    * 
    * @param index  the index of the curve
    * @param forwardCurve  the index forward curve
@@ -185,6 +175,43 @@ public final class ImmutableRatesProviderBuilder {
    */
   public ImmutableRatesProviderBuilder overnightIndexCurve(
       OvernightIndex index,
+      Curve forwardCurve,
+      LocalDateDoubleTimeSeries timeSeries) {
+
+    return rateIndexCurve(index, forwardCurve, timeSeries);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Adds a rate index forward curve to the provider.
+   * <p>
+   * This adds the specified forward curve to the provider.
+   * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
+   *
+   * @param index  the index of the curve
+   * @param forwardCurve  the index forward curve
+   * @return this, for chaining
+   */
+  public ImmutableRatesProviderBuilder rateIndexCurve(RateIndex index, Curve forwardCurve) {
+    ArgChecker.notNull(index, "index");
+    ArgChecker.notNull(forwardCurve, "forwardCurve");
+    this.indexCurves.put(index, forwardCurve);
+    return this;
+  }
+
+  /**
+   * Adds a rate index forward curve to the provider with associated time-series.
+   * <p>
+   * This adds the specified forward curve and time-series to the provider.
+   * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
+   *
+   * @param index  the index of the curve
+   * @param forwardCurve  the index forward curve
+   * @param timeSeries  the associated time-series
+   * @return this, for chaining
+   */
+  public ImmutableRatesProviderBuilder rateIndexCurve(
+      RateIndex index,
       Curve forwardCurve,
       LocalDateDoubleTimeSeries timeSeries) {
 
