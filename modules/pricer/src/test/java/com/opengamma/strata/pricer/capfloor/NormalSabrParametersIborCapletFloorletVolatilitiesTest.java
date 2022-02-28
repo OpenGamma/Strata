@@ -47,7 +47,7 @@ public class NormalSabrParametersIborCapletFloorletVolatilitiesTest {
   private static final LocalTime TIME = LocalTime.of(10, 0);
   private static final ZoneId ZONE = ZoneId.of("Europe/London");
   private static final ZonedDateTime DATE_TIME = DATE.atTime(TIME).atZone(ZONE);
-  private static final SabrParameters PARAM = IborCapletFloorletSabrRateVolatilityDataSet.SABR_PARAM_NO_SHIFT;
+  private static final SabrParameters PARAM = IborCapletFloorletSabrRateVolatilityDataSet.SABR_PARAM_NORMAL;
 
   private static final ZonedDateTime[] TEST_OPTION_EXPIRY = new ZonedDateTime[] {
       dateUtc(2014, 1, 3), dateUtc(2015, 1, 3), dateUtc(2016, 4, 21), dateUtc(2017, 1, 3)};
@@ -261,7 +261,7 @@ public class NormalSabrParametersIborCapletFloorletVolatilitiesTest {
         NormalSabrParametersIborCapletFloorletVolatilities.of(NAME, EUR_EURIBOR_3M, DATE_TIME, PARAM);
     coverImmutableBean(test1);
     NormalSabrParametersIborCapletFloorletVolatilities test2 = NormalSabrParametersIborCapletFloorletVolatilities.of(
-        NAME2, IborIndices.EUR_LIBOR_3M, DATE_TIME.plusDays(1), IborCapletFloorletSabrRateVolatilityDataSet.SABR_PARAM_FLAT);
+        NAME2, IborIndices.EUR_LIBOR_3M, DATE_TIME.plusDays(1), PARAM.withParameter(1, 0.001));
     coverBeanEquals(test1, test2);
   }
 

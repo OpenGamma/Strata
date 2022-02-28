@@ -20,6 +20,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.gen.BeanDefinition;
+import org.joda.beans.gen.ImmutableValidator;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
@@ -33,6 +34,7 @@ import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.MarketDataName;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.model.SabrParameterType;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -112,6 +114,12 @@ public final class NormalSabrParametersIborCapletFloorletVolatilities
    */
   @PropertyDefinition(get = "optional")
   private final ImmutableList<DoubleArray> dataSensitivityNu;
+  
+  @ImmutableValidator
+  private void validate() {
+    ArgChecker.isTrue(parameters.getSabrVolatilityFormula().getVolatilityType()
+        .equals(ValueType.NORMAL_VOLATILITY), "volatility must be of type NORMAL_VOLATILITY");
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -366,6 +374,7 @@ public final class NormalSabrParametersIborCapletFloorletVolatilities
     this.dataSensitivityBeta = (dataSensitivityBeta != null ? ImmutableList.copyOf(dataSensitivityBeta) : null);
     this.dataSensitivityRho = (dataSensitivityRho != null ? ImmutableList.copyOf(dataSensitivityRho) : null);
     this.dataSensitivityNu = (dataSensitivityNu != null ? ImmutableList.copyOf(dataSensitivityNu) : null);
+    validate();
   }
 
   @Override

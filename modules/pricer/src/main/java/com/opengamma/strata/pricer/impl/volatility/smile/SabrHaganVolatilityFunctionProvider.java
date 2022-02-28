@@ -26,6 +26,7 @@ import com.google.common.primitives.Doubles;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.pricer.model.SabrVolatilityFormula;
 
 /**
@@ -60,6 +61,11 @@ public final class SabrHaganVolatilityFunctionProvider
   private static final double RHO_EPS_NEGATIVE = 1e-8;
   private static final double ATM_EPS = 1e-7;
   private static final double MIN_VOL = 1e-6; // Minimal volatility, to avoid negative volatility for extreme parameters
+
+  @Override
+  public ValueType getVolatilityType() {
+    return ValueType.BLACK_VOLATILITY; // SABR implemented with Black implied volatility
+  }
 
   //-------------------------------------------------------------------------
   @Override
