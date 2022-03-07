@@ -723,7 +723,7 @@
     <root.dir>${project.basedir}/..</root.dir>
     <!-- Versions -->
     <assertj.version>3.21.0</assertj.version>
-    <guava.version>31.0.1-jre</guava.version><!-- didn't want to go beyond v27 but forced to by security https://github.com/google/guava/issues/3320 -->
+    <guava.version>31.1-jre</guava.version><!-- didn't want to go beyond v27 but forced to by security https://github.com/google/guava/issues/3320 -->
     <guava-docs.version>26.0-jre</guava-docs.version>
     <jcommander.version>1.78</jcommander.version>
     <joda-convert.version>2.2.2</joda-convert.version>
