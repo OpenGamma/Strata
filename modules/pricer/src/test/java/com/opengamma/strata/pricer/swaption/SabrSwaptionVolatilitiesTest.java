@@ -21,8 +21,12 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
@@ -30,6 +34,7 @@ import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.market.ShiftType;
+import com.opengamma.strata.market.model.SabrParameterType;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterizedData;
@@ -37,6 +42,7 @@ import com.opengamma.strata.market.param.PointShifts;
 import com.opengamma.strata.market.param.PointShiftsBuilder;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.surface.SurfaceName;
 import com.opengamma.strata.pricer.model.SabrInterestRateParameters;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
@@ -65,6 +71,7 @@ public class SabrSwaptionVolatilitiesTest {
   static final SwaptionVolatilitiesName NAME2 = SwaptionVolatilitiesName.of("Test-SABR2");
 
   private static final double TOLERANCE_VOL = 1.0E-10;
+  private static final Offset<Double> TOLERANCE_SENSI = offset(1.0E-6);
 
   @Test
   public void test_of() {
@@ -248,6 +255,54 @@ public class SabrSwaptionVolatilitiesTest {
       assertThat(computed0.getParameter(i)).isEqualTo(base.getParameter(i) + 0.1d * (i + 1d));
       assertThat(computed1.getParameter(i)).isEqualTo(base.getParameter(i) + 10d * (i + 1d));
     }
+  }
+
+  @Test
+  public void test_convert_swaptionSensitivityToSabrSwaption() {
+    SabrParametersSwaptionVolatilities test = SabrParametersSwaptionVolatilities.of(NAME, CONV, DATE_TIME, PARAM);
+    double expiry = 1.23;
+    double tenor = 10;
+    double strike = 0.01;
+    double forward = 0.015;
+    double sensitivity = 87654.32;
+    SwaptionSensitivity swptSensitivity = SwaptionSensitivity
+        .of(NAME, expiry, tenor, strike, forward, USD, sensitivity);
+    PointSensitivities sensiConverted = test.convertSwaptionSensitivity(swptSensitivity).build();
+    assertThat(sensiConverted.size()).isEqualTo(4);
+    List<SwaptionSabrSensitivity> sensiSabr = new ArrayList<>();
+    for (PointSensitivity s : sensiConverted.getSensitivities()) {
+      assertThat(s instanceof SwaptionSabrSensitivity).isTrue();
+      sensiSabr.add((SwaptionSabrSensitivity) s);
+    }
+    DoubleArray derivative = test.volatilityAdjoint(expiry, tenor, strike, forward).getDerivatives();
+    // alpha
+    List<SwaptionSabrSensitivity> sAlpha = sensiSabr.stream()
+        .filter(s -> s.getSensitivityType().equals(SabrParameterType.ALPHA))
+        .collect(Collectors.toList());
+    assertThat(sAlpha.size()).isEqualTo(1);
+    double sAlphaValueExpected = sensitivity * derivative.get(2);
+    assertThat(sAlpha.get(0).getSensitivity()).isEqualTo(sAlphaValueExpected, TOLERANCE_SENSI);
+    // beta
+    List<SwaptionSabrSensitivity> sBeta = sensiSabr.stream()
+        .filter(s -> s.getSensitivityType().equals(SabrParameterType.BETA))
+        .collect(Collectors.toList());
+    assertThat(sBeta.size()).isEqualTo(1);
+    double sBetaValueExpected = sensitivity * derivative.get(3);
+    assertThat(sBeta.get(0).getSensitivity()).isEqualTo(sBetaValueExpected, TOLERANCE_SENSI);
+    // rho
+    List<SwaptionSabrSensitivity> sRho = sensiSabr.stream()
+        .filter(s -> s.getSensitivityType().equals(SabrParameterType.RHO))
+        .collect(Collectors.toList());
+    assertThat(sRho.size()).isEqualTo(1);
+    double sRhoValueExpected = sensitivity * derivative.get(4);
+    assertThat(sRho.get(0).getSensitivity()).isEqualTo(sRhoValueExpected, TOLERANCE_SENSI);
+    // nu
+    List<SwaptionSabrSensitivity> sNu = sensiSabr.stream()
+        .filter(s -> s.getSensitivityType().equals(SabrParameterType.NU))
+        .collect(Collectors.toList());
+    assertThat(sNu.size()).isEqualTo(1);
+    double sNuValueExpected = sensitivity * derivative.get(5);
+    assertThat(sNu.get(0).getSensitivity()).isEqualTo(sNuValueExpected, TOLERANCE_SENSI);
   }
 
   @Test
