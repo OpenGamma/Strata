@@ -5,9 +5,13 @@
  */
 package com.opengamma.strata.pricer.swaption;
 
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.value.ValueDerivatives;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.model.SabrParameterType;
 import com.opengamma.strata.market.param.ParameterPerturbation;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 
 /**
  * Volatility for swaptions in SABR model.
@@ -96,5 +100,27 @@ public interface SabrSwaptionVolatilities
    * @return the volatility and associated sensitivities
    */
   public abstract ValueDerivatives volatilityAdjoint(double expiry, double tenor, double strike, double forward);
+  
+  /**
+   * Convert a {@link SwaptionSensitivity} for a expiry, tenor and strike in the associated SABR parameter
+   * sensitivities.
+   * 
+   * @param swptSensi  the swaption volatility sensitivity at a given strike
+   * @return the swaption SABR parameter sensitivities
+   */
+  public default PointSensitivityBuilder convertSwaptionSensitivity(SwaptionSensitivity swptSensi) {
+    double expiry = swptSensi.getExpiry();
+    double tenor = swptSensi.getTenor();
+    DoubleArray derivative = 
+        volatilityAdjoint(expiry, swptSensi.getTenor(), swptSensi.getStrike(), swptSensi.getForward()).getDerivatives();
+    SwaptionVolatilitiesName name = getName();
+    Currency ccy = swptSensi.getCurrency();
+    double vega = swptSensi.getSensitivity();
+    return PointSensitivityBuilder.of(
+        SwaptionSabrSensitivity.of(name, expiry, tenor, SabrParameterType.ALPHA, ccy, vega * derivative.get(2)),
+        SwaptionSabrSensitivity.of(name, expiry, tenor, SabrParameterType.BETA, ccy, vega * derivative.get(3)),
+        SwaptionSabrSensitivity.of(name, expiry, tenor, SabrParameterType.RHO, ccy, vega * derivative.get(4)),
+        SwaptionSabrSensitivity.of(name, expiry, tenor, SabrParameterType.NU, ccy, vega * derivative.get(5)));
+  }
 
 }
