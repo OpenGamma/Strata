@@ -9,6 +9,7 @@ import org.joda.convert.FromString;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.TypedString;
+import com.opengamma.strata.collect.named.Described;
 import com.opengamma.strata.product.bond.Bill;
 import com.opengamma.strata.product.bond.BondFuture;
 import com.opengamma.strata.product.bond.BondFutureOption;
@@ -41,7 +42,8 @@ import com.opengamma.strata.product.swaption.Swaption;
  * This provides a classification of the trade or position.
  */
 public final class ProductType
-    extends TypedString<ProductType> {
+    extends TypedString<ProductType>
+    implements Described {
 
   /**
    * A {@link BulletPayment}.
@@ -207,6 +209,7 @@ public final class ProductType
    * 
    * @return the description
    */
+  @Override
   public String getDescription() {
     return description;
   }

@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.collect.named.Described;
 import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.Attributes;
 import com.opengamma.strata.product.SecurityPriceInfo;
@@ -42,7 +43,7 @@ import com.opengamma.strata.product.common.PutCall;
  */
 @BeanDefinition(builderScope = "private", constructorScope = "package")
 public final class EtdContractSpec
-    implements Attributes, ImmutableBean, Serializable {
+    implements Attributes, Described, ImmutableBean, Serializable {
 
   /**
    * The ID of this contract specification.
@@ -69,7 +70,7 @@ public final class EtdContractSpec
   /**
    * The human readable description of the product.
    */
-  @PropertyDefinition(validate = "notEmpty")
+  @PropertyDefinition(validate = "notEmpty", overrideGet = true)
   private final String description;
   /**
    * The information about the security price.
@@ -292,6 +293,7 @@ public final class EtdContractSpec
    * Gets the human readable description of the product.
    * @return the value of the property, not empty
    */
+  @Override
   public String getDescription() {
     return description;
   }
