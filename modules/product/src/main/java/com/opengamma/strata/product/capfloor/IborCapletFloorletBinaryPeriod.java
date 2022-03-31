@@ -43,7 +43,7 @@ import com.opengamma.strata.product.rate.IborRateComputation;
  * The payment period contains the unique accrual period.
  * The value of the period is based on the observed value of {@code IborRateComputation}.
  * <p>
- * The pay-offs are, for an Ibor index on the fixingDate of 'I', a year fraction 'a' and a notional 'N'<br>
+ * The pay-offs are, for an Ibor index on the fixingDate of 'I', a year fraction 'a' and a amount 'N'<br>
  * Ibor binary caplet: N * a * ( (I > K)?1:0 ) ; K=caplet<br>
  * Ibor binary floorlet: N * a * ( (I < K)?1:0 ) ; K=floorlet
  * <p>
@@ -71,13 +71,12 @@ public final class IborCapletFloorletBinaryPeriod
   @PropertyDefinition(validate = "notNull")
   private final Currency currency;
   /**
-   * The notional amount, positive if receiving, negative if paying.
+   * The fixed amount when the option is in-the-money, positive if receiving (long), negative if paying (short).
    * <p>
-   * The notional amount applicable during the period.
    * The currency of the notional is specified by {@code currency}.
    */
   @PropertyDefinition
-  private final double notional;
+  private final double amount;
   /**
    * The start date of the payment period.
    * <p>
@@ -163,10 +162,10 @@ public final class IborCapletFloorletBinaryPeriod
    */
   public CurrencyAmount payoff(double fixing) {
     if (caplet != null) { // caplet
-      return CurrencyAmount.of(currency, (fixing > caplet) ? notional * yearFraction : 0);
+      return CurrencyAmount.of(currency, (fixing > caplet) ? amount * yearFraction : 0);
     }
     // floorlet
-    return CurrencyAmount.of(currency, (fixing < floorlet) ? notional * yearFraction : 0);
+    return CurrencyAmount.of(currency, (fixing < floorlet) ? amount * yearFraction : 0);
   }
 
   //-------------------------------------------------------------------------
@@ -267,7 +266,7 @@ public final class IborCapletFloorletBinaryPeriod
 
   private IborCapletFloorletBinaryPeriod(
       Currency currency,
-      double notional,
+      double amount,
       LocalDate startDate,
       LocalDate endDate,
       LocalDate unadjustedStartDate,
@@ -286,7 +285,7 @@ public final class IborCapletFloorletBinaryPeriod
     JodaBeanUtils.notNull(paymentDate, "paymentDate");
     JodaBeanUtils.notNull(iborRate, "iborRate");
     this.currency = currency;
-    this.notional = notional;
+    this.amount = amount;
     this.startDate = startDate;
     this.endDate = endDate;
     this.unadjustedStartDate = unadjustedStartDate;
@@ -317,14 +316,13 @@ public final class IborCapletFloorletBinaryPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the notional amount, positive if receiving, negative if paying.
+   * Gets the fixed amount when the option is in-the-money, positive if receiving (long), negative if paying (short).
    * <p>
-   * The notional amount applicable during the period.
    * The currency of the notional is specified by {@code currency}.
    * @return the value of the property
    */
-  public double getNotional() {
-    return notional;
+  public double getAmount() {
+    return amount;
   }
 
   //-----------------------------------------------------------------------
@@ -456,7 +454,7 @@ public final class IborCapletFloorletBinaryPeriod
     if (obj != null && obj.getClass() == this.getClass()) {
       IborCapletFloorletBinaryPeriod other = (IborCapletFloorletBinaryPeriod) obj;
       return JodaBeanUtils.equal(currency, other.currency) &&
-          JodaBeanUtils.equal(notional, other.notional) &&
+          JodaBeanUtils.equal(amount, other.amount) &&
           JodaBeanUtils.equal(startDate, other.startDate) &&
           JodaBeanUtils.equal(endDate, other.endDate) &&
           JodaBeanUtils.equal(unadjustedStartDate, other.unadjustedStartDate) &&
@@ -474,7 +472,7 @@ public final class IborCapletFloorletBinaryPeriod
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
-    hash = hash * 31 + JodaBeanUtils.hashCode(notional);
+    hash = hash * 31 + JodaBeanUtils.hashCode(amount);
     hash = hash * 31 + JodaBeanUtils.hashCode(startDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(unadjustedStartDate);
@@ -492,7 +490,7 @@ public final class IborCapletFloorletBinaryPeriod
     StringBuilder buf = new StringBuilder(384);
     buf.append("IborCapletFloorletBinaryPeriod{");
     buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
-    buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+    buf.append("amount").append('=').append(JodaBeanUtils.toString(amount)).append(',').append(' ');
     buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
     buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
     buf.append("unadjustedStartDate").append('=').append(JodaBeanUtils.toString(unadjustedStartDate)).append(',').append(' ');
@@ -522,10 +520,10 @@ public final class IborCapletFloorletBinaryPeriod
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofImmutable(
         this, "currency", IborCapletFloorletBinaryPeriod.class, Currency.class);
     /**
-     * The meta-property for the {@code notional} property.
+     * The meta-property for the {@code amount} property.
      */
-    private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
-        this, "notional", IborCapletFloorletBinaryPeriod.class, Double.TYPE);
+    private final MetaProperty<Double> amount = DirectMetaProperty.ofImmutable(
+        this, "amount", IborCapletFloorletBinaryPeriod.class, Double.TYPE);
     /**
      * The meta-property for the {@code startDate} property.
      */
@@ -577,7 +575,7 @@ public final class IborCapletFloorletBinaryPeriod
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "currency",
-        "notional",
+        "amount",
         "startDate",
         "endDate",
         "unadjustedStartDate",
@@ -599,8 +597,8 @@ public final class IborCapletFloorletBinaryPeriod
       switch (propertyName.hashCode()) {
         case 575402001:  // currency
           return currency;
-        case 1585636160:  // notional
-          return notional;
+        case -1413853096:  // amount
+          return amount;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
@@ -648,11 +646,11 @@ public final class IborCapletFloorletBinaryPeriod
     }
 
     /**
-     * The meta-property for the {@code notional} property.
+     * The meta-property for the {@code amount} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> notional() {
-      return notional;
+    public MetaProperty<Double> amount() {
+      return amount;
     }
 
     /**
@@ -733,8 +731,8 @@ public final class IborCapletFloorletBinaryPeriod
       switch (propertyName.hashCode()) {
         case 575402001:  // currency
           return ((IborCapletFloorletBinaryPeriod) bean).getCurrency();
-        case 1585636160:  // notional
-          return ((IborCapletFloorletBinaryPeriod) bean).getNotional();
+        case -1413853096:  // amount
+          return ((IborCapletFloorletBinaryPeriod) bean).getAmount();
         case -2129778896:  // startDate
           return ((IborCapletFloorletBinaryPeriod) bean).getStartDate();
         case -1607727319:  // endDate
@@ -775,7 +773,7 @@ public final class IborCapletFloorletBinaryPeriod
   public static final class Builder extends DirectFieldsBeanBuilder<IborCapletFloorletBinaryPeriod> {
 
     private Currency currency;
-    private double notional;
+    private double amount;
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDate unadjustedStartDate;
@@ -798,7 +796,7 @@ public final class IborCapletFloorletBinaryPeriod
      */
     private Builder(IborCapletFloorletBinaryPeriod beanToCopy) {
       this.currency = beanToCopy.getCurrency();
-      this.notional = beanToCopy.getNotional();
+      this.amount = beanToCopy.getAmount();
       this.startDate = beanToCopy.getStartDate();
       this.endDate = beanToCopy.getEndDate();
       this.unadjustedStartDate = beanToCopy.getUnadjustedStartDate();
@@ -816,8 +814,8 @@ public final class IborCapletFloorletBinaryPeriod
       switch (propertyName.hashCode()) {
         case 575402001:  // currency
           return currency;
-        case 1585636160:  // notional
-          return notional;
+        case -1413853096:  // amount
+          return amount;
         case -2129778896:  // startDate
           return startDate;
         case -1607727319:  // endDate
@@ -847,8 +845,8 @@ public final class IborCapletFloorletBinaryPeriod
         case 575402001:  // currency
           this.currency = (Currency) newValue;
           break;
-        case 1585636160:  // notional
-          this.notional = (Double) newValue;
+        case -1413853096:  // amount
+          this.amount = (Double) newValue;
           break;
         case -2129778896:  // startDate
           this.startDate = (LocalDate) newValue;
@@ -894,7 +892,7 @@ public final class IborCapletFloorletBinaryPeriod
       preBuild(this);
       return new IborCapletFloorletBinaryPeriod(
           currency,
-          notional,
+          amount,
           startDate,
           endDate,
           unadjustedStartDate,
@@ -922,15 +920,14 @@ public final class IborCapletFloorletBinaryPeriod
     }
 
     /**
-     * Sets the notional amount, positive if receiving, negative if paying.
+     * Sets the fixed amount when the option is in-the-money, positive if receiving (long), negative if paying (short).
      * <p>
-     * The notional amount applicable during the period.
      * The currency of the notional is specified by {@code currency}.
-     * @param notional  the new value
+     * @param amount  the new value
      * @return this, for chaining, not null
      */
-    public Builder notional(double notional) {
-      this.notional = notional;
+    public Builder amount(double amount) {
+      this.amount = amount;
       return this;
     }
 
@@ -1068,7 +1065,7 @@ public final class IborCapletFloorletBinaryPeriod
       StringBuilder buf = new StringBuilder(384);
       buf.append("IborCapletFloorletBinaryPeriod.Builder{");
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
-      buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+      buf.append("amount").append('=').append(JodaBeanUtils.toString(amount)).append(',').append(' ');
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("unadjustedStartDate").append('=').append(JodaBeanUtils.toString(unadjustedStartDate)).append(',').append(' ');

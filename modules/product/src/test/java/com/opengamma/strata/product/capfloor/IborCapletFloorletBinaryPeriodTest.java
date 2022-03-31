@@ -47,7 +47,7 @@ public class IborCapletFloorletBinaryPeriodTest {
   @Test
   public void test_builder_min() {
     IborCapletFloorletBinaryPeriod test = IborCapletFloorletBinaryPeriod.builder()
-        .notional(NOTIONAL)
+        .amount(NOTIONAL)
         .startDate(START)
         .endDate(END)
         .yearFraction(YEAR_FRACTION)
@@ -61,7 +61,7 @@ public class IborCapletFloorletBinaryPeriodTest {
     assertThat(test.getEndDate()).isEqualTo(END);
     assertThat(test.getPaymentDate()).isEqualTo(test.getEndDate());
     assertThat(test.getCurrency()).isEqualTo(EUR);
-    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getAmount()).isEqualTo(NOTIONAL);
     assertThat(test.getIborRate()).isEqualTo(RATE_COMP);
     assertThat(test.getIndex()).isEqualTo(EUR_EURIBOR_3M);
     assertThat(test.getFixingDate()).isEqualTo(FIXING_TIME_ZONE.toLocalDate());
@@ -75,7 +75,7 @@ public class IborCapletFloorletBinaryPeriodTest {
   @Test
   public void test_builder_full() {
     IborCapletFloorletBinaryPeriod test = IborCapletFloorletBinaryPeriod.builder()
-        .notional(NOTIONAL)
+        .amount(NOTIONAL)
         .startDate(START)
         .endDate(END)
         .unadjustedStartDate(START_UNADJ)
@@ -95,7 +95,7 @@ public class IborCapletFloorletBinaryPeriodTest {
     assertThat(test.getUnadjustedEndDate()).isEqualTo(END_UNADJ);
     assertThat(test.getPaymentDate()).isEqualTo(PAYMENT);
     assertThat(test.getCurrency()).isEqualTo(GBP);
-    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getAmount()).isEqualTo(NOTIONAL);
     assertThat(test.getIborRate()).isEqualTo(RATE_COMP);
     assertThat(test.getIndex()).isEqualTo(EUR_EURIBOR_3M);
     assertThat(test.getFixingDateTime()).isEqualTo(FIXING_TIME_ZONE);
@@ -108,19 +108,19 @@ public class IborCapletFloorletBinaryPeriodTest {
     // rate observation missing
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborCapletFloorletBinaryPeriod.builder()
-            .notional(NOTIONAL)
+            .amount(NOTIONAL)
             .caplet(STRIKE)
             .build());
     // cap and floor missing
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborCapletFloorletBinaryPeriod.builder()
-            .notional(NOTIONAL)
+            .amount(NOTIONAL)
             .iborRate(RATE_COMP)
             .build());
     // cap and floor present
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborCapletFloorletBinaryPeriod.builder()
-            .notional(NOTIONAL)
+            .amount(NOTIONAL)
             .caplet(STRIKE)
             .floorlet(STRIKE)
             .iborRate(RATE_COMP)
@@ -170,7 +170,7 @@ public class IborCapletFloorletBinaryPeriodTest {
   //-------------------------------------------------------------------------
   static IborCapletFloorletBinaryPeriod sut() {
     return IborCapletFloorletBinaryPeriod.builder()
-        .notional(NOTIONAL)
+        .amount(NOTIONAL)
         .startDate(START)
         .endDate(END)
         .caplet(STRIKE)
@@ -180,7 +180,7 @@ public class IborCapletFloorletBinaryPeriodTest {
 
   static IborCapletFloorletBinaryPeriod sut2() {
     return IborCapletFloorletBinaryPeriod.builder()
-        .notional(-NOTIONAL)
+        .amount(-NOTIONAL)
         .startDate(START.plusDays(1))
         .endDate(END.plusDays(1))
         .floorlet(STRIKE)
