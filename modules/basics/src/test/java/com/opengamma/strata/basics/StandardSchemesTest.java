@@ -26,6 +26,7 @@ public class StandardSchemesTest {
     assertThat(StandardSchemes.OG_SENSITIVITY_SCHEME).isEqualTo("OG-Sensitivity");
     assertThat(StandardSchemes.OG_SECURITY_SCHEME).isEqualTo("OG-Security");
     assertThat(StandardSchemes.OG_COUNTERPARTY).isEqualTo("OG-Counterparty");
+    assertThat(StandardSchemes.OG_PORTFOLIO).isEqualTo("OG-Portfolio");
 
     assertThat(StandardSchemes.TICKER_SCHEME).isEqualTo("TICKER");
     assertThat(StandardSchemes.TICMIC_SCHEME).isEqualTo("TICMIC");
