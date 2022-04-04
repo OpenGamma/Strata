@@ -44,6 +44,10 @@ public final class StandardSchemes {
    * The OpenGamma scheme used for counterparties.
    */
   public static final String OG_COUNTERPARTY = "OG-Counterparty";
+  /**
+   * The OpenGamma scheme used for portfolios.
+   */
+  public static final String OG_PORTFOLIO = "OG-Portfolio";
 
   /**
    * The scheme for exchange Tickers.
