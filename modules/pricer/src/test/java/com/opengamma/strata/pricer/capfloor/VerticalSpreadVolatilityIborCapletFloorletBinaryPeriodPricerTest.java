@@ -31,7 +31,7 @@ import com.opengamma.strata.product.rate.IborRateComputation;
 /**
  * Test {@link VerticalSpreadVolatilityIborCapletFloorletBinaryPeriodPricer}.
  */
-public class VerticalSpreadVolatilityIborCapletFloorletBinaryPeriodPricerTest {
+class VerticalSpreadVolatilityIborCapletFloorletBinaryPeriodPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final ZonedDateTime VALUATION = dateUtc(2008, 8, 18);
@@ -78,8 +78,6 @@ public class VerticalSpreadVolatilityIborCapletFloorletBinaryPeriodPricerTest {
       VALUATION.toLocalDate(), EUR_EURIBOR_3M, LocalDateDoubleTimeSeries.empty());
   private static final SabrParametersIborCapletFloorletVolatilities VOLS = IborCapletFloorletSabrRateVolatilityDataSet
       .getVolatilities(VALUATION, EUR_EURIBOR_3M);
-  // valuation date after fixing date
-  // valuation date equal to fixing date
   private static final double OBS_INDEX = 0.013;
   private static final LocalDateDoubleTimeSeries TIME_SERIES = LocalDateDoubleTimeSeries.of(FIXING, OBS_INDEX);
   private static final ImmutableRatesProvider RATES_AFTER_FIX =
@@ -102,7 +100,7 @@ public class VerticalSpreadVolatilityIborCapletFloorletBinaryPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void call_spread() {
+  void call_spread() {
     Pair<IborCapletFloorletPeriod, IborCapletFloorletPeriod> pairCapLong =
         PRICER_BINARY_2.vanillaOptionVerticalSpreadPair(CAPLET_LONG);
     assertThat(pairCapLong.getFirst().getStrike()).isEqualTo(STRIKE - SPREAD_2);
@@ -126,7 +124,7 @@ public class VerticalSpreadVolatilityIborCapletFloorletBinaryPeriodPricerTest {
 
   /* Deep ITM, short expiry, option value = discounted amount */
   @Test
-  public void present_value_deep_itm() {
+  void present_value_deep_itm() {
     IborRateComputation iborComputation = IborRateComputation.of(EUR_EURIBOR_3M, LocalDate.of(2008, 10, 17), REF_DATA);
     IborCapletFloorletBinaryPeriod capletItm = IborCapletFloorletBinaryPeriod.builder()
         .caplet(-0.0100)
@@ -145,7 +143,7 @@ public class VerticalSpreadVolatilityIborCapletFloorletBinaryPeriodPricerTest {
 
   /* Deep OTM, short expiry, option value = 0.0 */
   @Test
-  public void present_value_deep_otm() {
+  void present_value_deep_otm() {
     IborRateComputation iborComputation = IborRateComputation.of(EUR_EURIBOR_3M, LocalDate.of(2008, 10, 17), REF_DATA);
     IborCapletFloorletBinaryPeriod capletOtm = IborCapletFloorletBinaryPeriod.builder()
         .caplet(0.0500)
@@ -162,7 +160,7 @@ public class VerticalSpreadVolatilityIborCapletFloorletBinaryPeriodPricerTest {
   }
 
   @Test
-  public void present_value() {
+  void present_value() {
     CurrencyAmount pvCapLongComputed = PRICER_BINARY_DEFAULT.presentValue(CAPLET_LONG, RATES, VOLS);
     CurrencyAmount pvCapShortComputed = PRICER_BINARY_DEFAULT.presentValue(CAPLET_SHORT, RATES, VOLS);
     CurrencyAmount pvFloorLongComputed = PRICER_BINARY_DEFAULT.presentValue(FLOORLET_LONG, RATES, VOLS);
@@ -181,7 +179,7 @@ public class VerticalSpreadVolatilityIborCapletFloorletBinaryPeriodPricerTest {
   }
 
   @Test
-  public void present_value_rates_sensitivity() {
+  void present_value_rates_sensitivity() {
     PointSensitivityBuilder ptsCapLongComputed =
         PRICER_BINARY_DEFAULT.presentValueSensitivityRatesStickyStrike(CAPLET_LONG, RATES, VOLS);
     CurrencyParameterSensitivities psCapLongComputed =
@@ -198,7 +196,7 @@ public class VerticalSpreadVolatilityIborCapletFloorletBinaryPeriodPricerTest {
   }
 
   @Test
-  public void present_value_parameters_sensitivity() {
+  void present_value_parameters_sensitivity() {
     PointSensitivityBuilder ptsCapLongComputed =
         PRICER_BINARY_DEFAULT.presentValueSensitivityModelParamsVolatility(CAPLET_LONG, RATES, VOLS);
     CurrencyParameterSensitivities psCapLongComputed =
@@ -216,7 +214,7 @@ public class VerticalSpreadVolatilityIborCapletFloorletBinaryPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void present_value_afterfix() {
+  void present_value_afterfix() {
     CurrencyAmount pvCapLongComputed =
         PRICER_BINARY_DEFAULT.presentValue(CAPLET_LONG, RATES_AFTER_FIX, VOLS_AFTER_FIX);
     CurrencyAmount pvCapShortComputed =

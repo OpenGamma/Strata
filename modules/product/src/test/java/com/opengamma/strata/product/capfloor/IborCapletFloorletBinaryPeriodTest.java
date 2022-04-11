@@ -29,7 +29,7 @@ import com.opengamma.strata.product.rate.IborRateComputation;
 /**
  * Test {@link IborCapletFloorletBinaryPeriod}.
  */
-public class IborCapletFloorletBinaryPeriodTest {
+class IborCapletFloorletBinaryPeriodTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate FIXING = LocalDate.of(2011, 1, 4);
@@ -45,7 +45,7 @@ public class IborCapletFloorletBinaryPeriodTest {
   private static final double YEAR_FRACTION = 0.251d;
 
   @Test
-  public void test_builder_min() {
+  void test_builder_min() {
     IborCapletFloorletBinaryPeriod test = IborCapletFloorletBinaryPeriod.builder()
         .amount(NOTIONAL)
         .startDate(START)
@@ -73,7 +73,7 @@ public class IborCapletFloorletBinaryPeriodTest {
   }
 
   @Test
-  public void test_builder_full() {
+  void test_builder_full() {
     IborCapletFloorletBinaryPeriod test = IborCapletFloorletBinaryPeriod.builder()
         .amount(NOTIONAL)
         .startDate(START)
@@ -104,7 +104,7 @@ public class IborCapletFloorletBinaryPeriodTest {
   }
 
   @Test
-  public void test_builder_fail() {
+  void test_builder_fail() {
     // rate observation missing
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborCapletFloorletBinaryPeriod.builder()
@@ -128,7 +128,7 @@ public class IborCapletFloorletBinaryPeriodTest {
   }
 
   @Test
-  public void test_payoff() {
+  void test_payoff() {
     // Caplet
     IborCapletFloorletBinaryPeriod cap = sut();
     // Caplet ITM
@@ -157,13 +157,13 @@ public class IborCapletFloorletBinaryPeriodTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void coverage() {
+  void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
   @Test
-  public void test_serialization() {
+  void test_serialization() {
     assertSerialization(sut());
   }
 
