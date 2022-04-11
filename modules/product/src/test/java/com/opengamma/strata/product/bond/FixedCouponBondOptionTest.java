@@ -52,7 +52,7 @@ public class FixedCouponBondOptionTest {
       .expiryTime(EXPIRY_TIME)
       .expiryZone(EXPIRY_ZONE)
       .quantity(QUANTITY_CALL)
-      .strike(STRIKE)
+      .cleanStrikePrice(STRIKE)
       .settlementDate(SETTLEMENT_DATE)
       .build();
 
@@ -66,7 +66,7 @@ public class FixedCouponBondOptionTest {
         .expiryTime(EXPIRY_TIME)
         .expiryZone(EXPIRY_ZONE)
         .quantity(QUANTITY_CALL)
-        .strike(STRIKE)
+        .cleanStrikePrice(STRIKE)
         .settlementDate(SETTLEMENT_DATE)
         .build();
     assertThat(test.getLongShort()).isEqualTo(LONG);
@@ -75,7 +75,7 @@ public class FixedCouponBondOptionTest {
     assertThat(test.getExpiryTime()).isEqualTo(EXPIRY_TIME);
     assertThat(test.getExpiryZone()).isEqualTo(EXPIRY_ZONE);
     assertThat(test.getQuantity()).isEqualTo(QUANTITY_CALL);
-    assertThat(test.getStrike()).isEqualTo(STRIKE);
+    assertThat(test.getCleanStrikePrice()).isEqualTo(STRIKE);
     assertThat(test.getSettlementDate()).isEqualTo(SETTLEMENT_DATE);
   }
 
@@ -89,7 +89,7 @@ public class FixedCouponBondOptionTest {
             .expiryTime(EXPIRY_TIME)
             .expiryZone(EXPIRY_ZONE)
             .quantity(QUANTITY_CALL)
-            .strike(STRIKE)
+            .cleanStrikePrice(STRIKE)
             .settlementDate(EXPIRY_DATE)
             .build());
   }
@@ -122,7 +122,7 @@ public class FixedCouponBondOptionTest {
         .expiryTime(LocalTime.of(12, 0))
         .expiryZone(ZoneId.of("America/New_York"))
         .quantity(QUANTITY_PUT)
-        .strike(2.1345)
+        .cleanStrikePrice(2.1345)
         .settlementDate(settlementDate2)
         .build();
     coverBeanEquals(OPTION_LONG_CALL, option2);

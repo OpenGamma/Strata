@@ -98,7 +98,7 @@ public final class FixedCouponBondOption
    * For example, a price of 99.32% is represented in Strata by 0.9932.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegative")
-  private final double strike;
+  private final double cleanStrikePrice;
   /**
    * The settlement date when the option is exercised.
    * <p>
@@ -129,7 +129,7 @@ public final class FixedCouponBondOption
         .underlying(underlying.resolve(refData))
         .expiry(expiryDate.adjusted(refData).atTime(expiryTime).atZone(expiryZone))
         .quantity(quantity)
-        .settlement(ResolvedFixedCouponBondSettlement.of(settlementDate.adjusted(refData), strike))
+        .settlement(ResolvedFixedCouponBondSettlement.of(settlementDate.adjusted(refData), cleanStrikePrice))
         .build();
   }
 
@@ -171,14 +171,14 @@ public final class FixedCouponBondOption
       LocalTime expiryTime,
       ZoneId expiryZone,
       double quantity,
-      double strike,
+      double cleanStrikePrice,
       AdjustableDate settlementDate) {
     JodaBeanUtils.notNull(longShort, "longShort");
     JodaBeanUtils.notNull(underlying, "underlying");
     JodaBeanUtils.notNull(expiryDate, "expiryDate");
     JodaBeanUtils.notNull(expiryTime, "expiryTime");
     JodaBeanUtils.notNull(expiryZone, "expiryZone");
-    ArgChecker.notNegative(strike, "strike");
+    ArgChecker.notNegative(cleanStrikePrice, "cleanStrikePrice");
     JodaBeanUtils.notNull(settlementDate, "settlementDate");
     this.longShort = longShort;
     this.underlying = underlying;
@@ -186,7 +186,7 @@ public final class FixedCouponBondOption
     this.expiryTime = expiryTime;
     this.expiryZone = expiryZone;
     this.quantity = quantity;
-    this.strike = strike;
+    this.cleanStrikePrice = cleanStrikePrice;
     this.settlementDate = settlementDate;
     validate();
   }
@@ -273,8 +273,8 @@ public final class FixedCouponBondOption
    * For example, a price of 99.32% is represented in Strata by 0.9932.
    * @return the value of the property
    */
-  public double getStrike() {
-    return strike;
+  public double getCleanStrikePrice() {
+    return cleanStrikePrice;
   }
 
   //-----------------------------------------------------------------------
@@ -311,7 +311,7 @@ public final class FixedCouponBondOption
           JodaBeanUtils.equal(expiryTime, other.expiryTime) &&
           JodaBeanUtils.equal(expiryZone, other.expiryZone) &&
           JodaBeanUtils.equal(quantity, other.quantity) &&
-          JodaBeanUtils.equal(strike, other.strike) &&
+          JodaBeanUtils.equal(cleanStrikePrice, other.cleanStrikePrice) &&
           JodaBeanUtils.equal(settlementDate, other.settlementDate);
     }
     return false;
@@ -326,7 +326,7 @@ public final class FixedCouponBondOption
     hash = hash * 31 + JodaBeanUtils.hashCode(expiryTime);
     hash = hash * 31 + JodaBeanUtils.hashCode(expiryZone);
     hash = hash * 31 + JodaBeanUtils.hashCode(quantity);
-    hash = hash * 31 + JodaBeanUtils.hashCode(strike);
+    hash = hash * 31 + JodaBeanUtils.hashCode(cleanStrikePrice);
     hash = hash * 31 + JodaBeanUtils.hashCode(settlementDate);
     return hash;
   }
@@ -341,7 +341,7 @@ public final class FixedCouponBondOption
     buf.append("expiryTime").append('=').append(JodaBeanUtils.toString(expiryTime)).append(',').append(' ');
     buf.append("expiryZone").append('=').append(JodaBeanUtils.toString(expiryZone)).append(',').append(' ');
     buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
-    buf.append("strike").append('=').append(JodaBeanUtils.toString(strike)).append(',').append(' ');
+    buf.append("cleanStrikePrice").append('=').append(JodaBeanUtils.toString(cleanStrikePrice)).append(',').append(' ');
     buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(settlementDate));
     buf.append('}');
     return buf.toString();
@@ -388,10 +388,10 @@ public final class FixedCouponBondOption
     private final MetaProperty<Double> quantity = DirectMetaProperty.ofImmutable(
         this, "quantity", FixedCouponBondOption.class, Double.TYPE);
     /**
-     * The meta-property for the {@code strike} property.
+     * The meta-property for the {@code cleanStrikePrice} property.
      */
-    private final MetaProperty<Double> strike = DirectMetaProperty.ofImmutable(
-        this, "strike", FixedCouponBondOption.class, Double.TYPE);
+    private final MetaProperty<Double> cleanStrikePrice = DirectMetaProperty.ofImmutable(
+        this, "cleanStrikePrice", FixedCouponBondOption.class, Double.TYPE);
     /**
      * The meta-property for the {@code settlementDate} property.
      */
@@ -408,7 +408,7 @@ public final class FixedCouponBondOption
         "expiryTime",
         "expiryZone",
         "quantity",
-        "strike",
+        "cleanStrikePrice",
         "settlementDate");
 
     /**
@@ -432,8 +432,8 @@ public final class FixedCouponBondOption
           return expiryZone;
         case -1285004149:  // quantity
           return quantity;
-        case -891985998:  // strike
-          return strike;
+        case 1424472750:  // cleanStrikePrice
+          return cleanStrikePrice;
         case -295948169:  // settlementDate
           return settlementDate;
       }
@@ -505,11 +505,11 @@ public final class FixedCouponBondOption
     }
 
     /**
-     * The meta-property for the {@code strike} property.
+     * The meta-property for the {@code cleanStrikePrice} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Double> strike() {
-      return strike;
+    public MetaProperty<Double> cleanStrikePrice() {
+      return cleanStrikePrice;
     }
 
     /**
@@ -536,8 +536,8 @@ public final class FixedCouponBondOption
           return ((FixedCouponBondOption) bean).getExpiryZone();
         case -1285004149:  // quantity
           return ((FixedCouponBondOption) bean).getQuantity();
-        case -891985998:  // strike
-          return ((FixedCouponBondOption) bean).getStrike();
+        case 1424472750:  // cleanStrikePrice
+          return ((FixedCouponBondOption) bean).getCleanStrikePrice();
         case -295948169:  // settlementDate
           return ((FixedCouponBondOption) bean).getSettlementDate();
       }
@@ -567,7 +567,7 @@ public final class FixedCouponBondOption
     private LocalTime expiryTime;
     private ZoneId expiryZone;
     private double quantity;
-    private double strike;
+    private double cleanStrikePrice;
     private AdjustableDate settlementDate;
 
     /**
@@ -587,7 +587,7 @@ public final class FixedCouponBondOption
       this.expiryTime = beanToCopy.getExpiryTime();
       this.expiryZone = beanToCopy.getExpiryZone();
       this.quantity = beanToCopy.getQuantity();
-      this.strike = beanToCopy.getStrike();
+      this.cleanStrikePrice = beanToCopy.getCleanStrikePrice();
       this.settlementDate = beanToCopy.getSettlementDate();
     }
 
@@ -607,8 +607,8 @@ public final class FixedCouponBondOption
           return expiryZone;
         case -1285004149:  // quantity
           return quantity;
-        case -891985998:  // strike
-          return strike;
+        case 1424472750:  // cleanStrikePrice
+          return cleanStrikePrice;
         case -295948169:  // settlementDate
           return settlementDate;
         default:
@@ -637,8 +637,8 @@ public final class FixedCouponBondOption
         case -1285004149:  // quantity
           this.quantity = (Double) newValue;
           break;
-        case -891985998:  // strike
-          this.strike = (Double) newValue;
+        case 1424472750:  // cleanStrikePrice
+          this.cleanStrikePrice = (Double) newValue;
           break;
         case -295948169:  // settlementDate
           this.settlementDate = (AdjustableDate) newValue;
@@ -664,7 +664,7 @@ public final class FixedCouponBondOption
           expiryTime,
           expiryZone,
           quantity,
-          strike,
+          cleanStrikePrice,
           settlementDate);
     }
 
@@ -754,12 +754,12 @@ public final class FixedCouponBondOption
      * <p>
      * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
      * For example, a price of 99.32% is represented in Strata by 0.9932.
-     * @param strike  the new value
+     * @param cleanStrikePrice  the new value
      * @return this, for chaining, not null
      */
-    public Builder strike(double strike) {
-      ArgChecker.notNegative(strike, "strike");
-      this.strike = strike;
+    public Builder cleanStrikePrice(double cleanStrikePrice) {
+      ArgChecker.notNegative(cleanStrikePrice, "cleanStrikePrice");
+      this.cleanStrikePrice = cleanStrikePrice;
       return this;
     }
 
@@ -788,7 +788,7 @@ public final class FixedCouponBondOption
       buf.append("expiryTime").append('=').append(JodaBeanUtils.toString(expiryTime)).append(',').append(' ');
       buf.append("expiryZone").append('=').append(JodaBeanUtils.toString(expiryZone)).append(',').append(' ');
       buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
-      buf.append("strike").append('=').append(JodaBeanUtils.toString(strike)).append(',').append(' ');
+      buf.append("cleanStrikePrice").append('=').append(JodaBeanUtils.toString(cleanStrikePrice)).append(',').append(' ');
       buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(settlementDate));
       buf.append('}');
       return buf.toString();
