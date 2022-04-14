@@ -107,6 +107,7 @@ public class FloatingRateNamesTest {
         {"HUF-BUBOR-Reuters", "HUF-BUBOR", FloatingRateType.IBOR},
         {"KRW-CD-KSDA-Bloomberg", "KRW-CD", FloatingRateType.IBOR},
         {"MXN-TIIE-Banxico", "MXN-TIIE", FloatingRateType.IBOR},
+        {"MYR-KLIBOR-BNM", "MYR-KLIBOR", FloatingRateType.IBOR},
         {"NOK-NIBOR-OIBOR", "NOK-NIBOR", FloatingRateType.IBOR},
         {"NZD-BBR-FRA", "NZD-BKBM", FloatingRateType.IBOR},
         {"PLN-WIBOR-WIBO", "PLN-WIBOR", FloatingRateType.IBOR},
