@@ -591,8 +591,10 @@ public class IborIndexTest {
     assertThat(test.getName()).isEqualTo("MYR-KLIBOR-3M");
     assertThat(test.getTenor()).isEqualTo(TENOR_3M);
     assertThat(test.getFixingCalendar()).isEqualTo(cal);
-    assertThat(test.getFixingDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(-2, cal));
-    assertThat(test.getEffectiveDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(2, cal));
+    assertThat(test.getFixingDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, cal)));
+    assertThat(test.getEffectiveDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, cal)));
     assertThat(test.getMaturityDateOffset())
         .isEqualTo(TenorAdjustment.of(
             TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, cal)));
