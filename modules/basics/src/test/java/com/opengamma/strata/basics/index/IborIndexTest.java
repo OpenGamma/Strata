@@ -15,6 +15,7 @@ import static com.opengamma.strata.basics.currency.Currency.HUF;
 import static com.opengamma.strata.basics.currency.Currency.JPY;
 import static com.opengamma.strata.basics.currency.Currency.KRW;
 import static com.opengamma.strata.basics.currency.Currency.MXN;
+import static com.opengamma.strata.basics.currency.Currency.MYR;
 import static com.opengamma.strata.basics.currency.Currency.NZD;
 import static com.opengamma.strata.basics.currency.Currency.PLN;
 import static com.opengamma.strata.basics.currency.Currency.SEK;
@@ -580,6 +581,26 @@ public class IborIndexTest {
     assertThat(test.getDayCount()).isEqualTo(ACT_360);
     assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_360);
     assertThat(test.toString()).isEqualTo("MXN-TIIE-4W");
+  }
+
+  @Test
+  public void test_myr_klibor() {
+    HolidayCalendarId cal = HolidayCalendarId.of("MYKL");
+    IborIndex test = IborIndex.of("MYR-KLIBOR-3M");
+    assertThat(test.getCurrency()).isEqualTo(MYR);
+    assertThat(test.getName()).isEqualTo("MYR-KLIBOR-3M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_3M);
+    assertThat(test.getFixingCalendar()).isEqualTo(cal);
+    assertThat(test.getFixingDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, cal)));
+    assertThat(test.getEffectiveDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, cal)));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, cal)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.toString()).isEqualTo("MYR-KLIBOR-3M");
   }
 
   @Test
