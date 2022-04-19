@@ -110,7 +110,6 @@ class VerticalSpreadVolatilityIborCapletFloorletBinaryPeriodPricerTest {
     Pair<IborCapletFloorletPeriod, IborCapletFloorletPeriod> pairCapShort =
         PRICER_BINARY_2.vanillaOptionVerticalSpreadPair(CAPLET_SHORT);
     assertThat(pairCapLong).isEqualTo(pairCapShort); // Long/short dealt with at pricer level
-
     Pair<IborCapletFloorletPeriod, IborCapletFloorletPeriod> pairFloorLong =
         PRICER_BINARY_2.vanillaOptionVerticalSpreadPair(FLOORLET_LONG);
     assertThat(pairFloorLong.getFirst().getStrike()).isEqualTo(STRIKE - SPREAD_2);
