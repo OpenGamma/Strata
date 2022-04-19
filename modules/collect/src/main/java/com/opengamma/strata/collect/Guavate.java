@@ -84,6 +84,22 @@ public final class Guavate {
   }
 
   /**
+   * Concatenates a number of items onto a single base list.
+   *
+   * @param <T>  the type of element in the iterable
+   * @param baseList  the base list
+   * @param additionalItems  the additional items
+   * @return the list that combines the inputs
+   */
+  @SafeVarargs
+  public static <T> ImmutableList<T> concatToList(Iterable<? extends T> baseList, T... additionalItems) {
+    return ImmutableList.<T>builder()
+        .addAll(baseList)
+        .addAll(ImmutableList.copyOf(additionalItems))
+        .build();
+  }
+
+  /**
    * Concatenates a number of iterables into a single set.
    * <p>
    * This is harder than it should be, a method {@code Stream.of(Iterable)}
