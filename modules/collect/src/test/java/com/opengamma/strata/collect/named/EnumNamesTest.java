@@ -43,12 +43,16 @@ public class EnumNamesTest {
   }
 
   @Test
-  public void test_parse_fooBar() {
-    EnumNames<MockEnum> test = EnumNames.of(MockEnum.class);
+  public void test_parse_fooBarWithAlias() {
+    EnumNames<MockEnum> test = EnumNames.of(MockEnum.class)
+        .withParseAlias("Fb", MockEnum.FooBar);
     assertThat(test.parse("Foobar")).isEqualTo(MockEnum.FooBar);
     assertThat(test.parse("FOOBAR")).isEqualTo(MockEnum.FooBar);
     assertThat(test.parse("foobar")).isEqualTo(MockEnum.FooBar);
     assertThat(test.parse("FooBar")).isEqualTo(MockEnum.FooBar);
+    assertThat(test.parse("Fb")).isEqualTo(MockEnum.FooBar);
+    assertThat(test.parse("FB")).isEqualTo(MockEnum.FooBar);
+    assertThat(test.parse("fb")).isEqualTo(MockEnum.FooBar);
   }
 
   @Test
