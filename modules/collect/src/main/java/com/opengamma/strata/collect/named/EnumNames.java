@@ -69,27 +69,51 @@ public final class EnumNames<T extends Enum<T> & NamedEnum> {
   // restricted constructor
   private EnumNames(Class<T> enumType, boolean manualToString) {
     this.enumType = ArgChecker.notNull(enumType, "enumType");
-    SortedMap<String, T> map = new TreeMap<>();
+    SortedMap<String, T> parseMap = new TreeMap<>();
     SortedSet<String> formattedSet = new TreeSet<>();
     EnumMap<T, String> formatMap = new EnumMap<>(enumType);
     for (T value : enumType.getEnumConstants()) {
       String formatted =
           manualToString ? value.toString() : CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, value.name());
-      map.put(value.name(), value);
-      map.put(value.name().toUpperCase(Locale.ENGLISH), value);
-      map.put(value.name().toLowerCase(Locale.ENGLISH), value);
-      map.put(formatted, value);
-      map.put(formatted.toUpperCase(Locale.ENGLISH), value);
-      map.put(formatted.toLowerCase(Locale.ENGLISH), value);
+      parseMap.put(value.name(), value);
+      parseMap.put(value.name().toUpperCase(Locale.ENGLISH), value);
+      parseMap.put(value.name().toLowerCase(Locale.ENGLISH), value);
+      parseMap.put(formatted, value);
+      parseMap.put(formatted.toUpperCase(Locale.ENGLISH), value);
+      parseMap.put(formatted.toLowerCase(Locale.ENGLISH), value);
       formattedSet.add(formatted);
       formatMap.put(value, formatted);
     }
-    this.parseMap = ImmutableSortedMap.copyOf(map);
+    this.parseMap = ImmutableSortedMap.copyOf(parseMap);
+    this.formattedSet = ImmutableSortedSet.copyOf(formattedSet);
+    this.formatMap = formatMap;
+  }
+
+  private EnumNames(Class<T> enumType, SortedMap<String, T> parseMap, SortedSet<String> formattedSet, EnumMap<T, String> formatMap) {
+    this.enumType = enumType;
+    this.parseMap = ImmutableSortedMap.copyOf(parseMap);
     this.formattedSet = ImmutableSortedSet.copyOf(formattedSet);
     this.formatMap = formatMap;
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Returns an instance with an additional alias added.
+   *
+   * @param alias  the string of the alias
+   * @param value  the enum value that the alias represents
+   * @return the converted name
+   */
+  public EnumNames<T> withParseAlias(String alias, T value) {
+    SortedMap<String, T> parseMap = new TreeMap<>(this.parseMap);
+    SortedSet<String> formattedSet = new TreeSet<>(this.formattedSet);
+    parseMap.put(alias, value);
+    parseMap.put(alias.toUpperCase(Locale.ENGLISH), value);
+    parseMap.put(alias.toLowerCase(Locale.ENGLISH), value);
+    formattedSet.add(alias);
+    return new EnumNames<T>(enumType, parseMap, formattedSet, formatMap);
+  }
+
   /**
    * Creates a standard Strata mixed case name from an enum-style constant.
    *
