@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.TreeMap;
@@ -292,6 +295,46 @@ public final class Guavate {
       builder.add(element);
     }
     return builder.build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Boxes an {@code OptionalInt}.
+   * <p>
+   * {@code OptionalInt} has almost no useful methods and no easy way to convert it to an {@code Optional}.
+   * This method provides the conversion to {@code Optional<Integer>}.
+   * 
+   * @param optional the {@code OptionalInt}
+   * @return an equivalent optional
+   */
+  public static Optional<Integer> boxed(OptionalInt optional) {
+    return optional.isPresent() ? Optional.of(optional.getAsInt()) : Optional.empty();
+  }
+
+  /**
+   * Boxes an {@code OptionalLong}.
+   * <p>
+   * {@code OptionalLong} has almost no useful methods and no easy way to convert it to an {@code Optional}.
+   * This method provides the conversion to {@code Optional<Long>}.
+   * 
+   * @param optional the {@code OptionalLong}
+   * @return an equivalent optional
+   */
+  public static Optional<Long> boxed(OptionalLong optional) {
+    return optional.isPresent() ? Optional.of(optional.getAsLong()) : Optional.empty();
+  }
+
+  /**
+   * Boxes an {@code OptionalDouble}.
+   * <p>
+   * {@code OptionalDouble} has almost no useful methods and no easy way to convert it to an {@code Optional}.
+   * This method provides the conversion to {@code Optional<Double>}.
+   * 
+   * @param optional the {@code OptionalDouble}
+   * @return an equivalent optional
+   */
+  public static Optional<Double> boxed(OptionalDouble optional) {
+    return optional.isPresent() ? Optional.of(optional.getAsDouble()) : Optional.empty();
   }
 
   //-------------------------------------------------------------------------
