@@ -48,7 +48,7 @@ public final class FailureItem
   /**
    * Attribute used to store the exception message.
    */
-  public static final String EXCEPTION_MESSAGE_ATTRIBUTE = "exceptionMessage";
+  public static final String EXCEPTION_MESSAGE_ATTRIBUTE = FailureAttributeKeys.EXCEPTION_MESSAGE;
   /**
    * Header used when generating stack trace internally.
    */
@@ -123,7 +123,7 @@ public final class FailureItem
    * @param skipFrames  the number of caller frames to skip, not including this one
    * @return the failure
    */
-  static FailureItem of(FailureReason reason, String message, int skipFrames) {
+  static FailureItem ofAutoStackTrace(FailureReason reason, String message, int skipFrames) {
     ArgChecker.notNull(reason, "reason");
     ArgChecker.notEmpty(message, "message");
     String stackTrace = localGetStackTraceAsString(message, skipFrames);
@@ -203,6 +203,26 @@ public final class FailureItem
     return base;
   }
 
+  /**
+   * Creates a failure item from the throwable.
+   * <p>
+   * This recognizes {@link FailureItemException}.
+   *
+   * @param th  the throwable to be processed
+   * @return the failure item
+   */
+  public static FailureItem from(Throwable th) {
+    try {
+      throw th;
+    } catch (FailureItemException ex) {
+      return ex.getFailureItem();
+    } catch (ParseFailureException ex) {
+      return ex.getFailureItem();
+    } catch (Throwable ex) {
+      return of(FailureReason.ERROR, ex);
+    }
+  }
+
   //-------------------------------------------------------------------------
   @ImmutableConstructor
   private FailureItem(
@@ -219,6 +239,19 @@ public final class FailureItem
     this.message = message;
     this.stackTrace = INTERNER.intern(stackTrace);
     this.causeType = causeType;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the message template that was used to create the message.
+   * <p>
+   * This method derives the template from 'templateLocation' in the attributes.
+   * This only works if the template location correctly matches the message.
+   * 
+   * @return the message template
+   */
+  public String getMessageTemplate() {
+    return Messages.recreateTemplate(message, attributes.get(FailureAttributeKeys.TEMPLATE_LOCATION));
   }
 
   /**
