@@ -8,7 +8,9 @@ package com.opengamma.strata.collect.result;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.result.FailureReason.CALCULATION_FAILED;
 import static com.opengamma.strata.collect.result.FailureReason.ERROR;
+import static com.opengamma.strata.collect.result.FailureReason.INVALID;
 import static com.opengamma.strata.collect.result.FailureReason.MISSING_DATA;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.fail;
@@ -386,6 +388,18 @@ public class ResultTest {
     assertThat(test.getFailure().getItems().size()).isEqualTo(1);
     FailureItem item = test.getFailure().getItems().iterator().next();
     assertThat(item).isSameAs(inputItem);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void failure_fromFailureItemException() {
+    FailureItem item1 = FailureItem.of(INVALID, "my failure");
+    FailureItemException ex1 = new FailureItemException(item1);
+    Failure fail1 = Failure.from(ex1);
+    assertThat(fail1.getItems()).containsExactlyInAnyOrder(item1);
+
+    Failure fail2 = Failure.from(new FailureException(fail1));
+    assertThat(fail2).isSameAs(fail1);
   }
 
   //-------------------------------------------------------------------------

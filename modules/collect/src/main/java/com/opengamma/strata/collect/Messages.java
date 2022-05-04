@@ -5,12 +5,18 @@
  */
 package com.opengamma.strata.collect;
 
+import static com.opengamma.strata.collect.Guavate.substringAfterFirst;
+import static com.opengamma.strata.collect.Guavate.substringBeforeFirst;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.result.FailureAttributeKeys;
 import com.opengamma.strata.collect.tuple.Pair;
 
 /**
@@ -18,7 +24,8 @@ import com.opengamma.strata.collect.tuple.Pair;
  */
 public final class Messages {
 
-  private static final Pattern REGEX_PATTERN = Pattern.compile("\\{(\\w*)\\}"); //This will match both {}, and {anything}
+  private static final Pattern REGEX_WORDS_AND_EMPTY = Pattern.compile("\\{(\\w*)\\}"); //This will match both {}, and {anything}
+  private static final Splitter TEMPLATE_LOCATION_SPLITTER = Splitter.on('|');
 
   /**
    * Restricted constructor.
@@ -121,7 +128,7 @@ public final class Messages {
   }
 
   /**
-   * Formats a templated message inserting named arguments.
+   * Formats a templated message inserting named arguments, returning the implied attribute map.
    * <p>
    * A typical template would look like:
    * <pre>
@@ -143,12 +150,19 @@ public final class Messages {
    * <p>
    * This method is null tolerant to ensure that use in exception construction will
    * not throw another exception, which might hide the intended exception.
+   * <p>
+   * If the template contains a named placeholder, then the output will contain a populated attribute map
+   * for all placeholders including those without names. The output will include a 'templateLocation'
+   * attribute identifying the location of the named placeholders.
    *
-   * @param messageTemplate  the message template with "{}" placeholders, null returns empty string
+   * @param messageTemplate  the message template with "{}" and "{name}" placeholders, null returns empty string
    * @param args  the message arguments, null treated as empty array
    * @return the formatted message
    */
   public static Pair<String, Map<String, String>> formatWithAttributes(String messageTemplate, Object... args) {
+    // NOTE: a templateLocation is used (rather than just storing the template) to avoid holding two very similar
+    // copies of the message in memory, which could be significant if the message is long
+
     if (messageTemplate == null) {
       return formatWithAttributes("", args);
     }
@@ -158,28 +172,51 @@ public final class Messages {
 
     // do not use an ImmutableMap, as we avoid throwing exceptions in case of duplicate keys.
     Map<String, String> attributes = new HashMap<>();
-    Matcher matcher = REGEX_PATTERN.matcher(messageTemplate);
+    Matcher matcher = REGEX_WORDS_AND_EMPTY.matcher(messageTemplate);
     int argIndex = 0;
 
-    StringBuffer outputMessageBuffer = new StringBuffer();
+    StringBuffer outputMessageBuffer = new StringBuffer(128);
+    StringBuffer templateLocationBuffer = new StringBuffer(32);
+    boolean hasNamed = false;
+    int previousEnd = 0;
     while (matcher.find()) {
       // if the number of placeholders is greater than the number of arguments, then not all placeholders are replaced.
       if (argIndex >= args.length) {
         continue;
       }
 
-      String attributeName = matcher.group(1); // extract the attribute name
-      String replacement = String.valueOf(args[argIndex]).replace("$", "\\$");
-      matcher.appendReplacement(outputMessageBuffer, replacement);
+      String attributeName = matcher.group(1);
+      String replacement = String.valueOf(args[argIndex]);
+      outputMessageBuffer.append(messageTemplate.substring(previousEnd, matcher.start()));
+      outputMessageBuffer.append(replacement);
       if (!attributeName.isEmpty()) {
+        hasNamed = true;
+        String oldAttrValue = attributes.get(attributeName);
+        if (oldAttrValue != null && !oldAttrValue.equals(replacement)) {
+          attributeName = "arg" + (argIndex + 1);
+        }
         attributes.put(attributeName, replacement);
+        // each location is stored as 'name:startPos:length'
+        // length is stored to ensure the location does not depend on the attribute values
+        templateLocationBuffer.append(templateLocationBuffer.length() > 0 ? "|" : "")
+            .append(attributeName)
+            .append(':')
+            .append(outputMessageBuffer.length() - replacement.length())
+            .append(':')
+            .append(replacement.length());
       }
+      previousEnd = matcher.end();
       argIndex++;
     }
-    matcher.appendTail(outputMessageBuffer);
+    outputMessageBuffer.append(messageTemplate.substring(previousEnd));
 
     // append remaining args
     if (argIndex < args.length) {
+      if (hasNamed) {
+        templateLocationBuffer.append(templateLocationBuffer.length() > 0 ? "|" : "")
+            .append("+:")
+            .append(outputMessageBuffer.length());
+      }
       outputMessageBuffer.append(" - [");
       for (int i = argIndex; i < args.length; i++) {
         if (i > argIndex) {
@@ -190,7 +227,49 @@ public final class Messages {
       outputMessageBuffer.append(']');
     }
 
+    // capture the template if named arguments were used
+    if (hasNamed) {
+      attributes.put(FailureAttributeKeys.TEMPLATE_LOCATION, templateLocationBuffer.toString());
+    } else {
+      attributes.clear();
+    }
     return Pair.of(outputMessageBuffer.toString(), ImmutableMap.copyOf(attributes));
+  }
+
+  /**
+   * Recreates the template from the message and templateLocation code.
+   * <p>
+   * This method returns the input message if the input is not valid.
+   * 
+   * @param message  the message, null tolerant
+   * @param templateLocation  the template location, null tolerant
+   * @return the message
+   */
+  public static String recreateTemplate(String message, String templateLocation) {
+    if (Strings.nullToEmpty(message).isEmpty() || Strings.nullToEmpty(templateLocation).isEmpty()) {
+      return message;
+    }
+    try {
+      StringBuffer buf = new StringBuffer();
+      int lastPos = 0;
+      for (String entry : TEMPLATE_LOCATION_SPLITTER.split(templateLocation)) {
+        String attrName = substringBeforeFirst(entry, ":");
+        String remainder = substringAfterFirst(entry, ":");
+        if (attrName.equals("+")) {
+          int pos = Integer.parseInt(remainder);
+          buf.append(message.substring(lastPos, pos));
+          return buf.toString();
+        }
+        int pos = Integer.parseInt(substringBeforeFirst(remainder, ":"));
+        int len = Integer.parseInt(substringAfterFirst(remainder, ":"));
+        buf.append(message.substring(lastPos, pos)).append('{').append(attrName).append('}');
+        lastPos = pos + len;
+      }
+      buf.append(message.substring(lastPos));
+      return buf.toString();
+    } catch (RuntimeException ex) {
+      return message;
+    }
   }
 
 }
