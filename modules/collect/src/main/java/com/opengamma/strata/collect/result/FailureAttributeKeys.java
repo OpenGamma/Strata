@@ -12,6 +12,7 @@ package com.opengamma.strata.collect.result;
  */
 public final class FailureAttributeKeys {
 
+  // generic keys
   /**
    * The attribute for specifying file id.
    */
@@ -21,9 +22,9 @@ public final class FailureAttributeKeys {
    */
   public static final String FILE_NAME = "fileName";
   /**
-   * The attribute for specifying the file format in which the error occurred.
+   * The attribute for specifying the format associated with the error.
    */
-  public static final String FORMAT = "format";
+  public static final String FORMAT = "format";  // not fileFormat for legacy reasons
   /**
    * The attribute for specifying the line number in which the error occurred.
    */
@@ -45,6 +46,7 @@ public final class FailureAttributeKeys {
    */
   public static final String TEMPLATE_LOCATION = "templateLocation";
 
+  // business/product keys
   /**
    * The attribute for specifying the LEI associated with the error.
    */

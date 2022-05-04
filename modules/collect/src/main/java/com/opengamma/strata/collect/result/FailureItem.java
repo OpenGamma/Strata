@@ -206,7 +206,7 @@ public final class FailureItem
   /**
    * Creates a failure item from the throwable.
    * <p>
-   * This recognizes {@link FailureItemException}.
+   * This recognizes {@link FailureItemException} and {@link ParseFailureException}.
    *
    * @param th  the throwable to be processed
    * @return the failure item

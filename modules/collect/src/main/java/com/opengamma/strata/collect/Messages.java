@@ -152,8 +152,8 @@ public final class Messages {
    * not throw another exception, which might hide the intended exception.
    * <p>
    * If the template contains a named placeholder, then the output will contain a populated attribute map
-   * for all placeholders including those without names.
-   * including a 'templateLocation' attribute identifying the location of the named placeholders.
+   * for all placeholders including those without names. The output will include a 'templateLocation'
+   * attribute identifying the location of the named placeholders.
    *
    * @param messageTemplate  the message template with "{}" and "{name}" placeholders, null returns empty string
    * @param args  the message arguments, null treated as empty array

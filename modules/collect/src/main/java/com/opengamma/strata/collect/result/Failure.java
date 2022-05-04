@@ -193,7 +193,7 @@ public final class Failure
   /**
    * Creates a failure from the throwable.
    * <p>
-   * This recognizes {@link FailureException} and {@link FailureItemException}.
+   * This recognizes {@link FailureException}, {@link FailureItemException} and {@link ParseFailureException}.
    *
    * @param th  the throwable to be processed
    * @return the failure
