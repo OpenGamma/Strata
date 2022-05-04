@@ -8,7 +8,7 @@ package com.opengamma.strata.loader.csv;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.data.FxRateId;
 
 /**
@@ -68,14 +69,15 @@ public class FxRatesCsvLoaderTest {
 
   @Test
   public void test_load_oneDate_invalidDate() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> FxRatesCsvLoader.load(date(2015, 10, 2), RATES_INVALID_DATE))
-        .withMessageStartingWith("Error processing resource as CSV file: ");
+        .withMessageStartingWith("Error parsing CSV file 'fx-rates-invalid-date.csv': Unable to parse date");
   }
 
   @Test
   public void test_invalidDuplicate() {
-    assertThatIllegalArgumentException().isThrownBy(() -> FxRatesCsvLoader.load(DATE1, RATES_INVALID_DUPLICATE));
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> FxRatesCsvLoader.load(DATE1, RATES_INVALID_DUPLICATE));
   }
 
   @Test

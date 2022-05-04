@@ -34,6 +34,7 @@ import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.MapStream;
+import com.opengamma.strata.collect.io.CharSources;
 import com.opengamma.strata.collect.io.CsvIterator;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
@@ -348,7 +349,7 @@ public final class TradeCsvLoader {
       } else {
         failures.add(FailureItem.of(
             FailureReason.PARSING,
-            "Trade type not allowed {tradeType}, only these types are supported: {}",
+            "Trade type not allowed {type}, only these types are supported: {options}",
             trade.getClass().getName(),
             tradeTypes.stream().map(Class::getSimpleName).collect(joining(", "))));
       }
@@ -390,22 +391,29 @@ public final class TradeCsvLoader {
       if (!csv.headers().contains(TRADE_TYPE_FIELD)) {
         return ValueWithFailures.of(
             ImmutableList.of(),
-            FailureItem.of(FailureReason.PARSING, "CSV file does not contain '{header}' header: {}", TRADE_TYPE_FIELD,
-                charSource));
+            FailureItem.of(
+                FailureReason.PARSING,
+                "CSV trade file '{fileName}' does not contain '{header}' header",
+                CharSources.extractFileName(charSource),
+                TRADE_TYPE_FIELD));
       }
-      return parseFile(csv, tradeType);
+      return parseFile(csv, charSource, tradeType);
 
     } catch (RuntimeException ex) {
       return ValueWithFailures.of(
           ImmutableList.of(),
           FailureItem.of(
-              FailureReason.PARSING, ex, "CSV file could not be parsed: {exceptionMessage}: {}", ex.getMessage(), charSource));
+              FailureReason.PARSING,
+              ex,
+              "CSV trade file '{fileName}' could not be parsed: {exceptionMessage}",
+              CharSources.extractFileName(charSource),
+              ex.getMessage()));
     }
   }
 
   // loads a single CSV file
   @SuppressWarnings("unchecked")
-  private <T extends Trade> ValueWithFailures<List<T>> parseFile(CsvIterator csv, Class<T> tradeType) {
+  private <T extends Trade> ValueWithFailures<List<T>> parseFile(CsvIterator csv, CharSource charSource, Class<T> tradeType) {
     List<T> trades = new ArrayList<>();
     List<FailureItem> failures = new ArrayList<>();
     for (CsvRow row : csv.asIterable()) {
@@ -445,13 +453,15 @@ public final class TradeCsvLoader {
         if (typeUpper.equals("VARIABLE")) {
           failures.add(FailureItem.of(
               FailureReason.PARSING,
-              "CSV file contained a 'Variable' type at line {lineNumber} that was not preceeded by a 'Swap' or 'Swaption'",
+              "CSV trade file '{fileName}' contained a 'Variable' type at line {lineNumber} that was not preceeded by a 'Swap' or 'Swaption'",
+              CharSources.extractFileName(charSource),
               row.lineNumber()));
         } else {
           // failed to find the type
           failures.add(FailureItem.of(
               FailureReason.PARSING,
-              "CSV trade file type '{tradeType}' is not known at line {lineNumber}",
+              "CSV trade file '{fileName}' contained unknown trade type '{type}' at line {lineNumber}",
+              CharSources.extractFileName(charSource),
               typeRaw,
               row.lineNumber()));
         }
@@ -460,7 +470,8 @@ public final class TradeCsvLoader {
         failures.add(FailureItem.of(
             FailureReason.PARSING,
             ex,
-            "CSV trade file type '{tradeType}' could not be parsed at line {lineNumber}: {exceptionMessage}",
+            "CSV trade file '{fileName}' type '{type}' could not be parsed at line {lineNumber}: {exceptionMessage}",
+            CharSources.extractFileName(charSource),
             typeRaw,
             row.lineNumber(),
             ex.getMessage()));

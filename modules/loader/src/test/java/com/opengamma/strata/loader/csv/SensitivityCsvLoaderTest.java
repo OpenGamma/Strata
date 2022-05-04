@@ -32,6 +32,7 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.collect.io.StringCharSource;
 import com.opengamma.strata.collect.result.FailureItem;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.ValueWithFailures;
@@ -139,7 +140,7 @@ public final class SensitivityCsvLoaderTest {
 
   @Test
   public void test_parse_standard_dateInTenorColumn() {
-    CharSource source = CharSource.wrap(
+    CharSource source = StringCharSource.of(
         "Reference,Sensitivity Type,Sensitivity Tenor,Value\n" +
             "GBP,ZeroRateGamma,2018-06-30,1\n");
     assertThat(LOADER_DATE.isKnownFormat(source)).isTrue();
@@ -149,7 +150,8 @@ public final class SensitivityCsvLoaderTest {
     FailureItem failure0 = test.getFailures().get(0);
     assertThat(failure0.getReason()).isEqualTo(FailureReason.PARSING);
     assertThat(failure0.getMessage())
-        .isEqualTo("CSV file could not be parsed at line 2: Invalid tenor '2018-06-30', must be expressed as nD, nW, nM or nY");
+        .isEqualTo(
+            "CSV sensitivity file 'Unknown.txt' could not be parsed at line 2: Invalid tenor '2018-06-30', must be expressed as nD, nW, nM or nY");
   }
 
   //-------------------------------------------------------------------------
@@ -205,7 +207,7 @@ public final class SensitivityCsvLoaderTest {
 
   @Test
   public void test_parse_list_duplicateTenor() {
-    CharSource source = CharSource.wrap(
+    CharSource source = StringCharSource.of(
         "Reference,Sensitivity Tenor,Zero Rate Delta\n" +
             "GBP,P1D,1\n" +
             "GBP,P1M,2\n" +
@@ -224,7 +226,7 @@ public final class SensitivityCsvLoaderTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_parse_list_allRowsBadNoEmptySensitvityCreated() {
-    CharSource source = CharSource.wrap(
+    CharSource source = StringCharSource.of(
         "Reference,Sensitivity Tenor,ZeroRateDelta\n" +
             "GBP,XX,1\n");
     assertThat(LOADER_DATE.isKnownFormat(source)).isTrue();
@@ -234,12 +236,13 @@ public final class SensitivityCsvLoaderTest {
     FailureItem failure0 = test.getFailures().get(0);
     assertThat(failure0.getReason()).isEqualTo(FailureReason.PARSING);
     assertThat(failure0.getMessage())
-        .isEqualTo("CSV file could not be parsed at line 2: Invalid tenor 'XX', must be expressed as nD, nW, nM or nY");
+        .isEqualTo(
+            "CSV sensitivity file 'Unknown.txt' could not be parsed at line 2: Invalid tenor 'XX', must be expressed as nD, nW, nM or nY");
   }
 
   @Test
   public void test_parse_list_unableToGetCurrency() {
-    CharSource source = CharSource.wrap(
+    CharSource source = StringCharSource.of(
         "Reference,Sensitivity Tenor,Zero Rate Delta\n" +
             "X,1D,1.0");
     ValueWithFailures<ListMultimap<String, CurveSensitivities>> test = LOADER.parse(ImmutableList.of(source));
@@ -247,7 +250,7 @@ public final class SensitivityCsvLoaderTest {
     FailureItem failure0 = test.getFailures().get(0);
     assertThat(failure0.getReason()).isEqualTo(FailureReason.PARSING);
     assertThat(failure0.getMessage())
-        .isEqualTo("CSV file could not be parsed at line 2: Unable to parse currency from reference, " +
+        .isEqualTo("CSV sensitivity file 'Unknown.txt' could not be parsed at line 2: Unable to parse currency from reference, " +
             "consider adding a 'Currency' column");
   }
 
@@ -262,20 +265,21 @@ public final class SensitivityCsvLoaderTest {
     ValueWithFailures<ListMultimap<String, CurveSensitivities>> test = LOADER.parse(ImmutableList.of(source));
     assertThat(test.getFailures()).hasSize(1);
     assertThat(test.getFailures().get(0).getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(test.getFailures().get(0).getMessage().startsWith("CSV file could not be parsed: ")).isTrue();
-    assertThat(test.getFailures().get(0).getMessage().contains("Oops")).isTrue();
+    assertThat(test.getFailures().get(0).getMessage()).startsWith("CSV sensitivity file 'Unknown.txt' could not be parsed: ");
+    assertThat(test.getFailures().get(0).getMessage()).contains("Oops");
   }
 
   @Test
   public void test_parse_list_badDayMonthTenor() {
-    CharSource source = CharSource.wrap(
+    CharSource source = StringCharSource.of(
         "Reference,Sensitivity Tenor,Zero Rate Delta\n" +
             "GBP-LIBOR,P2M1D,1.0");
     ValueWithFailures<ListMultimap<String, CurveSensitivities>> test = LOADER.parse(ImmutableList.of(source));
     assertThat(test.getFailures()).hasSize(1);
     assertThat(test.getFailures().get(0).getReason()).isEqualTo(FailureReason.PARSING);
     assertThat(test.getFailures().get(0).getMessage())
-        .isEqualTo("CSV file could not be parsed at line 2: Invalid tenor, cannot mix years/months and days: 2M1D");
+        .isEqualTo(
+            "CSV sensitivity file 'Unknown.txt' could not be parsed at line 2: Invalid tenor, cannot mix years/months and days: '2M1D'");
   }
 
   //-------------------------------------------------------------------------
@@ -327,7 +331,7 @@ public final class SensitivityCsvLoaderTest {
 
   @Test
   public void test_parse_grid_duplicateTenor() {
-    CharSource source = CharSource.wrap(
+    CharSource source = StringCharSource.of(
         "Sensitivity Type,Sensitivity Tenor,GBP\n" +
             "ZeroRateGamma,P6M,1\n" +
             "ZeroRateGamma,12M,2\n" +
@@ -346,7 +350,7 @@ public final class SensitivityCsvLoaderTest {
 
   @Test
   public void test_parse_grid_tenorAndDateColumns() {
-    CharSource source = CharSource.wrap(
+    CharSource source = StringCharSource.of(
         "Sensitivity Type,Sensitivity Tenor,Sensitivity Date,GBP\n" +
             "ZeroRateGamma,1M,2018-06-30,1\n");
     assertThat(LOADER.isKnownFormat(source)).isTrue();
@@ -367,7 +371,7 @@ public final class SensitivityCsvLoaderTest {
 
   @Test
   public void test_parse_grid_dateColumn() {
-    CharSource source = CharSource.wrap(
+    CharSource source = StringCharSource.of(
         "Sensitivity Type,Sensitivity Date,GBP\n" +
             "ZeroRateGamma,2018-06-30,1\n");
     assertThat(LOADER_DATE.isKnownFormat(source)).isTrue();
@@ -388,7 +392,7 @@ public final class SensitivityCsvLoaderTest {
 
   @Test
   public void test_parse_grid_dateInTenorColumn() {
-    CharSource source = CharSource.wrap(
+    CharSource source = StringCharSource.of(
         "Sensitivity Type,Sensitivity Tenor,GBP\n" +
             "ZeroRateGamma,2018-06-30,1\n");
     assertThat(LOADER_DATE.isKnownFormat(source)).isTrue();
@@ -410,9 +414,10 @@ public final class SensitivityCsvLoaderTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_parse_grid_allRowsBadNoEmptySensitvityCreated() {
-    CharSource source = CharSource.wrap(
+    CharSource source = StringCharSource.of(
         "Sensitivity Type,Sensitivity Tenor,GBP\n" +
-            "ZeroRateGamma,XX,1\n");
+            "ZeroRateGamma,XX,1\n")
+        .withFileName("Test.csv");
     assertThat(LOADER.isKnownFormat(source)).isTrue();
     ValueWithFailures<ListMultimap<String, CurveSensitivities>> test = LOADER.parse(ImmutableList.of(source));
     assertThat(test.getFailures()).hasSize(1);
@@ -420,14 +425,16 @@ public final class SensitivityCsvLoaderTest {
     FailureItem failure0 = test.getFailures().get(0);
     assertThat(failure0.getReason()).isEqualTo(FailureReason.PARSING);
     assertThat(failure0.getMessage())
-        .isEqualTo("CSV file could not be parsed at line 2: Invalid tenor 'XX', must be expressed as nD, nW, nM or nY");
+        .isEqualTo(
+            "CSV sensitivity file 'Test.csv' could not be parsed at line 2: Invalid tenor 'XX', must be expressed as nD, nW, nM or nY");
   }
 
   @Test
   public void test_parse_grid_badTenorWithValidDateColumn() {
-    CharSource source = CharSource.wrap(
+    CharSource source = StringCharSource.of(
         "Sensitivity Type,Sensitivity Tenor,Sensitivity Date,GBP\n" +
-            "ZeroRateGamma,XXX,2018-06-30,1\n");
+            "ZeroRateGamma,XXX,2018-06-30,1\n")
+        .withFileName("Test.csv");
     assertThat(LOADER.isKnownFormat(source)).isTrue();
     ValueWithFailures<ListMultimap<String, CurveSensitivities>> test = LOADER.parse(ImmutableList.of(source));
     assertThat(test.getFailures()).hasSize(1);
@@ -435,43 +442,50 @@ public final class SensitivityCsvLoaderTest {
     FailureItem failure0 = test.getFailures().get(0);
     assertThat(failure0.getReason()).isEqualTo(FailureReason.PARSING);
     assertThat(failure0.getMessage())
-        .isEqualTo("CSV file could not be parsed at line 2: Invalid tenor 'XXX', must be expressed as nD, nW, nM or nY");
+        .isEqualTo(
+            "CSV sensitivity file 'Test.csv' could not be parsed at line 2: Invalid tenor 'XXX', must be expressed as nD, nW, nM or nY");
   }
 
   @Test
   public void test_parse_grid_missingColumns() {
-    CharSource source = CharSource.wrap(
+    CharSource source = StringCharSource.of(
         "GBP\n" +
-            "1");
+            "1")
+        .withFileName("Test.csv");
     assertThat(LOADER.isKnownFormat(source)).isFalse();
     ValueWithFailures<ListMultimap<String, CurveSensitivities>> test = LOADER.parse(ImmutableList.of(source));
     assertThat(test.getFailures()).hasSize(1);
     assertThat(test.getValue().size()).isEqualTo(0);
     FailureItem failure0 = test.getFailures().get(0);
     assertThat(failure0.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure0.getMessage()).isEqualTo("CSV file could not be parsed as sensitivities, invalid format");
+    assertThat(failure0.getMessage())
+        .isEqualTo("CSV sensitivity file 'Test.csv' could not be parsed as sensitivities, invalid format");
   }
 
   @Test
   public void test_parse_grid_neitherTenorNorDate() {
-    CharSource source = CharSource.wrap(
+    CharSource source = StringCharSource.of(
         "Sensitivity Type,Sensitivity Tenor,Sensitivity Date,GBP\n" +
-            "ZeroRateGamma,,,1\n");
+            "ZeroRateGamma,,,1\n")
+        .withFileName("Test.csv");
     assertThat(LOADER_DATE.isKnownFormat(source)).isTrue();
     ValueWithFailures<ListMultimap<String, CurveSensitivities>> test = LOADER_DATE.parse(ImmutableList.of(source));
     assertThat(test.getFailures()).hasSize(1);
     assertThat(test.getValue().size()).isEqualTo(0);
     FailureItem failure0 = test.getFailures().get(0);
     assertThat(failure0.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure0.getMessage()).isEqualTo("CSV file could not be parsed at line 2: Unable to parse tenor or date, " +
-        "check 'Sensitivity Tenor' and 'Sensitivity Date' columns");
+    assertThat(failure0.getMessage())
+        .isEqualTo(
+            "CSV sensitivity file 'Test.csv' could not be parsed at line 2: Unable to parse tenor or date, " +
+                "check 'Sensitivity Tenor' and 'Sensitivity Date' columns");
   }
 
   @Test
   public void test_parse_grid_dateButTenorRequired() {
-    CharSource source = CharSource.wrap(
+    CharSource source = StringCharSource.of(
         "Sensitivity Type,Sensitivity Tenor,Sensitivity Date,GBP\n" +
-            "ZeroRateGamma,,2018-06-30,1\n");
+            "ZeroRateGamma,,2018-06-30,1\n")
+        .withFileName("Test.csv");
     assertThat(LOADER.isKnownFormat(source)).isTrue();
     ValueWithFailures<ListMultimap<String, CurveSensitivities>> test = LOADER.parse(ImmutableList.of(source));
     assertThat(test.getFailures()).hasSize(1);
@@ -479,7 +493,7 @@ public final class SensitivityCsvLoaderTest {
     FailureItem failure0 = test.getFailures().get(0);
     assertThat(failure0.getReason()).isEqualTo(FailureReason.PARSING);
     assertThat(failure0.getMessage())
-        .isEqualTo("CSV file could not be parsed at line 2: Missing value for 'Sensitivity Tenor' column");
+        .isEqualTo("CSV sensitivity file 'Test.csv' could not be parsed at line 2: Missing value for 'Sensitivity Tenor' column");
   }
 
   //-------------------------------------------------------------------------

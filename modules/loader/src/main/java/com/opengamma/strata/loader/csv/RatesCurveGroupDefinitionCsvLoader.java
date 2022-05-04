@@ -31,12 +31,13 @@ import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.MapStream;
-import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.io.CharSources;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.io.UnicodeBom;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -99,23 +100,32 @@ public final class RatesCurveGroupDefinitionCsvLoader {
    * <p>
    * The list of {@link NodalCurveDefinition} will be empty in the resulting definition.
    *
-   * @param groupsCharSource  the curve groups CSV character source
+   * @param charSource  the curve groups CSV character source
    * @return the list of definitions
    */
-  public static List<RatesCurveGroupDefinition> parseCurveGroupDefinitions(CharSource groupsCharSource) {
-    Map<CurveName, Set<GroupAndReference>> curveGroups = new LinkedHashMap<>();
-    CsvFile csv = CsvFile.of(groupsCharSource, true);
-    for (CsvRow row : csv.rows()) {
-      String curveGroupStr = row.getField(GROUPS_NAME);
-      String curveTypeStr = row.getField(GROUPS_CURVE_TYPE);
-      String referenceStr = row.getField(GROUPS_REFERENCE);
-      String curveNameStr = row.getField(GROUPS_CURVE_NAME);
+  public static List<RatesCurveGroupDefinition> parseCurveGroupDefinitions(CharSource charSource) {
+    try {
+      Map<CurveName, Set<GroupAndReference>> curveGroups = new LinkedHashMap<>();
+      CsvFile csv = CsvFile.of(charSource, true);
+      for (CsvRow row : csv.rows()) {
+        String curveGroupStr = row.getField(GROUPS_NAME);
+        String curveTypeStr = row.getField(GROUPS_CURVE_TYPE);
+        String referenceStr = row.getField(GROUPS_REFERENCE);
+        String curveNameStr = row.getField(GROUPS_CURVE_NAME);
 
-      GroupAndReference gar = createKey(CurveGroupName.of(curveGroupStr), curveTypeStr, referenceStr);
-      CurveName curveName = CurveName.of(curveNameStr);
-      curveGroups.computeIfAbsent(curveName, k -> new LinkedHashSet<>()).add(gar);
+        GroupAndReference gar = createKey(CurveGroupName.of(curveGroupStr), curveTypeStr, referenceStr);
+        CurveName curveName = CurveName.of(curveNameStr);
+        curveGroups.computeIfAbsent(curveName, k -> new LinkedHashSet<>()).add(gar);
+      }
+      return buildCurveGroups(curveGroups);
+
+    } catch (RuntimeException ex) {
+      throw new ParseFailureException(
+          ex,
+          "Error parsing groups CSV file '{fileName}': {exceptionMessage}",
+          CharSources.extractFileName(charSource),
+          ex.getMessage());
     }
-    return buildCurveGroups(curveGroups);
   }
 
   //-------------------------------------------------------------------------
@@ -135,7 +145,7 @@ public final class RatesCurveGroupDefinitionCsvLoader {
       return new GroupAndReference(curveGroup, ccy);
 
     } else {
-      throw new IllegalArgumentException(Messages.format("Unsupported curve type: {}", curveTypeStr));
+      throw new ParseFailureException("Unsupported curve type '{type}'", curveTypeStr);
     }
   }
 

@@ -20,11 +20,12 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.StandardId;
-import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.io.CharSources;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.io.UnicodeBom;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.data.FieldName;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.market.observable.QuoteId;
@@ -193,16 +194,23 @@ public final class QuotesCsvLoader {
       Predicate<LocalDate> datePredicate,
       Collection<CharSource> charSources) {
 
-    // builder ensures keys can only be seen once
-    Map<LocalDate, ImmutableMap.Builder<QuoteId, Double>> mutableMap = new HashMap<>();
-    for (CharSource charSource : charSources) {
-      parseSingle(datePredicate, charSource, mutableMap);
+    try {
+      // builder ensures keys can only be seen once
+      Map<LocalDate, ImmutableMap.Builder<QuoteId, Double>> mutableMap = new HashMap<>();
+      for (CharSource charSource : charSources) {
+        parseSingle(datePredicate, charSource, mutableMap);
+      }
+      ImmutableMap.Builder<LocalDate, ImmutableMap<QuoteId, Double>> builder = ImmutableMap.builder();
+      for (Entry<LocalDate, Builder<QuoteId, Double>> entry : mutableMap.entrySet()) {
+        builder.put(entry.getKey(), entry.getValue().build());
+      }
+      return builder.build();
+
+    } catch (ParseFailureException ex) {
+      throw ex;
+    } catch (RuntimeException ex) {
+      throw new ParseFailureException(ex, "Error parsing quotes CSV files: {exceptionMessage}", ex.getMessage());
     }
-    ImmutableMap.Builder<LocalDate, ImmutableMap<QuoteId, Double>> builder = ImmutableMap.builder();
-    for (Entry<LocalDate, Builder<QuoteId, Double>> entry : mutableMap.entrySet()) {
-      builder.put(entry.getKey(), entry.getValue().build());
-    }
-    return builder.build();
   }
 
   // loads a single CSV file, filtering by date
@@ -231,8 +239,8 @@ public final class QuotesCsvLoader {
         }
       }
     } catch (RuntimeException ex) {
-      throw new IllegalArgumentException(
-          Messages.format("Error processing resource as CSV file: {}", resource), ex);
+      throw new ParseFailureException(
+          ex, "Error parsing CSV file '{fileName}': {exceptionMessage}", CharSources.extractFileName(resource), ex.getMessage());
     }
   }
 

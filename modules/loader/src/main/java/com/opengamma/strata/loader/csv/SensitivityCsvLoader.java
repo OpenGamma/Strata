@@ -31,13 +31,14 @@ import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FloatingRateName;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.io.CharSources;
 import com.opengamma.strata.collect.io.CsvIterator;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.io.UnicodeBom;
 import com.opengamma.strata.collect.result.FailureItem;
 import com.opengamma.strata.collect.result.FailureReason;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.collect.result.ValueWithFailures;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.market.curve.CurveName;
@@ -340,18 +341,26 @@ public final class SensitivityCsvLoader {
     try (CsvIterator csv = CsvIterator.of(charSource, true)) {
       if (!csv.containsHeader(TENOR_HEADER) && !csv.containsHeader(DATE_HEADER)) {
         failures.add(FailureItem.of(
-            FailureReason.PARSING, "CSV file could not be parsed as sensitivities, invalid format"));
+            FailureReason.PARSING,
+            "CSV sensitivity file '{fileName}' could not be parsed as sensitivities, invalid format",
+            CharSources.extractFileName(charSource)));
       } else if (csv.containsHeader(REFERENCE_HEADER) &&
           csv.containsHeader(TYPE_HEADER) &&
           csv.containsHeader(VALUE_HEADER)) {
-        parseStandardFormat(csv, parsed, failures);
+        parseStandardFormat(csv, charSource, parsed, failures);
       } else if (csv.containsHeader(REFERENCE_HEADER)) {
-        parseListFormat(csv, parsed, failures);
+        parseListFormat(csv, charSource, parsed, failures);
       } else {
-        parseGridFormat(csv, parsed, failures);
+        parseGridFormat(csv, charSource, parsed, failures);
       }
+
     } catch (RuntimeException ex) {
-      failures.add(FailureItem.of(FailureReason.PARSING, ex, "CSV file could not be parsed: {}", ex.getMessage()));
+      failures.add(FailureItem.of(
+          FailureReason.PARSING, 
+          ex, 
+          "CSV sensitivity file '{fileName}' could not be parsed: {exceptionMessage}",
+          CharSources.extractFileName(charSource),
+          ex.getMessage()));
     }
   }
 
@@ -359,6 +368,7 @@ public final class SensitivityCsvLoader {
   // parses the file in standard format
   private void parseStandardFormat(
       CsvIterator csv,
+      CharSource charSource,
       ListMultimap<String, CurveSensitivities> parsed,
       List<FailureItem> failures) {
 
@@ -385,9 +395,14 @@ public final class SensitivityCsvLoader {
             builder.add(type, resolvedCurveName, currency, metadata, value);
           }
 
-        } catch (IllegalArgumentException ex) {
+        } catch (RuntimeException ex) {
           failures.add(FailureItem.of(
-              PARSING, "CSV file could not be parsed at line {}: {}", batchRow.lineNumber(), ex.getMessage()));
+              PARSING,
+              ex,
+              "CSV sensitivity file '{fileName}' could not be parsed at line {lineNumber}: {exceptionMessage}",
+              CharSources.extractFileName(charSource),
+              batchRow.lineNumber(),
+              ex.getMessage()));
         }
       }
       CurveSensitivities sens = builder.build();
@@ -401,6 +416,7 @@ public final class SensitivityCsvLoader {
   // parses the file in list format
   private void parseListFormat(
       CsvIterator csv,
+      CharSource charSource,
       ListMultimap<String, CurveSensitivities> parsed,
       List<FailureItem> failures) {
 
@@ -438,9 +454,14 @@ public final class SensitivityCsvLoader {
             }
           }
 
-        } catch (IllegalArgumentException ex) {
+        } catch (RuntimeException ex) {
           failures.add(FailureItem.of(
-              PARSING, "CSV file could not be parsed at line {}: {}", batchRow.lineNumber(), ex.getMessage()));
+              PARSING,
+              ex,
+              "CSV sensitivity file '{fileName}' could not be parsed at line {lineNumber}: {exceptionMessage}",
+              CharSources.extractFileName(charSource),
+              batchRow.lineNumber(),
+              ex.getMessage()));
         }
       }
       CurveSensitivities sens = builder.build();
@@ -454,6 +475,7 @@ public final class SensitivityCsvLoader {
   // parses the file in grid format
   private void parseGridFormat(
       CsvIterator csv,
+      CharSource charSource,
       ListMultimap<String, CurveSensitivities> parsed,
       List<FailureItem> failures) {
 
@@ -493,9 +515,14 @@ public final class SensitivityCsvLoader {
             }
           }
 
-        } catch (IllegalArgumentException ex) {
+        } catch (RuntimeException ex) {
           failures.add(FailureItem.of(
-              PARSING, "CSV file could not be parsed at line {}: {}", batchRow.lineNumber(), ex.getMessage()));
+              PARSING,
+              ex,
+              "CSV sensitivity file '{fileName}' could not be parsed at line {lineNumber}: {exceptionMessage}",
+              CharSources.extractFileName(charSource),
+              batchRow.lineNumber(),
+              ex.getMessage()));
         }
       }
       CurveSensitivities sens = builder.build();
@@ -532,7 +559,7 @@ public final class SensitivityCsvLoader {
     } catch (RuntimeException ex) {
       // drop out to exception
     }
-    throw new IllegalArgumentException("Unable to parse currency from reference, consider adding a 'Currency' column");
+    throw new ParseFailureException("Unable to parse currency from reference, consider adding a 'Currency' column");
   }
 
   // parses the currency as a column or from the reference
@@ -547,12 +574,10 @@ public final class SensitivityCsvLoader {
           dateOpt = tenorStrOpt.map(LoaderUtils::parseDate);
         } catch (RuntimeException ex2) {
           // hide this exception, as this is a historic format
-          throw new IllegalArgumentException(Messages.format(
-              "Invalid tenor '{}', must be expressed as nD, nW, nM or nY", tenorStrOpt.get()));
+          throw new ParseFailureException("Invalid tenor '{value}', must be expressed as nD, nW, nM or nY", tenorStrOpt.get());
         }
       } else {
-        throw new IllegalArgumentException(Messages.format(
-            "Invalid tenor '{}', must be expressed as nD, nW, nM or nY", tenorStrOpt.get()));
+        throw new ParseFailureException("Invalid tenor '{value}', must be expressed as nD, nW, nM or nY", tenorStrOpt.get());
       }
     }
     // build correct metadata based on the parsed fields
@@ -564,12 +589,11 @@ public final class SensitivityCsvLoader {
         return TenorParameterMetadata.of(tenor);
       }
     } else if (resolver.isTenorRequired()) {
-      throw new IllegalArgumentException(Messages.format("Missing value for '{}' column", TENOR_HEADER));
+      throw new ParseFailureException("Missing value for '{}' column", TENOR_HEADER);
     } else if (dateOpt.isPresent()) {
       return LabelDateParameterMetadata.of(dateOpt.get(), dateOpt.get().toString());
     } else {
-      throw new IllegalArgumentException(Messages.format(
-          "Unable to parse tenor or date, check '{}' and '{}' columns", TENOR_HEADER, DATE_HEADER));
+      throw new ParseFailureException("Unable to parse tenor or date, check '{}' and '{}' columns", TENOR_HEADER, DATE_HEADER);
     }
   }
 

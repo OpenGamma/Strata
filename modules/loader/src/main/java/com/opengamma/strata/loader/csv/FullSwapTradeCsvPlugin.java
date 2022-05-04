@@ -89,6 +89,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -125,6 +126,7 @@ import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.PayReceive;
@@ -203,7 +205,7 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
     DayCount defaultFixedLegDayCount = null;
     if (missingDayCount) {
       if (dayCounts.size() != 1) {
-        throw new IllegalArgumentException("Invalid swap definition, day count must be defined on each fixed leg");
+        throw new ParseFailureException("Unable to parse swap, must define day count on fixed leg");
       }
       defaultFixedLegDayCount = Iterables.getOnlyElement(dayCounts);
     }
@@ -222,19 +224,28 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
 
     if (fixedRateOpt.isPresent() || knownAmountOpt.isPresent()) {
       if (fixedRateOpt.isPresent() && knownAmountOpt.isPresent()) {
-        throw new IllegalArgumentException(
-            "Swap leg must not define both '" + leg + FIXED_RATE_FIELD + "' and '" + leg + KNOWN_AMOUNT_FIELD + "'");
+        throw new ParseFailureException(
+            "Swap {value} must not define both kinds of fixed leg: '{}' and '{}'",
+            leg.toLowerCase(Locale.ENGLISH).trim(),
+            leg + FIXED_RATE_FIELD,
+            leg + KNOWN_AMOUNT_FIELD);
       } else if (indexOpt.isPresent()) {
-        throw new IllegalArgumentException(
-            "Swap leg must not define both '" + leg + FIXED_RATE_FIELD + "' or '" + leg + KNOWN_AMOUNT_FIELD +
-                "' and '" + leg + INDEX_FIELD + "'");
+        throw new ParseFailureException(
+            "Swap {value} must not define both floating and fixed leg columns: '{}' and '{}' or '{}'",
+            leg.toLowerCase(Locale.ENGLISH).trim(),
+            leg + INDEX_FIELD,
+            leg + FIXED_RATE_FIELD,
+            leg + KNOWN_AMOUNT_FIELD);
       }
       return null;
     }
     if (!indexOpt.isPresent()) {
-      throw new IllegalArgumentException(
-          "Swap leg must define either '" + leg + FIXED_RATE_FIELD + "' or '" + leg + KNOWN_AMOUNT_FIELD +
-              "' or '" + leg + INDEX_FIELD + "'");
+      throw new ParseFailureException(
+          "Swap {value} must define either floating or fixed leg: '{}', '{}' or '{}'",
+          leg.toLowerCase(Locale.ENGLISH).trim(),
+          leg + INDEX_FIELD,
+          leg + FIXED_RATE_FIELD,
+          leg + KNOWN_AMOUNT_FIELD);
     }
     // use FloatingRateName to identify Ibor vs other
     String indexStr = indexOpt.get();
@@ -429,7 +440,10 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
           .ifPresent(initialNotional -> fxResetBuilder.initialNotionalValue(initialNotional));
       builder.fxReset(fxResetBuilder.build());
     } else if (notionalCurrencyOpt.isPresent() || fxFixingRelativeToOpt.isPresent() || fxResetAdjOpt.isPresent()) {
-      throw new IllegalArgumentException("Swap trade FX Reset must define field '" + leg + FX_RESET_INDEX_FIELD + "'");
+      throw new ParseFailureException(
+          "Swap {value} must define FX reset index '{}'",
+          leg.toLowerCase(Locale.ENGLISH).trim(),
+          leg + FX_RESET_INDEX_FIELD);
     }
     // optionals
     findValue(row, leg, NOTIONAL_INITIAL_EXCHANGE_FIELD)
@@ -489,7 +503,10 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
     DayCount dayCount = findValue(row, leg, DAY_COUNT_FIELD)
         .map(s -> LoaderUtils.parseDayCount(s)).orElse(defaultFixedLegDayCount);
     if (dayCount == null) {
-      throw new IllegalArgumentException("Swap leg must define day count using '" + leg + DAY_COUNT_FIELD + "'");
+      throw new ParseFailureException(
+          "Swap {value} must define day count '{}'",
+          leg.toLowerCase(Locale.ENGLISH).trim(),
+          leg + DAY_COUNT_FIELD);
     }
     builder.dayCount(dayCount);
     builder.rate(ValueSchedule.of(fixedRate));
@@ -504,8 +521,11 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
     Optional<Currency> initialStubAmountCcyOpt = findValue(row, leg, INITIAL_STUB_AMOUNT_CURRENCY_FIELD)
         .map(s -> LoaderUtils.parseCurrency(s));
     if (initialStubRateOpt.isPresent() && initialStubAmountOpt.isPresent()) {
-      throw new IllegalArgumentException(
-          "Swap leg must not define both '" + leg + INITIAL_STUB_RATE_FIELD + "' and '" + leg + INITIAL_STUB_AMOUNT_FIELD + "'");
+      throw new ParseFailureException(
+          "Swap {value} must not define both '{}' and '{}'",
+          leg.toLowerCase(Locale.ENGLISH).trim(),
+          leg + INITIAL_STUB_RATE_FIELD,
+          leg + INITIAL_STUB_AMOUNT_FIELD);
     }
     initialStubRateOpt.ifPresent(v -> builder.initialStub(
         FixedRateStubCalculation.ofFixedRate(v)));
@@ -519,8 +539,11 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
     Optional<Currency> finalStubAmountCcyOpt = findValue(row, leg, FINAL_STUB_AMOUNT_CURRENCY_FIELD)
         .map(s -> LoaderUtils.parseCurrency(s));
     if (finalStubRateOpt.isPresent() && finalStubAmountOpt.isPresent()) {
-      throw new IllegalArgumentException(
-          "Swap leg must not define both '" + leg + FINAL_STUB_RATE_FIELD + "' and '" + leg + FINAL_STUB_AMOUNT_FIELD + "'");
+      throw new ParseFailureException(
+          "Swap {value} must not define both '{}' and '{}'",
+          leg.toLowerCase(Locale.ENGLISH).trim(),
+          leg + FINAL_STUB_RATE_FIELD,
+          leg + FINAL_STUB_AMOUNT_FIELD);
     }
     finalStubRateOpt.ifPresent(v -> builder.finalStub(
         FixedRateStubCalculation.ofFixedRate(v)));
@@ -636,10 +659,12 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
       }
     } else if (stubRateOpt.isPresent() || stubAmountOpt.isPresent() ||
         stubIndexOpt.isPresent() || stubIndex2Opt.isPresent()) {
-      throw new IllegalArgumentException(
-          "Swap leg must define only one of the following fields " +
-              ImmutableList.of(leg + rateField, leg + amountField, leg + indexField) +
-              ", and '" + leg + interpolatedField + "' is only allowed with '" + leg + indexField + "'");
+      throw new ParseFailureException(
+          "Swap {value} must define only one of {}, and '{}' is only allowed with '{}'",
+          leg.toLowerCase(Locale.ENGLISH).trim(),
+          ImmutableList.of(leg + rateField, leg + amountField, leg + indexField),
+          leg + interpolatedField,
+          leg + indexField);
     }
     return Optional.empty();
   }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static java.util.stream.Collectors.toList;
 
 import java.time.LocalDate;
@@ -19,11 +20,12 @@ import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.MapStream;
-import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.io.CharSources;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.io.UnicodeBom;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.data.ObservableId;
@@ -103,11 +105,21 @@ public final class FixingSeriesCsvLoader {
    */
   public static ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> parse(Collection<CharSource> charSources) {
     // builder ensures keys can only be seen once
-    ImmutableMap.Builder<ObservableId, LocalDateDoubleTimeSeries> builder = ImmutableMap.builder();
-    for (CharSource charSource : charSources) {
-      builder.putAll(parseSingle(charSource));
+    try {
+      ImmutableMap.Builder<ObservableId, LocalDateDoubleTimeSeries> builder = ImmutableMap.builder();
+      for (CharSource charSource : charSources) {
+        builder.putAll(parseSingle(charSource));
+      }
+      return builder.build();
+    } catch (ParseFailureException ex) {
+      throw ex;
+    } catch (RuntimeException ex) {
+      throw new ParseFailureException(
+          ex, 
+          "Error parsing CSV files '{fileName}': {exceptionMessage}",
+          charSources.stream().map(source -> CharSources.extractFileName(source)).collect(toImmutableList()),
+          ex.getMessage());
     }
-    return builder.build();
   }
 
   //-------------------------------------------------------------------------
@@ -132,8 +144,9 @@ public final class FixingSeriesCsvLoader {
           } catch (RuntimeException ex) {
             date = LoaderUtils.parseDate(dateStr);
             if (date.getDayOfMonth() != date.lengthOfMonth()) {
-              throw new IllegalArgumentException(
-                  Messages.format("Fixing Series CSV loader for price index must have date at end of month: {}", resource));
+              throw new ParseFailureException(
+                  "Unable to parse price index from '{fileName}', must have date at end of month",
+                  CharSources.extractFileName(resource));
             }
           }
         } else {
@@ -143,11 +156,14 @@ public final class FixingSeriesCsvLoader {
         LocalDateDoubleTimeSeriesBuilder builder = builders.computeIfAbsent(id, k -> LocalDateDoubleTimeSeries.builder());
         builder.put(date, value);
       }
+      return MapStream.of(builders).mapValues(builder -> builder.build()).toMap();
     } catch (RuntimeException ex) {
-      throw new IllegalArgumentException(
-          Messages.format("Error processing resource as CSV file: {}", resource), ex);
+      throw new ParseFailureException(
+          ex,
+          "Error parsing CSV file '{fileName}': {exceptionMessage}",
+          CharSources.extractFileName(resource),
+          ex.getMessage());
     }
-    return MapStream.of(builders).mapValues(builder -> builder.build()).toMap();
   }
 
   //-------------------------------------------------------------------------
