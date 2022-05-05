@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.Guavate.substringAfterFirst;
 import static com.opengamma.strata.collect.Guavate.substringBeforeFirst;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,6 +27,7 @@ public final class Messages {
 
   private static final Pattern REGEX_WORDS_AND_EMPTY = Pattern.compile("\\{(\\w*)\\}"); //This will match both {}, and {anything}
   private static final Splitter TEMPLATE_LOCATION_SPLITTER = Splitter.on('|');
+  private static final Splitter TEMPLATE_PART_SPLITTER = Splitter.on(':');
 
   /**
    * Restricted constructor.
@@ -269,6 +271,62 @@ public final class Messages {
       return buf.toString();
     } catch (RuntimeException ex) {
       return message;
+    }
+  }
+
+  /**
+   * Merges two template locations.
+   * <p>
+   * This takes two template locations and the legth of the first message and returns the combined template.
+   * 
+   * @param location1  the first location, null tolerant
+   * @param location2  the second location, null tolerant
+   * @param message1Length  the length of the formatted message associated with location1
+   * @return the merged location, empty if unable to merge
+   */
+  public static String mergeTemplateLocations(String location1, String location2, int message1Length) {
+    if (message1Length < 0) {
+      return "";
+    }
+    if (Strings.nullToEmpty(location2).isEmpty()) {
+      return Strings.nullToEmpty(location1);
+    }
+    try {
+      // remove any + suffix from first template
+      String adjLocation1 = Strings.nullToEmpty(location1);
+      adjLocation1 = substringBeforeFirst(Strings.nullToEmpty(location1), "|+:");
+      adjLocation1 = adjLocation1.startsWith("+:") ? "" : adjLocation1;
+      // build the resulting template by appending the adjusted first template, then each part of the second template
+      StringBuilder buf = new StringBuilder(64);
+      buf.append(adjLocation1);
+      for (String entry : TEMPLATE_LOCATION_SPLITTER.split(location2)) {
+        List<String> parts = TEMPLATE_PART_SPLITTER.splitToList(entry);
+        switch (parts.size()) {
+          case 2: {
+            // +:len, need to increase pos
+            String attrName = parts.get(0);
+            if (!attrName.equals("+")) {
+              return "";
+            }
+            int pos = Integer.parseInt(parts.get(1));
+            buf.append(buf.length() == 0 ? "" : "|").append(attrName).append(':').append(pos + message1Length);
+            break;
+          }
+          case 3: {
+            // attrName:pos:len, need to increase pos
+            String attrName = parts.get(0);
+            int pos = Integer.parseInt(parts.get(1));
+            int len = Integer.parseInt(parts.get(2));
+            buf.append(buf.length() == 0 ? "" : "|").append(attrName).append(':').append(pos + message1Length).append(':').append(len);
+            break;
+          }
+          default:
+            return "";
+        }
+      }
+      return buf.toString();
+    } catch (RuntimeException ex) {
+      return "";
     }
   }
 

@@ -11,7 +11,7 @@ import com.opengamma.strata.collect.Messages;
 /**
  * Exception thrown when parsing.
  */
-public class ParseFailureException extends IllegalArgumentException {
+public class ParseFailureException extends IllegalArgumentException implements FailureItemProvider {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -72,6 +72,7 @@ public class ParseFailureException extends IllegalArgumentException {
    *
    * @return the failure item
    */
+  @Override
   public FailureItem getFailureItem() {
     return item;
   }

@@ -123,7 +123,7 @@ public final class Result<T>
    * <p>
    * Note that if the supplier throws an exception, this will be caught
    * and converted to a failure {@code Result}.
-   * The exception types {@link FailureException}, {@link FailureItemException} and {@link ParseFailureException} are recognized.
+   * This recognizes and handles {@link FailureException} and {@link FailureItemProvider} exceptions.
    *
    * @param <T> the type of the value
    * @param supplier  supplier of the result value
@@ -142,7 +142,7 @@ public final class Result<T>
    * <p>
    * Note that if the supplier throws an exception, this will be caught
    * and converted to a failure {@code Result}.
-   * The exception types {@link FailureException}, {@link FailureItemException} and {@link ParseFailureException} are recognized.
+   * This recognizes and handles {@link FailureException} and {@link FailureItemProvider} exceptions.
    *
    * @param <T> the type of the result value
    * @param supplier  supplier of the result
@@ -159,7 +159,7 @@ public final class Result<T>
   /**
    * Creates a failed result caused by a throwable.
    * <p>
-   * The exception types {@link FailureException}, {@link FailureItemException} and {@link ParseFailureException} are recognized.
+   * This recognizes and handles {@link FailureException} and {@link FailureItemProvider} exceptions.
    * If the exception type is not recognized, the failure will have a reason of {@code ERROR}.
    *
    * @param <R> the expected type of the result
@@ -173,7 +173,7 @@ public final class Result<T>
   /**
    * Creates a failed result caused by an exception.
    * <p>
-   * The exception types {@link FailureException}, {@link FailureItemException} and {@link ParseFailureException} are recognized.
+   * This recognizes and handles {@link FailureException} and {@link FailureItemProvider} exceptions.
    * If the exception type is not recognized, the failure will have a reason of {@code ERROR}.
    *
    * @param <R> the expected type of the result
