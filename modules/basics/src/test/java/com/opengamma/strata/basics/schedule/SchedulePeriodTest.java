@@ -223,7 +223,6 @@ public class SchedulePeriodTest {
     assertThat(SchedulePeriod.of(JUN_16, JUL_18, JUN_16, JUL_17).toUnadjusted()).isEqualTo(SchedulePeriod.of(JUN_16, JUL_17));
   }
 
-
   //-------------------------------------------------------------------------
 
   @Test
