@@ -495,9 +495,6 @@ public final class SabrExtrapolationReplicationCmsPeriodPricer {
     double tenor = swaptionVolatilities.tenor(swap.getStartDate(), swap.getEndDate());
     ZonedDateTime expiryDate = fixingDate.atTime(index.getFixingTime()).atZone(index.getFixingZone());
     double expiryTime = swaptionVolatilities.relativeTime(expiryDate);
-    if (expiryTime < MIN_TIME) {
-      return 0d;
-    }
     double strike = cmsPeriod.getStrike();
     double shift = swaptionVolatilities.shift(expiryTime, tenor);
     if (!fixingDate.isAfter(valuationDate.toLocalDate())) {
@@ -521,6 +518,20 @@ public final class SabrExtrapolationReplicationCmsPeriodPricer {
       }
     }
     double forward = swapPricer.parRate(swap, provider);
+    if (expiryTime < MIN_TIME) {
+      double payoff = 0d;
+      switch (cmsPeriod.getCmsPeriodType()) {
+        case CAPLET:
+          payoff = forward >= strike ? -1d : 0d;
+          break;
+        case FLOORLET:
+          payoff = forward < strike ? 1d : 0d;
+          break;
+        default:
+          throw new IllegalArgumentException("unsupported CMS type");
+      }
+      return payoff * cmsPeriod.getNotional() * cmsPeriod.getYearFraction() * dfPayment;
+    }
     double eta = index.getTemplate().getConvention().getFixedLeg().getDayCount()
         .relativeYearFraction(cmsPeriod.getPaymentDate(), swap.getStartDate());
     CmsIntegrantProvider intProv = new CmsIntegrantProvider(

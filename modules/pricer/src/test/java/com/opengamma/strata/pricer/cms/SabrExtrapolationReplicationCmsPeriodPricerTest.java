@@ -60,6 +60,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VALUATION = LocalDate.of(2010, 8, 18);
   private static final LocalDate FIXING = LocalDate.of(2020, 4, 24);
+  private static final LocalDate FIXING1 = LocalDate.of(2020, 4, 23);
   private static final LocalDate START = LocalDate.of(2020, 4, 28);
   private static final LocalDate END = LocalDate.of(2021, 4, 28);
   private static final LocalDate AFTER_FIXING = LocalDate.of(2020, 8, 11);
@@ -81,6 +82,10 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
       SwaptionSabrRateVolatilityDataSet.getRatesProviderEur(FIXING);
   private static final SabrParametersSwaptionVolatilities VOLATILITIES_ON_FIX =
       SwaptionSabrRateVolatilityDataSet.getVolatilitiesEur(FIXING, true);
+  private static final ImmutableRatesProvider RATES_PROVIDER_ON_FIX1 =
+      SwaptionSabrRateVolatilityDataSet.getRatesProviderEur(FIXING1);
+  private static final SabrParametersSwaptionVolatilities VOLATILITIES_ON_FIX1 =
+      SwaptionSabrRateVolatilityDataSet.getVolatilitiesEur(FIXING1, true);
   // providers - after fixing date, no time series
   private static final ImmutableRatesProvider RATES_PROVIDER_NO_TS =
       SwaptionSabrRateVolatilityDataSet.getRatesProviderEur(AFTER_FIXING);
@@ -534,6 +539,21 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     double expectedFloorlet = 0.5 *
         (PRICER.presentValue(FLOORLET_UP, RATES_PROVIDER_ON_FIX, VOLATILITIES_ON_FIX).getAmount()
         - PRICER.presentValue(FLOORLET_DW, RATES_PROVIDER_ON_FIX, VOLATILITIES_ON_FIX).getAmount()) / EPS;
+    assertThat(computedFloorlet).isCloseTo(expectedFloorlet, offset(NOTIONAL * EPS * 10d));
+  }
+
+  @Test
+  public void test_presentValueSensitivityStrike_smallExpiry() {
+    double computedCaplet = PRICER.presentValueSensitivityStrike(CAPLET, RATES_PROVIDER_ON_FIX1, VOLATILITIES_ON_FIX1);
+    double expectedCaplet = 0.5 *
+        (PRICER.presentValue(CAPLET_UP, RATES_PROVIDER_ON_FIX, VOLATILITIES_ON_FIX1).getAmount()
+            - PRICER.presentValue(CAPLET_DW, RATES_PROVIDER_ON_FIX, VOLATILITIES_ON_FIX1).getAmount()) / EPS;
+    assertThat(computedCaplet).isCloseTo(expectedCaplet, offset(NOTIONAL * EPS));
+    double computedFloorlet = PRICER
+        .presentValueSensitivityStrike(FLOORLET, RATES_PROVIDER_ON_FIX1, VOLATILITIES_ON_FIX1);
+    double expectedFloorlet = 0.5 *
+        (PRICER.presentValue(FLOORLET_UP, RATES_PROVIDER_ON_FIX1, VOLATILITIES_ON_FIX1).getAmount()
+            - PRICER.presentValue(FLOORLET_DW, RATES_PROVIDER_ON_FIX1, VOLATILITIES_ON_FIX1).getAmount()) / EPS;
     assertThat(computedFloorlet).isCloseTo(expectedFloorlet, offset(NOTIONAL * EPS * 10d));
   }
 
