@@ -15,6 +15,7 @@ import java.io.Serializable;
 import java.io.UncheckedIOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -45,7 +46,6 @@ import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteProcessor;
 import com.google.common.io.ByteSource;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.CharSource;
 import com.google.common.primitives.Bytes;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Unchecked;
@@ -233,7 +233,7 @@ public final class ArrayByteSource extends BeanByteSource implements ImmutableBe
    * @return the byte source
    * @throws UncheckedIOException if an IO error occurs
    */
-  public static ArrayByteSource from(CheckedSupplier<InputStream> inputStreamSupplier) {
+  public static ArrayByteSource from(CheckedSupplier<? extends InputStream> inputStreamSupplier) {
     return Unchecked.wrap(() -> {
       try (InputStream in = inputStreamSupplier.get()) {
         return from(in);
@@ -389,14 +389,19 @@ public final class ArrayByteSource extends BeanByteSource implements ImmutableBe
     return UnicodeBom.toString(array);
   }
 
-  /**
-   * Returns a {@code CharSource} for the same bytes, converted to UTF-8 using a Byte-Order Mark if available.
-   * 
-   * @return the equivalent {@code CharSource}
-   */
   @Override
-  public CharSource asCharSourceUtf8UsingBom() {
-    return UnicodeBom.toCharSource(this);
+  public StringCharSource asCharSourceUtf8() {
+    return new StringCharSource(readUtf8(), fileName);
+  }
+
+  @Override
+  public StringCharSource asCharSource(Charset charset) {
+    return new StringCharSource(new String(array, charset), fileName);
+  }
+
+  @Override
+  public StringCharSource asCharSourceUtf8UsingBom() {
+    return new StringCharSource(UnicodeBom.toString(array), fileName);
   }
 
   //-------------------------------------------------------------------------
