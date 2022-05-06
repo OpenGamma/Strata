@@ -22,6 +22,7 @@ public class FailureItemTest {
     FailureItem test = FailureItem.of(FailureReason.INVALID, "my {} {} failure", "big", "bad");
     assertThat(test.getReason()).isEqualTo(FailureReason.INVALID);
     assertThat(test.getMessage()).isEqualTo("my big bad failure");
+    assertThat(test.getMessageTemplate()).isEqualTo("my big bad failure");
     assertThat(test.getCauseType()).isEmpty();
     assertThat(test.getStackTrace()).doesNotContain(".FailureItem.of(");
     assertThat(test.getStackTrace()).doesNotContain(".Failure.of(");
@@ -126,12 +127,25 @@ public class FailureItemTest {
   }
 
   @Test
+  public void test_from_Throwable() {
+    FailureItem base = FailureItem.of(FailureReason.INVALID, "failure");
+    assertThat(FailureItem.from(new FailureItemException(base))).isSameAs(base);
+
+    FailureItem item = FailureItem.from(new RuntimeException("foo"));
+    assertThat(item.getReason()).isEqualTo(FailureReason.ERROR);
+    assertThat(item.getMessage()).isEqualTo("foo");
+  }
+
+  @Test
   public void test_withAttribute() {
-    FailureItem test = FailureItem.of(FailureReason.INVALID, "my {one} {two} failure", "big", "bad");
+    FailureItem test = FailureItem.of(FailureReason.INVALID, "my {fileId} {two} failure", "big", "bad");
     test = test.withAttribute("foo", "bar");
-    assertThat(test.getAttributes()).isEqualTo(ImmutableMap.of("one", "big", "two", "bad", "foo", "bar"));
+    assertThat(test.getAttributes())
+        .isEqualTo(ImmutableMap.of(
+            FailureAttributeKeys.FILE_ID, "big", "two", "bad", "foo", "bar", "templateLocation", "fileId:3:3|two:7:3"));
     assertThat(test.getReason()).isEqualTo(FailureReason.INVALID);
     assertThat(test.getMessage()).isEqualTo("my big bad failure");
+    assertThat(test.getMessageTemplate()).isEqualTo("my {fileId} {two} failure");
     assertThat(test.getCauseType()).isEmpty();
     assertThat(test.getStackTrace()).doesNotContain(".FailureItem.of(");
     assertThat(test.getStackTrace()).doesNotContain(".Failure.of(");
@@ -144,9 +158,11 @@ public class FailureItemTest {
   public void test_withAttributes() {
     FailureItem test = FailureItem.of(FailureReason.INVALID, "my {one} {two} failure", "big", "bad");
     test = test.withAttributes(ImmutableMap.of("foo", "bar", "two", "good"));
-    assertThat(test.getAttributes()).isEqualTo(ImmutableMap.of("one", "big", "two", "good", "foo", "bar"));
+    assertThat(test.getAttributes())
+        .isEqualTo(ImmutableMap.of("one", "big", "two", "good", "foo", "bar", "templateLocation", "one:3:3|two:7:3"));
     assertThat(test.getReason()).isEqualTo(FailureReason.INVALID);
     assertThat(test.getMessage()).isEqualTo("my big bad failure");
+    assertThat(test.getMessageTemplate()).isEqualTo("my {one} {two} failure");
     assertThat(test.getCauseType()).isEmpty();
     assertThat(test.getStackTrace()).doesNotContain(".FailureItem.of(");
     assertThat(test.getStackTrace()).doesNotContain(".Failure.of(");

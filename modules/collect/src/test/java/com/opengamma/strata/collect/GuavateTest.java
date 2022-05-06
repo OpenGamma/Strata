@@ -24,6 +24,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -63,6 +66,12 @@ public class GuavateTest {
     Iterable<String> iterable1 = Arrays.asList("a", "b", "c");
     Iterable<String> iterable2 = Arrays.asList("d", "e", "f");
     List<String> test = Guavate.concatToList(iterable1, iterable2);
+    assertThat(test).isEqualTo(ImmutableList.of("a", "b", "c", "d", "e", "f"));
+  }
+
+  @Test
+  public void test_concatToListItems() {
+    List<String> test = Guavate.concatToList(Arrays.asList("a", "b", "c"), "d", "e", "f");
     assertThat(test).isEqualTo(ImmutableList.of("a", "b", "c", "d", "e", "f"));
   }
 
@@ -199,6 +208,17 @@ public class GuavateTest {
     assertThat(Guavate.set("a")).isEqualTo(ImmutableSet.of("a"));
     assertThat(Guavate.set("a", "b", "c")).isEqualTo(ImmutableSet.of("a", "b", "c"));
     assertThat(Guavate.set("a", "b", "b")).isEqualTo(ImmutableSet.of("a", "b"));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_boxed() {
+    assertThat(Guavate.boxed(OptionalInt.of(1))).isEqualTo(Optional.of(1));
+    assertThat(Guavate.boxed(OptionalInt.empty())).isEqualTo(Optional.empty());
+    assertThat(Guavate.boxed(OptionalLong.of(1L))).isEqualTo(Optional.of(1L));
+    assertThat(Guavate.boxed(OptionalLong.empty())).isEqualTo(Optional.empty());
+    assertThat(Guavate.boxed(OptionalDouble.of(1d))).isEqualTo(Optional.of(1d));
+    assertThat(Guavate.boxed(OptionalDouble.empty())).isEqualTo(Optional.empty());
   }
 
   //-------------------------------------------------------------------------
