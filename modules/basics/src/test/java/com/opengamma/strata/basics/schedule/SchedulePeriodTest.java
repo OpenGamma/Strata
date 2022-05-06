@@ -223,6 +223,24 @@ public class SchedulePeriodTest {
     assertThat(SchedulePeriod.of(JUN_16, JUL_18, JUN_16, JUL_17).toUnadjusted()).isEqualTo(SchedulePeriod.of(JUN_16, JUL_17));
   }
 
+
+  //-------------------------------------------------------------------------
+
+  @Test
+  public void test_adjusted_dates_equal() {
+    SchedulePeriod test = SchedulePeriod.of(JUN_15, JUN_15, JUN_15, JUN_16);
+    assertThat(test.getStartDate()).isEqualTo(JUN_15);
+    assertThat(test.getEndDate()).isEqualTo(JUN_15);
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(JUN_15);
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(JUN_16);
+
+  }
+
+  @Test
+  public void test_unadjusted_dates_equal() {
+    assertThatIllegalArgumentException().isThrownBy(() -> SchedulePeriod.of(JUN_15, JUN_16, JUN_16, JUN_16));
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_compareTo() {

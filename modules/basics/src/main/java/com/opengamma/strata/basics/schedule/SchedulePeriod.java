@@ -129,7 +129,7 @@ public final class SchedulePeriod
   @ImmutableValidator
   private void validate() {
     ArgChecker.inOrderNotEqual(unadjustedStartDate, unadjustedEndDate, "unadjustedStartDate", "unadjustedEndDate");
-    ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
+    ArgChecker.inOrderOrEqual(startDate, endDate, "startDate", "endDate");
   }
 
   @ImmutablePreBuild
