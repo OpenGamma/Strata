@@ -28,7 +28,9 @@ public enum KnockType implements NamedEnum {
   KNOCK_OUT;
 
   // helper for name conversions
-  private static final EnumNames<KnockType> NAMES = EnumNames.of(KnockType.class);
+  private static final EnumNames<KnockType> NAMES = EnumNames.of(KnockType.class)
+      .withParseAlias("In", KNOCK_IN)
+      .withParseAlias("Out", KNOCK_OUT);
 
   //-------------------------------------------------------------------------
   /**

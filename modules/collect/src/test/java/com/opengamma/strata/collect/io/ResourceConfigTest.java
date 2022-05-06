@@ -27,7 +27,7 @@ public class ResourceConfigTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_orderedResources() throws Exception {
+  public void test_orderedResources() {
     List<ResourceLocator> list = ResourceConfig.orderedResources("TestFile.txt");
     assertThat(list.size()).isEqualTo(1);
     ResourceLocator test = list.get(0);

@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.examples.marketdata;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.Locale;
 
 import com.opengamma.strata.collect.io.IniFile;
@@ -34,11 +32,7 @@ public final class ExampleData {
   public static String loadExpectedResults(String name) {
     String classpathResourceName = String.format(Locale.ENGLISH, "classpath:goldencopy/%s.txt", name);
     ResourceLocator resourceLocator = ResourceLocator.of(classpathResourceName);
-    try {
-      return resourceLocator.getCharSource().read().trim();
-    } catch (IOException ex) {
-      throw new UncheckedIOException(name, ex);
-    }
+    return resourceLocator.getCharSource().read().trim();
   }
 
   /**

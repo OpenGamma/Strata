@@ -1044,6 +1044,8 @@ final class GlobalHolidayCalendars {
   // http://www.ucmsgroup.hu/newsletter/public-holiday-and-related-work-schedule-changes-in-2014/
   // https://www.bse.hu/Products-and-Services/Trading-information/tranding-calendar-2019
   // https://www.bse.hu/Products-and-Services/Trading-information/trading-calendar-2020
+  // https://www.bse.hu/Products-and-Services/Trading-information/trading-calendar-2021
+  // https://www.bse.hu/Products-and-Services/Trading-information/trading-calendar-2022
   static ImmutableHolidayCalendar generateBudapest() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     Set<LocalDate> workDays = new HashSet<>(500);
@@ -1051,7 +1053,10 @@ final class GlobalHolidayCalendars {
       // new year
       addDateWithHungarianBridging(date(year, 1, 1), -1, 1, holidays, workDays);
       // national day
-      addDateWithHungarianBridging(date(year, 3, 15), -2, 1, holidays, workDays);
+      // in 2022 the working saturday was 2 weeks after, in 2021 it was 1 week after
+      // logic is determined yearly by government decree
+      int nationalDayTuesRelativeWeeks = year == 2022 ? 1 : -2;
+      addDateWithHungarianBridging(date(year, 3, 15), nationalDayTuesRelativeWeeks, 1, holidays, workDays);
       if (year >= 2017) {
         // good friday
         holidays.add(easter(year).minusDays(2));
@@ -1064,7 +1069,7 @@ final class GlobalHolidayCalendars {
       holidays.add(easter(year).plusDays(50));
       // state foundation day
       // in 2015 the working saturday was 2 weeks before, in 2020 it was 1 week after
-      // unclear what the logic behind this is,
+      // logic is determined yearly by government decree
       int foundationDayThuRelativeWeeks = year == 2020 ? 1 : -2;
       addDateWithHungarianBridging(date(year, 8, 20), 0 , foundationDayThuRelativeWeeks, holidays, workDays);
       // national day
