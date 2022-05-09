@@ -277,7 +277,7 @@ public final class Messages {
   /**
    * Merges two template locations.
    * <p>
-   * This takes two template locations and the legth of the first message and returns the combined template.
+   * This takes two template locations and the length of the first message and returns the combined template.
    * 
    * @param location1  the first location, null tolerant
    * @param location2  the second location, null tolerant
