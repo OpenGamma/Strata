@@ -263,11 +263,31 @@ public final class SchedulePeriod
    * 
    * @param adjuster  the adjuster to use
    * @return the adjusted schedule period
+   * @throws IllegalArgumentException if a period is invalid once adjusted
    */
   public SchedulePeriod toAdjusted(DateAdjuster adjuster) {
     // implementation needs to return 'this' if unchanged to optimize downstream code
     LocalDate resultStart = adjuster.adjust(startDate);
     LocalDate resultEnd = adjuster.adjust(endDate);
+    if (resultStart.equals(startDate) && resultEnd.equals(endDate)) {
+      return this;
+    }
+    return of(resultStart, resultEnd, unadjustedStartDate, unadjustedEndDate);
+  }
+
+  // converts to adjusted handling short periods that adjust to empty adjusted periods
+  // the merge type, -1 to keep the start date unadjusted, 0 to throw, 1 to keep the end date unadjusted
+  SchedulePeriod toAdjusted(DateAdjuster adjuster, int mergeType) {
+    // implementation needs to return 'this' if unchanged to optimize downstream code
+    LocalDate resultStart = adjuster.adjust(startDate);
+    LocalDate resultEnd = adjuster.adjust(endDate);
+    // retain as unadjusted (do not refactor! this checks int before LocalDate for performance)
+    if (mergeType == -1 && resultStart.equals(resultEnd)) {
+      resultStart = startDate;
+    } else if (mergeType == 1 && resultStart.equals(resultEnd)) {
+      resultEnd = endDate;
+    }
+    // return "no change" which optimizes up the stack
     if (resultStart.equals(startDate) && resultEnd.equals(endDate)) {
       return this;
     }
