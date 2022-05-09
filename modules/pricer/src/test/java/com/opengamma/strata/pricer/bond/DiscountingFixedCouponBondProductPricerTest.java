@@ -40,6 +40,7 @@ import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -140,14 +141,15 @@ public class DiscountingFixedCouponBondProductPricerTest {
   private static final double Z_SPREAD = 0.035;
   private static final int PERIOD_PER_YEAR = 4;
   private static final double TOL = 1.0e-12;
-  private static final double EPS = 1.0e-6;
-  
+  private static final double EPS = 1.0e-7;
+
   // pricers
   private static final DiscountingFixedCouponBondProductPricer PRICER = DiscountingFixedCouponBondProductPricer.DEFAULT;
   private static final DiscountingPaymentPricer PRICER_NOMINAL = DiscountingPaymentPricer.DEFAULT;
   private static final DiscountingFixedCouponBondPaymentPeriodPricer PRICER_COUPON =
       DiscountingFixedCouponBondPaymentPeriodPricer.DEFAULT;
-  private static final RatesFiniteDifferenceSensitivityCalculator FD_CAL = new RatesFiniteDifferenceSensitivityCalculator(EPS);
+  private static final RatesFiniteDifferenceSensitivityCalculator FD_CAL =
+      new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
   //-------------------------------------------------------------------------
   @Test
@@ -174,7 +176,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
     double pvcCupon = 0d;
     for (int i = 2; i < size; ++i) {
       FixedCouponBondPaymentPeriod payment = PRODUCT.getPeriodicPayments().get(i);
-      pvcCupon += PRICER_COUPON.presentValueWithSpread(payment, 
+      pvcCupon += PRICER_COUPON.presentValueWithSpread(payment,
           IssuerCurveDiscountFactors.of(DSC_FACTORS_ISSUER, GROUP_ISSUER), Z_SPREAD, CONTINUOUS, 0);
     }
     expected = expected.plus(pvcCupon);
@@ -243,7 +245,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
     double pvcCupon = 0d;
     for (int i = 2; i < size; ++i) {
       FixedCouponBondPaymentPeriod payment = PRODUCT.getPeriodicPayments().get(i);
-      pvcCupon += PRICER_COUPON.presentValueWithSpread(payment, 
+      pvcCupon += PRICER_COUPON.presentValueWithSpread(payment,
           IssuerCurveDiscountFactors.of(DSC_FACTORS_ISSUER, GROUP_ISSUER), Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     }
     expected = expected.plus(pvcCupon);
@@ -321,7 +323,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
     double yield = PRICER.yieldFromDirtyPrice(bond, settlement, dirtyPrice);
     assertThat(yield).isCloseTo(0.00946254d, offset(1e-8));
     double modDur = PRICER.modifiedDurationFromYield(bond, settlement, yield);
-    assertThat(modDur).isCloseTo(9.858415d, offset(EPS));
+    assertThat(modDur).isCloseTo(9.85841456d, offset(EPS));
 
     double cleanPrice = PRICER.cleanPriceFromDirtyPrice(bond, settlement, dirtyPrice);
     double accruedInterest = PRICER.accruedInterest(bond, settlement);
@@ -400,8 +402,8 @@ public class DiscountingFixedCouponBondProductPricerTest {
     PointSensitivityBuilder point = PRICER.presentValueSensitivityWithZSpread(
         PRODUCT_NO_EXCOUPON, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
-    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, p ->
-        PRICER.presentValueWithZSpread(PRODUCT_NO_EXCOUPON, p, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR));
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER,
+        p -> PRICER.presentValueWithZSpread(PRODUCT_NO_EXCOUPON, p, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR));
     assertThat(computed.equalWithTolerance(expected, 20d * NOTIONAL * EPS)).isTrue();
   }
 
@@ -412,6 +414,16 @@ public class DiscountingFixedCouponBondProductPricerTest {
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(
         PROVIDER, p -> CurrencyAmount.of(EUR, PRICER.dirtyPriceFromCurves(PRODUCT, p, REF_DATA)));
     assertThat(computed.equalWithTolerance(expected, NOTIONAL * EPS)).isTrue();
+  }
+
+  @Test
+  public void test_dirtyPriceSensitivity_forward() {
+    LocalDate forwardDate = VAL_DATE.plusYears(1);
+    PointSensitivityBuilder point = PRICER.dirtyPriceSensitivity(PRODUCT, PROVIDER, forwardDate);
+    CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(
+        PROVIDER, p -> CurrencyAmount.of(EUR, PRICER.dirtyPriceFromCurves(PRODUCT, p, forwardDate)));
+    assertThat(computed.equalWithTolerance(expected, 1.0E-5)).isTrue();
   }
 
   @Test
@@ -499,6 +511,17 @@ public class DiscountingFixedCouponBondProductPricerTest {
     assertThat(yield).isCloseTo(YIELD_US, offset(TOL));
   }
 
+  @Test
+  public void dirtyPriceFromYieldUS_AD() {
+    double dirtyPrice = PRICER.dirtyPriceFromYield(PRODUCT_US, SETTLEMENT_US, YIELD_US);
+    ValueDerivatives dirtyPriceAd = PRICER.dirtyPriceFromYieldAd(PRODUCT_US, SETTLEMENT_US, YIELD_US);
+    assertThat(dirtyPrice).isCloseTo(dirtyPriceAd.getValue(), offset(TOL));
+    double shift = 1.0E-8;
+    double dirtyPriceP = PRICER.dirtyPriceFromYield(PRODUCT_US, SETTLEMENT_US, YIELD_US + shift);
+    double derivativeExpected = (dirtyPriceP - dirtyPrice) / shift;
+    assertThat(derivativeExpected).isCloseTo(dirtyPriceAd.getDerivative(0), offset(1.0E-6));
+  }
+
   // Check price from yield when coupon is 0.
   @Test
   public void dirtyPriceFromYieldUS0() {
@@ -526,6 +549,17 @@ public class DiscountingFixedCouponBondProductPricerTest {
     double priceDw = PRICER.dirtyPriceFromYield(PRODUCT_US, SETTLEMENT_US, YIELD_US - EPS);
     double expected = 0.5 * (priceDw - priceUp) / price / EPS;
     assertThat(computed).isCloseTo(expected, offset(EPS));
+  }
+
+  @Test
+  public void modifiedDurationFromYieldUS_AD() {
+    double shift = 1.0E-6;
+    double md = PRICER.modifiedDurationFromYield(PRODUCT_US, SETTLEMENT_US, YIELD_US);
+    ValueDerivatives mdAd = PRICER.modifiedDurationFromYieldAd(PRODUCT_US, SETTLEMENT_US, YIELD_US);
+    assertThat(mdAd.getValue()).isCloseTo(md, offset(EPS));
+    double mdP = PRICER.modifiedDurationFromYield(PRODUCT_US, SETTLEMENT_US, YIELD_US + shift);
+    double derivativeExpect = (mdP - md) / shift;
+    assertThat(mdAd.getDerivative(0)).isCloseTo(derivativeExpect, offset(EPS));
   }
 
   @Test
