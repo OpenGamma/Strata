@@ -134,19 +134,19 @@ class OvernightInArrearsCapletFloorletBinaryPeriodTest {
     OvernightInArrearsCapletFloorletBinaryPeriod testCapShort =
         testCapLong.toBuilder().amount(-AMOUNT).build();
     double fixingLow = STRIKE - 0.0050;
-    CurrencyAmount payoffCalLongFixingLow = testCapLong.payoff(fixingLow);
-    CurrencyAmount payoffCalShortFixingLow = testCapShort.payoff(fixingLow);
-    assertThat(payoffCalLongFixingLow.getCurrency()).isEqualTo(GBP);
-    assertThat(payoffCalLongFixingLow.getAmount()).isEqualTo(0.0);
-    assertThat(payoffCalShortFixingLow.getCurrency()).isEqualTo(GBP);
-    assertThat(payoffCalShortFixingLow.getAmount()).isEqualTo(0.0);
+    CurrencyAmount payoffCapLongFixingLow = testCapLong.payoff(fixingLow);
+    CurrencyAmount payoffCapShortFixingLow = testCapShort.payoff(fixingLow);
+    assertThat(payoffCapLongFixingLow.getCurrency()).isEqualTo(GBP);
+    assertThat(payoffCapLongFixingLow.getAmount()).isEqualTo(0.0);
+    assertThat(payoffCapShortFixingLow.getCurrency()).isEqualTo(GBP);
+    assertThat(payoffCapShortFixingLow.getAmount()).isEqualTo(0.0);
     double fixingHigh = STRIKE + 0.0050;
-    CurrencyAmount payoffCalLongFixingHigh = testCapLong.payoff(fixingHigh);
-    CurrencyAmount payoffCalShortFixingHigh = testCapShort.payoff(fixingHigh);
-    assertThat(payoffCalLongFixingHigh.getCurrency()).isEqualTo(GBP);
-    assertThat(payoffCalLongFixingHigh.getAmount()).isEqualTo(AMOUNT * YEAR_FRACTION);
-    assertThat(payoffCalShortFixingHigh.getCurrency()).isEqualTo(GBP);
-    assertThat(payoffCalShortFixingHigh.getAmount()).isEqualTo(-AMOUNT * YEAR_FRACTION);
+    CurrencyAmount payoffCapLongFixingHigh = testCapLong.payoff(fixingHigh);
+    CurrencyAmount payoffCapShortFixingHigh = testCapShort.payoff(fixingHigh);
+    assertThat(payoffCapLongFixingHigh.getCurrency()).isEqualTo(GBP);
+    assertThat(payoffCapLongFixingHigh.getAmount()).isEqualTo(AMOUNT * YEAR_FRACTION);
+    assertThat(payoffCapShortFixingHigh.getCurrency()).isEqualTo(GBP);
+    assertThat(payoffCapShortFixingHigh.getAmount()).isEqualTo(-AMOUNT * YEAR_FRACTION);
   }
 
   //-------------------------------------------------------------------------

@@ -23,7 +23,7 @@ import com.opengamma.strata.product.common.PutCall;
  * The value of the caplet/floorlet after expiry is a fixed payoff amount. The value is zero if valuation date is 
  * after payment date of the caplet/floorlet.
  */
-public class VerticalSpreadSabrOvernightInArrerarCapletFloorletBinaryPeriodPricer {
+public class VerticalSpreadSabrOvernightInArrearsCapletFloorletBinaryPeriodPricer {
 
   /** The default spread between the approximating options strikes. */
   private static final double DEFAULT_SPREAD = 1.0e-4;
@@ -31,8 +31,8 @@ public class VerticalSpreadSabrOvernightInArrerarCapletFloorletBinaryPeriodPrice
   /**
    * Default implementation.
    */
-  public static final VerticalSpreadSabrOvernightInArrerarCapletFloorletBinaryPeriodPricer DEFAULT =
-      new VerticalSpreadSabrOvernightInArrerarCapletFloorletBinaryPeriodPricer(
+  public static final VerticalSpreadSabrOvernightInArrearsCapletFloorletBinaryPeriodPricer DEFAULT =
+      new VerticalSpreadSabrOvernightInArrearsCapletFloorletBinaryPeriodPricer(
           SabrOvernightInArrearsCapletFloorletPeriodPricer.DEFAULT,
           DEFAULT_SPREAD);
 
@@ -48,7 +48,7 @@ public class VerticalSpreadSabrOvernightInArrerarCapletFloorletBinaryPeriodPrice
    * @param capletPricer  the pricer for {@link OvernightInArrearsCapletFloorletPeriod}
    * @param spread  the spread between the approximating options strikes
    */
-  public VerticalSpreadSabrOvernightInArrerarCapletFloorletBinaryPeriodPricer(
+  public VerticalSpreadSabrOvernightInArrearsCapletFloorletBinaryPeriodPricer(
       SabrOvernightInArrearsCapletFloorletPeriodPricer capletPricer,
       double spread) {
 

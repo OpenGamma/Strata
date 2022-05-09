@@ -40,9 +40,9 @@ import com.opengamma.strata.product.capfloor.OvernightInArrearsCapletFloorletPer
 import com.opengamma.strata.product.rate.OvernightCompoundedRateComputation;
 
 /**
- * Test {@link VerticalSpreadSabrOvernightInArrerarCapletFloorletBinaryPeriodPricer}.
+ * Test {@link VerticalSpreadSabrOvernightInArrearsCapletFloorletBinaryPeriodPricer}.
  */
-class VerticalSpreadSabrOvernightInArrerarCapletFloorletBinaryPeriodPricerTest {
+class VerticalSpreadSabrOvernightInArrearsCapletFloorletBinaryPeriodPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final IborIndex EUR_ESTRTERM_3M = ImmutableIborIndex.builder()
@@ -93,8 +93,8 @@ class VerticalSpreadSabrOvernightInArrerarCapletFloorletBinaryPeriodPricerTest {
       .getVolatilities(VALUATION, EUR_ESTRTERM_3M);
 
   // Pricers
-  private static final VerticalSpreadSabrOvernightInArrerarCapletFloorletBinaryPeriodPricer PRICER_SABR_BINARYIA =
-      VerticalSpreadSabrOvernightInArrerarCapletFloorletBinaryPeriodPricer.DEFAULT;
+  private static final VerticalSpreadSabrOvernightInArrearsCapletFloorletBinaryPeriodPricer PRICER_SABR_BINARYIA =
+      VerticalSpreadSabrOvernightInArrearsCapletFloorletBinaryPeriodPricer.DEFAULT;
   private static final SabrOvernightInArrearsCapletFloorletPeriodPricer PRICER_VANILLA =
       SabrOvernightInArrearsCapletFloorletPeriodPricer.DEFAULT;
 
@@ -150,7 +150,7 @@ class VerticalSpreadSabrOvernightInArrerarCapletFloorletBinaryPeriodPricerTest {
 
   /* Deep OTM, short expiry, option value = 0.0 */
   @Test
-  void present_value_deep_0tm() {
+  void present_value_deep_otm() {
     OvernightCompoundedRateComputation rateComputation =
         OvernightCompoundedRateComputation.of(EUR_ESTR, LocalDate.of(2022, 1, 20), LocalDate.of(2022, 2, 21), REF_DATA);
     OvernightInArrearsCapletFloorletBinaryPeriod capletOtm =
