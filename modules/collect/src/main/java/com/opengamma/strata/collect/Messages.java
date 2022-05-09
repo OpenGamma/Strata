@@ -138,7 +138,7 @@ public final class Messages {
    * </pre>
    * This will return a {@link Pair} with a String and a Map.
    * The String will be the formatted message: {@code "Foo=abc, Bar=123"}.
-   * The Map will look like: <code>{"foo": "123"}</code>.
+   * The Map will look like: <code>{"foo": "abc"}</code>.
    * <p>
    * This method combines a template message with a list of specific arguments.
    * It can be useful to delay string concatenation, which is sometimes a performance issue.
