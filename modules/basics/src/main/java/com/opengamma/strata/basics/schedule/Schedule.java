@@ -520,22 +520,31 @@ public final class Schedule
 
   //-------------------------------------------------------------------------
   /**
-   * Converts this schedule to a schedule where all the start and end dates are
+   * Converts this schedule to a schedule where the start and end dates are
    * adjusted using the specified adjuster.
    * <p>
    * The result will have the same number of periods, but each start date and
    * end date is replaced by the adjusted date as returned by the adjuster.
    * The unadjusted start date and unadjusted end date of each period will not be changed.
+   * <p>
+   * A special rule is applied to the first start date and the last end date.
+   * If the first period once adjusted is empty then the unadjusted start date is used instead of the adjusted one.
+   * If the last period once adjusted is empty then the unadjusted end date is used instead of the adjusted one.
+   * This rule avoids some unnecessary exceptions.
    * 
    * @param adjuster  the adjuster to use
    * @return the adjusted schedule
+   * @throws IllegalArgumentException if a period is invalid once adjusted
    */
   public Schedule toAdjusted(DateAdjuster adjuster) {
     // implementation needs to return 'this' if unchanged to optimize downstream code
     boolean adjusted = false;
     ImmutableList.Builder<SchedulePeriod> builder = ImmutableList.builder();
-    for (SchedulePeriod period : periods) {
-      SchedulePeriod adjPeriod = period.toAdjusted(adjuster);
+    int size = periods.size();
+    for (int i = 0; i < size; i++) {
+      SchedulePeriod period = periods.get(i);
+      int mergeType = i == 0 ? -1 : (i == size - 1 ? 1 : 0);
+      SchedulePeriod adjPeriod = period.toAdjusted(adjuster, mergeType);
       builder.add(adjPeriod);
       adjusted |= (adjPeriod != period);
     }
