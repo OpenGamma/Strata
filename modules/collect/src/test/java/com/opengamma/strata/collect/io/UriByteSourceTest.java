@@ -36,7 +36,10 @@ public class UriByteSourceTest {
     assertThat(test.readUtf8()).startsWith("<");
     assertThat(test.readUtf8UsingBom()).startsWith("<");
     assertThat(test.asCharSourceUtf8().read()).startsWith("<");
+    assertThat(test.asCharSourceUtf8().getFileName()).hasValue("pom.xml");
+    assertThat(test.asCharSourceUtf8().asByteSourceUtf8()).isSameAs(test);
     assertThat(test.asCharSourceUtf8UsingBom().read()).startsWith("<");
+    assertThat(test.asCharSourceUtf8UsingBom().getFileName()).hasValue("pom.xml");
     assertThat(test.load().getFileName()).hasValue("pom.xml");
     assertThat(test.load().getFileNameOrThrow()).isEqualTo("pom.xml");
     assertThat(test.load().readUtf8()).startsWith("<");
@@ -56,6 +59,8 @@ public class UriByteSourceTest {
   public void coverage() {
     UriByteSource test = UriByteSource.of(new File("pom.xml").toURI());
     coverImmutableBean(test);
+    coverImmutableBean(test.asCharSourceUtf8());
+    coverImmutableBean(test.asCharSourceUtf8UsingBom());
     test.metaBean().metaProperty("uri").metaBean();
     test.metaBean().metaProperty("uri").propertyGenericType();
     test.metaBean().metaProperty("uri").annotations();

@@ -16,7 +16,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -991,7 +990,7 @@ public class ImmutableHolidayCalendarTest {
   }
 
   @Test
-  public void test_readOldJodaFormat() throws IOException {
+  public void test_readOldJodaFormat() {
     ResourceLocator file =
         ResourceLocator.ofClasspath("com/opengamma/strata/basics/date/ImmutableHolidayCalendar-Old.json");
     String str = file.getCharSource().read();

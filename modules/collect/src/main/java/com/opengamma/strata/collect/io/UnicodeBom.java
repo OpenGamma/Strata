@@ -10,13 +10,32 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PushbackInputStream;
 import java.io.Reader;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.PropertyStyle;
+import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicMetaProperty;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.ByteSource;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharSource;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Utilities that allow code to use the Unicode Byte Order Mark.
@@ -89,6 +108,19 @@ public final class UnicodeBom {
         return "UnicodeBom.toCharSource(" + byteSource.toString() + ")";
       }
     };
+  }
+
+  /**
+   * Converts a {@code BeanByteSource} to a {@code BeanCharSource}.
+   * <p>
+   * This ensures that any Unicode byte order marker is used correctly.
+   * The default encoding is UTF-8 if no BOM is found.
+   * 
+   * @param byteSource  the byte source
+   * @return the char source, that uses the BOM to determine the encoding
+   */
+  public static BeanCharSource toCharSource(BeanByteSource byteSource) {
+    return new UnicodeBomCharSource(byteSource);
   }
 
   /**
@@ -198,4 +230,159 @@ public final class UnicodeBom {
     }
   }
 
+  //-------------------------------------------------------------------------
+  // a char source that decorates a byte source with Unicode BOM processing
+  static class UnicodeBomCharSource extends BeanCharSource {
+
+    static {
+      MetaBean.register(UnicodeBomCharSource.Meta.META);
+    }
+
+    private final BeanByteSource underlying;
+
+    UnicodeBomCharSource(BeanByteSource underlying) {
+      this.underlying = ArgChecker.notNull(underlying, "underlying");
+    }
+
+    @Override
+    public MetaBean metaBean() {
+      return Meta.META;
+    }
+
+    @Override
+    public Optional<String> getFileName() {
+      return underlying.getFileName();
+    }
+
+    @Override
+    public Reader openStream() throws IOException {
+      return toReader(underlying.openStream());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == this) {
+        return true;
+      }
+      if (obj != null && obj.getClass() == this.getClass()) {
+        UnicodeBomCharSource other = (UnicodeBomCharSource) obj;
+        return JodaBeanUtils.equal(underlying, other.underlying);
+      }
+      return false;
+    }
+
+    @Override
+    public int hashCode() {
+      int hash = getClass().hashCode();
+      hash = hash * 31 + JodaBeanUtils.hashCode(underlying);
+      return hash;
+    }
+
+    @Override
+    public String toString() {
+      return "UnicodeBom.toCharSource(" + underlying.toString() + ")";
+    }
+
+    //-------------------------------------------------------------------------
+    /**
+     * Meta bean.
+     */
+    static final class Meta extends BasicMetaBean {
+
+      private static final MetaBean META = new Meta();
+      private static final MetaProperty<BeanByteSource> UNDERLYING = new BasicMetaProperty<BeanByteSource>("underlying") {
+
+        @Override
+        public MetaBean metaBean() {
+          return META;
+        }
+
+        @Override
+        public Class<?> declaringType() {
+          return UnicodeBomCharSource.class;
+        }
+
+        @Override
+        public Class<BeanByteSource> propertyType() {
+          return BeanByteSource.class;
+        }
+
+        @Override
+        public Type propertyGenericType() {
+          return BeanByteSource.class;
+        }
+
+        @Override
+        public PropertyStyle style() {
+          return PropertyStyle.IMMUTABLE;
+        }
+
+        @Override
+        public List<Annotation> annotations() {
+          return ImmutableList.of();
+        }
+
+        @Override
+        public BeanByteSource get(Bean bean) {
+          return ((UnicodeBomCharSource) bean).underlying;
+        }
+
+        @Override
+        public void set(Bean bean, Object value) {
+          throw new UnsupportedOperationException("Property cannot be written: " + name());
+        }
+      };
+      private static final ImmutableMap<String, MetaProperty<?>> MAP = ImmutableMap.of("underlying", UNDERLYING);
+
+      private Meta() {
+      }
+
+      @Override
+      public boolean isBuildable() {
+        return true;
+      }
+
+      @Override
+      public BeanBuilder<UnicodeBomCharSource> builder() {
+        return new BasicImmutableBeanBuilder<UnicodeBomCharSource>(this) {
+          private BeanByteSource underlying;
+
+          @Override
+          public Object get(String propertyName) {
+            if (propertyName.equals(UNDERLYING.name())) {
+              return underlying;
+            } else {
+              throw new NoSuchElementException("Unknown property: " + propertyName);
+            }
+          }
+
+          @Override
+          public BeanBuilder<UnicodeBomCharSource> set(String propertyName, Object value) {
+            if (propertyName.equals(UNDERLYING.name())) {
+              this.underlying = (BeanByteSource) ArgChecker.notNull(value, "underlying");
+            } else {
+              throw new NoSuchElementException("Unknown property: " + propertyName);
+            }
+            return this;
+          }
+
+          @Override
+          public UnicodeBomCharSource build() {
+            ArgChecker.notNull(underlying, "underlying");
+            return new UnicodeBomCharSource(underlying);
+          }
+        };
+      }
+
+      @Override
+      public Class<? extends Bean> beanType() {
+        return UnicodeBomCharSource.class;
+      }
+
+      @Override
+      public Map<String, MetaProperty<?>> metaPropertyMap() {
+        return MAP;
+      }
+    }
+  }
 }

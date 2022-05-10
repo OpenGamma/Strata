@@ -31,12 +31,23 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.BusinessDayConventions;
+import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
+import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.ScheduleException;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.PayReceive;
 
 /**
  * Test.
@@ -438,6 +449,77 @@ public class PaymentScheduleTest {
         .rollConvention(DAY_5)
         .build();
     assertThat(schedule).isEqualTo(expected);
+  }
+
+  @Test
+  public void testSingleDayInitialStub() {
+    PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
+        .startDate(LocalDate.of(2021, 8, 25))
+        .endDate(LocalDate.of(2022, 8, 26))
+        .frequency(Frequency.P6M)
+        .businessDayAdjustment(BusinessDayAdjustment.of(
+            BusinessDayConventions.MODIFIED_FOLLOWING,
+            HolidayCalendarIds.JPTO))
+        .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+        .endDateBusinessDayAdjustment(BusinessDayAdjustment.of(
+            BusinessDayConventions.MODIFIED_FOLLOWING,
+            HolidayCalendarIds.JPTO))
+        .stubConvention(StubConvention.SHORT_INITIAL)
+        .rollConvention(RollConventions.DAY_26)
+        .build();
+
+    PaymentSchedule paymentSchedule = PaymentSchedule.builder()
+        .paymentFrequency(Frequency.P6M)
+        .businessDayAdjustment(BusinessDayAdjustment.of(
+            BusinessDayConventions.MODIFIED_FOLLOWING,
+            HolidayCalendarIds.JPTO))
+        .paymentRelativeTo(PaymentRelativeTo.PERIOD_END)
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(0, HolidayCalendarIds.JPTO))
+        .compoundingMethod(CompoundingMethod.NONE)
+        .build();
+
+    NotionalSchedule notionalSchedule = NotionalSchedule.of(CurrencyAmount.of(Currency.JPY, 1000000000));
+
+    Swap swap = Swap.builder()
+        .legs(
+            RateCalculationSwapLeg.builder()
+                .payReceive(PayReceive.RECEIVE)
+                .accrualSchedule(accrualSchedule)
+                .paymentSchedule(paymentSchedule)
+                .notionalSchedule(notionalSchedule)
+                .calculation(FixedRateCalculation.of(0.001, DayCounts.ACT_365F))
+                .build(),
+            RateCalculationSwapLeg.builder()
+                .payReceive(PayReceive.PAY)
+                .accrualSchedule(accrualSchedule)
+                .paymentSchedule(paymentSchedule)
+                .notionalSchedule(notionalSchedule)
+                .calculation(IborRateCalculation.of(IborIndices.JPY_TIBOR_JAPAN_6M))
+                .build())
+        .build();
+    SwapTrade swapTrade = SwapTrade.of(TradeInfo.empty(), swap);
+    ResolvedSwapTrade resolvedSwapTrade = swapTrade.resolve(REF_DATA);
+
+    RatePaymentPeriod pp0 = (RatePaymentPeriod) resolvedSwapTrade.getProduct().getLegs().get(0).getPaymentPeriods().get(0);
+    RateAccrualPeriod ap0 = pp0.getAccrualPeriods().get(0);
+    assertThat(ap0.getStartDate()).isEqualTo(LocalDate.of(2021, 8, 25));
+    assertThat(ap0.getUnadjustedStartDate()).isEqualTo(LocalDate.of(2021, 8, 25));
+    assertThat(ap0.getEndDate()).isEqualTo(LocalDate.of(2021, 8, 26));
+    assertThat(ap0.getUnadjustedEndDate()).isEqualTo(LocalDate.of(2021, 8, 26));
+
+    RatePaymentPeriod pp1 = (RatePaymentPeriod) resolvedSwapTrade.getProduct().getLegs().get(0).getPaymentPeriods().get(1);
+    RateAccrualPeriod ap1 = pp1.getAccrualPeriods().get(0);
+    assertThat(ap1.getStartDate()).isEqualTo(LocalDate.of(2021, 8, 26));
+    assertThat(ap1.getUnadjustedStartDate()).isEqualTo(LocalDate.of(2021, 8, 26));
+    assertThat(ap1.getEndDate()).isEqualTo(LocalDate.of(2022, 2, 28));
+    assertThat(ap1.getUnadjustedEndDate()).isEqualTo(LocalDate.of(2022, 2, 26));
+
+    RatePaymentPeriod pp2 = (RatePaymentPeriod) resolvedSwapTrade.getProduct().getLegs().get(0).getPaymentPeriods().get(2);
+    RateAccrualPeriod ap2 = pp2.getAccrualPeriods().get(0);
+    assertThat(ap2.getStartDate()).isEqualTo(LocalDate.of(2022, 2, 28));
+    assertThat(ap2.getUnadjustedStartDate()).isEqualTo(LocalDate.of(2022, 2, 26));
+    assertThat(ap2.getEndDate()).isEqualTo(LocalDate.of(2022, 8, 26));
+    assertThat(ap2.getUnadjustedEndDate()).isEqualTo(LocalDate.of(2022, 8, 26));
   }
 
   //-------------------------------------------------------------------------

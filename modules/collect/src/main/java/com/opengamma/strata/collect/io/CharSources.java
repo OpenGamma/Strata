@@ -120,10 +120,10 @@ public final class CharSources {
    * Obtains an instance of {@link CharSource} from a text variable, specified as a {@link String} object.
    *
    * @param content  the text to create a {@link CharSource} for
-   * @return  a new instance of {@link CharSource} with UTF-8 for charset
+   * @return  a new instance of {@link CharSource}
    */
-  public static CharSource ofContent(String content) {
-    return CharSource.wrap(content);
+  public static StringCharSource ofContent(String content) {
+    return StringCharSource.of(content);
   }
 
   //---------------------------------------------------------------------------------------------
@@ -133,8 +133,8 @@ public final class CharSources {
    * @param content  the text to create a {@link CharSource} for
    * @return  a new instance of {@link CharSource} with UTF-8 for charset
    */
-  public static CharSource ofContent(byte[] content) {
-    return CharSource.wrap(new String(content, Charsets.UTF_8));
+  public static StringCharSource ofContent(byte[] content) {
+    return StringCharSource.fromBytesUtf8(content);
   }
 
   /**
@@ -145,7 +145,7 @@ public final class CharSources {
    * @param charset  the charset to build the new CharSource based on
    * @return  a new instance of {@link CharSource}
    */
-  public static CharSource ofContent(byte[] content, Charset charset) {
-    return CharSource.wrap(new String(content, charset));
+  public static StringCharSource ofContent(byte[] content, Charset charset) {
+    return StringCharSource.fromBytes(content, charset);
   }
 }
