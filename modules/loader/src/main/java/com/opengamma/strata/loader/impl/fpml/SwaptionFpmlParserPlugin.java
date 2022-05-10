@@ -212,7 +212,7 @@ final class SwaptionFpmlParserPlugin implements FpmlParserPlugin {
     String businessCenter = expirationTimeEl.getChild("businessCenter").getContent();
     Optional<ZoneId> optionalZoneId = document.getZoneId(businessCenter);
     if (!optionalZoneId.isPresent()) {
-      throw new FpmlParseException("Unknown businessCenter" + " attribute value: " + businessCenter);
+      throw new FpmlParseException("Unknown 'businessCenter' attribute value '{value}'", businessCenter);
     }
     return optionalZoneId.get();
   }
@@ -262,7 +262,7 @@ final class SwaptionFpmlParserPlugin implements FpmlParserPlugin {
       return CashSwaptionSettlementMethod.COLLATERALIZED_CASH_PRICE;
 
     } else {
-      throw new FpmlParseException("Invalid swaption cash settlement method: " + cashSettlementEl);
+      throw new FpmlParseException("Invalid swaption cash settlement method '{value}'", cashSettlementEl);
     }
   }
 

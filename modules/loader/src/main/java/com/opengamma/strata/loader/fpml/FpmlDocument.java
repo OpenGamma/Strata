@@ -12,7 +12,6 @@ import java.time.LocalTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -43,8 +42,9 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.XmlElement;
+import com.opengamma.strata.collect.result.ParseFailureException;
+import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.TradeInfoBuilder;
 import com.opengamma.strata.product.common.BuySell;
@@ -283,8 +283,8 @@ public final class FpmlDocument {
     if (!selected.isEmpty()) {
       for (String id : selected) {
         if (!parties.keySet().contains(id)) {
-          throw new FpmlParseException(Messages.format(
-              "Selector returned an ID '{}' that is not present in the document: {}", id, parties));
+          throw new FpmlParseException(
+              "Selector returned an ID '{value}' that is not present in the document: {options}", id, parties);
         }
       }
       return ImmutableList.copyOf(selected);
@@ -425,8 +425,9 @@ public final class FpmlDocument {
       tradeInfoBuilder.counterparty(StandardId.of(FPML_PARTY_SCHEME, parties.get(buyerPartyReference).get(0)));
       return BuySell.SELL;
     } else {
-      throw new FpmlParseException(Messages.format(
-          "Neither buyerPartyReference nor sellerPartyReference contain our party ID: {}", ourPartyHrefIds));
+      throw new FpmlParseException(
+          "Neither buyerPartyReference '{value}' nor sellerPartyReference '{value2}' contain our party ID: {options}",
+          buyerPartyReference, sellerPartyReference, ourPartyHrefIds);
     }
   }
 
@@ -450,8 +451,8 @@ public final class FpmlDocument {
       if (currentCounterparty == null) {
         tradeInfoBuilder.counterparty(proposedCounterparty);
       } else if (!currentCounterparty.equals(proposedCounterparty)) {
-        throw new FpmlParseException(Messages.format(
-            "Two different counterparties found: {} and {}", currentCounterparty, proposedCounterparty));
+        throw new FpmlParseException(
+            "Two different counterparties found: '{value}' and '{value2}'", currentCounterparty, proposedCounterparty);
       }
       return PayReceive.PAY;
 
@@ -460,14 +461,14 @@ public final class FpmlDocument {
       if (currentCounterparty == null) {
         tradeInfoBuilder.counterparty(proposedCounterparty);
       } else if (!currentCounterparty.equals(proposedCounterparty)) {
-        throw new FpmlParseException(Messages.format(
-            "Two different counterparties found: {} and {}", currentCounterparty, proposedCounterparty));
+        throw new FpmlParseException(
+            "Two different counterparties found: '{value}' and '{value2}'", currentCounterparty, proposedCounterparty);
       }
       return PayReceive.RECEIVE;
 
     } else {
-      throw new FpmlParseException(Messages.format(
-          "Neither payerPartyReference nor receiverPartyReference contain our party ID: {}", ourPartyHrefIds));
+      throw new FpmlParseException(
+          "Neither payerPartyReference nor receiverPartyReference contain our party ID: {options}", ourPartyHrefIds);
     }
   }
 
@@ -492,7 +493,7 @@ public final class FpmlDocument {
       baseDate = parseAdjustedRelativeDateOffset(relativeToEl).getUnadjusted();
     } else {
       throw new FpmlParseException(
-          "Unable to resolve 'dateRelativeTo' to a date: " + baseEl.getChild("dateRelativeTo").getAttribute(HREF));
+          "Unable to resolve 'dateRelativeTo' value '{value}' to a date", baseEl.getChild("dateRelativeTo").getAttribute(HREF));
     }
     Period period = parsePeriod(baseEl);
     Optional<XmlElement> dayTypeEl = baseEl.findChild("dayType");
@@ -528,7 +529,7 @@ public final class FpmlDocument {
     // The 'adjustedDate' element is ignored
     Period period = parsePeriod(baseEl);
     if (period.toTotalMonths() != 0) {
-      throw new FpmlParseException("Expected days-based period but found " + period);
+      throw new FpmlParseException("Expected days-based period but found '{value}'", period);
     }
     Optional<XmlElement> dayTypeEl = baseEl.findChild("dayType");
     boolean calendarDays = period.isZero() || (dayTypeEl.isPresent() && dayTypeEl.get().getContent().equals("Calendar"));
@@ -649,7 +650,7 @@ public final class FpmlDocument {
   public Index parseIndex(XmlElement baseEl) {
     List<Index> indexes = parseIndexes(baseEl);
     if (indexes.size() != 1) {
-      throw new FpmlParseException("Expected one index but found " + indexes.size());
+      throw new FpmlParseException("Expected one index but found multiple: {value}", indexes);
     }
     return indexes.get(0);
   }
@@ -755,7 +756,7 @@ public final class FpmlDocument {
         "http://www.fpml.org/ext/iso4217",  // seen in the wild
         "http://www.fpml.org/coding-scheme/currency",  // newer, see link above
         "http://www.fpml.org/codingscheme/non-iso-currency");  // newer, see link above
-    return Currency.of(baseEl.getContent());
+    return LoaderUtils.parseCurrency(baseEl.getContent());
   }
 
   /**
@@ -783,7 +784,7 @@ public final class FpmlDocument {
    * @throws RuntimeException if unable to parse
    */
   public double parseDecimal(XmlElement baseEl) {
-    return Double.parseDouble(baseEl.getContent());
+    return LoaderUtils.parseDouble(baseEl.getContent());
   }
 
   /**
@@ -805,7 +806,7 @@ public final class FpmlDocument {
    * @throws RuntimeException if unable to parse
    */
   public LocalTime parseTime(XmlElement baseEl) {
-    return LocalTime.parse(baseEl.getContent());
+    return LoaderUtils.parseTime(baseEl.getContent());
   }
 
   //-------------------------------------------------------------------------
@@ -817,7 +818,11 @@ public final class FpmlDocument {
    * @throws IllegalArgumentException if the day count is not known
    */
   public DayCount convertDayCount(String fpmlDayCountName) {
-    return DayCount.extendedEnum().externalNames(ENUM_FPML).lookup(fpmlDayCountName);
+    try {
+      return DayCount.extendedEnum().externalNames(ENUM_FPML).lookup(fpmlDayCountName);
+    } catch (IllegalArgumentException ex) {
+      throw new ParseFailureException("Unable to parse day count '{value}'", fpmlDayCountName);
+    }
   }
 
   /**
@@ -828,7 +833,11 @@ public final class FpmlDocument {
    * @throws IllegalArgumentException if the business day convention is not known
    */
   public BusinessDayConvention convertBusinessDayConvention(String fmplBusinessDayConventionName) {
-    return BusinessDayConvention.extendedEnum().externalNames(ENUM_FPML).lookup(fmplBusinessDayConventionName);
+    try {
+      return BusinessDayConvention.extendedEnum().externalNames(ENUM_FPML).lookup(fmplBusinessDayConventionName);
+    } catch (IllegalArgumentException ex) {
+      throw new ParseFailureException("Unable to parse business day convention '{value}'", fmplBusinessDayConventionName);
+    }
   }
 
   /**
@@ -839,7 +848,11 @@ public final class FpmlDocument {
    * @throws IllegalArgumentException if the roll convention is not known
    */
   public RollConvention convertRollConvention(String fmplRollConventionName) {
-    return RollConvention.extendedEnum().externalNames(ENUM_FPML).lookup(fmplRollConventionName);
+    try {
+      return RollConvention.extendedEnum().externalNames(ENUM_FPML).lookup(fmplRollConventionName);
+    } catch (IllegalArgumentException ex) {
+      throw new ParseFailureException("Unable to parse roll convention '{value}'", fmplRollConventionName);
+    }
   }
 
   /**
@@ -864,7 +877,7 @@ public final class FpmlDocument {
   public Frequency convertFrequency(String multiplier, String unit) {
     String periodStr = multiplier + unit;
     Frequency frequency = FREQUENCY_MAP.get(periodStr);
-    return frequency != null ? frequency : Frequency.parse(periodStr);
+    return frequency != null ? frequency : LoaderUtils.parseFrequency(periodStr);
   }
 
   /**
@@ -878,7 +891,7 @@ public final class FpmlDocument {
   public Tenor convertIndexTenor(String multiplier, String unit) {
     String periodStr = multiplier + unit;
     Tenor tenor = TENOR_MAP.get(periodStr);
-    return tenor != null ? tenor : Tenor.parse(periodStr);
+    return tenor != null ? tenor : LoaderUtils.parseTenor(periodStr);
   }
 
   /**
@@ -886,10 +899,10 @@ public final class FpmlDocument {
    * 
    * @param dateStr  the business center name used by FpML
    * @return the holiday calendar
-   * @throws DateTimeParseException if the date cannot be parsed
+   * @throws IllegalArgumentException if the date cannot be parsed
    */
   public LocalDate convertDate(String dateStr) {
-    return LocalDate.parse(dateStr, FPML_DATE_FORMAT);
+    return LoaderUtils.parseDate(dateStr, FPML_DATE_FORMAT);
   }
 
   /**
@@ -919,7 +932,7 @@ public final class FpmlDocument {
       return;
     }
     if (baseEl.findChild(elementName).isPresent()) {
-      throw new FpmlParseException("Unsupported element: '" + elementName + "'");
+      throw new FpmlParseException("Unsupported FpML element '{value}'", elementName);
     }
   }
 
@@ -939,7 +952,7 @@ public final class FpmlDocument {
           return;
         }
       }
-      throw new FpmlParseException("Unknown '" + schemeAttr + "' attribute value: " + scheme);
+      throw new FpmlParseException("Unknown '" + schemeAttr + "' FpML attribute value '{value}'", scheme);
     }
   }
 
@@ -956,7 +969,7 @@ public final class FpmlDocument {
     String hrefId = hrefEl.getAttribute(HREF);
     XmlElement el = references.get(hrefId);
     if (el == null) {
-      throw new FpmlParseException(Messages.format("Document reference not found: href='{}'", hrefId));
+      throw new FpmlParseException("Document reference not found: href='{value}'", hrefId);
     }
     return el;
   }

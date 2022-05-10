@@ -93,7 +93,7 @@ public class RatesCurvesCsvLoaderTest {
   public void test_invalid_settings_day_count_file() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> testSettings(SETTINGS_INVALID_DAY_COUNT))
-        .withMessageMatching("Unknown DayCount value.*");
+        .withMessageContaining("Unable to parse day count from");
   }
 
   @Test
@@ -150,7 +150,7 @@ public class RatesCurvesCsvLoaderTest {
   public void test_invalid_groups_reference_index_file() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> testGroups(GROUPS_INVALID_REFERENCE_INDEX))
-        .withMessage("Index name not found: LIBOR");
+        .withMessage("Unable to parse index from 'LIBOR'");
   }
 
   private void testGroups(String groupsResource) {
