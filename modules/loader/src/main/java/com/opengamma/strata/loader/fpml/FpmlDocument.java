@@ -369,7 +369,7 @@ public final class FpmlDocument {
    * 
    * @param tradeEl  the trade element
    * @return the trade info builder
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public TradeInfoBuilder parseTradeInfo(XmlElement tradeEl) {
     XmlElement tradeHeaderEl = tradeEl.getChild("tradeHeader");
@@ -413,7 +413,7 @@ public final class FpmlDocument {
    * @param baseEl  the FpML payer receiver model element
    * @param tradeInfoBuilder  the builder of the trade info
    * @return the pay/receive flag
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public BuySell parseBuyerSeller(XmlElement baseEl, TradeInfoBuilder tradeInfoBuilder) {
     String buyerPartyReference = baseEl.getChild("buyerPartyReference").getAttribute(FpmlDocument.HREF);
@@ -439,7 +439,7 @@ public final class FpmlDocument {
    * @param baseEl  the FpML payer receiver model element
    * @param tradeInfoBuilder  the builder of the trade info
    * @return the pay/receive flag
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public PayReceive parsePayerReceiver(XmlElement baseEl, TradeInfoBuilder tradeInfoBuilder) {
     String payerPartyReference = baseEl.getChild("payerPartyReference").getAttribute(HREF);
@@ -478,7 +478,7 @@ public final class FpmlDocument {
    * 
    * @param baseEl  the FpML adjustable date element
    * @return the resolved date
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public AdjustableDate parseAdjustedRelativeDateOffset(XmlElement baseEl) {
     // FpML content: ('periodMultiplier', 'period', 'dayType?',
@@ -519,7 +519,7 @@ public final class FpmlDocument {
    * 
    * @param baseEl  the FpML adjustable date element
    * @return the days adjustment
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public DaysAdjustment parseRelativeDateOffsetDays(XmlElement baseEl) {
     // FpML content: ('periodMultiplier', 'period', 'dayType?',
@@ -533,12 +533,10 @@ public final class FpmlDocument {
     }
     Optional<XmlElement> dayTypeEl = baseEl.findChild("dayType");
     boolean calendarDays = period.isZero() || (dayTypeEl.isPresent() && dayTypeEl.get().getContent().equals("Calendar"));
-    BusinessDayConvention fixingBdc = convertBusinessDayConvention(
-        baseEl.getChild("businessDayConvention").getContent());
+    BusinessDayConvention fixingBdc = convertBusinessDayConvention(baseEl.getChild("businessDayConvention").getContent());
     HolidayCalendarId calendar = parseBusinessCenters(baseEl);
     if (calendarDays) {
-      return DaysAdjustment.ofCalendarDays(
-          period.getDays(), BusinessDayAdjustment.of(fixingBdc, calendar));
+      return DaysAdjustment.ofCalendarDays(period.getDays(), BusinessDayAdjustment.of(fixingBdc, calendar));
     } else {
       return DaysAdjustment.ofBusinessDays(period.getDays(), calendar);
     }
@@ -550,7 +548,7 @@ public final class FpmlDocument {
    * 
    * @param baseEl  the FpML adjustable date element
    * @return the adjustable date
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public AdjustableDate parseAdjustableDate(XmlElement baseEl) {
     // FpML content: ('unadjustedDate', 'dateAdjustments', 'adjustedDate?')
@@ -577,7 +575,7 @@ public final class FpmlDocument {
    * 
    * @param baseEl  the FpML business centers or reference element to parse 
    * @return the business day adjustment
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public BusinessDayAdjustment parseBusinessDayAdjustments(XmlElement baseEl) {
     // FpML content: ('businessDayConvention', 'BusinessCentersOrReference.model?')
@@ -596,7 +594,7 @@ public final class FpmlDocument {
    * 
    * @param baseEl  the FpML business centers or reference element to parse 
    * @return the holiday calendar
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public HolidayCalendarId parseBusinessCenters(XmlElement baseEl) {
     // FpML content: ('businessCentersReference' | 'businessCenters')
@@ -618,7 +616,7 @@ public final class FpmlDocument {
    * 
    * @param baseEl  the FpML calendar element to parse 
    * @return the calendar
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public HolidayCalendarId parseBusinessCenter(XmlElement baseEl) {
     validateScheme(baseEl, "businessCenterScheme", "http://www.fpml.org/coding-scheme/business-center");
@@ -631,13 +629,17 @@ public final class FpmlDocument {
    * 
    * @param baseEl  the FpML floating rate model element to parse 
    * @return the index
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public PriceIndex parsePriceIndex(XmlElement baseEl) {
     XmlElement indexEl = baseEl.getChild("floatingRateIndex");
     validateScheme(indexEl, "floatingRateIndexScheme", "http://www.fpml.org/coding-scheme/inflation-index-description");
-    FloatingRateName floatingName = FloatingRateName.of(indexEl.getContent());
-    return floatingName.toPriceIndex();
+    try {
+      FloatingRateName floatingName = FloatingRateName.of(indexEl.getContent());
+      return floatingName.toPriceIndex();
+    } catch (RuntimeException ex) {
+      throw new FpmlParseException("Unable to parse price index '{value}'", indexEl.getContent());
+    }
   }
 
   /**
@@ -645,7 +647,7 @@ public final class FpmlDocument {
    * 
    * @param baseEl  the FpML floating rate model element to parse 
    * @return the index
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public Index parseIndex(XmlElement baseEl) {
     List<Index> indexes = parseIndexes(baseEl);
@@ -660,19 +662,25 @@ public final class FpmlDocument {
    * 
    * @param baseEl  the FpML floating rate index element to parse 
    * @return the index
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public List<Index> parseIndexes(XmlElement baseEl) {
     XmlElement indexEl = baseEl.getChild("floatingRateIndex");
     validateScheme(indexEl, "floatingRateIndexScheme", "http://www.fpml.org/coding-scheme/floating-rate-index");
-    FloatingRateName floatingName = FloatingRateName.of(indexEl.getContent());
-    List<XmlElement> tenorEls = baseEl.getChildren("indexTenor");
-    if (tenorEls.isEmpty()) {
-      return ImmutableList.of(floatingName.toOvernightIndex());
-    } else {
-      return tenorEls.stream()
-          .map(el -> floatingName.toIborIndex(parseIndexTenor(el)))
-          .collect(toImmutableList());
+    try {
+      FloatingRateName floatingName = FloatingRateName.of(indexEl.getContent());
+      List<XmlElement> tenorEls = baseEl.getChildren("indexTenor");
+      if (tenorEls.isEmpty()) {
+        return ImmutableList.of(floatingName.toOvernightIndex());
+      } else {
+        return tenorEls.stream()
+            .map(el -> floatingName.toIborIndex(parseIndexTenor(el)))
+            .collect(toImmutableList());
+      }
+    } catch (ParseFailureException ex) {
+      throw ex;
+    } catch (RuntimeException ex) {
+      throw new FpmlParseException("Unable to parse rate index '{value}'", indexEl.getContent());
     }
   }
 
@@ -681,7 +689,7 @@ public final class FpmlDocument {
    * 
    * @param baseEl  the FpML floating rate index element to parse 
    * @return the period
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public Tenor parseIndexTenor(XmlElement baseEl) {
     // FpML content: ('periodMultiplier', 'period')
@@ -696,13 +704,13 @@ public final class FpmlDocument {
    * 
    * @param baseEl  the FpML element to parse 
    * @return the period
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public Period parsePeriod(XmlElement baseEl) {
     // FpML content: ('periodMultiplier', 'period')
     String multiplier = baseEl.getChild("periodMultiplier").getContent();
     String unit = baseEl.getChild("period").getContent();
-    return Period.parse("P" + multiplier + unit);
+    return LoaderUtils.parsePeriod("P" + multiplier + unit);
   }
 
   //-------------------------------------------------------------------------
@@ -711,7 +719,7 @@ public final class FpmlDocument {
    * 
    * @param baseEl  the FpML element to parse 
    * @return the frequency
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public Frequency parseFrequency(XmlElement baseEl) {
     // FpML content: ('periodMultiplier', 'period')
@@ -729,7 +737,7 @@ public final class FpmlDocument {
    * 
    * @param baseEl  the FpML money element to parse 
    * @return the currency amount
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public CurrencyAmount parseCurrencyAmount(XmlElement baseEl) {
     // FpML content: ('currency', 'amount')
@@ -744,7 +752,7 @@ public final class FpmlDocument {
    * 
    * @param baseEl  the FpML currency element to parse 
    * @return the currency
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public Currency parseCurrency(XmlElement baseEl) {
     // allow various schemes
@@ -764,7 +772,7 @@ public final class FpmlDocument {
    * 
    * @param baseEl  the FpML day count element to parse 
    * @return the day count
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public DayCount parseDayCountFraction(XmlElement baseEl) {
     validateScheme(
@@ -781,7 +789,7 @@ public final class FpmlDocument {
    * 
    * @param baseEl  the FpML element to parse 
    * @return the double
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public double parseDecimal(XmlElement baseEl) {
     return LoaderUtils.parseDouble(baseEl.getContent());
@@ -792,7 +800,7 @@ public final class FpmlDocument {
    * 
    * @param baseEl  the FpML element to parse 
    * @return the date
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public LocalDate parseDate(XmlElement baseEl) {
     return convertDate(baseEl.getContent());
@@ -803,7 +811,7 @@ public final class FpmlDocument {
    * 
    * @param baseEl  the FpML element to parse 
    * @return the time
-   * @throws RuntimeException if unable to parse
+   * @throws ParseFailureException if unable to parse
    */
   public LocalTime parseTime(XmlElement baseEl) {
     return LoaderUtils.parseTime(baseEl.getContent());
@@ -815,7 +823,7 @@ public final class FpmlDocument {
    * 
    * @param fpmlDayCountName  the day count name used by FpML
    * @return the day count
-   * @throws IllegalArgumentException if the day count is not known
+   * @throws ParseFailureException if the day count is not known
    */
   public DayCount convertDayCount(String fpmlDayCountName) {
     try {
@@ -830,7 +838,7 @@ public final class FpmlDocument {
    * 
    * @param fmplBusinessDayConventionName  the business day convention name used by FpML
    * @return the business day convention
-   * @throws IllegalArgumentException if the business day convention is not known
+   * @throws ParseFailureException if the business day convention is not known
    */
   public BusinessDayConvention convertBusinessDayConvention(String fmplBusinessDayConventionName) {
     try {
@@ -845,7 +853,7 @@ public final class FpmlDocument {
    * 
    * @param fmplRollConventionName  the roll convention name used by FpML
    * @return the roll convention
-   * @throws IllegalArgumentException if the roll convention is not known
+   * @throws ParseFailureException if the roll convention is not known
    */
   public RollConvention convertRollConvention(String fmplRollConventionName) {
     try {
@@ -859,11 +867,15 @@ public final class FpmlDocument {
    * Converts an FpML business center string to a {@code HolidayCalendar}.
    * 
    * @param fpmlBusinessCenter  the business center name used by FpML
-   * @return the holiday calendar
+   * @return the ParseFailureException calendar
    * @throws IllegalArgumentException if the holiday calendar is not known
    */
   public HolidayCalendarId convertHolidayCalendar(String fpmlBusinessCenter) {
-    return HolidayCalendarId.of(fpmlBusinessCenter);
+    try {
+      return HolidayCalendarId.of(fpmlBusinessCenter);
+    } catch (RuntimeException ex) {
+      throw new ParseFailureException("Unable to parse holiday calendar '{value}'", fpmlBusinessCenter);
+    }
   }
 
   /**
@@ -872,7 +884,7 @@ public final class FpmlDocument {
    * @param multiplier  the multiplier
    * @param unit  the unit
    * @return the frequency
-   * @throws IllegalArgumentException if the frequency is not known
+   * @throws ParseFailureException if the frequency is not known
    */
   public Frequency convertFrequency(String multiplier, String unit) {
     String periodStr = multiplier + unit;
@@ -886,7 +898,7 @@ public final class FpmlDocument {
    * @param multiplier  the multiplier
    * @param unit  the unit
    * @return the tenor
-   * @throws IllegalArgumentException if the tenor is not known
+   * @throws ParseFailureException if the tenor is not known
    */
   public Tenor convertIndexTenor(String multiplier, String unit) {
     String periodStr = multiplier + unit;
@@ -899,7 +911,7 @@ public final class FpmlDocument {
    * 
    * @param dateStr  the business center name used by FpML
    * @return the holiday calendar
-   * @throws IllegalArgumentException if the date cannot be parsed
+   * @throws ParseFailureException if the date cannot be parsed
    */
   public LocalDate convertDate(String dateStr) {
     return LoaderUtils.parseDate(dateStr, FPML_DATE_FORMAT);
