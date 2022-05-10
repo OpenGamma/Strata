@@ -18,9 +18,13 @@ public final class FailureAttributeKeys {
    */
   public static final String FILE_ID = "fileId";
   /**
-   * The attribute for specifying the file name in which the error occurred.
+   * The attribute for specifying the name of the file that caused the error.
    */
   public static final String FILE_NAME = "fileName";
+  /**
+   * The attribute for specifying the file summary of the file that caused the error.
+   */
+  public static final String FILE_SUMMARY = "fileSummary";
   /**
    * The attribute for specifying the format associated with the error.
    */
@@ -33,6 +37,10 @@ public final class FailureAttributeKeys {
    * The attribute for the value that caused the failure.
    */
   public static final String VALUE = "value";
+  /**
+   * The attribute for the type that caused the failure.
+   */
+  public static final String TYPE = "type";
   /**
    * The attribute for the options that were valid.
    */

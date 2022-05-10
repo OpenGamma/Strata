@@ -200,7 +200,7 @@ public class LegalEntityRatesCurvesCsvLoaderTest {
             ResourceLocator.of(GROUPS),
             ResourceLocator.of(SETTINGS_INVALID_DCC),
             ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2))))
-        .withMessageMatching("Unknown DayCount value.*");
+        .withMessageContaining("Unable to parse day count from");
   }
 
   @Test

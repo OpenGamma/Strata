@@ -27,7 +27,6 @@ import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.basics.value.ValueStepSequence;
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.loader.fpml.FpmlDocument;
 import com.opengamma.strata.loader.fpml.FpmlParseException;
@@ -286,7 +285,7 @@ final class SwapFpmlParserPlugin
     if (paymentOffsetEl.isPresent()) {
       Period period = document.parsePeriod(paymentOffsetEl.get());
       if (period.toTotalMonths() != 0) {
-        throw new FpmlParseException("Invalid 'paymentDatesAdjustments' value, expected days-based period: " + period);
+        throw new FpmlParseException("Invalid 'paymentDatesAdjustments' value '{value}', expected days-based period", period);
       }
       Optional<XmlElement> dayTypeEl = paymentOffsetEl.get().findChild("dayType");
       boolean fixingCalendarDays = period.isZero() ||
@@ -541,7 +540,7 @@ final class SwapFpmlParserPlugin
         resetDatesEl.findChild("rateCutOffDaysOffset").ifPresent(el -> {
           Period cutOff = document.parsePeriod(el);
           if (cutOff.toTotalMonths() != 0) {
-            throw new FpmlParseException("Invalid 'rateCutOffDaysOffset' value, expected days-based period: " + cutOff);
+            throw new FpmlParseException("Invalid 'rateCutOffDaysOffset' value '{value}', expected days-based period", cutOff);
           }
           overnightRateBuilder.rateCutOffDays(-cutOff.getDays());
         });
@@ -697,8 +696,8 @@ final class SwapFpmlParserPlugin
     } else if (str.equals("LongFinal")) {
       return StubConvention.LONG_FINAL;
     } else {
-      throw new FpmlParseException(Messages.format(
-          "Unknown 'stubPeriodType' value '{}', expected 'ShortInitial', 'ShortFinal', 'LongInitial' or 'LongFinal'", str));
+      throw new FpmlParseException(
+          "Unknown 'stubPeriodType' value '{value}', expected 'ShortInitial', 'ShortFinal', 'LongInitial' or 'LongFinal'", str);
     }
   }
 
@@ -741,8 +740,8 @@ final class SwapFpmlParserPlugin
       double amount = initialValue * rate;
       return ValueStepSequence.of(start, end, freq, ValueAdjustment.ofDeltaAmount(amount));
     } else {
-      throw new FpmlParseException(Messages.format(
-          "Unknown 'stepRelativeTo' value '{}', expected 'Initial' or 'Previous'", relativeTo));
+      throw new FpmlParseException(
+          "Unknown 'stepRelativeTo' value '{value}', expected 'Initial' or 'Previous'", relativeTo);
     }
   }
 
@@ -755,8 +754,8 @@ final class SwapFpmlParserPlugin
     } else if (str.equals("CalculationPeriodEndDate")) {
       return PaymentRelativeTo.PERIOD_END;
     } else {
-      throw new FpmlParseException(Messages.format(
-          "Unknown 'payRelativeTo' value '{}', expected 'CalculationPeriodStartDate' or 'CalculationPeriodEndDate'", str));
+      throw new FpmlParseException(
+          "Unknown 'payRelativeTo' value '{value}', expected 'CalculationPeriodStartDate' or 'CalculationPeriodEndDate'", str);
     }
   }
 
@@ -768,10 +767,9 @@ final class SwapFpmlParserPlugin
     } else if (str.equals("ZeroInterestRateMethod")) {
       return NegativeRateMethod.NOT_NEGATIVE;
     } else {
-      throw new FpmlParseException(Messages.format(
-          "Unknown 'negativeInterestRateTreatment' value '{}', " +
-              "expected 'NegativeInterestRateMethod' or 'ZeroInterestRateMethod'",
-          str));
+      throw new FpmlParseException(
+          "Unknown 'negativeInterestRateTreatment' value '{value}', expected 'NegativeInterestRateMethod' or 'ZeroInterestRateMethod'",
+          str);
     }
   }
 
@@ -783,8 +781,8 @@ final class SwapFpmlParserPlugin
     } else if (str.equals("Weighted")) {
       return IborRateResetMethod.WEIGHTED;
     } else {
-      throw new FpmlParseException(Messages.format(
-          "Unknown 'resetMethod' value '{}', expected 'Unweighted' or 'Weighted'", str));
+      throw new FpmlParseException(
+          "Unknown 'resetMethod' value '{value}', expected 'Unweighted' or 'Weighted'", str);
     }
   }
 
@@ -796,8 +794,8 @@ final class SwapFpmlParserPlugin
     } else if (str.equals("CalculationPeriodEndDate")) {
       return FixingRelativeTo.PERIOD_END;
     } else {
-      throw new FpmlParseException(Messages.format(
-          "Unknown 'resetRelativeTo' value '{}', expected 'CalculationPeriodStartDate' or 'CalculationPeriodEndDate'", str));
+      throw new FpmlParseException(
+          "Unknown 'resetRelativeTo' value '{value}', expected 'CalculationPeriodStartDate' or 'CalculationPeriodEndDate'", str);
     }
   }
 

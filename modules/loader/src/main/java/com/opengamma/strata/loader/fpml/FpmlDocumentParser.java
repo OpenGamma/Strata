@@ -396,7 +396,7 @@ public final class FpmlDocumentParser {
     }
     // failed to find a known trade type
     ImmutableSet<String> childNames = tradeEl.getChildren().stream().map(XmlElement::getName).collect(toImmutableSet());
-    throw new FpmlParseException("Unknown product type: " + childNames);
+    throw new FpmlParseException("Unknown product type '{value}'", childNames);
   }
 
 }
