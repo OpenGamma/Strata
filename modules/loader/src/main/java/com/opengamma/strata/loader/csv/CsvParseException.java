@@ -1,17 +1,17 @@
 /*
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2022 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.loader.fpml;
+package com.opengamma.strata.loader.csv;
 
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.ParseFailureException;
 
 /**
- * Exception thrown when parsing FpML.
+ * Exception thrown when parsing CSV.
  */
-public final class FpmlParseException extends ParseFailureException {
+public final class CsvParseException extends ParseFailureException {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -21,7 +21,7 @@ public final class FpmlParseException extends ParseFailureException {
    * 
    * @param message  the message, null tolerant
    */
-  public FpmlParseException(String message) {
+  public CsvParseException(String message) {
     super(message);
   }
 
@@ -34,7 +34,7 @@ public final class FpmlParseException extends ParseFailureException {
    * @param messageTemplate  the message template, null tolerant
    * @param messageArgs  the message arguments, null tolerant
    */
-  public FpmlParseException(String messageTemplate, Object... messageArgs) {
+  public CsvParseException(String messageTemplate, Object... messageArgs) {
     super(messageTemplate, messageArgs);
   }
 

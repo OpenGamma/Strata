@@ -11,7 +11,7 @@ import com.opengamma.strata.collect.Messages;
 /**
  * An exception thrown when an exception can be represented by a {@code FailureItem}.
  */
-public class FailureItemException extends RuntimeException {
+public class FailureItemException extends RuntimeException implements FailureItemProvider {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -72,6 +72,7 @@ public class FailureItemException extends RuntimeException {
    *
    * @return the failure item
    */
+  @Override
   public FailureItem getFailureItem() {
     return item;
   }

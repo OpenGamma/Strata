@@ -116,7 +116,7 @@ public final class ValueWithFailures<T>
    * If the supplier succeeds normally, the supplied value will be returned.
    * If the supplier fails, the empty value will be returned along with a failure.
    * <p>
-   * The exception types {@link FailureItemException} and {@link ParseFailureException} are recognized.
+   * This recognizes and handles {@link FailureItemProvider} exceptions.
    * If the exception type is not recognized, the failure item will have a reason of {@code ERROR}.
    *
    * @param <T> the type of the value
