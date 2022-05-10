@@ -234,7 +234,7 @@ public class TradeCsvLoaderTest {
     FailureItem failureItem = loadedData.getFailures().get(0);
     assertThat(failureItem.getReason().toString()).isEqualTo("PARSING");
     assertThat(failureItem.getMessage())
-        .isEqualTo("CSV trade file type 'FX' could not be parsed at line 2: " +
+        .isEqualTo("CSV trade file 'fxtrades_legs_same_direction.csv' type 'FX' could not be parsed at line 2: " +
             "FxSingle legs must not have the same direction: Pay, Pay");
     List<Trade> loadedTrades = loadedData.getValue();
     assertThat(loadedTrades).hasSize(0);
@@ -1523,8 +1523,8 @@ public class TradeCsvLoaderTest {
     FailureItem failure = result.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
     assertThat(failure.getMessage())
-        .isEqualTo("CSV trade file type 'Swap' could not be parsed at line 2: " +
-            "Swap leg must not define both 'Leg 1 Fixed Rate' and 'Leg 1 Known Amount'");
+        .isEqualTo("CSV trade file 'Unknown.txt' type 'Swap' could not be parsed at line 2: " +
+            "Swap leg 1 must not define both kinds of fixed leg: 'Leg 1 Fixed Rate' and 'Leg 1 Known Amount'");
   }
 
   @Test
@@ -1566,8 +1566,8 @@ public class TradeCsvLoaderTest {
     FailureItem failure = result.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
     assertThat(failure.getMessage())
-        .isEqualTo("CSV trade file type 'Swap' could not be parsed at line 2: Swap leg must not define both " +
-            "'Leg 1 Fixed Rate' or 'Leg 1 Known Amount' and 'Leg 1 Index'");
+        .isEqualTo("CSV trade file 'Unknown.txt' type 'Swap' could not be parsed at line 2: Swap leg 1 must not define " +
+            "both floating and fixed leg columns: 'Leg 1 Index' and 'Leg 1 Fixed Rate' or 'Leg 1 Known Amount'");
   }
 
   @Test
@@ -1609,8 +1609,8 @@ public class TradeCsvLoaderTest {
     FailureItem failure = result.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
     assertThat(failure.getMessage())
-        .isEqualTo("CSV trade file type 'Swap' could not be parsed at line 2: Swap leg must not " +
-            "define both 'Leg 1 Fixed Rate' or 'Leg 1 Known Amount' and 'Leg 1 Index'");
+        .isEqualTo("CSV trade file 'Unknown.txt' type 'Swap' could not be parsed at line 2: Swap leg 1 must not define " +
+            "both floating and fixed leg columns: 'Leg 1 Index' and 'Leg 1 Fixed Rate' or 'Leg 1 Known Amount'");
   }
 
   //-------------------------------------------------------------------------
@@ -2258,7 +2258,7 @@ public class TradeCsvLoaderTest {
     assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure.getMessage().contains("CSV file could not be parsed")).isTrue();
+    assertThat(failure.getMessage()).startsWith("CSV trade file 'Unknown.txt' could not be parsed");
   }
 
   @Test
@@ -2269,7 +2269,7 @@ public class TradeCsvLoaderTest {
     assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure.getMessage().contains("CSV file does not contain 'Strata Trade Type' header")).isTrue();
+    assertThat(failure.getMessage()).startsWith("CSV trade file 'Unknown.txt' does not contain 'Strata Trade Type' header");
   }
 
   @Test
@@ -2280,7 +2280,7 @@ public class TradeCsvLoaderTest {
     assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure.getMessage()).isEqualTo("CSV trade file type 'Foo' is not known at line 2");
+    assertThat(failure.getMessage()).isEqualTo("CSV trade file 'Unknown.txt' contained unknown trade type 'Foo' at line 2");
   }
 
   @Test
@@ -2304,7 +2304,7 @@ public class TradeCsvLoaderTest {
     assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure.getMessage()).isEqualTo("CSV trade file type 'Foo' is not known at line 2");
+    assertThat(failure.getMessage()).isEqualTo("CSV trade file 'Unknown.txt' contained unknown trade type 'Foo' at line 2");
   }
 
   @Test
@@ -2377,7 +2377,7 @@ public class TradeCsvLoaderTest {
     FailureItem failure = trades.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
     assertThat(failure.getMessage())
-        .isEqualTo("CSV trade file type 'Fra' could not be parsed at line 2: Header not found: 'Notional'");
+        .isEqualTo("CSV trade file 'Unknown.txt' type 'Fra' could not be parsed at line 2: Header not found: 'Notional'");
   }
 
   @Test
@@ -2390,7 +2390,7 @@ public class TradeCsvLoaderTest {
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
     assertThat(failure.getMessage())
         .isEqualTo(
-            "CSV trade file type 'Swap' could not be parsed at line 2: Swap trade had invalid combination of fields. " +
+            "CSV trade file 'Unknown.txt' type 'Swap' could not be parsed at line 2: Swap trade had invalid combination of fields. " +
                 "Must include either 'Convention' or '" + "Leg 1 Direction'");
   }
 
@@ -2404,7 +2404,7 @@ public class TradeCsvLoaderTest {
     FailureItem failure = trades.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
     assertThat(failure.getMessage())
-        .isEqualTo("CSV trade file type 'BulletPayment' could not be parsed at line 2: Header not found: 'Currency'");
+        .isEqualTo("CSV trade file 'Unknown.txt' type 'BulletPayment' could not be parsed at line 2: Header not found: 'Currency'");
   }
 
   @Test
@@ -2417,7 +2417,7 @@ public class TradeCsvLoaderTest {
     FailureItem failure = trades.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
     assertThat(failure.getMessage())
-        .isEqualTo("CSV trade file type 'TermDeposit' could not be parsed at line 2: Header not found: 'Notional'");
+        .isEqualTo("CSV trade file 'Unknown.txt' type 'TermDeposit' could not be parsed at line 2: Header not found: 'Notional'");
   }
 
   //-------------------------------------------------------------------------

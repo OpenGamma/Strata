@@ -8,7 +8,7 @@ package com.opengamma.strata.loader.csv;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.market.observable.QuoteId;
 
 /**
@@ -82,14 +83,15 @@ public class QuotesCsvLoaderTest {
 
   @Test
   public void test_load_oneDate_invalidDate() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> QuotesCsvLoader.load(date(2015, 10, 2), QUOTES_INVALID_DATE))
-        .withMessageStartingWith("Error processing resource as CSV file: ");
+        .withMessageStartingWith("Error parsing CSV file 'quotes-invalid-date.csv': Unable to parse date");
   }
 
   @Test
   public void test_invalidDuplicate() {
-    assertThatIllegalArgumentException().isThrownBy(() -> QuotesCsvLoader.load(DATE1, QUOTES_INVALID_DUPLICATE));
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> QuotesCsvLoader.load(DATE1, QUOTES_INVALID_DUPLICATE));
   }
 
   @Test

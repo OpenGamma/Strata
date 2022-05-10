@@ -30,10 +30,10 @@ import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.MapStream;
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.market.ValueType;
@@ -195,28 +195,34 @@ public class LegalEntityRatesCurvesCsvLoader {
       CharSource settingsCharSource,
       Collection<CharSource> curveValueCharSources) {
 
-    Map<CurveGroupName, Map<Pair<RepoGroup, Currency>, CurveName>> repoGroups = new LinkedHashMap<>();
-    Map<CurveGroupName, Map<Pair<LegalEntityGroup, Currency>, CurveName>> legalEntityGroups = new LinkedHashMap<>();
-    parseCurveMaps(groupsCharSource, repoGroups, legalEntityGroups);
-    Map<LocalDate, Map<CurveName, Curve>> allCurves =
-        parseCurves(datePredicate, settingsCharSource, curveValueCharSources);
-    ImmutableListMultimap.Builder<LocalDate, LegalEntityCurveGroup> builder = ImmutableListMultimap.builder();
+    try {
+      Map<CurveGroupName, Map<Pair<RepoGroup, Currency>, CurveName>> repoGroups = new LinkedHashMap<>();
+      Map<CurveGroupName, Map<Pair<LegalEntityGroup, Currency>, CurveName>> legalEntityGroups = new LinkedHashMap<>();
+      parseCurveMaps(groupsCharSource, repoGroups, legalEntityGroups);
+      Map<LocalDate, Map<CurveName, Curve>> allCurves =
+          parseCurves(datePredicate, settingsCharSource, curveValueCharSources);
+      ImmutableListMultimap.Builder<LocalDate, LegalEntityCurveGroup> builder = ImmutableListMultimap.builder();
 
-    for (Map.Entry<LocalDate, Map<CurveName, Curve>> curveEntry : allCurves.entrySet()) {
-      LocalDate date = curveEntry.getKey();
-      Map<CurveName, Curve> curves = curveEntry.getValue();
-      for (Map.Entry<CurveGroupName, Map<Pair<RepoGroup, Currency>, CurveName>> repoEntry : repoGroups.entrySet()) {
-        CurveGroupName groupName = repoEntry.getKey();
-        Map<Pair<RepoGroup, Currency>, Curve> repoCurves = MapStream.of(repoEntry.getValue())
-            .mapValues(name -> queryCurve(name, curves, date, groupName, "Repo"))
-            .toMap();
-        Map<Pair<LegalEntityGroup, Currency>, Curve> issuerCurves = MapStream.of(legalEntityGroups.get(groupName))
-            .mapValues(name -> queryCurve(name, curves, date, groupName, "Issuer"))
-            .toMap();
-        builder.put(date, LegalEntityCurveGroup.of(groupName, repoCurves, issuerCurves));
+      for (Map.Entry<LocalDate, Map<CurveName, Curve>> curveEntry : allCurves.entrySet()) {
+        LocalDate date = curveEntry.getKey();
+        Map<CurveName, Curve> curves = curveEntry.getValue();
+        for (Map.Entry<CurveGroupName, Map<Pair<RepoGroup, Currency>, CurveName>> repoEntry : repoGroups.entrySet()) {
+          CurveGroupName groupName = repoEntry.getKey();
+          Map<Pair<RepoGroup, Currency>, Curve> repoCurves = MapStream.of(repoEntry.getValue())
+              .mapValues(name -> queryCurve(name, curves, date, groupName, "Repo"))
+              .toMap();
+          Map<Pair<LegalEntityGroup, Currency>, Curve> issuerCurves = MapStream.of(legalEntityGroups.get(groupName))
+              .mapValues(name -> queryCurve(name, curves, date, groupName, "Issuer"))
+              .toMap();
+          builder.put(date, LegalEntityCurveGroup.of(groupName, repoCurves, issuerCurves));
+        }
       }
+      return builder.build();
+
+    } catch (RuntimeException ex) {
+      throw new ParseFailureException(
+          ex, "Error parsing legal entity CSV files: {exceptionMessage}", ex.getMessage());
     }
-    return builder.build();
   }
 
   //-------------------------------------------------------------------------
@@ -238,8 +244,8 @@ public class LegalEntityRatesCurvesCsvLoader {
         Map<CurveName, Curve> resultCurves = resultMap.computeIfAbsent(date, d -> new HashMap<>());
         for (Curve fileCurve : fileCurves) {
           if (resultCurves.put(fileCurve.getName(), fileCurve) != null) {
-            throw new IllegalArgumentException(
-                "Rates curve loader found multiple curves with the same name: " + fileCurve.getName());
+            throw new ParseFailureException(
+                "Rates curve loader found multiple curves with the same name '{value}'", fileCurve.getName());
           }
         }
       }
@@ -259,8 +265,8 @@ public class LegalEntityRatesCurvesCsvLoader {
       String rightExtrapolatorStr = row.getField(SETTINGS_RIGHT_EXTRAPOLATOR);
 
       if (!VALUE_TYPE_MAP.containsKey(valueTypeStr.toLowerCase(Locale.ENGLISH))) {
-        throw new IllegalArgumentException(
-            Messages.format("Unsupported {} in curve settings: {}", SETTINGS_VALUE_TYPE, valueTypeStr));
+        throw new ParseFailureException(
+            "Unsupported {} in curve settings '{value}'", SETTINGS_VALUE_TYPE, valueTypeStr);
       }
 
       CurveName curveName = CurveName.of(curveNameStr);
@@ -315,7 +321,7 @@ public class LegalEntityRatesCurvesCsvLoader {
       LoadedCurveSettings settings = settingsMap.get(key.getCurveName());
 
       if (settings == null) {
-        throw new IllegalArgumentException(Messages.format("Missing settings for curve: {}", key));
+        throw new ParseFailureException("Missing settings for curve '{value}'", key);
       }
       results.put(key.getCurveDate(), settings.createCurve(key.getCurveDate(), entry.getValue()));
     }
@@ -359,7 +365,7 @@ public class LegalEntityRatesCurvesCsvLoader {
       legalEntityGroups.computeIfAbsent(
           curveGroup, k -> new LinkedHashMap<>()).put(Pair.of(legalEntiryGroup, currency), curveName);
     } else {
-      throw new IllegalArgumentException(Messages.format("Unsupported curve type: {}", curveTypeStr));
+      throw new ParseFailureException("Unsupported curve type '{value}'", curveTypeStr);
     }
   }
 
@@ -373,9 +379,9 @@ public class LegalEntityRatesCurvesCsvLoader {
 
     Curve curve = curves.get(name);
     if (curve == null) {
-      throw new IllegalArgumentException(
-          curveType + " curve values for " + name.toString() + " in group " + groupName.getName() +
-              " are missing on " + date.toString());
+      throw new ParseFailureException(
+          "{curveType} curve values for '{curveName}' in group '{curveGroupName}' are missing on '{date}'",
+          curveType, name, groupName, date);
     }
     return curve;
   }
