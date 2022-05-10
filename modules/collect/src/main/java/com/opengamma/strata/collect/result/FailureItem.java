@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Function;
@@ -228,26 +229,42 @@ public final class FailureItem
       Object... messageArgs) {
 
     // strip trailing 'exceptionMessage'
-    if (messageTemplate.endsWith(": {exceptionMessage}")) {
-      String adjustedTemplate = messageTemplate.substring(0, messageTemplate.length() - 20);
+    if (messageTemplate.endsWith("{exceptionMessage}")) {
+      String adjustedTemplate = messageTemplate.substring(0, messageTemplate.length() - 18).trim();
+      adjustedTemplate = adjustedTemplate.endsWith(":") ? adjustedTemplate.substring(0, adjustedTemplate.length() - 1) : adjustedTemplate;
       Object[] adjustedArgs = messageArgs.length >= 1 ? Arrays.copyOfRange(messageArgs, 0, messageArgs.length - 1) : messageArgs;
       return ofWrappedFailureItem(underlying, reason, adjustedTemplate, adjustedArgs);
     }
-    
+
+    // format and combine message
     Pair<String, Map<String, String>> msgPair = Messages.formatWithAttributes(messageTemplate, messageArgs);
     String baseMsg = msgPair.getFirst() + ": ";
     Map<String, String> baseAttrs = msgPair.getSecond();
     String combinedMsg = baseMsg + underlying.message;
+
+    // combine attributes
+    String underlyingLocation = underlying.attributes.getOrDefault(FailureAttributeKeys.TEMPLATE_LOCATION, "");
+    String baseLocation = baseAttrs.getOrDefault(FailureAttributeKeys.TEMPLATE_LOCATION, "");
     Map<String, String> combinedAttrs = new LinkedHashMap<>(baseAttrs);
-    combinedAttrs.putAll(underlying.attributes);
+    combinedAttrs.remove(FailureAttributeKeys.TEMPLATE_LOCATION);
+    for (Entry<String, String> entry : underlying.attributes.entrySet()) {
+      String key = entry.getKey();
+      if (!FailureAttributeKeys.TEMPLATE_LOCATION.equals(key)) {
+        String adjKey = key;
+        int count = 1;
+        while (combinedAttrs.containsKey(adjKey)) {
+          adjKey = key + (count++);
+        }
+        if (!adjKey.equals(key)) {
+          underlyingLocation = underlyingLocation.replace(key, adjKey);
+        }
+        combinedAttrs.put(adjKey, entry.getValue());
+      }
+    }
 
     // adjust location
-    String underlyingLocation = underlying.attributes.get(FailureAttributeKeys.TEMPLATE_LOCATION);
-    String baseLocation = baseAttrs.get(FailureAttributeKeys.TEMPLATE_LOCATION);
     String mergedLocation = Messages.mergeTemplateLocations(baseLocation, underlyingLocation, baseMsg.length());
-    if (mergedLocation.isEmpty()) {
-      combinedAttrs.remove(FailureAttributeKeys.TEMPLATE_LOCATION);
-    } else {
+    if (!mergedLocation.isEmpty()) {
       combinedAttrs.put(FailureAttributeKeys.TEMPLATE_LOCATION, mergedLocation);
     }
     return new FailureItem(underlying.reason, combinedMsg, combinedAttrs, underlying.stackTrace, underlying.causeType);
