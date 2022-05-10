@@ -141,6 +141,9 @@ public final class ExchangeIds {
   /** Norexeco. */
   public static final ExchangeId NEXO = ExchangeId.of("NEXO");
 
+  /** Nodal Exchange. */
+  public static final ExchangeId NODX = ExchangeId.of("NODX");
+
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
