@@ -19,6 +19,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
+import com.opengamma.strata.collect.Decimal;
+
 /**
  * Standard implementation of {@code Rounding} that makes no changes.
  * <p>
@@ -42,6 +44,11 @@ final class NoRounding
 
   @Override
   public BigDecimal round(BigDecimal value) {
+    return value;
+  }
+
+  @Override
+  public Decimal round(Decimal value) {
     return value;
   }
 

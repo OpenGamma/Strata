@@ -69,6 +69,19 @@ public final class Decimal implements Serializable {
 
   //-------------------------------------------------------------------------
   /**
+   * Obtains an instance from a {@code long}.
+   * 
+   * @param value  the value
+   * @return the equivalent decimal
+   */
+  public static Decimal of(long value) {
+    if (value > MAX_UNSCALED || value < -MAX_UNSCALED) {
+      throw new IllegalArgumentException("Decimal value must not exceed 18 digits of precision at scale 0: " + value);
+    }
+    return new Decimal(value, 0);
+  }
+
+  /**
    * Obtains an instance from a {@code double}.
    * <p>
    * This operates as though the {@code double} is converted to a {@code String} and then parsed using {@link #of(String)}.
@@ -80,6 +93,10 @@ public final class Decimal implements Serializable {
   public static Decimal of(double value) {
     if (!Double.isFinite(value)) {
       throw new IllegalArgumentException("Decimal value must be finite: " + value);
+    }
+    long longValue = (long) value;
+    if (value == longValue) {
+      return of(longValue);
     }
     return of(Double.toString(value));
   }
@@ -215,19 +232,6 @@ public final class Decimal implements Serializable {
   }
 
   /**
-   * Obtains an instance from a {@code long}.
-   * 
-   * @param value  the value
-   * @return the equivalent decimal
-   */
-  public static Decimal of(long value) {
-    if (value > MAX_UNSCALED || value < -MAX_UNSCALED) {
-      throw new IllegalArgumentException("Decimal value must not exceed 18 digits of precision at scale 0: " + value);
-    }
-    return new Decimal(value, 0);
-  }
-
-  /**
    * Obtains an instance from an unscaled value and a scale.
    * <p>
    * The scale is adjusted to be in the range 0-18, with any smaller fractional part dropped by truncation.
@@ -339,7 +343,7 @@ public final class Decimal implements Serializable {
     if (other.unscaled == 0) {
       return this;
     }
-    return plus0(this.unscaled, this.scale, other.unscaled, other.scale, other);
+    return plus0(this.unscaled, this.scale, other.unscaled, other.scale);
   }
 
   /**
@@ -356,29 +360,54 @@ public final class Decimal implements Serializable {
     if (other == 0) {
       return this;
     }
+    if (other < -MAX_UNSCALED || other > MAX_UNSCALED) {
+      try {
+        return of(Math.addExact(longValue(), other));
+      } catch (ArithmeticException ex) {
+        throw new IllegalArgumentException("Decimal value must not exceed 18 digits of precision at scale 0: " + unscaled + " * " + other);
+      }
+    }
+    return plus0(unscaled, scale, other, 0);
+  }
+
+  /**
+   * Returns a decimal value that is equal to this value plus the specified value.
+   * <p>
+   * The {@code double} is converted to a {@code Decimal} before the calculation.
+   * The result will have a scale in the range 0-18.
+   * The result may be truncated (rounded down) if necessary.
+   * 
+   * @param other  the other decimal
+   * @return the result of the addition
+   * @throws IllegalArgumentException if the result is too large
+   */
+  public Decimal plus(double other) {
+    if (other == 0) {
+      return this;
+    }
     return plus(Decimal.of(other));
   }
 
   // sum
-  private Decimal plus0(long unscaled1, int scale1, long unscaled2, int scale2, Decimal other) {
+  private Decimal plus0(long unscaled1, int scale1, long unscaled2, int scale2) {
     if (scale1 == scale2) {
       long sum = unscaled1 + unscaled2;  // safe, as MAX_UNSCALED + MAX_UNSCALED fits in a long
       return ofScaled(sum, scale1);
     } else if (scale1 > scale2) {
-      return plus0Sorted(unscaled1, scale1, unscaled2, scale2, other);
+      return plus0Sorted(unscaled1, scale1, unscaled2, scale2);
     } else {
-      return plus0Sorted(unscaled2, scale2, unscaled1, scale1, other);
+      return plus0Sorted(unscaled2, scale2, unscaled1, scale1);
     }
   }
 
   // sum where scale1 > scale2
-  private Decimal plus0Sorted(long unscaled1, int scale1, long unscaled2, int scale2, Decimal other) {
+  private Decimal plus0Sorted(long unscaled1, int scale1, long unscaled2, int scale2) {
     int scaleDiff = scale1 - scale2;
     if (scaleDiff < MAX_SCALE && Math.abs(unscaled2) < POWERS[MAX_SCALE - scaleDiff - 1]) {
       long rescaled2 = unscaled2 * POWERS[scale1 - scale2];
       return ofScaled(unscaled1 + rescaled2, scale1);  // simple add is safe by analysis above
     }
-    return of(this.toBigDecimal().add(other.toBigDecimal()));
+    return of(BigDecimal.valueOf(unscaled1, scale1).add(BigDecimal.valueOf(unscaled2, scale2)));
   }
 
   //-------------------------------------------------------------------------
@@ -410,6 +439,31 @@ public final class Decimal implements Serializable {
    * @throws IllegalArgumentException if the result is too large
    */
   public Decimal minus(long other) {
+    if (other == 0) {
+      return this;
+    }
+    if (other < -MAX_UNSCALED || other > MAX_UNSCALED) {
+      try {
+        return of(Math.subtractExact(longValue(), other));
+      } catch (ArithmeticException ex) {
+        throw new IllegalArgumentException("Decimal value must not exceed 18 digits of precision at scale 0: " + unscaled + " * " + other);
+      }
+    }
+    return plus0(unscaled, scale, -other, 0);
+  }
+
+  /**
+   * Returns a decimal value that is equal to this value minus the specified value.
+   * <p>
+   * The {@code double} is converted to a {@code Decimal} before the calculation.
+   * The result will have a scale in the range 0-18.
+   * The result may be truncated (rounded down) if necessary.
+   * 
+   * @param other  the other value
+   * @return the result of the subtraction
+   * @throws IllegalArgumentException if the result is too large
+   */
+  public Decimal minus(double other) {
     if (other == 0) {
       return this;
     }
@@ -446,15 +500,28 @@ public final class Decimal implements Serializable {
     if (other == 0) {
       return ZERO;
     }
-    int pos = Arrays.binarySearch(POWERS, other);
-    if (pos > 0) {
-      return movePoint(pos);
-    }
     try {
       return ofScaled(Math.multiplyExact(unscaled, other), scale);
     } catch (ArithmeticException ex) {
       return of(toBigDecimal().multiply(BigDecimal.valueOf(other)));
     }
+  }
+
+  /**
+   * Returns a decimal value that is equal to this value multiplied by the specified value.
+   * <p>
+   * The {@code double} is converted to a {@code Decimal} before the calculation.
+   * The result will have a scale in the range 0-18.
+   * 
+   * @param other  the other value
+   * @return the result of the multiplication
+   * @throws IllegalArgumentException if the result is too large
+   */
+  public Decimal multipliedBy(double other) {
+    if (other == 0) {
+      return ZERO;
+    }
+    return multipliedBy(Decimal.of(other));
   }
 
   /**
@@ -534,6 +601,21 @@ public final class Decimal implements Serializable {
     return ofRounded(toBigDecimal().divide(BigDecimal.valueOf(other), MATH_CONTEXT));
   }
 
+  /**
+   * Returns a decimal value that is equal to this value divided by the specified value.
+   * <p>
+   * The {@code double} is converted to a {@code Decimal} before the calculation.
+   * The result will have a scale in the range 0-18.
+   * The result may be truncated (rounded down) if necessary.
+   * 
+   * @param other  the other value
+   * @return the result of the multiplication
+   * @throws IllegalArgumentException if the result is too large
+   */
+  public Decimal dividedBy(double other) {
+    return dividedBy(Decimal.of(other));
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Returns a decimal value rounded to the specified scale.
@@ -582,6 +664,15 @@ public final class Decimal implements Serializable {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Checks if the decimal is zero.
+   * 
+   * @return true if zero
+   */
+  public boolean isZero() {
+    return unscaled == 0;
+  }
+
   /**
    * Returns a decimal value that is positive.
    * 
@@ -655,6 +746,75 @@ public final class Decimal implements Serializable {
     return BigDecimal.valueOf(unscaled, scale);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Formats the decimal to at least the specified number of decimal places.
+   * <p>
+   * With a minimum decimal places of 2,
+   * the decimal '12.1' will be formatted as '12.10', and
+   * the decimal '12.123' will be formatted as '12.123'
+   * <p>
+   * Calling this method with '0' as the minimum decimal places is equivalent to using {@link #toString()}..
+   * 
+   * @param minDecimalPlaces  the minimum number of decimal places, from 0 to 18 inclusive
+   * @return the formatted string
+   */
+  public String formatAtLeast(int minDecimalPlaces) {
+    if (minDecimalPlaces < 0 || minDecimalPlaces > 18) {
+      throw new IllegalArgumentException("Format requires decimal places between 0 and 18 inclusive");
+    }
+    return format0(Math.max(minDecimalPlaces, scale));
+  }
+
+  /**
+   * Formats the decimal to exactly the specified number of decimal places, specifying the rounding mode.
+   * <p>
+   * With 2 decimal places and rounding mode HALF_UP,
+   * the decimal '12.1' will be formatted as '12.10', and
+   * the decimal '12.125' will be formatted as '12.13'
+   * <p>
+   * Use {@link RoundingMode#DOWN} to truncate at the specified number of decimal places.
+   * 
+   * @param decimalPlaces  the number of decimal places, from 0 to 18 inclusive
+   * @param roundingMode  the rounding mode to use
+   * @return the formatted string
+   */
+  public String format(int decimalPlaces, RoundingMode roundingMode) {
+    if (decimalPlaces < 0 || decimalPlaces > 18) {
+      throw new IllegalArgumentException("Format requires decimal places between 0 and 18 inclusive");
+    }
+    return roundToScale(decimalPlaces, roundingMode).format0(decimalPlaces);
+  }
+
+  // formats the string
+  private String format0(int decimalPlaces) {
+    // split 78345 into whole and fraction: 78 and 345
+    // prefix the fraction 345, so there is an additional digit, thus 1345, dropping the sign
+    // this ensures that leading zeroes in the fraction are retained
+    long abs = Math.abs(unscaled);
+    long power = POWERS[scale];
+    long whole = abs / power;
+    long prefixedFraction = (abs % power) + power;
+    long paddedFraction = prefixedFraction * POWERS[decimalPlaces - scale];
+    StringBuilder buf = new StringBuilder(40);
+    if (unscaled < 0) {
+      buf.append('-');
+    }
+    buf.append(whole);
+    if (decimalPlaces > 0) {
+      buf.append('.');
+      // use knowledge of fixed length of long to output each character directly
+      int pos = buf.length();
+      buf.setLength(pos + decimalPlaces);
+      for (int i = decimalPlaces + pos - 1; i >= pos; i--) {
+        int value = (int) (paddedFraction % 10);
+        buf.setCharAt(i, (char) (value + 48));
+        paddedFraction = paddedFraction / 10;
+      }
+    }
+    return buf.toString();
+  }
+
   //-----------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
@@ -684,27 +844,7 @@ public final class Decimal implements Serializable {
   @Override
   @ToString
   public String toString() {
-    long abs = Math.abs(unscaled);
-    StringBuilder buf = new StringBuilder(20);
-    buf.append(abs);
-    if (scale > 0) {
-      int insertPos = buf.length() - scale;
-      if (insertPos <= 0) {
-        String digits = buf.toString();
-        buf.setLength(0);
-        buf.append('0').append('.');
-        for (int i = 0; i < -insertPos; i++) {
-          buf.append('0');
-        }
-        buf.append(digits);
-      } else {
-        buf.insert(insertPos, '.');
-      }
-    }
-    if (unscaled < 0) {
-      buf.insert(0, '-');
-    }
-    return buf.toString();
+    return format0(scale);
   }
 
 }

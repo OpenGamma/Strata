@@ -46,6 +46,7 @@ import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Decimal;
 import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.CapFloor;
@@ -218,7 +219,7 @@ public final class LoaderUtils {
    */
   public static double parseDouble(String str) {
     try {
-      return parseBigDecimal(str).doubleValue();
+      return parseDecimal(str).doubleValue();
     } catch (ParseFailureException ex) {
       throw new ParseFailureException("Unable to parse double from '{value}'", str);
     }
@@ -236,7 +237,7 @@ public final class LoaderUtils {
    */
   public static double parseDoublePercent(String str) {
     try {
-      return parseBigDecimalPercent(str).doubleValue();
+      return parseDecimalPercent(str).doubleValue();
     } catch (ParseFailureException ex) {
       throw new ParseFailureException("Unable to parse percentage from '{value}'", str);
     }
@@ -297,6 +298,66 @@ public final class LoaderUtils {
   public static BigDecimal parseBigDecimalBasisPoint(String str) {
     try {
       return parseBigDecimal(str).movePointLeft(4);
+    } catch (ParseFailureException ex) {
+      throw new ParseFailureException("Unable to parse decimal basis point from '{value}'", str);
+    }
+  }
+
+  /**
+   * Parses a decimal from the input string.
+   * <p>
+   * If input value is bracketed, it will be parsed as a negative value.
+   * Comma separated values will be parsed assuming American decimal format. Values in European decimal formats
+   * (e.g. "12456789.444" formatted as "12.456.789,444") will not be parsed.
+   * <p>
+   * For e.g. "12,300.12" and "12300.12" will be parsed as big decimal "12300.12" and similarly "(12,300.12)",
+   * "-12,300.12" and "-12300.12" will be parsed as big decimal "-12300.12".
+   * <p>
+   * Note: Comma separated values such as "1,234,5,6.12" will be parsed as big decimal "123456.12".
+   *
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws ParseFailureException if the string cannot be parsed
+   */
+  public static Decimal parseDecimal(String str) {
+    try {
+      return Decimal.of(normalize(str));
+    } catch (IllegalArgumentException ex) {
+      throw new ParseFailureException("Unable to parse decimal from '{value}'", str);
+    }
+  }
+
+  /**
+   * Parses a decimal from the input string, converting it from a percentage to a decimal value.
+   * <p>
+   * If input value is bracketed, it will be parsed as a negative decimal percent.
+   * For e.g. '(12.3456789)' will be parsed as a big decimal -0.123456789.
+   *
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws ParseFailureException if the string cannot be parsed
+   */
+  public static Decimal parseDecimalPercent(String str) {
+    try {
+      return parseDecimal(str).movePoint(-2);
+    } catch (ParseFailureException ex) {
+      throw new ParseFailureException("Unable to parse decimal percentage from '{value}'", str);
+    }
+  }
+
+  /**
+   * Parses a decimal from the input string, converting it from a basis point to a decimal value.
+   * <p>
+   * If input value is bracketed, it will be parsed as a negative decimal percent.
+   * For e.g. '(12.3456789)' will be parsed as a big decimal -0.00123456789.
+   *
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws ParseFailureException if the string cannot be parsed
+   */
+  public static Decimal parseDecimalBasisPoint(String str) {
+    try {
+      return parseDecimal(str).movePoint(-4);
     } catch (ParseFailureException ex) {
       throw new ParseFailureException("Unable to parse decimal basis point from '{value}'", str);
     }

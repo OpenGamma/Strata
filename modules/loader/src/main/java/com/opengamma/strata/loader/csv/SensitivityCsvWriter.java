@@ -6,11 +6,11 @@
 package com.opengamma.strata.loader.csv;
 
 import java.io.UncheckedIOException;
-import java.math.BigDecimal;
 import java.util.List;
 
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Decimal;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -130,7 +130,7 @@ public final class SensitivityCsvWriter {
         csv.writeCell(pmd instanceof DatedParameterMetadata ? ((DatedParameterMetadata) pmd).getDate().toString() : "");
       }
       csv.writeCell(paramSens.getCurrency().getCode());
-      csv.writeCell(BigDecimal.valueOf(value).toPlainString());
+      csv.writeCell(Decimal.of(value).formatAtLeast(1));
       csv.writeLine(additionalCells);
     }
   }
