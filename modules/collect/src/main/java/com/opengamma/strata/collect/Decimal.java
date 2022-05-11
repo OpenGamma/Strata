@@ -210,7 +210,7 @@ public final class Decimal implements Serializable {
     if (adjusted.precision() > MAX_PRECISION) {
       throw new IllegalArgumentException("Decimal value must not exceed 18 digits of precision at scale 0: " + value);
     }
-    // lnogValueExact() used for extra safety, it should never actually throw
+    // longValueExact() used for extra safety, it should never actually throw
     return ofScaled(adjusted.unscaledValue().longValueExact(), adjusted.scale());
   }
 
