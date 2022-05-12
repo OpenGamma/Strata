@@ -16,7 +16,6 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_CNV_
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DIRECTION_FIELD;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.YearMonth;
@@ -38,6 +37,7 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Decimal;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.collect.tuple.DoublesPair;
@@ -713,8 +713,7 @@ public final class CsvLoaderUtils {
    * @return the formatted percentage value
    */
   public static String formattedPercentage(double value) {
-    String str = BigDecimal.valueOf(value).movePointRight(2).toPlainString();
-    return str.endsWith(".0") ? str.substring(0, str.length() - 2) : str;
+    return Decimal.of(value).movePoint(2).toString();
   }
 
   /**
@@ -726,8 +725,7 @@ public final class CsvLoaderUtils {
    * @return the formatted value
    */
   public static String formattedDouble(double value) {
-    String str = BigDecimal.valueOf(value).toPlainString();
-    return str.endsWith(".0") ? str.substring(0, str.length() - 2) : str;
+    return Decimal.of(value).toString();
   }
 
 }

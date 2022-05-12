@@ -45,6 +45,7 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.collect.Decimal;
 import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
@@ -228,6 +229,69 @@ public class LoaderUtilsTest {
         .withMessage("Unable to parse decimal basis point from '(1.2(3)'");
     assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseBigDecimalBasisPoint("Rubbish"))
+        .withMessage("Unable to parse decimal basis point from 'Rubbish'");
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_parseDecimal() {
+    assertThat(LoaderUtils.parseDecimal("1.2")).isEqualTo(Decimal.of(1.2d));
+    assertThat(LoaderUtils.parseDecimal("(1.2)")).isEqualTo(Decimal.of(-1.2d));
+    assertThat(LoaderUtils.parseDecimal("1,234,567.2")).isEqualTo(Decimal.of(1_234_567.2d));
+    assertThat(LoaderUtils.parseDecimal("(1,234,567.2)")).isEqualTo(Decimal.of(-1_234_567.2d));
+    assertThat(LoaderUtils.parseDecimal("1,234,5,6,7.2")).isEqualTo(Decimal.of(1_234_567.2d));
+    assertThat(LoaderUtils.parseDecimal("(1,234,5,6,7.2)")).isEqualTo(Decimal.of(-1_234_567.2d));
+    assertThat(LoaderUtils.parseDecimal("1,234.")).isEqualTo(Decimal.of(1_234d));
+    assertThat(LoaderUtils.parseDecimal("(1,234.)")).isEqualTo(Decimal.of(-1_234d));
+    assertThat(LoaderUtils.parseDecimal(".123")).isEqualTo(Decimal.of(0.123d));
+    assertThat(LoaderUtils.parseDecimal("(.123)")).isEqualTo(Decimal.of(-0.123d));
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimal("12,,000.2"))
+        .withMessage("Unable to parse decimal from '12,,000.2'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimal("12,000.2,"))
+        .withMessage("Unable to parse decimal from '12,000.2,'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimal("12.345.678,12"))
+        .withMessage("Unable to parse decimal from '12.345.678,12'"); // European formats are not supported
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimal("()"))
+        .withMessage("Unable to parse decimal from '()'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimal("(1.2(3)"))
+        .withMessage("Unable to parse decimal from '(1.2(3)'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimal("Rubbish"))
+        .withMessage("Unable to parse decimal from 'Rubbish'");
+  }
+
+  @Test
+  public void test_parseDecimalPercent() {
+    assertThat(LoaderUtils.parseDecimalPercent("1.2")).isEqualTo(Decimal.of(0.012d));
+    assertThat(LoaderUtils.parseDecimalPercent("(1.2)")).isEqualTo(Decimal.of(-0.012d));
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimalPercent("()"))
+        .withMessage("Unable to parse decimal percentage from '()'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimalPercent("(1.2(3)"))
+        .withMessage("Unable to parse decimal percentage from '(1.2(3)'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimalPercent("Rubbish"))
+        .withMessage("Unable to parse decimal percentage from 'Rubbish'");
+  }
+
+  @Test
+  public void test_parseDecimalBasisPoint() {
+    assertThat(LoaderUtils.parseDecimalBasisPoint("1.2")).isEqualTo(Decimal.of(0.00012d));
+    assertThat(LoaderUtils.parseDecimalBasisPoint("(1.2)")).isEqualTo(Decimal.of(-0.00012d));
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimalBasisPoint("()"))
+        .withMessage("Unable to parse decimal basis point from '()'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimalBasisPoint("(1.2(3)"))
+        .withMessage("Unable to parse decimal basis point from '(1.2(3)'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimalBasisPoint("Rubbish"))
         .withMessage("Unable to parse decimal basis point from 'Rubbish'");
   }
 

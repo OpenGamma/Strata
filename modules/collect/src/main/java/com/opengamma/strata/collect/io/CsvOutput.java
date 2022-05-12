@@ -10,7 +10,6 @@ import static com.opengamma.strata.collect.Guavate.zipWithIndex;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +23,7 @@ import org.joda.beans.JodaBeanUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Decimal;
 import com.opengamma.strata.collect.tuple.ObjIntPair;
 
 /**
@@ -559,8 +559,7 @@ public final class CsvOutput {
      * @throws UncheckedIOException if an IO exception occurs
      */
     public CsvRowOutputWithHeaders writeCell(String header, double value) {
-      String str = BigDecimal.valueOf(value).toPlainString();
-      return writeCell(header, str.endsWith(".0") ? str.substring(0, str.length() - 2) : str);
+      return writeCell(header, Decimal.of(value).toString());
     }
 
     /**

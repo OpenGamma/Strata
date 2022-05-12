@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -42,6 +41,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Decimal;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CharSources;
 import com.opengamma.strata.collect.io.CsvFile;
@@ -479,7 +479,7 @@ public final class RatesCurvesCsvLoader {
       line.add(valuationDateStr);
       line.add(curve.getName().getName().toString());
       line.add(metadata.getDate().toString());
-      line.add(BigDecimal.valueOf(interpolatedCurve.getYValues().get(i)).toPlainString());
+      line.add(Decimal.of(interpolatedCurve.getYValues().get(i)).formatAtLeast(1));
       line.add(metadata.getLabel());
       csv.writeLine(line);
     }

@@ -11,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -312,6 +313,58 @@ public class DecimalTest {
     assertThatIllegalArgumentException().isThrownBy(() -> Decimal.MAX_VALUE.plus(Decimal.MAX_VALUE));
   }
 
+  @Test
+  public void testPlusLong() {
+    assertThat(Decimal.of(12d).plus(13L)).isEqualTo(Decimal.of(25L));
+    assertThat(Decimal.of(0d).plus(0L)).isEqualTo(Decimal.of(0L));
+    assertThat(Decimal.of(0d).plus(999_999_999_999_999_999L)).isEqualTo(Decimal.of(999_999_999_999_999_999L));
+    assertThat(Decimal.of(-1d).plus(1_000_000_000_000_000_000L)).isEqualTo(Decimal.of(999_999_999_999_999_999L));
+    assertThat(Decimal.of(-1.5d).plus(1_000_000_000_000_000_000L)).isEqualTo(Decimal.of(999_999_999_999_999_999L));
+    assertThat(Decimal.of(0d).plus(-999_999_999_999_999_999L)).isEqualTo(Decimal.of(-999_999_999_999_999_999L));
+    assertThat(Decimal.of(1d).plus(-1_000_000_000_000_000_000L)).isEqualTo(Decimal.of(-999_999_999_999_999_999L));
+    assertThat(Decimal.of(1.5d).plus(-1_000_000_000_000_000_000L)).isEqualTo(Decimal.of(-999_999_999_999_999_999L));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.of(0d).plus(1_000_000_000_000_000_000L));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.of(0d).plus(Long.MAX_VALUE));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.of(1d).plus(Long.MAX_VALUE));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.of(0d).plus(-1_000_000_000_000_000_000L));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.of(0d).plus(Long.MIN_VALUE));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.of(-1d).plus(Long.MIN_VALUE));
+  }
+
+  @Test
+  public void testPlusDouble() {
+    assertThat(Decimal.of(0d).plus(0d)).isEqualTo(Decimal.of(0d));
+    assertThat(Decimal.of(0d).plus(123.45d)).isEqualTo(Decimal.of(123.45d));
+    assertThat(Decimal.of(123.45d).plus(123.45d)).isEqualTo(Decimal.of(246.9d));
+    assertThat(Decimal.of(-123.45d).plus(123.45d)).isEqualTo(Decimal.of(0d));
+  }
+
+  @Test
+  public void testMinusLong() {
+    assertThat(Decimal.of(12d).minus(13L)).isEqualTo(Decimal.of(-1L));
+    assertThat(Decimal.of(0d).minus(0L)).isEqualTo(Decimal.of(0L));
+    assertThat(Decimal.of(0d).minus(999_999_999_999_999_999L)).isEqualTo(Decimal.of(-999_999_999_999_999_999L));
+    assertThat(Decimal.of(1d).minus(1_000_000_000_000_000_000L)).isEqualTo(Decimal.of(-999_999_999_999_999_999L));
+    assertThat(Decimal.of(1.5d).minus(1_000_000_000_000_000_000L)).isEqualTo(Decimal.of(-999_999_999_999_999_999L));
+    assertThat(Decimal.of(0d).minus(-999_999_999_999_999_999L)).isEqualTo(Decimal.of(999_999_999_999_999_999L));
+    assertThat(Decimal.of(-1d).minus(-1_000_000_000_000_000_000L)).isEqualTo(Decimal.of(999_999_999_999_999_999L));
+    assertThat(Decimal.of(-1.5d).minus(-1_000_000_000_000_000_000L)).isEqualTo(Decimal.of(999_999_999_999_999_999L));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.of(0d).minus(1_000_000_000_000_000_000L));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.of(0d).minus(Long.MAX_VALUE));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.of(-1d).minus(Long.MAX_VALUE));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.of(0d).minus(-1_000_000_000_000_000_000L));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.of(0d).minus(Long.MIN_VALUE));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.of(1d).minus(Long.MIN_VALUE));
+  }
+
+  @Test
+  public void testMinusDouble() {
+    assertThat(Decimal.of(0d).minus(0d)).isEqualTo(Decimal.of(0d));
+    assertThat(Decimal.of(0d).minus(123.45d)).isEqualTo(Decimal.of(-123.45d));
+    assertThat(Decimal.of(123.45d).minus(123.45d)).isEqualTo(Decimal.of(0d));
+    assertThat(Decimal.of(-123.45d).minus(123.45d)).isEqualTo(Decimal.of(-246.9d));
+  }
+
   //-------------------------------------------------------------------------
   public static Object[][] dataMultipliedBy() {
     return new Object[][] {
@@ -351,6 +404,14 @@ public class DecimalTest {
   public void testMultipliedByOverflow() {
     assertThatIllegalArgumentException().isThrownBy(() -> Decimal.MAX_VALUE.multipliedBy(Decimal.of(3)));
     assertThatIllegalArgumentException().isThrownBy(() -> Decimal.MAX_VALUE.multipliedBy(10));
+  }
+
+  @Test
+  public void testMultipliedByDouble() {
+    assertThat(Decimal.of(0d).multipliedBy(0d)).isEqualTo(Decimal.of(0d));
+    assertThat(Decimal.of(0d).multipliedBy(123.45d)).isEqualTo(Decimal.of(0d));
+    assertThat(Decimal.of(123.45d).multipliedBy(2d)).isEqualTo(Decimal.of(246.9d));
+    assertThat(Decimal.of(-123.45d).multipliedBy(2d)).isEqualTo(Decimal.of(-246.9d));
   }
 
   //-------------------------------------------------------------------------
@@ -411,8 +472,17 @@ public class DecimalTest {
 
   @Test
   public void testDividedByOverflow() {
+    assertThatExceptionOfType(ArithmeticException.class).isThrownBy(() -> Decimal.ZERO.dividedBy(Decimal.ZERO));
     assertThatExceptionOfType(ArithmeticException.class).isThrownBy(() -> Decimal.of(2).dividedBy(Decimal.ZERO));
     assertThatIllegalArgumentException().isThrownBy(() -> Decimal.MAX_VALUE.dividedBy(Decimal.ofScaled(1, 1)));
+  }
+
+  @Test
+  public void testDividedByDouble() {
+    assertThatExceptionOfType(ArithmeticException.class).isThrownBy(() -> Decimal.ZERO.dividedBy(0d));
+    assertThat(Decimal.of(0d).dividedBy(123.45d)).isEqualTo(Decimal.of(0d));
+    assertThat(Decimal.of(123.45d).dividedBy(2d)).isEqualTo(Decimal.of(61.725d));
+    assertThat(Decimal.of(-123.45d).dividedBy(2d)).isEqualTo(Decimal.of(-61.725d));
   }
 
   //-------------------------------------------------------------------------
@@ -442,6 +512,13 @@ public class DecimalTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void testIsZero() {
+    assertThat(Decimal.ofScaled(123, 2).isZero()).isFalse();
+    assertThat(Decimal.ZERO.isZero()).isTrue();
+    assertThat(Decimal.ofScaled(-123, 2).isZero()).isFalse();
+  }
+
+  @Test
   public void testAbs() {
     assertThat(Decimal.ofScaled(123, 2).abs()).isEqualTo(Decimal.ofScaled(123, 2));
     assertThat(Decimal.ofScaled(-123, 2).abs()).isEqualTo(Decimal.ofScaled(123, 2));
@@ -465,6 +542,56 @@ public class DecimalTest {
   }
 
   //-------------------------------------------------------------------------
+  public static Object[][] dataFormat() {
+    return new Object[][] {
+        {"0", 0, "0", "0"},
+        {"0", 1, "0.0", "0.0"},
+        {"0", 2, "0.00", "0.00"},
+        {"0", 18, "0.000000000000000000", "0.000000000000000000"},
+        {"12.345", 0, "12", "12.345"},
+        {"12.345", 1, "12.3", "12.345"},
+        {"12.345", 2, "12.35", "12.345"},
+        {"12.345", 3, "12.345", "12.345"},
+        {"12.345", 4, "12.3450", "12.3450"},
+        {"12.345", 18, "12.345000000000000000", "12.345000000000000000"},
+        {"-12.345", 0, "-12", "-12.345"},
+        {"-12.345", 1, "-12.3", "-12.345"},
+        {"-12.345", 2, "-12.35", "-12.345"},
+        {"-12.345", 3, "-12.345", "-12.345"},
+        {"-12.345", 4, "-12.3450", "-12.3450"},
+        {"-12.345", 18, "-12.345000000000000000", "-12.345000000000000000"},
+        {"0.45", 0, "0", "0.45"},
+        {"0.45", 1, "0.5", "0.45"},
+        {"0.45", 2, "0.45", "0.45"},
+        {"0.45", 3, "0.450", "0.450"},
+        {"-0.45", 0, "0", "-0.45"},
+        {"-0.45", 1, "-0.5", "-0.45"},
+        {"-0.45", 2, "-0.45", "-0.45"},
+        {"-0.45", 3, "-0.450", "-0.450"},
+    };
+  }
+  
+  @ParameterizedTest
+  @MethodSource("dataFormat")
+  public void testFormatExact(String input, int dp, String expectedExact, String expectedAtleast) {
+    assertThat(Decimal.of(input).format(dp, RoundingMode.HALF_UP)).isEqualTo(expectedExact);
+  }
+
+  @ParameterizedTest
+  @MethodSource("dataFormat")
+  public void testFormatAtleast(String input, int dp, String expectedExact, String expectedAtleast) {
+    assertThat(Decimal.of(input).formatAtLeast(dp)).isEqualTo(expectedAtleast);
+  }
+
+  @Test
+  public void testFormatBad() {
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.ZERO.format(-1, RoundingMode.HALF_UP));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.ZERO.format(19, RoundingMode.HALF_UP));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.ZERO.formatAtLeast(-1));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.ZERO.formatAtLeast(19));
+  }
+
+  //-------------------------------------------------------------------------
   @Test
   @Disabled
   public void testPerformanceUnscaled() {
@@ -477,16 +604,16 @@ public class DecimalTest {
     }
     long nano1 = System.nanoTime();
     for (int i = 0; i < 50000000; i++) {
-      total += Decimal.ofScaled(i, 2).longValue();
+      total += BigDecimal.valueOf(i, 2).longValue();
     }
     long nano2 = System.nanoTime();
     for (int i = 0; i < 50000000; i++) {
-      total += BigDecimal.valueOf(i, 2).longValue();
+      total += Decimal.ofScaled(i, 2).longValue();
     }
     long nano3 = System.nanoTime();
     System.out.println(total);
-    System.out.println(((nano2 - nano1) / 1000000) + "ns");
-    System.out.println(((nano3 - nano2) / 1000000) + "ns");
+    System.out.println(((nano2 - nano1) / 1000000) + "ns (BigDecimal)");
+    System.out.println(((nano3 - nano2) / 1000000) + "ns (Decimal)");
   }
 
   @Test
@@ -502,16 +629,45 @@ public class DecimalTest {
     }
     long nano1 = System.nanoTime();
     for (int i = 0; i < 50000000; i++) {
-      total += Decimal.of(values[i % 10]).longValue();
+      total += new BigDecimal(values[i % 10]).longValue();
     }
     long nano2 = System.nanoTime();
     for (int i = 0; i < 50000000; i++) {
-      total += new BigDecimal(values[i % 10]).longValue();
+      total += Decimal.of(values[i % 10]).longValue();
     }
     long nano3 = System.nanoTime();
     System.out.println(total);
-    System.out.println(((nano2 - nano1) / 1000000) + "ns");
-    System.out.println(((nano3 - nano2) / 1000000) + "ns");
+    System.out.println(((nano2 - nano1) / 1000000) + "ns (BigDecimal)");
+    System.out.println(((nano3 - nano2) / 1000000) + "ns (Decimal)");
+  }
+
+  @Test
+  @Disabled
+  public void testPerformanceMultiply() {
+    long total = 0;
+    String[] values = new String[] {"1", "1.2", "1.23", "1.234", "1.2345", "-1", "-2.3", "-3.4", "-4.5", "0"};
+    Decimal[] decimals = Stream.of(values).map(str -> Decimal.of(str)).toArray(Decimal[]::new);
+    BigDecimal[] bigDecimals = Stream.of(values).map(str -> new BigDecimal(str)).toArray(BigDecimal[]::new);
+    long amount = 100;
+    BigDecimal amountBD = BigDecimal.valueOf(2);
+    for (int i = 0; i < 10000000; i++) {
+      total += bigDecimals[i % 10].multiply(amountBD).longValue();
+    }
+    for (int i = 0; i < 10000000; i++) {
+      total += decimals[i % 10].multipliedBy(amount).longValue();
+    }
+    long nano1 = System.nanoTime();
+    for (int i = 0; i < 50000000; i++) {
+      total += bigDecimals[i % 10].multiply(amountBD).longValue();
+    }
+    long nano2 = System.nanoTime();
+    for (int i = 0; i < 50000000; i++) {
+      total += decimals[i % 10].multipliedBy(amount).longValue();
+    }
+    long nano3 = System.nanoTime();
+    System.out.println(total);
+    System.out.println(((nano2 - nano1) / 1000000) + "ns (BigDecimal)");
+    System.out.println(((nano3 - nano2) / 1000000) + "ns (Decimal)");
   }
 
 }

@@ -18,6 +18,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.collect.Decimal;
 
 /**
  * Test {@link HalfUpRounding}.
@@ -122,14 +123,20 @@ public class HalfUpRoundingTest {
 
   @ParameterizedTest
   @MethodSource("data_round")
-  public void round_double_NONE(HalfUpRounding rounding, double input, double expected) {
+  public void round_double(HalfUpRounding rounding, double input, double expected) {
     assertThat(rounding.round(input)).isEqualTo(expected);
   }
 
   @ParameterizedTest
   @MethodSource("data_round")
-  public void round_BigDecimal_NONE(HalfUpRounding rounding, double input, double expected) {
+  public void round_BigDecimal(HalfUpRounding rounding, double input, double expected) {
     assertThat(rounding.round(BigDecimal.valueOf(input))).isEqualTo(BigDecimal.valueOf(expected));
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_round")
+  public void round_Decimal(HalfUpRounding rounding, double input, double expected) {
+    assertThat(rounding.round(Decimal.of(input))).isEqualTo(Decimal.of(expected));
   }
 
   //-------------------------------------------------------------------------
