@@ -326,8 +326,8 @@ public final class ValueWithFailures<T>
     private final ImmutableList.Builder<FailureItem> failures = ImmutableList.builder();
 
     private StreamCombiner(T value, BinaryOperator<T> combiner) {
-      this.value = value;
-      this.combiner = combiner;
+      this.value = ArgChecker.notNull(value, "value");
+      this.combiner = ArgChecker.notNull(combiner, "combiner");
     }
 
     private void add(ValueWithFailures<? extends T> item) {
