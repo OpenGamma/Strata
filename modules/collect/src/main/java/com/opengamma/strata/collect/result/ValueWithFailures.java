@@ -20,7 +20,6 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -178,7 +177,11 @@ public final class ValueWithFailures<T>
       T identityValue,
       BinaryOperator<T> operator) {
 
-    return Collectors.reducing(ValueWithFailures.of(identityValue), combiningValues(operator));
+    return Collector.of(
+        () -> new StreamCombiner<>(identityValue, operator),
+        StreamCombiner::add,
+        StreamCombiner::combine,
+        StreamCombiner::build);
   }
 
   /**
@@ -312,6 +315,34 @@ public final class ValueWithFailures<T>
     @SuppressWarnings("unchecked")
     private <C extends Collection<T>> ValueWithFailures<C> build() {
       return (ValueWithFailures<C>) ValueWithFailures.of(values.build(), failures.build());
+    }
+  }
+
+  // uses mutable failure list to save rebuilding it on every stream item
+  private static final class StreamCombiner<T> {
+
+    private T value;
+    private final BinaryOperator<T> combiner;
+    private final ImmutableList.Builder<FailureItem> failures = ImmutableList.builder();
+
+    private StreamCombiner(T value, BinaryOperator<T> combiner) {
+      this.value = value;
+      this.combiner = combiner;
+    }
+
+    private void add(ValueWithFailures<? extends T> item) {
+      value = combiner.apply(value, item.getValue());;
+      failures.addAll(item.getFailures());
+    }
+
+    private StreamCombiner<T> combine(StreamCombiner<T> other) {
+      value = combiner.apply(value, other.value);
+      failures.addAll(other.failures.build());
+      return this;
+    }
+
+    private ValueWithFailures<T> build() {
+      return ValueWithFailures.of(value, failures.build());
     }
   }
 
