@@ -46,7 +46,9 @@ import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.BasisPoints;
 import com.opengamma.strata.collect.Decimal;
+import com.opengamma.strata.collect.Percentage;
 import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.CapFloor;
@@ -182,9 +184,9 @@ public final class LoaderUtils {
    * <p>
    * If input value is bracketed, it will be parsed as a negative value.
    * Comma separated values will be parsed assuming American decimal format. Values in European decimal formats
-   * (e.g. "12456789" formatted as "12.456.789") will not be parsed.
+   * (thus "12456789" formatted as "12.456.789") will not be parsed.
    * <p>
-   * For e.g. "12,300" and "12300" will be parsed as integer "12300" and similarly "(12,300)",
+   * For example "12,300" and "12300" will be parsed as integer "12300" and similarly "(12,300)",
    * "-12,300" and "-12300" will be parsed as integer "-12300".
    * <p>
    * Note: Comma separated values such as "1,234,5,6" will be parsed as integer "123456".
@@ -206,9 +208,9 @@ public final class LoaderUtils {
    * <p>
    * If input value is bracketed, it will be parsed as a negative value.
    * Comma separated values will be parsed assuming American decimal format. Values in European decimal formats
-   * (e.g. "12456789.444" formatted as "12.456.789,444") will not be parsed.
+   * (thus "12456789.444" formatted as "12.456.789,444") will not be parsed.
    * <p>
-   * For e.g. "12,300.12" and "12300.12" will be parsed as "12300.12d" and similarly "(12,300.12)",
+   * For example "12,300.12" and "12300.12" will be parsed as "12300.12d" and similarly "(12,300.12)",
    * "-12,300.12" and "-12300.12" will be parsed as "-12300.12d".
    * <p>
    * Note: Comma separated values such as "1,234,5,6.12" will be parsed as "123456.12d".
@@ -229,7 +231,7 @@ public final class LoaderUtils {
    * Parses a double from the input string, converting it from a percentage to a decimal values.
    * <p>
    * If input value is bracketed, it will be parsed as a negative decimal percentage.
-   * For e.g. '(12.34)' will be parsed as -0.1234d.
+   * For example '(12.34)' will be parsed as -0.1234d.
    *
    * @param str  the string to parse
    * @return the parsed value
@@ -248,9 +250,9 @@ public final class LoaderUtils {
    * <p>
    * If input value is bracketed, it will be parsed as a negative value.
    * Comma separated values will be parsed assuming American decimal format. Values in European decimal formats
-   * (e.g. "12456789.444" formatted as "12.456.789,444") will not be parsed.
+   * (thus "12456789.444" formatted as "12.456.789,444") will not be parsed.
    * <p>
-   * For e.g. "12,300.12" and "12300.12" will be parsed as big decimal "12300.12" and similarly "(12,300.12)",
+   * For example "12,300.12" and "12300.12" will be parsed as big decimal "12300.12" and similarly "(12,300.12)",
    * "-12,300.12" and "-12300.12" will be parsed as big decimal "-12300.12".
    * <p>
    * Note: Comma separated values such as "1,234,5,6.12" will be parsed as big decimal "123456.12".
@@ -268,13 +270,13 @@ public final class LoaderUtils {
   }
 
   /**
-   * Parses a decimal from the input string, converting it from a percentage to a decimal value.
+   * Parses a decimal from the input string, converting it from a percentage to decimal form.
    * <p>
-   * If input value is bracketed, it will be parsed as a negative decimal percent.
-   * For e.g. '(12.3456789)' will be parsed as a big decimal -0.123456789.
+   * If input value is bracketed, it will be parsed as a negative value.
+   * For example '(12.3456789)' will be parsed as a big decimal -0.123456789.
    *
    * @param str  the string to parse
-   * @return the parsed value
+   * @return the parsed value in decimal form
    * @throws ParseFailureException if the string cannot be parsed
    */
   public static BigDecimal parseBigDecimalPercent(String str) {
@@ -286,20 +288,20 @@ public final class LoaderUtils {
   }
 
   /**
-   * Parses a decimal from the input string, converting it from a basis point to a decimal value.
+   * Parses a decimal from the input string, converting it from a basis points to decimal form.
    * <p>
-   * If input value is bracketed, it will be parsed as a negative decimal percent.
-   * For e.g. '(12.3456789)' will be parsed as a big decimal -0.00123456789.
+   * If input value is bracketed, it will be parsed as a negative value.
+   * For example '(12.3456789)' will be parsed as a big decimal -0.00123456789.
    *
    * @param str  the string to parse
-   * @return the parsed value
+   * @return the parsed value in decimal form
    * @throws ParseFailureException if the string cannot be parsed
    */
   public static BigDecimal parseBigDecimalBasisPoint(String str) {
     try {
       return parseBigDecimal(str).movePointLeft(4);
     } catch (ParseFailureException ex) {
-      throw new ParseFailureException("Unable to parse decimal basis point from '{value}'", str);
+      throw new ParseFailureException("Unable to parse decimal basis points from '{value}'", str);
     }
   }
 
@@ -308,9 +310,9 @@ public final class LoaderUtils {
    * <p>
    * If input value is bracketed, it will be parsed as a negative value.
    * Comma separated values will be parsed assuming American decimal format. Values in European decimal formats
-   * (e.g. "12456789.444" formatted as "12.456.789,444") will not be parsed.
+   * (thus "12456789.444" formatted as "12.456.789,444") will not be parsed.
    * <p>
-   * For e.g. "12,300.12" and "12300.12" will be parsed as big decimal "12300.12" and similarly "(12,300.12)",
+   * For example "12,300.12" and "12300.12" will be parsed as big decimal "12300.12" and similarly "(12,300.12)",
    * "-12,300.12" and "-12300.12" will be parsed as big decimal "-12300.12".
    * <p>
    * Note: Comma separated values such as "1,234,5,6.12" will be parsed as big decimal "123456.12".
@@ -328,13 +330,13 @@ public final class LoaderUtils {
   }
 
   /**
-   * Parses a decimal from the input string, converting it from a percentage to a decimal value.
+   * Parses a decimal from the input string, converting it from a percentage to decimal form.
    * <p>
-   * If input value is bracketed, it will be parsed as a negative decimal percent.
-   * For e.g. '(12.3456789)' will be parsed as a big decimal -0.123456789.
+   * If input value is bracketed, it will be parsed as a negative value.
+   * For example '(12.3456789)' will be parsed as a big decimal -0.123456789.
    *
    * @param str  the string to parse
-   * @return the parsed value
+   * @return the parsed value in decimal form
    * @throws ParseFailureException if the string cannot be parsed
    */
   public static Decimal parseDecimalPercent(String str) {
@@ -346,20 +348,56 @@ public final class LoaderUtils {
   }
 
   /**
-   * Parses a decimal from the input string, converting it from a basis point to a decimal value.
+   * Parses a decimal from the input string, converting it from a basis points to decimal form.
    * <p>
-   * If input value is bracketed, it will be parsed as a negative decimal percent.
-   * For e.g. '(12.3456789)' will be parsed as a big decimal -0.00123456789.
+   * If input value is bracketed, it will be parsed as a negative value.
+   * For example '(12.3456789)' will be parsed as a big decimal -0.00123456789.
    *
    * @param str  the string to parse
-   * @return the parsed value
+   * @return the parsed value in decimal form
    * @throws ParseFailureException if the string cannot be parsed
    */
   public static Decimal parseDecimalBasisPoint(String str) {
     try {
       return parseDecimal(str).movePoint(-4);
     } catch (ParseFailureException ex) {
-      throw new ParseFailureException("Unable to parse decimal basis point from '{value}'", str);
+      throw new ParseFailureException("Unable to parse decimal basis points from '{value}'", str);
+    }
+  }
+
+  /**
+   * Parses a percentage from the input string.
+   * <p>
+   * If input value is bracketed, it will be parsed as a negative value.
+   * For example. '(12.3456789)' will be parsed as '-12.3456789%'.
+   *
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws ParseFailureException if the string cannot be parsed
+   */
+  public static Percentage parsePercentage(String str) {
+    try {
+      return Percentage.parse(normalize(str));
+    } catch (IllegalArgumentException ex) {
+      throw new ParseFailureException("Unable to parse percentage from '{value}'", str);
+    }
+  }
+
+  /**
+   * Parses basis points from the input string.
+   * <p>
+   * If input value is bracketed, it will be parsed as a negative value.
+   * For example. '(12.3456789)' will be parsed as '12.3456789bps'.
+   *
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws ParseFailureException if the string cannot be parsed
+   */
+  public static BasisPoints parseBasisPoints(String str) {
+    try {
+      return BasisPoints.parse(normalize(str));
+    } catch (IllegalArgumentException ex) {
+      throw new ParseFailureException("Unable to parse basis points from '{value}'", str);
     }
   }
 

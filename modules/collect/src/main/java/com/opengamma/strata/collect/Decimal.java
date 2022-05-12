@@ -528,6 +528,7 @@ public final class Decimal implements Serializable {
    * Returns a decimal value with the decimal point moved.
    * <p>
    * This can be used to multiply or divide by powers of ten.
+   * Positive values move right (multiply), negative values move left (divide)
    * <p>
    * {@code Decimal.of(1.235d).movePoint(2)} returns a decimal with the value '123.5'.
    * <p>

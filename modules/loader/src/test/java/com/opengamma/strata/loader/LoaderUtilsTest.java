@@ -45,7 +45,9 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.collect.BasisPoints;
 import com.opengamma.strata.collect.Decimal;
+import com.opengamma.strata.collect.Percentage;
 import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
@@ -223,13 +225,13 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseBigDecimalBasisPoint("(1.2)")).isEqualTo(BigDecimal.valueOf(-0.00012d));
     assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseBigDecimalBasisPoint("()"))
-        .withMessage("Unable to parse decimal basis point from '()'");
+        .withMessage("Unable to parse decimal basis points from '()'");
     assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseBigDecimalBasisPoint("(1.2(3)"))
-        .withMessage("Unable to parse decimal basis point from '(1.2(3)'");
+        .withMessage("Unable to parse decimal basis points from '(1.2(3)'");
     assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseBigDecimalBasisPoint("Rubbish"))
-        .withMessage("Unable to parse decimal basis point from 'Rubbish'");
+        .withMessage("Unable to parse decimal basis points from 'Rubbish'");
   }
 
   //-------------------------------------------------------------------------
@@ -286,13 +288,44 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseDecimalBasisPoint("(1.2)")).isEqualTo(Decimal.of(-0.00012d));
     assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseDecimalBasisPoint("()"))
-        .withMessage("Unable to parse decimal basis point from '()'");
+        .withMessage("Unable to parse decimal basis points from '()'");
     assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseDecimalBasisPoint("(1.2(3)"))
-        .withMessage("Unable to parse decimal basis point from '(1.2(3)'");
+        .withMessage("Unable to parse decimal basis points from '(1.2(3)'");
     assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseDecimalBasisPoint("Rubbish"))
-        .withMessage("Unable to parse decimal basis point from 'Rubbish'");
+        .withMessage("Unable to parse decimal basis points from 'Rubbish'");
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_parsePercentage() {
+    assertThat(LoaderUtils.parsePercentage("1.2")).isEqualTo(Percentage.of(1.2d));
+    assertThat(LoaderUtils.parsePercentage("(12,345.234)")).isEqualTo(Percentage.of(-12345.234d));
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parsePercentage("()"))
+        .withMessage("Unable to parse percentage from '()'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parsePercentage("(1.2(3)"))
+        .withMessage("Unable to parse percentage from '(1.2(3)'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parsePercentage("Rubbish"))
+        .withMessage("Unable to parse percentage from 'Rubbish'");
+  }
+
+  @Test
+  public void test_parseBasisPoints() {
+    assertThat(LoaderUtils.parseBasisPoints("1.2")).isEqualTo(BasisPoints.of(1.2d));
+    assertThat(LoaderUtils.parseBasisPoints("(12,345.234)")).isEqualTo(BasisPoints.of(-12345.234d));
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseBasisPoints("()"))
+        .withMessage("Unable to parse basis points from '()'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseBasisPoints("(1.2(3)"))
+        .withMessage("Unable to parse basis points from '(1.2(3)'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseBasisPoints("Rubbish"))
+        .withMessage("Unable to parse basis points from 'Rubbish'");
   }
 
   //-------------------------------------------------------------------------
