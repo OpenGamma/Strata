@@ -112,7 +112,6 @@ public final class Decimal implements Serializable, Comparable<Decimal> {
    * @throws NumberFormatException if the string cannot be parsed
    * @throws IllegalArgumentException if the value is too large
    */
-  @FromString
   public static Decimal of(String str) {
     // pre-filter algorithm, based on performance testing
     int len = str.length();
@@ -299,6 +298,24 @@ public final class Decimal implements Serializable, Comparable<Decimal> {
     }
     // scale >= 0, thus OK to call create()
     return create(unscaled, scale);
+  }
+
+  /**
+   * Parses an instance from a {@code String}.
+   * <p>
+   * This uses a parser with the same semantics as constructing a {@link BigDecimal} with the string
+   * and then converting using {@link #of(BigDecimal)}.
+   * 
+   * @param str  the string
+   * @return the equivalent decimal
+   * @throws NumberFormatException if the string cannot be parsed
+   * @throws IllegalArgumentException if the value is too large
+   */
+  @FromString
+  public static Decimal parse(String str) {
+    // this method exists to provide a unique name for method references
+    // and to allow parse() to diverge from of() in the future if desired
+    return of(str);
   }
 
   // create an instance
