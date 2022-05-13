@@ -119,7 +119,7 @@ public final class Guavate {
 
   //-------------------------------------------------------------------------
   /**
-   * Combines two distinct maps into a single map.
+   * Combines two distinct maps into a single map, throwing an exception for duplicate keys.
    *
    * @param first  the first map
    * @param second  the second map
@@ -134,6 +134,23 @@ public final class Guavate {
 
     return Stream.concat(first.entrySet().stream(), second.entrySet().stream())
         .collect(entriesToImmutableMap());
+  }
+
+  /**
+   * Combines two distinct maps into a single map, choosing the key from the second map in case of duplicates.
+   *
+   * @param first  the first map
+   * @param second  the second map
+   * @param <K>  the type of the keys
+   * @param <V>  the type of the values
+   * @return a combined map
+   */
+  public static <K, V> ImmutableMap<K, V> combineMapsOverwriting(
+      Map<? extends K, ? extends V> first,
+      Map<? extends K, ? extends V> second) {
+
+    return Stream.concat(first.entrySet().stream(), second.entrySet().stream())
+        .collect(entriesToImmutableMap((a, b) -> b));
   }
 
   /**
@@ -156,6 +173,25 @@ public final class Guavate {
 
     return Stream.concat(first.entrySet().stream(), second.entrySet().stream())
         .collect(entriesToImmutableMap(mergeFn));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Combines a map with new entries, choosing the last entry if there is a duplicate key.
+   *
+   * @param baseMap  the base map
+   * @param additionalEntries  the additional entries
+   * @param <K>  the type of the keys
+   * @param <V>  the type of the values
+   * @return the combined map
+   */
+  @SafeVarargs
+  public static <K, V> ImmutableMap<K, V> combineMapsOverwriting(
+      Map<? extends K, ? extends V> baseMap,
+      Entry<? extends K, ? extends V>... additionalEntries) {
+
+    return Stream.concat(baseMap.entrySet().stream(), Stream.of(additionalEntries))
+        .collect(entriesToImmutableMap((a, b) -> b));
   }
 
   //-------------------------------------------------------------------------

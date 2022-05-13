@@ -6,6 +6,7 @@
 package com.opengamma.strata.collect;
 
 import static com.opengamma.strata.collect.Guavate.entriesToImmutableMap;
+import static com.opengamma.strata.collect.Guavate.entry;
 import static com.opengamma.strata.collect.Guavate.in;
 import static com.opengamma.strata.collect.Guavate.pairsToImmutableMap;
 import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
@@ -102,15 +103,17 @@ public class GuavateTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_combineMap() {
+  public void test_combineMaps() {
     Map<String, String> map1 = ImmutableMap.of("a", "one", "b", "two");
     Map<String, String> map2 = ImmutableMap.of("c", "three", "d", "four");
     Map<String, String> test = Guavate.combineMaps(map1, map2);
     assertThat(test).isEqualTo(ImmutableMap.of("a", "one", "b", "two", "c", "three", "d", "four"));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Guavate.combineMaps(map1, ImmutableMap.of("a", "xxx")));
   }
 
   @Test
-  public void test_combineMap_differentTypes() {
+  public void test_combineMaps_differentTypes() {
     Map<String, Integer> map1 = ImmutableMap.of("a", 1, "b", 2);
     Map<String, Double> map2 = ImmutableMap.of("c", 3d, "d", 4d);
     Map<String, Number> test = Guavate.combineMaps(map1, map2);
@@ -118,7 +121,7 @@ public class GuavateTest {
   }
 
   @Test
-  public void test_combineMap_merge() {
+  public void test_combineMaps_merge() {
     Map<String, Integer> map1 = ImmutableMap.of("a", 1, "b", 2);
     Map<String, Integer> map2 = ImmutableMap.of("a", 5, "c", 3);
     Map<String, Integer> test = Guavate.combineMaps(map1, map2, Integer::sum);
@@ -126,7 +129,7 @@ public class GuavateTest {
   }
 
   @Test
-  public void test_combineMap_mergeDifferentTypes() {
+  public void test_combineMaps_mergeDifferentTypes() {
     Map<String, Integer> map1 = ImmutableMap.of("a", 1, "b", 2);
     Map<String, Double> map2 = ImmutableMap.of("a", 5d, "c", 3d);
     Map<String, Number> test = Guavate.combineMaps(
@@ -134,6 +137,22 @@ public class GuavateTest {
         map2,
         (a, b) -> Double.sum(a.doubleValue(), b.doubleValue()));
     assertThat(test).isEqualTo(ImmutableMap.of("a", 6d, "b", 2, "c", 3d));
+  }
+
+  @Test
+  public void test_combineMapsOverwriting() {
+    Map<String, String> map1 = ImmutableMap.of("a", "one", "b", "two");
+    Map<String, String> map2 = ImmutableMap.of("a", "xxx", "c", "three", "d", "four");
+    Map<String, String> test = Guavate.combineMapsOverwriting(map1, map2);
+    assertThat(test).isEqualTo(ImmutableMap.of("a", "xxx", "b", "two", "c", "three", "d", "four"));
+  }
+
+  @Test
+  public void test_combineMapsOverwriting_entries() {
+    Map<String, String> map1 = ImmutableMap.of("a", "one", "b", "two");
+    Map<String, String> test = Guavate.combineMapsOverwriting(
+        map1, entry("a", "yyy"), entry("c", "three"), entry("a", "xxx"));
+    assertThat(test).isEqualTo(ImmutableMap.of("a", "xxx", "b", "two", "c", "three"));
   }
 
   //-------------------------------------------------------------------------
