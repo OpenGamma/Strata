@@ -486,18 +486,62 @@ public class DecimalTest {
   }
 
   //-------------------------------------------------------------------------
+  public static Object[][] dataRoundToScale() {
+    return new Object[][] {
+        {"0", 2},
+        {"0", 0},
+        {"0", -2},
+        {"1.234", 2},
+        {"1.235", 2},
+        {"1.236", 2},
+        {"123.45", 100},
+        {"123.45", 18},
+        {"123.45", 17},
+        {"123.45", 3},
+        {"123.45", 2},
+        {"123.45", 1},
+        {"123.45", 0},
+        {"123.45", -1},
+        {"123.45", -2},
+        {"123.45", -3},
+        {"123.45", -17},
+        {"12345", -2},
+        {"1.2005", 2},
+        {"125.6", 0},
+        {"125.6", -1},
+        {"0.000005", -15},
+    };
+  }
+
+  @ParameterizedTest
+  @MethodSource("dataRoundToScale")
+  public void testRoundToScale(String value, int desiredScale) {
+    for (RoundingMode mode : RoundingMode.values()) {
+      if (mode != RoundingMode.UNNECESSARY) {
+        assertThat(Decimal.of(value).roundToScale(desiredScale, mode).toString())
+            .as("Failed in %s", mode)
+            .isEqualTo(new BigDecimal(value).setScale(desiredScale, mode).stripTrailingZeros().toPlainString());
+      }
+    }
+  }
+
+  @ParameterizedTest
+  @MethodSource("dataRoundToScale")
+  public void testRoundToScaleNegative(String value, int desiredScale) {
+    for (RoundingMode mode : RoundingMode.values()) {
+      if (mode != RoundingMode.UNNECESSARY) {
+        assertThat(Decimal.of(value).negated().roundToScale(desiredScale, mode).toString())
+            .as("Failed in %s", mode)
+            .isEqualTo(new BigDecimal(value).negate().setScale(desiredScale, mode).stripTrailingZeros().toPlainString());
+      }
+    }
+  }
+
   @Test
-  public void testRoundToScale() {
-    assertThat(Decimal.ofScaled(1235, 3).roundToScale(2, RoundingMode.HALF_UP)).isEqualTo(Decimal.ofScaled(124, 2));
-    assertThat(Decimal.ofScaled(12345, 2).roundToScale(3, RoundingMode.UP)).isEqualTo(Decimal.ofScaled(12345, 2));
-    assertThat(Decimal.ofScaled(12345, 2).roundToScale(2, RoundingMode.UP)).isEqualTo(Decimal.ofScaled(12345, 2));
-    assertThat(Decimal.ofScaled(12345, 2).roundToScale(1, RoundingMode.UP)).isEqualTo(Decimal.ofScaled(1235, 1));
-    assertThat(Decimal.ofScaled(12345, 2).roundToScale(1, RoundingMode.HALF_UP)).isEqualTo(Decimal.ofScaled(1235, 1));
-    assertThat(Decimal.ofScaled(12345, 2).roundToScale(1, RoundingMode.DOWN)).isEqualTo(Decimal.ofScaled(1234, 1));
-    assertThat(Decimal.ofScaled(12345, 0).roundToScale(-2, RoundingMode.UP)).isEqualTo(Decimal.ofScaled(12400, 0));
-    assertThat(Decimal.ofScaled(12005, 4).roundToScale(2, RoundingMode.UP)).isEqualTo(Decimal.ofScaled(121, 2));
-    assertThat(Decimal.ofScaled(12005, 4).roundToScale(2, RoundingMode.HALF_DOWN)).isEqualTo(Decimal.ofScaled(12, 1));
-    assertThat(Decimal.MAX_VALUE.roundToScale(-20, RoundingMode.HALF_DOWN)).isEqualTo(Decimal.ZERO);
+  public void testRoundToScaleBad() {
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.MAX_VALUE.roundToScale(-18, RoundingMode.DOWN));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.MAX_VALUE.roundToScale(-18, RoundingMode.HALF_UP));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.MAX_VALUE.roundToScale(-19, RoundingMode.HALF_UP));
   }
 
   @Test
@@ -508,6 +552,9 @@ public class DecimalTest {
     assertThat(Decimal.ofScaled(12345, 2).roundToPrecision(1, RoundingMode.HALF_UP)).isEqualTo(Decimal.ofScaled(100, 0));
     assertThat(Decimal.ofScaled(12345, 2).roundToPrecision(18, RoundingMode.HALF_UP)).isEqualTo(Decimal.ofScaled(12345, 2));
     assertThatIllegalArgumentException().isThrownBy(() -> Decimal.ZERO.roundToPrecision(-1, RoundingMode.CEILING));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.MAX_VALUE.roundToPrecision(-18, RoundingMode.DOWN));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.MAX_VALUE.roundToPrecision(-18, RoundingMode.HALF_UP));
+    assertThatIllegalArgumentException().isThrownBy(() -> Decimal.MAX_VALUE.roundToPrecision(-19, RoundingMode.HALF_UP));
   }
 
   //-------------------------------------------------------------------------
@@ -593,6 +640,30 @@ public class DecimalTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void testCompareTo() {
+    assertThat(Decimal.ZERO)
+        .isEqualByComparingTo(Decimal.ZERO)
+        .isLessThan(Decimal.ofScaled(1, 18))
+        .isLessThan(Decimal.ofScaled(1, 0))
+        .isLessThan(Decimal.MAX_VALUE)
+        .isGreaterThan(Decimal.ofScaled(-1, 18))
+        .isGreaterThan(Decimal.ofScaled(-1, 0))
+        .isGreaterThan(Decimal.MIN_VALUE);
+    assertThat(Decimal.of("1.23"))
+        .isEqualByComparingTo(Decimal.ofScaled(123, 2))
+        .isLessThan(Decimal.of("2"))
+        .isLessThan(Decimal.of("1.230000000001"))
+        .isLessThan(Decimal.of("1.231"))
+        .isLessThan(Decimal.of("1.24"))
+        .isGreaterThan(Decimal.of("0"))
+        .isGreaterThan(Decimal.of("1.229999999999"))
+        .isGreaterThan(Decimal.of("1.229"))
+        .isGreaterThan(Decimal.of("1.22"))
+        .isGreaterThan(Decimal.of("1.2"));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   @Disabled
   public void testPerformanceUnscaled() {
     long total = 0;
@@ -648,7 +719,7 @@ public class DecimalTest {
     String[] values = new String[] {"1", "1.2", "1.23", "1.234", "1.2345", "-1", "-2.3", "-3.4", "-4.5", "0"};
     Decimal[] decimals = Stream.of(values).map(str -> Decimal.of(str)).toArray(Decimal[]::new);
     BigDecimal[] bigDecimals = Stream.of(values).map(str -> new BigDecimal(str)).toArray(BigDecimal[]::new);
-    long amount = 100;
+    long amount = 2;
     BigDecimal amountBD = BigDecimal.valueOf(2);
     for (int i = 0; i < 10000000; i++) {
       total += bigDecimals[i % 10].multiply(amountBD).longValue();
@@ -663,6 +734,33 @@ public class DecimalTest {
     long nano2 = System.nanoTime();
     for (int i = 0; i < 50000000; i++) {
       total += decimals[i % 10].multipliedBy(amount).longValue();
+    }
+    long nano3 = System.nanoTime();
+    System.out.println(total);
+    System.out.println(((nano2 - nano1) / 1000000) + "ns (BigDecimal)");
+    System.out.println(((nano3 - nano2) / 1000000) + "ns (Decimal)");
+  }
+
+  @Test
+  @Disabled
+  public void testPerformanceRound() {
+    long total = 0;
+    String[] values = new String[] {"1", "1.2", "1.23", "1.234", "1.2345", "-1", "-2.3", "-3.4", "-4.5", "0"};
+    Decimal[] decimals = Stream.of(values).map(str -> Decimal.of(str)).toArray(Decimal[]::new);
+    BigDecimal[] bigDecimals = Stream.of(values).map(str -> new BigDecimal(str)).toArray(BigDecimal[]::new);
+    for (int i = 0; i < 1000000; i++) {
+      total += bigDecimals[i % 10].setScale(1, RoundingMode.HALF_UP).longValue();
+    }
+    for (int i = 0; i < 1000000; i++) {
+      total += decimals[i % 10].roundToScale(1, RoundingMode.HALF_UP).longValue();
+    }
+    long nano1 = System.nanoTime();
+    for (int i = 0; i < 50000000; i++) {
+      total += bigDecimals[i % 10].setScale(1, RoundingMode.HALF_UP).longValue();
+    }
+    long nano2 = System.nanoTime();
+    for (int i = 0; i < 50000000; i++) {
+      total += decimals[i % 10].roundToScale(1, RoundingMode.HALF_UP).longValue();
     }
     long nano3 = System.nanoTime();
     System.out.println(total);
