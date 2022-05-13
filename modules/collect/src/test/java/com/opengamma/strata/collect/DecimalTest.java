@@ -113,6 +113,7 @@ public class DecimalTest {
     assertThat(test.toBigDecimal()).isEqualTo(BigDecimal.valueOf(unscaled, scale));
     assertThat(test.toString()).isEqualTo(BigDecimal.valueOf(unscaled, scale).toPlainString());
     assertThat(test.doubleValue()).isEqualTo(BigDecimal.valueOf(unscaled, scale).doubleValue());
+    assertThat(Decimal.parse(str)).isEqualTo(test);
   }
 
   @ParameterizedTest
