@@ -22,19 +22,9 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
-import com.opengamma.strata.basics.ImmutableReferenceData;
-import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.BusinessDayConventions;
-import com.opengamma.strata.basics.date.DayCounts;
-import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.date.HolidayCalendarId;
-import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.date.MarketTenor;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FxIndices;
@@ -42,28 +32,15 @@ import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
-import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
-import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.BasisPoints;
 import com.opengamma.strata.collect.Decimal;
 import com.opengamma.strata.collect.Percentage;
 import com.opengamma.strata.collect.result.ParseFailureException;
-import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.common.PutCall;
-import com.opengamma.strata.product.swap.CompoundingMethod;
-import com.opengamma.strata.product.swap.FixedRateCalculation;
-import com.opengamma.strata.product.swap.IborRateCalculation;
-import com.opengamma.strata.product.swap.NotionalSchedule;
-import com.opengamma.strata.product.swap.PaymentRelativeTo;
-import com.opengamma.strata.product.swap.PaymentSchedule;
-import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
-import com.opengamma.strata.product.swap.ResolvedSwapTrade;
-import com.opengamma.strata.product.swap.Swap;
-import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
  * Test {@link LoaderUtils}.
@@ -579,70 +556,4 @@ public class LoaderUtilsTest {
     coverPrivateConstructor(LoaderUtils.class);
   }
 
-  public static void main(String[] args) {
-    HolidayCalendar defaultJptoCalendar = ReferenceData.standard().getValue(HolidayCalendarIds.JPTO);
-    HolidayCalendar testJptoCalendar = new HolidayCalendar() {
-      @Override
-      public boolean isHoliday(LocalDate date) {
-        return date.equals(LocalDate.of(2021, 8, 25)) || defaultJptoCalendar.isHoliday(date);
-      }
-
-      @Override
-      public HolidayCalendarId getId() {
-        return HolidayCalendarIds.JPTO;
-      }
-    };
-
-    ReferenceData testRefData = ImmutableReferenceData.of(HolidayCalendarIds.JPTO, testJptoCalendar)
-        .combinedWith(ReferenceData.standard());
-
-    PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
-        .startDate(LocalDate.of(2021, 8, 25))
-        .endDate(LocalDate.of(2022, 8, 26))
-        .frequency(Frequency.P6M)
-        .businessDayAdjustment(BusinessDayAdjustment.of(
-            BusinessDayConventions.MODIFIED_FOLLOWING,
-            HolidayCalendarIds.JPTO))
-        .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
-        .endDateBusinessDayAdjustment(BusinessDayAdjustment.of(
-            BusinessDayConventions.MODIFIED_FOLLOWING,
-            HolidayCalendarIds.JPTO))
-        .stubConvention(StubConvention.SHORT_INITIAL)
-        .rollConvention(RollConventions.DAY_26)
-        .build();
-
-    PaymentSchedule paymentSchedule = PaymentSchedule.builder()
-        .paymentFrequency(Frequency.P6M)
-//        .businessDayAdjustment(BusinessDayAdjustment.of(
-//            BusinessDayConventions.MODIFIED_FOLLOWING,
-//            HolidayCalendarIds.JPTO))
-        .paymentRelativeTo(PaymentRelativeTo.PERIOD_END)
-        .paymentDateOffset(DaysAdjustment.ofBusinessDays(0, HolidayCalendarIds.JPTO))
-        .compoundingMethod(CompoundingMethod.NONE)
-        .build();
-
-    NotionalSchedule notionalSchedule = NotionalSchedule.of(CurrencyAmount.of(Currency.JPY, 1000000000));
-
-    Swap swap = Swap.builder()
-        .legs(
-            RateCalculationSwapLeg.builder()
-                .payReceive(PayReceive.RECEIVE)
-                .accrualSchedule(accrualSchedule)
-                .paymentSchedule(paymentSchedule)
-                .notionalSchedule(notionalSchedule)
-                .calculation(FixedRateCalculation.of(0.001, DayCounts.ACT_365F))
-                .build(),
-            RateCalculationSwapLeg.builder()
-                .payReceive(PayReceive.PAY)
-                .accrualSchedule(accrualSchedule)
-                .paymentSchedule(paymentSchedule)
-                .notionalSchedule(notionalSchedule)
-                .calculation(IborRateCalculation.of(IborIndices.JPY_TIBOR_JAPAN_6M))
-                .build()
-        )
-        .build();
-    SwapTrade swapTrade = SwapTrade.of(TradeInfo.empty(), swap);
-    ResolvedSwapTrade resolvedSwapTrade = swapTrade.resolve(testRefData);
-    System.out.println(resolvedSwapTrade);
-  }
 }
