@@ -71,8 +71,8 @@ public class GuavateTest {
   }
 
   @Test
-  public void test_concatToListItems() {
-    List<String> test = Guavate.concatToList(Arrays.asList("a", "b", "c"), "d", "e", "f");
+  public void test_concatItemsToListItems() {
+    List<String> test = Guavate.concatItemsToList(Arrays.asList("a", "b", "c"), "d", "e", "f");
     assertThat(test).isEqualTo(ImmutableList.of("a", "b", "c", "d", "e", "f"));
   }
 

@@ -88,6 +88,8 @@ public final class Guavate {
 
   /**
    * Concatenates a number of items onto a single base list.
+   * <p>
+   * This returns a new list, the input is unaltered.
    *
    * @param <T>  the type of element in the iterable
    * @param baseList  the base list
@@ -95,7 +97,8 @@ public final class Guavate {
    * @return the list that combines the inputs
    */
   @SafeVarargs
-  public static <T> ImmutableList<T> concatToList(Iterable<? extends T> baseList, T... additionalItems) {
+  public static <T> ImmutableList<T> concatItemsToList(Iterable<? extends T> baseList, T... additionalItems) {
+    // this cannot be named concatToList() as it would be ambiguous for callers
     return ImmutableList.<T>builder()
         .addAll(baseList)
         .addAll(ImmutableList.copyOf(additionalItems))
