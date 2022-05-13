@@ -10,7 +10,9 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.Random;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Disabled;
@@ -339,6 +341,7 @@ public class DecimalTest {
     assertThat(Decimal.of(-123.45d).plus(123.45d)).isEqualTo(Decimal.of(0d));
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void testMinusLong() {
     assertThat(Decimal.of(12d).minus(13L)).isEqualTo(Decimal.of(-1L));
@@ -660,6 +663,36 @@ public class DecimalTest {
         .isGreaterThan(Decimal.of("1.229"))
         .isGreaterThan(Decimal.of("1.22"))
         .isGreaterThan(Decimal.of("1.2"));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void testMega() {
+    // test using a wide range of random values
+    Random r = new Random(1001);
+    for (int i = 0; i < 10000; i++) {
+      Decimal base = Decimal.ofScaled(r.nextInt(), r.nextInt(19));
+      Decimal other = Decimal.ofScaled(r.nextInt(), r.nextInt(19));
+      assertThat(base.plus(other))
+          .as(base + " + " + other)
+          .isEqualTo(Decimal.of(base.toBigDecimal().add(other.toBigDecimal())));
+      assertThat(base.minus(other))
+          .as(base + " - " + other)
+          .isEqualTo(Decimal.of(base.toBigDecimal().subtract(other.toBigDecimal())));
+      if (base.abs().unscaledValue() < 999_999_999 && other.abs().unscaledValue() < 999_999_999) {
+        assertThat(base.multipliedBy(other))
+            .as(base + " * " + other)
+            .isEqualTo(Decimal.of(base.toBigDecimal().multiply(other.toBigDecimal())));
+        if (other.scale() < 9) {
+          assertThat(base.dividedBy(other, RoundingMode.HALF_UP))
+              .as(base + " / " + other)
+              .isEqualTo(Decimal.of(base.toBigDecimal().divide(other.toBigDecimal(), new MathContext(18, RoundingMode.HALF_UP))));
+          assertThat(base.dividedBy(other, RoundingMode.DOWN))
+              .as(base + " / " + other)
+              .isEqualTo(Decimal.of(base.toBigDecimal().divide(other.toBigDecimal(), new MathContext(18, RoundingMode.DOWN))));
+        }
+      }
+    }
   }
 
   //-------------------------------------------------------------------------
