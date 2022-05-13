@@ -26,7 +26,7 @@ import org.joda.convert.ToString;
  * 17 decimal places for values between -10 and 10, and so on.
  * Fractional values never have trailing zeros, thus the comparator is compatible with equals.
  */
-public final class Decimal implements Serializable {
+public final class Decimal implements Serializable, Comparable<Decimal> {
 
   /** The serialization version id. */
   private static final long serialVersionUID = 1L;
@@ -297,6 +297,7 @@ public final class Decimal implements Serializable {
       }
       return create(adjUnscaled, MAX_SCALE);
     }
+    // scale >= 0, thus OK to call create()
     return create(unscaled, scale);
   }
 
@@ -404,7 +405,7 @@ public final class Decimal implements Serializable {
   private Decimal plus0Sorted(long unscaled1, int scale1, long unscaled2, int scale2) {
     int scaleDiff = scale1 - scale2;
     if (scaleDiff < MAX_SCALE && Math.abs(unscaled2) < POWERS[MAX_SCALE - scaleDiff - 1]) {
-      long rescaled2 = unscaled2 * POWERS[scale1 - scale2];
+      long rescaled2 = unscaled2 * POWERS[scaleDiff];
       return ofScaled(unscaled1 + rescaled2, scale1);  // simple add is safe by analysis above
     }
     return of(BigDecimal.valueOf(unscaled1, scale1).add(BigDecimal.valueOf(unscaled2, scale2)));
@@ -631,15 +632,59 @@ public final class Decimal implements Serializable {
    * <p>
    * {@code Decimal.of(1235).roundToScale(-1, HALF_UP)} returns a decimal with the value '1240'.
    * 
-   * @param scale  the scale, positive for decimal places, negative to round the integer-part
+   * @param desiredScale  the scale, positive for decimal places, negative to round the integer-part
    * @param roundingMode  the rounding mode
    * @return the result of the round
+   * @throws IllegalArgumentException if the scale is -18 or less
    */
-  public Decimal roundToScale(int scale, RoundingMode roundingMode) {
-    if (scale >= this.scale) {
+  public Decimal roundToScale(int desiredScale, RoundingMode roundingMode) {
+    if (desiredScale >= scale) {
       return this;
     }
-    return of(toBigDecimal().setScale(scale, roundingMode));
+    // the scale -18 has tricky edge cases, avoid those problems via a blanket ban
+    if (desiredScale <= -MAX_SCALE) {
+      throw new IllegalArgumentException("Rounding scale must not be -18 or less: " + desiredScale);
+    }
+    // scaling zero always ends up with ZERO
+    if (unscaled == 0) {
+      return ZERO;
+    }
+    // scales above 18 will have no effect
+    int adjScale = Math.min(desiredScale, 18);
+    // optimize the two most common rounding modes
+    switch (roundingMode) {
+      case DOWN:
+        return roundDownToScale(adjScale);
+      case HALF_UP:
+        return roundHalfUpToScale(adjScale);
+      case FLOOR:
+        return unscaled > 0 ? roundDownToScale(adjScale) : of(toBigDecimal().setScale(adjScale, roundingMode));
+      default:
+        return of(toBigDecimal().setScale(adjScale, roundingMode));
+    }
+  }
+
+  // round down is simple truncation
+  private Decimal roundDownToScale(int adjScale) {
+    int scaleDiff = scale - adjScale;
+    if (scaleDiff <= MAX_SCALE) {
+      long rescaled = unscaled / POWERS[scaleDiff];
+      return ofScaled(rescaled, adjScale);
+    }
+    return ZERO;
+  }
+
+  // round half-up only requires looking at the next digit
+  private Decimal roundHalfUpToScale(int adjScale) {
+    int scaleDiff = scale - adjScale;
+    if (scaleDiff < MAX_SCALE) {
+      long rescaledPlusNext = unscaled / POWERS[scaleDiff - 1];
+      long rescaled = rescaledPlusNext / 10;
+      long nextDigit = rescaledPlusNext % 10;
+      int bump = nextDigit >= 5 ? 1 : (nextDigit <= -5 ? -1 : 0);
+      return ofScaled(rescaled + bump, adjScale);
+    }
+    return of(toBigDecimal().setScale(adjScale, RoundingMode.HALF_DOWN));
   }
 
   /**
@@ -817,6 +862,25 @@ public final class Decimal implements Serializable {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public int compareTo(Decimal other) {
+    if (this.scale == other.scale) {
+      return Long.compare(this.unscaled, other.unscaled);
+    }
+    long power1 = POWERS[this.scale];
+    long power2 = POWERS[other.scale];
+    long whole1 = this.unscaled / power1;
+    long whole2 = other.unscaled / power2;
+    if (whole1 < whole2) {
+      return -1;
+    } else if (whole1 > whole2) {
+      return 1;
+    }
+    long fraction1 = (this.unscaled % power1) * POWERS[18 - this.scale];
+    long fraction2 = (other.unscaled % power2) * POWERS[18 - other.scale];
+    return Long.compare(fraction1, fraction2);
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
