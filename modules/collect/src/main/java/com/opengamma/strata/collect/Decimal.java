@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.UnaryOperator;
 
-import org.joda.beans.gen.PropertyDefinition;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
@@ -33,7 +32,7 @@ public final class Decimal implements Serializable, Comparable<Decimal> {
   /** Max precision. */
   private static final int MAX_PRECISION = 18;
   /** Max scale. */
-  private static final int MAX_SCALE = 18;
+  static final int MAX_SCALE = 18;
   /** Max unscaled value. */
   private static final long MAX_UNSCALED = 999_999_999_999_999_999L;
   /** Powers of ten. */
@@ -61,10 +60,8 @@ public final class Decimal implements Serializable, Comparable<Decimal> {
   public static final Decimal MIN_VALUE = new Decimal(-MAX_UNSCALED, 0);
 
   /** The unscaled value. */
-  @PropertyDefinition
   private final long unscaled;
   /** The scale. */
-  @PropertyDefinition
   private final int scale;
 
   //-------------------------------------------------------------------------
@@ -807,6 +804,19 @@ public final class Decimal implements Serializable, Comparable<Decimal> {
    */
   public BigDecimal toBigDecimal() {
     return BigDecimal.valueOf(unscaled, scale);
+  }
+
+  /**
+   * Returns the equivalent {@code FixedScaleDecimal}.
+   * <p>
+   * Callers should call {@link #roundToScale(int, RoundingMode)} first if scale is unknown.
+   * 
+   * @param fixedScale  the fixed scale
+   * @return the fixed scale decimal
+   * @throws IllegalArgumentException if the fixed scale is less than the scale of this decimal
+   */
+  public FixedScaleDecimal toFixedScale(int fixedScale) {
+    return FixedScaleDecimal.of(this, fixedScale);
   }
 
   //-------------------------------------------------------------------------

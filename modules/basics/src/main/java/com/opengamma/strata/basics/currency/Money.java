@@ -18,6 +18,7 @@ import com.google.common.collect.ComparisonChain;
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Decimal;
+import com.opengamma.strata.collect.FixedScaleDecimal;
 
 /**
  * An amount of a currency, rounded to match the currency specifications.
@@ -180,12 +181,12 @@ public class Money
    * Gets the numeric amount of the money.
    * <p>
    * For example, in the amount 'GBP 12.34' the decimal value returned is '12.34',
-   * whereas for 'GBP 13.40' the amount returned is '13.4'.
+   * whereas for 'GBP 13.40' the amount returned is '13.40'.
    *
-   * @return the amount, with a scale less than or equal to the currency minor digits
+   * @return the amount, with a scale equal to the currency minor digits
    */
-  public Decimal getValue() {
-    return amount;
+  public FixedScaleDecimal getValue() {
+    return amount.toFixedScale(currency.getMinorUnitDigits());
   }
 
   //-------------------------------------------------------------------------
