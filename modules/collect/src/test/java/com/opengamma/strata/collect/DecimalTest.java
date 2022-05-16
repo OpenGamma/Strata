@@ -106,6 +106,15 @@ public class DecimalTest {
 
   @ParameterizedTest
   @MethodSource("dataValues")
+  public void testValuesToFixedScale(String str, long unscaled, int scale) {
+    Decimal base = Decimal.ofScaled(unscaled, scale).roundToScale(2, RoundingMode.HALF_UP);
+    FixedScaleDecimal test = base.toFixedScale(2);
+    assertThat(test.decimal()).isEqualTo(base);
+    assertThat(test.fixedScale()).isEqualTo(2);
+  }
+
+  @ParameterizedTest
+  @MethodSource("dataValues")
   public void testValuesOfString(String str, long unscaled, int scale) {
     Decimal test = Decimal.of(str);
     assertThat(test.unscaledValue()).isEqualTo(unscaled);
