@@ -47,7 +47,7 @@ public final class EtdOptionSecurity
     implements EtdSecurity, ImmutableBean, Serializable {
 
   /** YearMonth format. */
-  private static final DateTimeFormatter YM_FORMAT = DateTimeFormatter.ofPattern("MMMuu", Locale.UK);
+  private static final DateTimeFormatter YM_FORMAT = DateTimeFormatter.ofPattern("MMMuu", Locale.ENGLISH);
 
   /**
    * The standard security information.

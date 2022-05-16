@@ -38,7 +38,7 @@ import com.opengamma.strata.product.Trade;
 public final class SummarizerUtils {
 
   /** Date format. */
-  private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dMMMuu", Locale.UK);
+  private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dMMMuu", Locale.ENGLISH);
 
   // restricted constructor
   private SummarizerUtils() {
