@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.Decimal;
+import com.opengamma.strata.collect.FixedScaleDecimal;
 
 /**
  * Test {@link Money}.
@@ -43,29 +44,29 @@ public class MoneyTest {
   @SuppressWarnings("deprecation")
   public void testOfCurrencyAndAmount() throws Exception {
     assertThat(MONEY_200_AUD.getCurrency()).isEqualTo(CCY_AUD);
-    assertThat(MONEY_200_AUD.getValue()).isEqualTo(Decimal.of(200));
+    assertThat(MONEY_200_AUD.getValue()).isEqualTo(FixedScaleDecimal.of(Decimal.of(200), 2));
     assertThat(MONEY_200_AUD.getAmount()).isEqualTo(BigDecimal.valueOf(20000, 2));
     assertThat(MONEY_100_12_AUD.getCurrency()).isEqualTo(CCY_AUD);
-    assertThat(MONEY_100_12_AUD.getValue()).isEqualTo(Decimal.of(AMT_100_12));
+    assertThat(MONEY_100_12_AUD.getValue()).isEqualTo(FixedScaleDecimal.of(Decimal.of(AMT_100_12), 2));
     assertThat(MONEY_100_12_AUD.getAmount()).isEqualTo(BigDecimal.valueOf(10012, 2));
     assertThat(MONEY_100_120_BHD.getCurrency()).isEqualTo(CCY_BHD);
-    assertThat(MONEY_100_120_BHD.getValue()).isEqualTo(Decimal.of(AMT_100_12));
+    assertThat(MONEY_100_120_BHD.getValue()).isEqualTo(FixedScaleDecimal.of(Decimal.of(AMT_100_12), 3));
     assertThat(MONEY_100_120_BHD.getAmount()).isEqualTo(BigDecimal.valueOf(100120, 3));
     assertThat(MONEY_100_125_BHD.getCurrency()).isEqualTo(CCY_BHD);
-    assertThat(MONEY_100_125_BHD.getValue()).isEqualTo(Decimal.of(100.125)); //Testing the rounding from 4 to 3 decimals
+    assertThat(MONEY_100_125_BHD.getValue()).isEqualTo(FixedScaleDecimal.of(Decimal.of(100.125), 3)); //Testing the rounding from 4 to 3 decimals
     assertThat(MONEY_100_125_BHD.getAmount()).isEqualTo(BigDecimal.valueOf(100125, 3));
 
     // test rounding
-    assertThat(Money.of(CCY_AUD, AMT_100_1249).getValue()).isEqualTo(Decimal.of(AMT_100_12));
-    assertThat(Money.of(CCY_AUD, AMT_100_125).getValue()).isEqualTo(Decimal.of(AMT_100_13));
-    assertThat(Money.of(CCY_BHD, AMT_100_1249).getValue()).isEqualTo(Decimal.of(AMT_100_125));
-    assertThat(Money.of(CCY_BHD, AMT_100_125).getValue()).isEqualTo(Decimal.of(AMT_100_125));
+    assertThat(Money.of(CCY_AUD, AMT_100_1249).getValue()).isEqualTo(FixedScaleDecimal.of(Decimal.of(AMT_100_12), 2));
+    assertThat(Money.of(CCY_AUD, AMT_100_125).getValue()).isEqualTo(FixedScaleDecimal.of(Decimal.of(AMT_100_13), 2));
+    assertThat(Money.of(CCY_BHD, AMT_100_1249).getValue()).isEqualTo(FixedScaleDecimal.of(Decimal.of(AMT_100_125), 3));
+    assertThat(Money.of(CCY_BHD, AMT_100_125).getValue()).isEqualTo(FixedScaleDecimal.of(Decimal.of(AMT_100_125), 3));
   }
 
   @Test
   public void testOfCurrencyAmount() throws Exception {
     assertThat(MONEY_200_23_RON.getCurrency()).isEqualTo(CCY_RON);
-    assertThat(MONEY_200_23_RON.getValue()).isEqualTo(Decimal.of(AMT_200_23));
+    assertThat(MONEY_200_23_RON.getValue()).isEqualTo(FixedScaleDecimal.of(Decimal.of(AMT_200_23), 2));
   }
 
   //-------------------------------------------------------------------------
