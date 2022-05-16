@@ -76,7 +76,7 @@ public class BigMoney
    * @return the currency amount
    */
   public static BigMoney of(Money money) {
-    return new BigMoney(money.getCurrency(), money.getValue());
+    return new BigMoney(money.getCurrency(), money.getValue().decimal());
   }
 
   /**
