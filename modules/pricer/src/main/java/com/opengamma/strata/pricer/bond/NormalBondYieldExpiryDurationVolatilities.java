@@ -47,7 +47,7 @@ import com.opengamma.strata.market.surface.Surfaces;
 /**
  * Volatility for swaptions in the normal or Bachelier model based on a surface.
  * <p>
- * The volatility is represented by a surface on the expiry and swap tenor dimensions.
+ * The volatility is represented by a surface on the expiry and bond duration dimensions.
  */
 @BeanDefinition(builderScope = "private")
 public final class NormalBondYieldExpiryDurationVolatilities
@@ -69,7 +69,7 @@ public final class NormalBondYieldExpiryDurationVolatilities
    * The normal volatility surface.
    * <p>
    * The x-value of the surface is the expiry, as a year fraction.
-   * The y-value of the surface is the swap tenor, as a year fraction rounded to the month.
+   * The y-value of the surface is the duration, as a year fraction.
    */
   @PropertyDefinition(validate = "notNull")
   private final Surface surface;
@@ -271,7 +271,7 @@ public final class NormalBondYieldExpiryDurationVolatilities
    * Gets the normal volatility surface.
    * <p>
    * The x-value of the surface is the expiry, as a year fraction.
-   * The y-value of the surface is the swap tenor, as a year fraction rounded to the month.
+   * The y-value of the surface is the duration, as a year fraction.
    * @return the value of the property, not null
    */
   public Surface getSurface() {

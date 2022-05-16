@@ -573,6 +573,17 @@ public class DiscountingFixedCouponBondProductPricerTest {
   }
 
   @Test
+  public void modifiedDurationFromYieldUSLastPeriod_AD() {
+    double shift = 1.0E-6;
+    double md = PRICER.modifiedDurationFromYield(PRODUCT_US, SETTLEMENT_LAST_US, YIELD_US);
+    ValueDerivatives mdAd = PRICER.modifiedDurationFromYieldAd(PRODUCT_US, SETTLEMENT_LAST_US, YIELD_US);
+    assertThat(mdAd.getValue()).isCloseTo(md, offset(EPS));
+    double mdP = PRICER.modifiedDurationFromYield(PRODUCT_US, SETTLEMENT_LAST_US, YIELD_US + shift);
+    double derivativeExpect = (mdP - md) / shift;
+    assertThat(mdAd.getDerivative(0)).isCloseTo(derivativeExpect, offset(EPS));
+  }
+
+  @Test
   public void convexityFromYieldUS() {
     double computed = PRICER.convexityFromYield(PRODUCT_US, SETTLEMENT_US, YIELD_US);
     double duration = PRICER.modifiedDurationFromYield(PRODUCT_US, SETTLEMENT_US, YIELD_US);
@@ -855,6 +866,18 @@ public class DiscountingFixedCouponBondProductPricerTest {
     double priceDw = PRICER.dirtyPriceFromYield(PRODUCT_JP, SETTLEMENT_JP, YIELD_JP - EPS);
     double expected = 0.5 * (priceDw - priceUp) / price / EPS;
     assertThat(computed).isCloseTo(expected, offset(EPS));
+  }
+
+  @Test
+  public void modifiedDurationFromYielddJP_AD() {
+    double shift = 1.0E-7;
+    double md = PRICER.modifiedDurationFromYield(PRODUCT_JP, SETTLEMENT_JP, YIELD_JP);
+    ValueDerivatives mdAd = PRICER.modifiedDurationFromYieldAd(PRODUCT_JP, SETTLEMENT_JP, YIELD_JP);
+    assertThat(mdAd.getValue()).isCloseTo(md, offset(EPS));
+    double mdP = PRICER.modifiedDurationFromYield(PRODUCT_JP, SETTLEMENT_JP, YIELD_JP + shift);
+    double mdM = PRICER.modifiedDurationFromYield(PRODUCT_JP, SETTLEMENT_JP, YIELD_JP - shift);
+    double derivativeExpect = (mdP - mdM) / (2 * shift);
+    assertThat(mdAd.getDerivative(0)).isCloseTo(derivativeExpect, offset(EPS));
   }
 
   @Test

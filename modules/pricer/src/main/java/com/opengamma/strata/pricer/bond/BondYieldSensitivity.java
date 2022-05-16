@@ -81,9 +81,9 @@ public final class BondYieldSensitivity
    * 
    * @param volatilitiesName  the name of the volatilities
    * @param expiry  the time to expiry of the option as a year fraction
-   * @param tenor  the underlying swap tenor
-   * @param strike  the swaption strike rate
-   * @param forward  the underlying swap forward rate
+   * @param duration  the underlying bond duration
+   * @param strike  the bond strike yield
+   * @param forward  the underlying bond forward yield
    * @param sensitivityCurrency  the currency of the sensitivity
    * @param sensitivity  the value of the sensitivity
    * @return the point sensitivity object
@@ -91,13 +91,13 @@ public final class BondYieldSensitivity
   public static BondYieldSensitivity of(
       BondVolatilitiesName volatilitiesName,
       double expiry,
-      double tenor,
+      double duration,
       double strike,
       double forward,
       Currency sensitivityCurrency,
       double sensitivity) {
 
-    return new BondYieldSensitivity(volatilitiesName, expiry, tenor, strike, forward, sensitivityCurrency, sensitivity);
+    return new BondYieldSensitivity(volatilitiesName, expiry, duration, strike, forward, sensitivityCurrency, sensitivity);
   }
 
   //-------------------------------------------------------------------------

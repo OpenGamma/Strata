@@ -799,7 +799,11 @@ public class DiscountingFixedCouponBondProductPricer {
    * @param yield  the yield
    * @return the modified duration of the product 
    */
-  public ValueDerivatives modifiedDurationFromYieldAd(ResolvedFixedCouponBond bond, LocalDate settlementDate, double yield) {
+  public ValueDerivatives modifiedDurationFromYieldAd(
+      ResolvedFixedCouponBond bond,
+      LocalDate settlementDate,
+      double yield) {
+
     ImmutableList<FixedCouponBondPaymentPeriod> payments = bond.getPeriodicPayments();
     int nCoupon = payments.size() - couponIndex(payments, settlementDate);
     FixedCouponBondYieldConvention yieldConv = bond.getYieldConvention();
@@ -808,7 +812,7 @@ public class DiscountingFixedCouponBondProductPricer {
         double couponPerYear = bond.getFrequency().eventsPerYear();
         double factor = factorToNextCoupon(bond, settlementDate);
         double md = factor / couponPerYear / (1d + factor * yield / couponPerYear);
-        double yieldBar = factor / couponPerYear /
+        double yieldBar = -factor / couponPerYear /
             ((1d + factor * yield / couponPerYear) * (1d + factor * yield / couponPerYear)) * factor / couponPerYear;
         return ValueDerivatives.of(md, DoubleArray.of(yieldBar));
       }
@@ -826,9 +830,14 @@ public class DiscountingFixedCouponBondProductPricer {
       double maturity = bond.getDayCount().relativeYearFraction(settlementDate, maturityDate);
       double num = 1d + bond.getFixedRate() * maturity;
       double den = 1d + yield * maturity;
-      double dirtyPrice = dirtyPriceFromCleanPrice(bond, settlementDate, num / den);
+      double cleanPrice = num / den;
+      double dirtyPrice = dirtyPriceFromCleanPrice(bond, settlementDate, cleanPrice);
       double md = num * maturity / (den * den) / dirtyPrice;
-      double denBar = -2.0d * num * maturity / (den * den * den) / dirtyPrice;
+      double mdBar = 1.0;
+      double denBar = -2.0d * num * maturity / (den * den * den) / dirtyPrice * mdBar;
+      double dirtyPriceBar = -md / dirtyPrice * mdBar;
+      double cleanPriceBar = dirtyPriceBar;
+      denBar += -cleanPrice / den * cleanPriceBar;
       double yieldBar = maturity * denBar;
       return ValueDerivatives.of(md, DoubleArray.of(yieldBar));
     }
