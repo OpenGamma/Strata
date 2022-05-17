@@ -40,6 +40,7 @@ import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.google.common.io.ByteSource;
 import com.google.common.io.ByteStreams;
+import com.google.common.io.CharSource;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -154,6 +155,7 @@ public abstract class BeanByteSource extends ByteSource implements ImmutableBean
 
   @Override
   public BeanCharSource asCharSource(Charset charset) {
+    // no need to bridge, as javac is already doing that
     return new AsBeanCharSource(this, charset);
   }
 
@@ -163,7 +165,16 @@ public abstract class BeanByteSource extends ByteSource implements ImmutableBean
    * @return the equivalent {@code CharSource}
    */
   public BeanCharSource asCharSourceUtf8() {
+    // bridged below for backwards compatibility
     return asCharSource(StandardCharsets.UTF_8);
+  }
+
+  /**
+   * @hidden
+   * @return the source
+   */
+  public CharSource asCharSourceUtf8$$bridge() { // CSIGNORE
+    return asCharSourceUtf8();
   }
 
   /**
@@ -172,7 +183,16 @@ public abstract class BeanByteSource extends ByteSource implements ImmutableBean
    * @return the equivalent {@code CharSource}
    */
   public BeanCharSource asCharSourceUtf8UsingBom() {
+    // bridged below for backwards compatibility
     return UnicodeBom.toCharSource(this);
+  }
+
+  /**
+   * @hidden
+   * @return the source
+   */
+  public CharSource asCharSourceUtf8UsingBom$$bridge() { // CSIGNORE
+    return UnicodeBom.toCharSource((ByteSource) this);
   }
 
   //-------------------------------------------------------------------------

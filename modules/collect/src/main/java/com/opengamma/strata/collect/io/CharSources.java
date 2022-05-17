@@ -124,7 +124,17 @@ public final class CharSources {
    * @return a new instance of {@link CharSource}
    */
   public static StringCharSource ofContent(String content) {
+    // bridged below for backwards compatibility
     return StringCharSource.of(content);
+  }
+
+  /**
+   * @hidden
+   * @param content  the content
+   * @return the source
+   */
+  public CharSource ofContent$$bridge(String content) { // CSIGNORE
+    return ofContent(content);
   }
 
   //---------------------------------------------------------------------------------------------
@@ -135,7 +145,17 @@ public final class CharSources {
    * @return a new instance of {@link CharSource} with UTF-8 for charset
    */
   public static StringCharSource ofContent(byte[] content) {
+    // bridged below for backwards compatibility
     return StringCharSource.fromBytesUtf8(content);
+  }
+
+  /**
+   * @hidden
+   * @param content  the content
+   * @return the source
+   */
+  public CharSource ofContent$$bridge(byte[] content) { // CSIGNORE
+    return ofContent(content);
   }
 
   /**
@@ -147,7 +167,18 @@ public final class CharSources {
    * @return a new instance of {@link CharSource}
    */
   public static StringCharSource ofContent(byte[] content, Charset charset) {
+    // bridged below for backwards compatibility
     return StringCharSource.fromBytes(content, charset);
+  }
+
+  /**
+   * @hidden
+   * @param content  the content
+   * @param charset  the charset
+   * @return the source
+   */
+  public CharSource ofContent$$bridge(byte[] content, Charset charset) { // CSIGNORE
+    return ofContent(content, charset);
   }
 
   //-------------------------------------------------------------------------

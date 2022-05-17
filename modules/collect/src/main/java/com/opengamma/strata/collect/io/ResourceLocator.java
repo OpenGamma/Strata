@@ -254,6 +254,14 @@ public final class ResourceLocator {
   }
 
   /**
+   * @hidden
+   * @return the source
+   */
+  public CharSource getCharSource$$bridge() { // CSIGNORE
+    return getCharSource();
+  }
+
+  /**
    * Gets the char source to access the resource specifying the character set.
    * <p>
    * A char source is a supplier of data.
@@ -264,6 +272,15 @@ public final class ResourceLocator {
    */
   public BeanCharSource getCharSource(Charset charset) {
     return source.asCharSource(charset);
+  }
+
+  /**
+   * @hidden
+   * @param charset  the charset
+   * @return the source
+   */
+  public CharSource getCharSource$$bridge(Charset charset) { // CSIGNORE
+    return getCharSource(charset);
   }
 
   //-------------------------------------------------------------------------

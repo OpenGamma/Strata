@@ -46,6 +46,7 @@ import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteProcessor;
 import com.google.common.io.ByteSource;
 import com.google.common.io.ByteStreams;
+import com.google.common.io.CharSource;
 import com.google.common.primitives.Bytes;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Unchecked;
@@ -391,7 +392,18 @@ public final class ArrayByteSource extends BeanByteSource implements ImmutableBe
 
   @Override
   public StringCharSource asCharSourceUtf8() {
+    // no need to bridge, as javac is already doing that
     return new StringCharSource(readUtf8(), fileName);
+  }
+
+  /**
+   * @hidden
+   * @return the source
+   */
+  @Override
+  public CharSource asCharSourceUtf8$$bridge() { // CSIGNORE
+    // bridged below for backwards compatibility
+    return asCharSourceUtf8();
   }
 
   @Override
@@ -401,7 +413,17 @@ public final class ArrayByteSource extends BeanByteSource implements ImmutableBe
 
   @Override
   public StringCharSource asCharSourceUtf8UsingBom() {
+    // bridged below for backwards compatibility
     return new StringCharSource(UnicodeBom.toString(array), fileName);
+  }
+
+  /**
+   * @hidden
+   * @return the source
+   */
+  @Override
+  public CharSource asCharSourceUtf8UsingBom$$bridge() { // CSIGNORE
+    return UnicodeBom.toCharSource((ByteSource) this);
   }
 
   //-------------------------------------------------------------------------
