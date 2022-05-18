@@ -769,7 +769,7 @@
     <bridger.version>1.6.Final</bridger.version>
     <guava.version>31.1-jre</guava.version><!-- didn't want to go beyond v27 but forced to by security https://github.com/google/guava/issues/3320 -->
     <guava-docs.version>26.0-jre</guava-docs.version>
-    <jcommander.version>1.78</jcommander.version>
+    <jcommander.version>1.82</jcommander.version>
     <joda-convert.version>2.2.2</joda-convert.version>
     <joda-beans.version>2.8.2</joda-beans.version>
     <joda.beans.version>${joda-beans.version}</joda.beans.version>
