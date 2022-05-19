@@ -55,7 +55,7 @@ public final class FixedScaleDecimal implements Serializable, Comparable<FixedSc
   public static FixedScaleDecimal parse(String str) {
     Decimal decimal = Decimal.parse(str);
     int decimalPointPos = str.lastIndexOf('.');
-    return new FixedScaleDecimal(decimal, decimalPointPos < 0 ? 0 : str.length() - decimalPointPos);
+    return new FixedScaleDecimal(decimal, decimalPointPos < 0 ? 0 : str.length() - decimalPointPos - 1);
   }
 
   // create an instance
