@@ -169,6 +169,10 @@ public final class FloatingRateNames {
    * Constant for SEK-SIOR Overnight index.
    */
   public static final FloatingRateName SEK_SIOR = FloatingRateName.of("SEK-SIOR");
+  /**
+   * Constant for THB-THOR Overnight index.
+   */
+  public static final FloatingRateName THB_THOR = FloatingRateName.of("THB-THOR");
 
   /**
    * Constant for USD-FED-FUND Overnight index using averaging.
