@@ -144,7 +144,7 @@ public final class OvernightIndices {
    * <p>
    * The "Thai Overnight Repurchase Rate" index.
    */
-  public static final OvernightIndex THB_THOR = OvernightIndex.of("THB_THOR");
+  public static final OvernightIndex THB_THOR = OvernightIndex.of("THB-THOR");
   /**
    * The SABOR index for ZAR.
    * <p>
