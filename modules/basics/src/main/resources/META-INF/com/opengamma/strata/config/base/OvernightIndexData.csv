@@ -77,6 +77,10 @@ SGD-SONAR,SGD,TRUE,Act/365F,SGSI,0,0,Act/365F
 SGD-SORA,SGD,TRUE,Act/365F,SGSI,1,0,Act/365F
 
 # standard name
+# https://www.bot.or.th/App/THOR
+THB-THOR,THB,TRUE,Act/365F,THBA,0,2,Act/365F
+
+# standard name
 # (Overnight TRLIBOR not the same and less well used)
 # https://www.borsaistanbul.com/en/data/data/tlref-data
 TRY-TLREF,TRY,TRUE,Act/365F,TRIS,1,0,Act/365F
