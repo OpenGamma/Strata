@@ -224,9 +224,34 @@ public class MessagesTest {
     }
   }
 
+  @Test
   public void test_recreateTemplateBadLocation() {
     String message = "A B";
-    assertThat(Messages.recreateTemplate(message, "a:0|b:4")).isEqualTo("A B");
+    assertThat(Messages.recreateTemplate(message, "a:0:1|b:4:1")).isEqualTo("A B");
+  }
+
+  public static Object[][] data_mergeTemplateLocations() {
+    return new Object[][] {
+        {"x:2:3", "a:0:1", 5, "x:2:3|a:5:1"},
+        {"x:2:3", "a:0:1|b:4:1", 5, "x:2:3|a:5:1|b:9:1"},
+        {"x:2:3|y:5:1", "a:0:1|b:4:1", 7, "x:2:3|y:5:1|a:7:1|b:11:1"},
+        {"x:2:3|y:5:1", "a:0:1|b:4:1|+:8", 7, "x:2:3|y:5:1|a:7:1|b:11:1|+:15"},
+        {"x:2:3|y:5:1|+:6", "a:0:1|b:4:1|+:8", 7, "x:2:3|y:5:1|a:7:1|b:11:1|+:15"},
+        {"a:0:1|b:4:1", "", 5, "a:0:1|b:4:1"},
+        {"+:2", "a:2:1", 6, "a:8:1"},
+        {"", "a:0:1|b:4:1", 5, "a:5:1|b:9:1"},
+        {null, "a:0:1|b:4:1", 5, "a:5:1|b:9:1"},
+        {"x:2:3", "a:0:1", -1, ""},
+        {"x:2:3", "a", 6, ""},
+        {"x:2:3", "a:1", 6, ""},
+        {"x:2:3", "a:1:1:1", 6, ""},
+    };
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_mergeTemplateLocations")
+  public void test_mergeTemplateLocations(String loc1, String loc2, int loc1MsgLength, String expected) {
+    assertThat(Messages.mergeTemplateLocations(loc1, loc2, loc1MsgLength)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------

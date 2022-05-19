@@ -13,6 +13,8 @@ import java.math.BigDecimal;
 
 import org.junit.jupiter.api.Test;
 
+import com.opengamma.strata.collect.Decimal;
+
 /**
  * Test {@link NoRounding}.
  */
@@ -27,13 +29,18 @@ public class NoRoundingTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void round_double_NONE() {
+  public void round_double() {
     assertThat(Rounding.none().round(1.23d)).isEqualTo(1.23d);
   }
 
   @Test
-  public void round_BigDecimal_NONE() {
+  public void round_BigDecimal() {
     assertThat(Rounding.none().round(BigDecimal.valueOf(1.23d))).isEqualTo(BigDecimal.valueOf(1.23d));
+  }
+
+  @Test
+  public void round_Decimal() {
+    assertThat(Rounding.none().round(Decimal.of(1.23d))).isEqualTo(Decimal.of(1.23d));
   }
 
   //-------------------------------------------------------------------------

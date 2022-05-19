@@ -249,8 +249,16 @@ public final class ResourceLocator {
    * 
    * @return the char source
    */
-  public CharSource getCharSource() {
-    return UnicodeBom.toCharSource(source);
+  public BeanCharSource getCharSource() {
+    return source.asCharSourceUtf8UsingBom();
+  }
+
+  /**
+   * @hidden
+   * @return the source
+   */
+  public CharSource getCharSource$$bridge() { // CSIGNORE
+    return getCharSource();
   }
 
   /**
@@ -262,8 +270,17 @@ public final class ResourceLocator {
    * @param charset  the character set to use
    * @return the char source
    */
-  public CharSource getCharSource(Charset charset) {
+  public BeanCharSource getCharSource(Charset charset) {
     return source.asCharSource(charset);
+  }
+
+  /**
+   * @hidden
+   * @param charset  the charset
+   * @return the source
+   */
+  public CharSource getCharSource$$bridge(Charset charset) { // CSIGNORE
+    return getCharSource(charset);
   }
 
   //-------------------------------------------------------------------------

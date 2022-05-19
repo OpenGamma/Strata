@@ -6,6 +6,7 @@
 package com.opengamma.strata.collect.result;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 import org.junit.jupiter.api.Test;
 
@@ -112,7 +113,7 @@ public class FailureItemTest {
   }
 
   @Test
-  public void test_of_reasonMessageWithAttributes() {
+  public void test_of_reasonMessageExceptionWithAttributes() {
     IllegalArgumentException innerEx = new IllegalArgumentException("inner");
     IllegalArgumentException ex = new IllegalArgumentException("exmsg", innerEx);
     FailureItem test = FailureItem.of(FailureReason.INVALID, ex, "failure: {exceptionMessage}", "error");
@@ -122,8 +123,47 @@ public class FailureItemTest {
     assertThat(test.getMessage()).isEqualTo("failure: error");
     assertThat(test.getCauseType()).isPresent();
     assertThat(test.getCauseType()).hasValue(IllegalArgumentException.class);
-    assertThat(test.getStackTrace()).contains(".test_of_reasonMessageWithAttributes(");
+    assertThat(test.getStackTrace()).contains(".test_of_reasonMessageExceptionWithAttributes(");
     assertThat(test.toString()).isEqualTo("INVALID: failure: error: java.lang.IllegalArgumentException: exmsg");
+  }
+
+  @Test
+  public void test_of_reasonMessageExceptionWithFailureItemException() {
+    ParseFailureException ex = new ParseFailureException("Bad value '{value}'", "foo");
+    FailureItem test = FailureItem.of(FailureReason.INVALID, ex, "Error on line {lineNumber}: {exceptionMessage}", 23, "NPE");
+    assertThat(test.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(test.getMessage()).isEqualTo("Error on line 23: Bad value 'foo'");
+    assertThat(test.getAttributes()).containsOnly(
+        entry(FailureAttributeKeys.TEMPLATE_LOCATION, "lineNumber:14:2|value:29:3"),
+        entry(FailureAttributeKeys.LINE_NUMBER, "23"),
+        entry(FailureAttributeKeys.VALUE, "foo"));
+    assertThat(test.getCauseType()).isEmpty();
+    assertThat(test.getStackTrace()).contains(".test_of_reasonMessageExceptionWithFailureItemException(");
+  }
+
+  @Test
+  public void test_of_reasonMessageExceptionWithFailureItemExceptionNoExMessageParam() {
+    ParseFailureException ex = new ParseFailureException("Bad value '{value}'", "foo");
+    FailureItem test = FailureItem.of(FailureReason.INVALID, ex, "Error on line {lineNumber}: \n {exceptionMessage}", 23, "NPE");
+    assertThat(test.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(test.getMessage()).isEqualTo("Error on line 23: Bad value 'foo'");
+    assertThat(test.getAttributes()).containsOnly(
+        entry(FailureAttributeKeys.TEMPLATE_LOCATION, "lineNumber:14:2|value:29:3"),
+        entry(FailureAttributeKeys.LINE_NUMBER, "23"),
+        entry(FailureAttributeKeys.VALUE, "foo"));
+  }
+
+  @Test
+  public void test_of_reasonMessageExceptionWithFailureItemExceptionDuplicateName() {
+    ParseFailureException ex = new ParseFailureException("Bad value {value}", 3);
+    FailureItem test = FailureItem.of(FailureReason.INVALID, ex, "Error {value} {value1}", 1, 2);
+    assertThat(test.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(test.getMessage()).isEqualTo("Error 1 2: Bad value 3");
+    assertThat(test.getAttributes()).containsOnly(
+        entry(FailureAttributeKeys.TEMPLATE_LOCATION, "value:6:1|value1:8:1|value2:21:1"),
+        entry("value", "1"),
+        entry("value1", "2"),
+        entry("value2", "3"));
   }
 
   @Test

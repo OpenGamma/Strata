@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.schedule.Frequency.P2M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.TERM;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_17;
+import static com.opengamma.strata.basics.schedule.RollConventions.DAY_4;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -650,6 +651,24 @@ public class ScheduleTest {
             .periods(SchedulePeriod.of(JUN_16, SEP_17, JUN_15, SEP_17), period2)
             .frequency(P3M)
             .rollConvention(DAY_17)
+            .build());
+  }
+
+  @Test
+  public void test_toAdjustedSmallFirstLast() {
+    SchedulePeriod period1 = SchedulePeriod.of(JUL_03, JUL_04, JUL_03, JUL_04);
+    SchedulePeriod period2 = SchedulePeriod.of(JUL_04, AUG_16);
+    SchedulePeriod period3 = SchedulePeriod.of(AUG_16, AUG_17, AUG_16, AUG_17);
+    Schedule test = Schedule.builder()
+        .periods(period1, period2, period3)
+        .frequency(P1M)
+        .rollConvention(DAY_4)
+        .build();
+    assertThat(test.toAdjusted(date -> date.equals(JUL_03) ? JUL_04 : (date.equals(AUG_17) ? AUG_16 : date)))
+        .isEqualTo(Schedule.builder()
+            .periods(SchedulePeriod.of(JUL_03, JUL_04, JUL_03, JUL_04), period2, SchedulePeriod.of(AUG_16, AUG_17, AUG_16, AUG_17))
+            .frequency(P1M)
+            .rollConvention(DAY_4)
             .build());
   }
 

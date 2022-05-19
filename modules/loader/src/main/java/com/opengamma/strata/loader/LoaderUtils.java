@@ -46,6 +46,10 @@ import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.BasisPoints;
+import com.opengamma.strata.collect.Decimal;
+import com.opengamma.strata.collect.Percentage;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.CapFloor;
 import com.opengamma.strata.product.common.LongShort;
@@ -58,6 +62,7 @@ import com.opengamma.strata.product.option.KnockType;
  * Contains utilities for loading market data from input files.
  */
 public final class LoaderUtils {
+  // in most cases, the underlying cause is not included in the ParseFailureException (because it isn't interesting)
 
   /**
    * Default scheme for trades.
@@ -134,7 +139,11 @@ public final class LoaderUtils {
    * @return the resolved rate index
    */
   public static Index findIndex(String reference) {
-    return Index.of(reference);
+    try {
+      return Index.of(reference);
+    } catch (RuntimeException ex) {
+      throw new ParseFailureException("Unable to parse index from '{value}'", reference);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -148,7 +157,7 @@ public final class LoaderUtils {
    *
    * @param str  the string to parse
    * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static boolean parseBoolean(String str) {
     switch (str.toUpperCase(Locale.ENGLISH)) {
@@ -163,9 +172,10 @@ public final class LoaderUtils {
       case "N":
         return false;
       default:
-        throw new IllegalArgumentException(
-            "Unknown Boolean value, must be 'True' or 'False' but was '" + str + "'; " +
-                "parser is case insensitive and also accepts 'T', 'Yes', 'Y', 'F', 'No' and 'N'");
+        throw new ParseFailureException(
+            "Unable to parse boolean from '{value}', must be one of {options}",
+            str,
+            "'True', 'False', 'T', 'F', 'Yes', 'No', 'Y' or 'N' (case insensitive)");
     }
   }
 
@@ -174,24 +184,22 @@ public final class LoaderUtils {
    * <p>
    * If input value is bracketed, it will be parsed as a negative value.
    * Comma separated values will be parsed assuming American decimal format. Values in European decimal formats
-   * (e.g. "12456789" formatted as "12.456.789") will not be parsed.
+   * (thus "12456789" formatted as "12.456.789") will not be parsed.
    * <p>
-   * For e.g. "12,300" and "12300" will be parsed as integer "12300" and similarly "(12,300)",
+   * For example "12,300" and "12300" will be parsed as integer "12300" and similarly "(12,300)",
    * "-12,300" and "-12300" will be parsed as integer "-12300".
    * <p>
    * Note: Comma separated values such as "1,234,5,6" will be parsed as integer "123456".
    *
    * @param str  the string to parse
    * @return the parsed value
-   * @throws NumberFormatException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static int parseInteger(String str) {
     try {
       return Integer.parseInt(normalize(str));
     } catch (NumberFormatException ex) {
-      NumberFormatException nfex = new NumberFormatException("Unable to parse integer from '" + str + "'");
-      nfex.initCause(ex);
-      throw nfex;
+      throw new ParseFailureException("Unable to parse integer from '{value}'", str);
     }
   }
 
@@ -200,24 +208,22 @@ public final class LoaderUtils {
    * <p>
    * If input value is bracketed, it will be parsed as a negative value.
    * Comma separated values will be parsed assuming American decimal format. Values in European decimal formats
-   * (e.g. "12456789.444" formatted as "12.456.789,444") will not be parsed.
+   * (thus "12456789.444" formatted as "12.456.789,444") will not be parsed.
    * <p>
-   * For e.g. "12,300.12" and "12300.12" will be parsed as "12300.12d" and similarly "(12,300.12)",
+   * For example "12,300.12" and "12300.12" will be parsed as "12300.12d" and similarly "(12,300.12)",
    * "-12,300.12" and "-12300.12" will be parsed as "-12300.12d".
    * <p>
    * Note: Comma separated values such as "1,234,5,6.12" will be parsed as "123456.12d".
    *
    * @param str  the string to parse
    * @return the parsed value
-   * @throws NumberFormatException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static double parseDouble(String str) {
     try {
-      return parseBigDecimal(str).doubleValue();
-    } catch (NumberFormatException ex) {
-      NumberFormatException nfex = new NumberFormatException("Unable to parse double from '" + str + "'");
-      nfex.initCause(ex);
-      throw nfex;
+      return parseDecimal(str).doubleValue();
+    } catch (ParseFailureException ex) {
+      throw new ParseFailureException("Unable to parse double from '{value}'", str);
     }
   }
 
@@ -225,19 +231,17 @@ public final class LoaderUtils {
    * Parses a double from the input string, converting it from a percentage to a decimal values.
    * <p>
    * If input value is bracketed, it will be parsed as a negative decimal percentage.
-   * For e.g. '(12.34)' will be parsed as -0.1234d.
+   * For example '(12.34)' will be parsed as -0.1234d.
    *
    * @param str  the string to parse
    * @return the parsed value
-   * @throws NumberFormatException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static double parseDoublePercent(String str) {
     try {
-      return parseBigDecimalPercent(str).doubleValue();
-    } catch (NumberFormatException ex) {
-      NumberFormatException nfex = new NumberFormatException("Unable to parse percentage from '" + str + "'");
-      nfex.initCause(ex);
-      throw nfex;
+      return parseDecimalPercent(str).doubleValue();
+    } catch (ParseFailureException ex) {
+      throw new ParseFailureException("Unable to parse percentage from '{value}'", str);
     }
   }
 
@@ -246,65 +250,154 @@ public final class LoaderUtils {
    * <p>
    * If input value is bracketed, it will be parsed as a negative value.
    * Comma separated values will be parsed assuming American decimal format. Values in European decimal formats
-   * (e.g. "12456789.444" formatted as "12.456.789,444") will not be parsed.
+   * (thus "12456789.444" formatted as "12.456.789,444") will not be parsed.
    * <p>
-   * For e.g. "12,300.12" and "12300.12" will be parsed as big decimal "12300.12" and similarly "(12,300.12)",
+   * For example "12,300.12" and "12300.12" will be parsed as big decimal "12300.12" and similarly "(12,300.12)",
    * "-12,300.12" and "-12300.12" will be parsed as big decimal "-12300.12".
    * <p>
    * Note: Comma separated values such as "1,234,5,6.12" will be parsed as big decimal "123456.12".
    *
    * @param str  the string to parse
    * @return the parsed value
-   * @throws NumberFormatException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static BigDecimal parseBigDecimal(String str) {
     try {
       return new BigDecimal(normalize(str));
     } catch (NumberFormatException ex) {
-      NumberFormatException nfex = new NumberFormatException("Unable to parse BigDecimal from '" + str + "'");
-      nfex.initCause(ex);
-      throw nfex;
+      throw new ParseFailureException("Unable to parse decimal from '{value}'", str);
     }
   }
 
   /**
-   * Parses a decimal from the input string, converting it from a percentage to a decimal value.
+   * Parses a decimal from the input string, converting it from a percentage to decimal form.
    * <p>
-   * If input value is bracketed, it will be parsed as a negative decimal percent.
-   * For e.g. '(12.3456789)' will be parsed as a big decimal -0.123456789.
+   * If input value is bracketed, it will be parsed as a negative value.
+   * For example '(12.3456789)' will be parsed as a big decimal -0.123456789.
    *
    * @param str  the string to parse
-   * @return the parsed value
-   * @throws NumberFormatException if the string cannot be parsed
+   * @return the parsed value in decimal form
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static BigDecimal parseBigDecimalPercent(String str) {
     try {
       return parseBigDecimal(str).movePointLeft(2);
-    } catch (NumberFormatException ex) {
-      NumberFormatException nfex = new NumberFormatException("Unable to parse BigDecimal percentage from '" + str + "'");
-      nfex.initCause(ex);
-      throw nfex;
+    } catch (ParseFailureException ex) {
+      throw new ParseFailureException("Unable to parse decimal percentage from '{value}'", str);
     }
   }
 
   /**
-   * Parses a decimal from the input string, converting it from a basis point to a decimal value.
+   * Parses a decimal from the input string, converting it from a basis points to decimal form.
    * <p>
-   * If input value is bracketed, it will be parsed as a negative decimal percent.
-   * For e.g. '(12.3456789)' will be parsed as a big decimal -0.00123456789.
+   * If input value is bracketed, it will be parsed as a negative value.
+   * For example '(12.3456789)' will be parsed as a big decimal -0.00123456789.
    *
    * @param str  the string to parse
-   * @return the parsed value
-   * @throws NumberFormatException if the string cannot be parsed
+   * @return the parsed value in decimal form
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static BigDecimal parseBigDecimalBasisPoint(String str) {
     try {
       return parseBigDecimal(str).movePointLeft(4);
-    } catch (NumberFormatException ex) {
-      NumberFormatException nfex =
-          new NumberFormatException("Unable to parse BigDecimal basis point from '" + str + "'");
-      nfex.initCause(ex);
-      throw nfex;
+    } catch (ParseFailureException ex) {
+      throw new ParseFailureException("Unable to parse decimal basis points from '{value}'", str);
+    }
+  }
+
+  /**
+   * Parses a decimal from the input string.
+   * <p>
+   * If input value is bracketed, it will be parsed as a negative value.
+   * Comma separated values will be parsed assuming American decimal format. Values in European decimal formats
+   * (thus "12456789.444" formatted as "12.456.789,444") will not be parsed.
+   * <p>
+   * For example "12,300.12" and "12300.12" will be parsed as big decimal "12300.12" and similarly "(12,300.12)",
+   * "-12,300.12" and "-12300.12" will be parsed as big decimal "-12300.12".
+   * <p>
+   * Note: Comma separated values such as "1,234,5,6.12" will be parsed as big decimal "123456.12".
+   *
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws ParseFailureException if the string cannot be parsed
+   */
+  public static Decimal parseDecimal(String str) {
+    try {
+      return Decimal.of(normalize(str));
+    } catch (IllegalArgumentException ex) {
+      throw new ParseFailureException("Unable to parse decimal from '{value}'", str);
+    }
+  }
+
+  /**
+   * Parses a decimal from the input string, converting it from a percentage to decimal form.
+   * <p>
+   * If input value is bracketed, it will be parsed as a negative value.
+   * For example '(12.3456789)' will be parsed as a big decimal -0.123456789.
+   *
+   * @param str  the string to parse
+   * @return the parsed value in decimal form
+   * @throws ParseFailureException if the string cannot be parsed
+   */
+  public static Decimal parseDecimalPercent(String str) {
+    try {
+      return parseDecimal(str).movePoint(-2);
+    } catch (ParseFailureException ex) {
+      throw new ParseFailureException("Unable to parse decimal percentage from '{value}'", str);
+    }
+  }
+
+  /**
+   * Parses a decimal from the input string, converting it from a basis points to decimal form.
+   * <p>
+   * If input value is bracketed, it will be parsed as a negative value.
+   * For example '(12.3456789)' will be parsed as a big decimal -0.00123456789.
+   *
+   * @param str  the string to parse
+   * @return the parsed value in decimal form
+   * @throws ParseFailureException if the string cannot be parsed
+   */
+  public static Decimal parseDecimalBasisPoint(String str) {
+    try {
+      return parseDecimal(str).movePoint(-4);
+    } catch (ParseFailureException ex) {
+      throw new ParseFailureException("Unable to parse decimal basis points from '{value}'", str);
+    }
+  }
+
+  /**
+   * Parses a percentage from the input string.
+   * <p>
+   * If input value is bracketed, it will be parsed as a negative value.
+   * For example. '(12.3456789)' will be parsed as '-12.3456789%'.
+   *
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws ParseFailureException if the string cannot be parsed
+   */
+  public static Percentage parsePercentage(String str) {
+    try {
+      return Percentage.parse(normalize(str));
+    } catch (IllegalArgumentException ex) {
+      throw new ParseFailureException("Unable to parse percentage from '{value}'", str);
+    }
+  }
+
+  /**
+   * Parses basis points from the input string.
+   * <p>
+   * If input value is bracketed, it will be parsed as a negative value.
+   * For example. '(12.3456789)' will be parsed as '12.3456789bps'.
+   *
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws ParseFailureException if the string cannot be parsed
+   */
+  public static BasisPoints parseBasisPoints(String str) {
+    try {
+      return BasisPoints.parse(normalize(str));
+    } catch (IllegalArgumentException ex) {
+      throw new ParseFailureException("Unable to parse basis points from '{value}'", str);
     }
   }
 
@@ -344,7 +437,7 @@ public final class LoaderUtils {
    * @param str  the string to parse
    * @param formatters  the date formats
    * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static LocalDate parseDate(String str, DateTimeFormatter... formatters) {
     ArgChecker.notEmpty(formatters, "formatters");
@@ -360,7 +453,7 @@ public final class LoaderUtils {
         // should not happen, but ignore if it does
       }
     }
-    throw new IllegalArgumentException("Unknown date format: " + str);
+    throw new ParseFailureException("Unable to parse date from '{value}'", str);
   }
 
   /**
@@ -372,7 +465,7 @@ public final class LoaderUtils {
    *
    * @param str  the string to parse
    * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static LocalDate parseDate(String str) {
     try {
@@ -403,9 +496,11 @@ public final class LoaderUtils {
       return LocalDate.parse(str, D_MMM_YEAR_NODASH);
 
     } catch (DateTimeParseException ex) {
-      throw new IllegalArgumentException(
-          "Unknown date format, must be formatted as 'yyyy-MM-dd', 'yyyyMMdd', 'yyyy/M/d', 'd/M/yyyy', " +
-              "'d-MMM-yyyy', 'dMMMyyyy', 'd/M/yy', 'd-MMM-yy' or 'dMMMyy' but was: " + str);
+      throw new ParseFailureException(
+          ex,
+          "Unable to parse date from '{value}', must be formatted as " +
+              "'yyyy-MM-dd', 'yyyyMMdd', 'yyyy/M/d', 'd/M/yyyy', 'd-MMM-yyyy', 'dMMMyyyy', 'd/M/yy', 'd-MMM-yy' or 'dMMMyy'",
+          str);
     }
   }
 
@@ -418,7 +513,7 @@ public final class LoaderUtils {
    *
    * @param str  the string to parse
    * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static YearMonth parseYearMonth(String str) {
     try {
@@ -439,15 +534,17 @@ public final class LoaderUtils {
         if (date.getDayOfMonth() == 1) {
           return YearMonth.of(date.getYear(), date.getMonth());
         }
-        throw new IllegalArgumentException("Found Excel-style date but day-of-month was not set to 1:" + str);
+        throw new ParseFailureException(
+            "Unable to parse year-month from '{value}', found Excel-style date but day-of-month was not set to 1", str);
       }
       // yyyyMM
       return YearMonth.parse(str, YYYYMM);
 
     } catch (DateTimeParseException ex) {
-      throw new IllegalArgumentException(
-          "Unknown date format, must be formatted as 'yyyy-MM', 'yyyyMM', " +
-              "'MMM-yyyy', 'MMMyyyy', 'MMM-yy' or 'MMMyy' but was: " + str);
+      throw new ParseFailureException(
+          "Unable to parse year-month from '{value}', must be formatted as " +
+              "'yyyy-MM', 'yyyyMM', 'MMM-yyyy', 'MMMyyyy', 'MMM-yy' or 'MMMyy'",
+          str);
     }
   }
 
@@ -458,15 +555,15 @@ public final class LoaderUtils {
    *
    * @param str  the string to parse
    * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static LocalTime parseTime(String str) {
     try {
       return LocalTime.parse(str, HH_MM_SS_COLON);
 
     } catch (DateTimeParseException ex) {
-      throw new IllegalArgumentException(
-          "Unknown time format, must be formatted as 'HH', 'HH:mm', 'HH:mm:ss' or 'HH:mm:ss.SSS' but was: " + str);
+      throw new ParseFailureException(
+          "Unable to parse time from '{value}', must be formatted as 'HH', 'HH:mm', 'HH:mm:ss' or 'HH:mm:ss.SSS'", str);
     }
   }
 
@@ -475,14 +572,14 @@ public final class LoaderUtils {
    *
    * @param str  the string to parse
    * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static ZoneId parseZoneId(String str) {
     try {
       return ZoneId.of(str);
 
     } catch (DateTimeParseException ex) {
-      throw new IllegalArgumentException("Unknown time-zone, was: " + str);
+      throw new ParseFailureException("Unable to parse time-zone from '{value}'", str);
     }
   }
 
@@ -494,7 +591,7 @@ public final class LoaderUtils {
    *
    * @param str  the string to parse
    * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static Period parsePeriod(String str) {
     try {
@@ -502,7 +599,7 @@ public final class LoaderUtils {
       return Period.parse(prefixed);
 
     } catch (DateTimeParseException ex) {
-      throw new IllegalArgumentException("Unknown period format: " + str);
+      throw new ParseFailureException("Unable to parse period from '{value}'", str);
     }
   }
 
@@ -525,14 +622,14 @@ public final class LoaderUtils {
    *
    * @param str  the string to parse
    * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static MarketTenor parseMarketTenor(String str) {
     try {
       return MarketTenor.parse(str);
 
     } catch (RuntimeException ex) {
-      throw new IllegalArgumentException("Unknown tenor format: " + str);
+      throw new ParseFailureException("Unable to parse market tenor from '{value}'", str);
     }
   }
 
@@ -557,14 +654,14 @@ public final class LoaderUtils {
    *
    * @param str  the string to parse
    * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static Tenor parseTenor(String str) {
     try {
       return Tenor.parse(str);
 
     } catch (RuntimeException ex) {
-      throw new IllegalArgumentException("Unknown tenor format: " + str);
+      throw new ParseFailureException("Unable to parse tenor from '{value}'", str);
     }
   }
 
@@ -589,14 +686,14 @@ public final class LoaderUtils {
    *
    * @param str  the string to parse
    * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static Frequency parseFrequency(String str) {
     try {
       return Frequency.parse(str);
 
     } catch (RuntimeException ex) {
-      throw new IllegalArgumentException("Unknown frequency format: " + str);
+      throw new ParseFailureException("Unable to parse frequency from '{value}'", str);
     }
   }
 
@@ -621,14 +718,13 @@ public final class LoaderUtils {
    *
    * @param str  the string to parse
    * @return the parsed currency
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static Currency parseCurrency(String str) {
     try {
       return Currency.parse(str);
     } catch (RuntimeException ex) {
-      throw new IllegalArgumentException(
-          "Unknown Currency, must be 3 letter ISO-4217 format but was '" + str + "'");
+      throw new ParseFailureException("Unable to parse currency from '{value}', must be 3 letter ISO-4217 format", str);
     }
   }
 
@@ -656,14 +752,14 @@ public final class LoaderUtils {
    *
    * @param str  the string to parse
    * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static DayCount parseDayCount(String str) {
     return DayCount.extendedEnum().findLenient(str)
-        .orElseThrow(() -> new IllegalArgumentException(
-            "Unknown DayCount value, must be one of " +
-                DayCount.extendedEnum().lookupAllNormalized().keySet() +
-                " but was '" + str + "'"));
+        .orElseThrow(() -> new ParseFailureException(
+            "Unable to parse day count from '{value}', must be one of {options}",
+            str,
+            DayCount.extendedEnum().lookupAllNormalized().keySet()));
   }
 
   /**
@@ -674,14 +770,14 @@ public final class LoaderUtils {
    *
    * @param str  the string to parse
    * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static BusinessDayConvention parseBusinessDayConvention(String str) {
     return BusinessDayConvention.extendedEnum().findLenient(str)
-        .orElseThrow(() -> new IllegalArgumentException(
-            "Unknown BusinessDayConvention value, must be one of " +
-                BusinessDayConvention.extendedEnum().lookupAllNormalized().keySet() +
-                " but was '" + str + "'"));
+        .orElseThrow(() -> new ParseFailureException(
+            "Unable to parse business day convention from '{value}', must be one of {options}",
+            str,
+            BusinessDayConvention.extendedEnum().lookupAllNormalized().keySet()));
   }
 
   /**
@@ -692,27 +788,27 @@ public final class LoaderUtils {
    *
    * @param str  the string to parse
    * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static RollConvention parseRollConvention(String str) {
     return RollConvention.extendedEnum().findLenient(str)
-        .orElseThrow(() -> new IllegalArgumentException(
-            "Unknown RollConvention value, must be one of " +
-                RollConvention.extendedEnum().lookupAllNormalized().keySet() +
-                " but was '" + str + "'"));
+        .orElseThrow(() -> new ParseFailureException(
+            "Unable to parse roll convention from '{value}', must be one of {options}",
+            str,
+            RollConvention.extendedEnum().lookupAllNormalized().keySet()));
   }
 
   /**
    * Parses buy/sell from the input string.
    * <p>
    * Parsing is case insensitive.
-   * Buy is parsed as 'BUY', 'B'.
-   * Sell is parsed as 'SELL', 'S'.
+   * Buy is parsed as 'BUY' or 'B'.
+   * Sell is parsed as 'SELL' or 'S'.
    * Other strings are rejected.
    *
    * @param str  the string to parse
    * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static BuySell parseBuySell(String str) {
     switch (str.toUpperCase(Locale.ENGLISH)) {
@@ -723,9 +819,10 @@ public final class LoaderUtils {
       case "S":
         return BuySell.SELL;
       default:
-        throw new IllegalArgumentException(
-            "Unknown BuySell value, must be 'Buy' or 'Sell' but was '" + str + "'; " +
-                "parser is case insensitive and also accepts 'B' and 'S'");
+        throw new ParseFailureException(
+            "Unable to parse buy/sell from '{value}', must be one of {options}",
+            str,
+            "'Buy', 'Sell', 'B', or 'S' (case insensitive)");
     }
   }
 
@@ -733,29 +830,41 @@ public final class LoaderUtils {
    * Parses cap/floor from the input string.
    * <p>
    * Parsing is case insensitive.
-   * Cap is parsed as 'CAP'.
-   * Floor is parsed as 'FLOOR'.
+   * Cap is parsed as 'CAP' or 'C'.
+   * Floor is parsed as 'FLOOR' or 'F'.
    * Other strings are rejected.
    *
    * @param str  the string to parse
-   * @return  the parsed value
-   * @throws IllegalArgumentException  if the string cannot be parsed
+   * @return the parsed value
+   * @throws ParseFailureException  if the string cannot be parsed
    */
   public static CapFloor parseCapFloor(String str) {
-    return CapFloor.of(str);
+    switch (str.toUpperCase(Locale.ENGLISH)) {
+      case "CAP":
+      case "C":
+        return CapFloor.CAP;
+      case "FLOOR":
+      case "F":
+        return CapFloor.FLOOR;
+      default:
+        throw new ParseFailureException(
+            "Unable to parse cap/floor from '{value}', must be one of {options}",
+            str,
+            "'Cap', 'Floor', 'C', or 'F' (case insensitive)");
+    }
   }
 
   /**
    * Parses pay/receive from the input string.
    * <p>
    * Parsing is case insensitive.
-   * Pay is parsed as 'PAY', 'P'.
-   * Receive is parsed as 'RECEIVE', 'REC', 'R'.
+   * Pay is parsed as 'PAY' or 'P'.
+   * Receive is parsed as 'RECEIVE', 'REC' or 'R'.
    * Other strings are rejected.
    *
    * @param str  the string to parse
    * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static PayReceive parsePayReceive(String str) {
     switch (str.toUpperCase(Locale.ENGLISH)) {
@@ -767,9 +876,10 @@ public final class LoaderUtils {
       case "R":
         return PayReceive.RECEIVE;
       default:
-        throw new IllegalArgumentException(
-            "Unknown PayReceive value, must be 'Pay' or 'Receive' but was '" + str + "'; " +
-                "parser is case insensitive and also accepts 'P', 'Rec' and 'R'");
+        throw new ParseFailureException(
+            "Unable to parse pay/receive from '{value}', must be one of {options}",
+            str,
+            "'Pay', 'Receive', 'Rec', 'P', or 'R' (case insensitive)");
     }
   }
 
@@ -777,13 +887,13 @@ public final class LoaderUtils {
    * Parses put/call from the input string.
    * <p>
    * Parsing is case insensitive.
-   * Put is parsed as 'PUT', 'P'.
-   * Call is parsed as 'CALL', 'C'.
+   * Put is parsed as 'PUT' or 'P'.
+   * Call is parsed as 'CALL' or 'C'.
    * Other strings are rejected.
    *
    * @param str  the string to parse
-   * @return  the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @return the parsed value
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static PutCall parsePutCall(String str) {
     switch (str.toUpperCase(Locale.ENGLISH)) {
@@ -794,9 +904,10 @@ public final class LoaderUtils {
       case "C":
         return PutCall.CALL;
       default:
-        throw new IllegalArgumentException(
-            "Unknown PutCall value, must be 'Put' or 'Call' but was '" + str + "'; " +
-                "parser is case insensitive and also accepts 'P' and 'C'");
+        throw new ParseFailureException(
+            "Unable to parse put/call from '{value}', must be one of {options}",
+            str,
+            "'Put', 'Call', 'P', or 'C' (case insensitive)");
     }
   }
 
@@ -804,13 +915,13 @@ public final class LoaderUtils {
    * Parses long/short from the input string.
    * <p>
    * Parsing is case insensitive.
-   * Long is parsed as 'LONG', 'L'.
-   * Short is parsed as 'SHORT', 'S'.
+   * Long is parsed as 'LONG' or 'L'.
+   * Short is parsed as 'SHORT' or 'S'.
    * Other strings are rejected.
    *
    * @param str  the string to parse
-   * @return  the parsed value
-   * @throws  IllegalArgumentException if the string cannot be parsed
+   * @return the parsed value
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static LongShort parseLongShort(String str) {
     switch (str.toUpperCase(Locale.ENGLISH)) {
@@ -821,9 +932,10 @@ public final class LoaderUtils {
       case "S":
         return LongShort.SHORT;
       default:
-        throw new IllegalArgumentException(
-            "Unknown LongShort value, must be 'Long' or 'Short' but was '" + str + "'; " +
-                "parser is case insensitive and also accepts 'L' and 'S'");
+        throw new ParseFailureException(
+            "Unable to parse long/short from '{value}', must be one of {options}",
+            str,
+            "'Long', 'Short', 'L', or 'S' (case insensitive)");
     }
   }
 
@@ -831,23 +943,27 @@ public final class LoaderUtils {
    * Parses barrier type from the input string.
    * <p>
    * Parsing is case insensitive.
-   * Up is parsed as 'UP'.
-   * Down is parsed as 'DOWN'.
+   * Up is parsed as 'UP' or 'U'.
+   * Down is parsed as 'DOWN' or 'D'.
    * Other strings are rejected.
    *
-   * @param  str the string to parse
-   * @return  the parsed value
-   * @throws  IllegalArgumentException if the string cannot be parsed
+   * @param str the string to parse
+   * @return the parsed value
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static BarrierType parseBarrierType(String str) {
     switch (str.toUpperCase(Locale.ENGLISH)) {
       case "UP":
+      case "U":
         return BarrierType.UP;
       case "DOWN":
+      case "D":
         return BarrierType.DOWN;
       default:
-        throw new IllegalArgumentException("Unknown BarrierType value, must be 'Up' or 'Down' but was'" + str
-            + "'. The parser is case insensitive.");
+        throw new ParseFailureException(
+            "Unable to parse up/down from '{value}', must be one of {options}",
+            str,
+            "'Up', 'Down', 'U', or 'D' (case insensitive)");
     }
   }
 
@@ -860,20 +976,24 @@ public final class LoaderUtils {
    * Other strings are rejected.
    *
    * @param str  the string to parse
-   * @return  the parsed value
-   * @throws  IllegalArgumentException if the string cannot be parsed
+   * @return the parsed value
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static KnockType parseKnockType(String str) {
     switch (str.toUpperCase(Locale.ENGLISH)) {
       case "KNOCKIN":
       case "IN":
+      case "I":
         return KnockType.KNOCK_IN;
       case "KNOCKOUT":
       case "OUT":
+      case "O":
         return KnockType.KNOCK_OUT;
       default:
-        throw new IllegalArgumentException("Unknown KnockType value, must be 'KnockIn' or 'KnockOut' but was'" + str
-            + "'. The parser is case insensitive and also accepts 'In' or 'Out'.");
+        throw new ParseFailureException(
+            "Unable to parse in/out from '{value}', must be one of {options}",
+            str,
+            "'In', 'Out', 'KnockIn', 'KnockOut', 'I' or 'O' (case insensitive)");
     }
   }
 
@@ -885,7 +1005,7 @@ public final class LoaderUtils {
    *
    * @param str the string to parse
    * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @throws ParseFailureException if the string cannot be parsed
    */
   public static StandardId parseRedCode(String str) {
     if (str.length() == 9) {
@@ -893,8 +1013,7 @@ public final class LoaderUtils {
     } else if (str.length() == 6) {
       return StandardId.of(StandardSchemes.RED6_SCHEME, str);
     } else {
-      throw new IllegalArgumentException(
-          "Unknown RED code format, must be 6 or 9 characters long but was " + str.length());
+      throw new ParseFailureException("Unable to parse RED code from '{value}', must be 6 or 9 characters long", str);
     }
   }
 

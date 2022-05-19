@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.opengamma.strata.collect.Decimal;
+
 /**
  * Test {@link FxRate}.
  */
@@ -185,11 +187,19 @@ public class FxRateTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_convert() {
+  public void test_convert_double() {
     FxRate test = FxRate.of(GBP, USD, 1.25d);
     assertThat(test.convert(100, GBP, USD)).isEqualTo(125d);
     assertThat(test.convert(100, USD, GBP)).isEqualTo(100d / 1.25d);
     assertThatIllegalArgumentException().isThrownBy(() -> test.convert(100, GBP, AUD));
+  }
+
+  @Test
+  public void test_convert_Decimal() {
+    FxRate test = FxRate.of(GBP, USD, 1.25d);
+    assertThat(test.convert(Decimal.of(100), GBP, USD)).isEqualTo(Decimal.of(125));
+    assertThat(test.convert(Decimal.of(100), USD, GBP)).isEqualTo(Decimal.of(100d / 1.25d));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.convert(Decimal.of(100), GBP, AUD));
   }
 
   //-------------------------------------------------------------------------

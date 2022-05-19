@@ -18,6 +18,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Decimal;
 
 /**
  * A monetary amount, held to a maximum of 12 decimal places.
@@ -45,7 +46,7 @@ public class BigMoney
    * <p>
    * For example, in the value 'GBP 12.34' the amount is 12.34.
    */
-  private final BigDecimal amount;
+  private final Decimal amount;
 
   //-------------------------------------------------------------------------
   /**
@@ -55,7 +56,7 @@ public class BigMoney
    * @return the zero amount instance
    */
   public static BigMoney zero(Currency currency) {
-    return of(currency, BigDecimal.ZERO);
+    return of(currency, Decimal.ZERO);
   }
 
   /**
@@ -65,7 +66,7 @@ public class BigMoney
    * @return the currency amount
    */
   public static BigMoney of(CurrencyAmount currencyAmount) {
-    return new BigMoney(currencyAmount.getCurrency(), BigDecimal.valueOf(currencyAmount.getAmount()));
+    return new BigMoney(currencyAmount.getCurrency(), Decimal.of(currencyAmount.getAmount()));
   }
 
   /**
@@ -75,7 +76,7 @@ public class BigMoney
    * @return the currency amount
    */
   public static BigMoney of(Money money) {
-    return new BigMoney(money.getCurrency(), money.getAmount());
+    return new BigMoney(money.getCurrency(), money.getValue().decimal());
   }
 
   /**
@@ -86,7 +87,7 @@ public class BigMoney
    * @return the currency amount
    */
   public static BigMoney of(Currency currency, double amount) {
-    return new BigMoney(currency, BigDecimal.valueOf(amount));
+    return new BigMoney(currency, Decimal.of(amount));
   }
 
   /**
@@ -97,6 +98,17 @@ public class BigMoney
    * @return the currency amount
    */
   public static BigMoney of(Currency currency, BigDecimal amount) {
+    return new BigMoney(currency, Decimal.of(amount));
+  }
+
+  /**
+   * Obtains an instance of {@code BigMoney} for the specified currency and amount.
+   *
+   * @param currency  the currency the amount is in
+   * @param amount  the amount of the currency to represent, as an instance of {@link Decimal}
+   * @return the currency amount
+   */
+  public static BigMoney of(Currency currency, Decimal amount) {
     return new BigMoney(currency, amount);
   }
 
@@ -119,7 +131,7 @@ public class BigMoney
     }
     try {
       Currency cur = Currency.parse(split.get(0));
-      return new BigMoney(cur, new BigDecimal(split.get(1)));
+      return new BigMoney(cur, Decimal.of(split.get(1)));
     } catch (RuntimeException ex) {
       throw new IllegalArgumentException("Unable to parse amount: " + amountStr, ex);
     }
@@ -132,18 +144,11 @@ public class BigMoney
    * @param currency  the currency
    * @param amount  the amount
    */
-  private BigMoney(Currency currency, BigDecimal amount) {
+  private BigMoney(Currency currency, Decimal amount) {
     ArgChecker.notNull(currency, "currency");
     ArgChecker.notNull(amount, "amount");
     this.currency = currency;
-    BigDecimal fixedAmount = amount.stripTrailingZeros();
-    if (fixedAmount.scale() < currency.getMinorUnitDigits()) {
-      fixedAmount = fixedAmount.setScale(currency.getMinorUnitDigits());
-    }
-    if (fixedAmount.scale() > 12) {
-      fixedAmount = fixedAmount.setScale(12, RoundingMode.HALF_UP);
-    }
-    this.amount = fixedAmount;
+    this.amount = amount.roundToScale(12, RoundingMode.HALF_UP);
   }
 
   //-------------------------------------------------------------------------
@@ -159,13 +164,31 @@ public class BigMoney
   }
 
   /**
-   * Gets the amount of the currency.
+   * Gets the numeric amount of the money, as a {@code BigDecimal}.
    * <p>
-   * For example, in the value 'GBP 12.34' the amount is 12.34.
+   * For example, in the amount 'GBP 12.345' the decimal value returned is '12.345'.
    *
-   * @return the amount
+   * @return the amount, with a scale from 0 to 12
+   * @deprecated Use {@link #getValue()}
    */
+  @Deprecated
   public BigDecimal getAmount() {
+    BigDecimal decimal = amount.toBigDecimal();
+    int digits = currency.getMinorUnitDigits();
+    if (decimal.scale() < digits) {
+      return decimal.setScale(digits);
+    }
+    return decimal;
+  }
+
+  /**
+   * Gets the numeric amount of the money.
+   * <p>
+   * For example, in the amount 'GBP 12.345' the decimal value returned is '12.345'.
+   *
+   * @return the amount, with a scale from 0 to 12
+   */
+  public Decimal getValue() {
     return amount;
   }
 
@@ -184,7 +207,7 @@ public class BigMoney
   public BigMoney plus(BigMoney amountToAdd) {
     ArgChecker.notNull(amountToAdd, "amountToAdd");
     ArgChecker.isTrue(amountToAdd.getCurrency().equals(currency), "Unable to add amounts in different currencies");
-    return new BigMoney(currency, amount.add(amountToAdd.amount));
+    return new BigMoney(currency, amount.plus(amountToAdd.amount));
   }
 
   /**
@@ -201,7 +224,7 @@ public class BigMoney
   public BigMoney minus(BigMoney amountToSubtract) {
     ArgChecker.notNull(amountToSubtract, "amountToSubtract");
     ArgChecker.isTrue(amountToSubtract.getCurrency().equals(currency), "Unable to subtract amounts in different currencies");
-    return new BigMoney(currency, amount.subtract(amountToSubtract.amount));
+    return new BigMoney(currency, amount.minus(amountToSubtract.amount));
   }
 
   //-------------------------------------------------------------------------
@@ -216,7 +239,7 @@ public class BigMoney
    * @return an amount based on this with the amount multiplied
    */
   public BigMoney multipliedBy(long valueToMultiplyBy) {
-    return new BigMoney(currency, amount.multiply(BigDecimal.valueOf(valueToMultiplyBy)));
+    return new BigMoney(currency, amount.multipliedBy(valueToMultiplyBy));
   }
 
   /**
@@ -231,9 +254,27 @@ public class BigMoney
    * @param mapper  the operator to be applied to the amount
    * @return a copy of this amount with the mapping applied to the original amount
    */
-  public BigMoney mapAmount(UnaryOperator<BigDecimal> mapper) {
+  public BigMoney map(UnaryOperator<Decimal> mapper) {
     ArgChecker.notNull(mapper, "mapper");
     return new BigMoney(currency, mapper.apply(amount));
+  }
+
+  /**
+   * Applies an operation to the amount.
+   * <p>
+   * This is generally used to apply a mathematical operation to the amount.
+   * For example, the operator could multiply the amount by a constant, or take the inverse.
+   * <pre>
+   *   abs = base.mapAmount(value -> value.abs());
+   * </pre>
+   *
+   * @param mapper  the operator to be applied to the amount
+   * @return a copy of this amount with the mapping applied to the original amount
+   * @deprecated Use {@link #map(UnaryOperator)}, potentially using a lambda {@code decimal -> decimal.mapAsBigDecimal(mapper)}
+   */
+  @Deprecated
+  public BigMoney mapAmount(UnaryOperator<BigDecimal> mapper) {
+    return map(decimal -> decimal.mapAsBigDecimal(mapper));
   }
 
   //-------------------------------------------------------------------------
@@ -243,7 +284,7 @@ public class BigMoney
    * @return true if zero
    */
   public boolean isZero() {
-    return amount.signum() == 0;
+    return amount.isZero();
   }
 
   /**
@@ -254,7 +295,7 @@ public class BigMoney
    * @return true if positive
    */
   public boolean isPositive() {
-    return amount.signum() > 0;
+    return amount.unscaledValue() > 0;
   }
 
   /**
@@ -265,14 +306,14 @@ public class BigMoney
    * @return true if negative
    */
   public boolean isNegative() {
-    return amount.signum() < 0;
+    return amount.unscaledValue() < 0;
   }
 
   //-------------------------------------------------------------------------
   /**
    * Returns a copy of this {@code BigMoney} with the amount negated.
    * <p>
-   * This takes this amount and negates it. If the amount is 0.0 or -0.0 the negated amount is 0.0.
+   * This takes this amount and negates it.
    * <p>
    * This instance is immutable and unaffected by this method.
    * 
@@ -282,7 +323,7 @@ public class BigMoney
     if (isZero()) {
       return this;
     }
-    return new BigMoney(currency, amount.negate());
+    return new BigMoney(currency, amount.negated());
   }
 
   /**
@@ -346,13 +387,31 @@ public class BigMoney
    * @throws IllegalArgumentException if the FX is not 1 when no conversion is required
    */
   public BigMoney convertedTo(Currency resultCurrency, BigDecimal fxRate) {
+    return convertedTo(resultCurrency, Decimal.of(fxRate));
+  }
+
+  /**
+   * Converts this amount to an equivalent amount the specified currency.
+   * <p>
+   * The result will be expressed in terms of the given currency, converting
+   * using the specified FX rate.
+   * <p>
+   * For example, if this represents 'GBP 100' and this method is called with
+   * arguments {@code (USD, 1.6)} then the result will be 'USD 160'.
+   *
+   * @param resultCurrency  the currency of the result
+   * @param fxRate  the FX rate from this currency to the result currency
+   * @return the converted instance, which should be expressed in the specified currency
+   * @throws IllegalArgumentException if the FX is not 1 when no conversion is required
+   */
+  public BigMoney convertedTo(Currency resultCurrency, Decimal fxRate) {
     if (currency.equals(resultCurrency)) {
       if (DoubleMath.fuzzyEquals(fxRate.doubleValue(), 1d, 1e-8)) {
         return this;
       }
       throw new IllegalArgumentException("FX rate must be 1 when no conversion required");
     }
-    return BigMoney.of(resultCurrency, amount.multiply(fxRate));
+    return BigMoney.of(resultCurrency, amount.multipliedBy(fxRate));
   }
 
   /**
@@ -433,7 +492,7 @@ public class BigMoney
   @Override
   @ToString
   public String toString() {
-    return currency + " " + amount.toPlainString();
+    return currency + " " + amount.formatAtLeast(currency.getMinorUnitDigits());
   }
 
 }

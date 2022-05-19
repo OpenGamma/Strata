@@ -24,6 +24,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.collect.Decimal;
 import com.opengamma.strata.collect.Unchecked;
 
 /**
@@ -184,6 +185,15 @@ public class CurrencyTest {
     assertThat(Currency.USD.roundMinorUnits(new BigDecimal(63.34499999d))).isEqualTo(new BigDecimal("63.34"));
     assertThat(Currency.JPY.roundMinorUnits(new BigDecimal(63.347d))).isEqualTo(new BigDecimal("63"));
     assertThat(Currency.JPY.roundMinorUnits(new BigDecimal(63.5347d))).isEqualTo(new BigDecimal("64"));
+  }
+
+  @Test
+  public void test_roundMinorUnits_Decimal() {
+    assertThat(Currency.USD.roundMinorUnits(Decimal.of(63.347d))).isEqualTo(Decimal.of(63.35));
+    assertThat(Currency.USD.roundMinorUnits(Decimal.of(63.34500001d))).isEqualTo(Decimal.of(63.35));
+    assertThat(Currency.USD.roundMinorUnits(Decimal.of(63.34499999d))).isEqualTo(Decimal.of(63.34));
+    assertThat(Currency.JPY.roundMinorUnits(Decimal.of(63.347d))).isEqualTo(Decimal.of(63));
+    assertThat(Currency.JPY.roundMinorUnits(Decimal.of(63.5347d))).isEqualTo(Decimal.of(64));
   }
 
   //-----------------------------------------------------------------------

@@ -23,9 +23,9 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.index.FxIndex;
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
@@ -118,7 +118,7 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriter
     Optional<String> leg1NotionalOpt = row.findValue(LEG_1_NOTIONAL_FIELD);
     Optional<String> leg2NotionalOpt = row.findValue(LEG_2_NOTIONAL_FIELD);
     if (leg1NotionalOpt.isPresent() && leg2NotionalOpt.isPresent()) {
-      throw new IllegalArgumentException(
+      throw new ParseFailureException(
           "Notional found for both legs; only one leg can contain notional amount to determine settlement leg");
     } else if (leg1NotionalOpt.isPresent()) {
       settlementNotional = CsvLoaderUtils.parseCurrencyAmountWithDirection(
@@ -131,14 +131,14 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriter
       settlementCurrency = row.getField(LEG_2_CURRENCY_FIELD, LoaderUtils::parseCurrency);
       nonDeliverableCurrency = row.getField(LEG_1_CURRENCY_FIELD, LoaderUtils::parseCurrency);
     } else {
-      throw new IllegalArgumentException("Notional could not be found to determine settlement leg");
+      throw new ParseFailureException("Notional could not be found to determine settlement leg");
     }
 
     PayReceive leg1Direction = row.getValue(LEG_1_DIRECTION_FIELD, LoaderUtils::parsePayReceive);
     PayReceive leg2Direction = row.getValue(LEG_2_DIRECTION_FIELD, LoaderUtils::parsePayReceive);
     if (leg1Direction.equals(leg2Direction)) {
-      throw new IllegalArgumentException(Messages.format(
-          "FxNdf legs must not have the same direction: {}, {}", leg1Direction, leg2Direction));
+      throw new ParseFailureException(
+          "FxNdf legs must not have the same direction: {value}, {value2}", leg1Direction, leg2Direction);
     }
 
     CurrencyPair currencyPair = CurrencyPair.of(settlementCurrency, nonDeliverableCurrency);

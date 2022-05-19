@@ -36,6 +36,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
@@ -128,7 +129,7 @@ final class TermDepositTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvW
     // use convention if available
     if (conventionOpt.isPresent()) {
       if (currencyOpt.isPresent() || dayCountOpt.isPresent()) {
-        throw new IllegalArgumentException(
+        throw new ParseFailureException(
             "TermDeposit trade had invalid combination of fields. When '" + CONVENTION_FIELD +
                 "' is present these fields must not be present: " +
                 ImmutableList.of(CURRENCY_FIELD, DAY_COUNT_FIELD));
@@ -137,7 +138,7 @@ final class TermDepositTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvW
       // explicit dates take precedence over relative ones
       if (startDateOpt.isPresent() && endDateOpt.isPresent()) {
         if (tenorOpt.isPresent()) {
-          throw new IllegalArgumentException(
+          throw new ParseFailureException(
               "TermDeposit trade had invalid combination of fields. When these fields are found " +
                   ImmutableList.of(CONVENTION_FIELD, START_DATE_FIELD, END_DATE_FIELD) +
                   " then these fields must not be present " +
@@ -151,7 +152,7 @@ final class TermDepositTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvW
       // relative dates
       if (tenorOpt.isPresent() && info.getTradeDate().isPresent()) {
         if (startDateOpt.isPresent() || endDateOpt.isPresent()) {
-          throw new IllegalArgumentException(
+          throw new ParseFailureException(
               "TermDeposit trade had invalid combination of fields. When these fields are found " +
                   ImmutableList.of(CONVENTION_FIELD, TENOR_FIELD, TRADE_DATE_FIELD) +
                   " then these fields must not be present " +
@@ -182,7 +183,7 @@ final class TermDepositTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvW
       return adjustTrade(trade, dateCnv, dateCalOpt);
     }
     // no match
-    throw new IllegalArgumentException(
+    throw new ParseFailureException(
         "TermDeposit trade had invalid combination of fields. These fields are mandatory:" +
             ImmutableList.of(BUY_SELL_FIELD, NOTIONAL_FIELD, FIXED_RATE_FIELD) +
             " and one of these combinations is mandatory: " +

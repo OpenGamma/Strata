@@ -100,7 +100,8 @@ final class FxSingleLegFpmlParserPlugin
           .build();
     }
     if (!currency1Date.equals(currency2Date)) {
-      throw new FpmlParseException("FxNdf only supports a single payment date");
+      throw new FpmlParseException(
+          "FxNdf only supports a single payment date, but found '{value}' and '{value2}'", currency1Date, currency2Date);
     }
     return parseNdf(document, fxEl, ndfEl.get(), curr1Amount, curr2Amount, currency1Date, tradeInfoBuilder);
   }
@@ -127,7 +128,7 @@ final class FxSingleLegFpmlParserPlugin
     } else if ("Currency1PerCurrency2".equals(basis)) {
       fxRate = FxRate.of(curr2, curr1, rate);
     } else {
-      throw new FpmlParseException("Unknown quote basis: " + basis);
+      throw new FpmlParseException("Unknown quote basis '{value}'", basis);
     }
     // settlement currency
     Currency settleCurr = document.parseCurrency(ndfEl.getChild("settlementCurrency"));

@@ -193,7 +193,7 @@ public final class Failure
   /**
    * Creates a failure from the throwable.
    * <p>
-   * This recognizes {@link FailureException}, {@link FailureItemException} and {@link ParseFailureException}.
+   * This recognizes {@link FailureException} and {@link FailureItemProvider}.
    *
    * @param th  the throwable to be processed
    * @return the failure
@@ -203,11 +203,10 @@ public final class Failure
       throw th;
     } catch (FailureException ex) {
       return ex.getFailure();
-    } catch (FailureItemException ex) {
-      return of(ex.getFailureItem());
-    } catch (ParseFailureException ex) {
-      return of(ex.getFailureItem());
     } catch (Throwable ex) {
+      if (ex instanceof FailureItemProvider) {
+        return of(((FailureItemProvider) ex).getFailureItem());
+      }
       return of(FailureReason.ERROR, ex);
     }
   }

@@ -79,6 +79,7 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
@@ -163,7 +164,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
       // explicit dates take precedence over relative ones
       if (startDateOpt.isPresent() && endDateOpt.isPresent()) {
         if (tenorOpt.isPresent()) {
-          throw new IllegalArgumentException(
+          throw new ParseFailureException(
               "CDS trade had invalid combination of fields. When these fields are found " +
                   ImmutableList.of(CONVENTION_FIELD, START_DATE_FIELD, END_DATE_FIELD) +
                   " then these fields must not be present " +
@@ -181,7 +182,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
       // relative dates
       if (tenorOpt.isPresent() && info.getTradeDate().isPresent()) {
         if (startDateOpt.isPresent() || endDateOpt.isPresent()) {
-          throw new IllegalArgumentException(
+          throw new ParseFailureException(
               "CDS trade had invalid combination of fields. When these fields are found " +
                   ImmutableList.of(CONVENTION_FIELD, TENOR_FIELD) +
                   " then these fields must not be present " +
@@ -200,7 +201,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
         }
       }
       // no match
-      throw new IllegalArgumentException(
+      throw new ParseFailureException(
           "CDS trade had invalid combination of fields. These fields are mandatory:" +
               ImmutableList.of(BUY_SELL_FIELD, NOTIONAL_FIELD, FIXED_RATE_FIELD, LEGAL_ENTITY_ID_SCHEME_FIELD) +
               " and one of these combinations is mandatory: " +
@@ -266,8 +267,10 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
     if (ACCEPTED_SENIORITY_VALUES.contains(seniorityUpper)) {
       return seniorityUpper;
     }
-    throw new IllegalArgumentException("Unknown Seniority value, must be : " + ACCEPTED_SENIORITY_VALUES + " but was '"
-        + seniority + "'. The parser is case insensitive.");
+    throw new ParseFailureException(
+        "Unable to parse seniority from '{value}', must be one of {options} (case insensitive)",
+        seniority,
+        ACCEPTED_SENIORITY_VALUES);
   }
 
   // accrual schedule

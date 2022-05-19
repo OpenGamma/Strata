@@ -15,6 +15,7 @@ import java.io.Serializable;
 import java.io.UncheckedIOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -233,7 +234,7 @@ public final class ArrayByteSource extends BeanByteSource implements ImmutableBe
    * @return the byte source
    * @throws UncheckedIOException if an IO error occurs
    */
-  public static ArrayByteSource from(CheckedSupplier<InputStream> inputStreamSupplier) {
+  public static ArrayByteSource from(CheckedSupplier<? extends InputStream> inputStreamSupplier) {
     return Unchecked.wrap(() -> {
       try (InputStream in = inputStreamSupplier.get()) {
         return from(in);
@@ -389,14 +390,40 @@ public final class ArrayByteSource extends BeanByteSource implements ImmutableBe
     return UnicodeBom.toString(array);
   }
 
+  @Override
+  public StringCharSource asCharSourceUtf8() {
+    // no need to bridge, as javac is already doing that
+    return new StringCharSource(readUtf8(), fileName);
+  }
+
   /**
-   * Returns a {@code CharSource} for the same bytes, converted to UTF-8 using a Byte-Order Mark if available.
-   * 
-   * @return the equivalent {@code CharSource}
+   * @hidden
+   * @return the source
    */
   @Override
-  public CharSource asCharSourceUtf8UsingBom() {
-    return UnicodeBom.toCharSource(this);
+  public CharSource asCharSourceUtf8$$bridge() { // CSIGNORE
+    // bridged below for backwards compatibility
+    return asCharSourceUtf8();
+  }
+
+  @Override
+  public StringCharSource asCharSource(Charset charset) {
+    return new StringCharSource(new String(array, charset), fileName);
+  }
+
+  @Override
+  public StringCharSource asCharSourceUtf8UsingBom() {
+    // bridged below for backwards compatibility
+    return new StringCharSource(UnicodeBom.toString(array), fileName);
+  }
+
+  /**
+   * @hidden
+   * @return the source
+   */
+  @Override
+  public CharSource asCharSourceUtf8UsingBom$$bridge() { // CSIGNORE
+    return UnicodeBom.toCharSource((ByteSource) this);
   }
 
   //-------------------------------------------------------------------------

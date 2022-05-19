@@ -17,6 +17,8 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Decimal;
+import com.opengamma.strata.collect.FixedScaleDecimal;
 
 /**
  * An amount of a currency, rounded to match the currency specifications.
@@ -44,7 +46,7 @@ public class Money
    * <p>
    * For example, in the value 'GBP 12.34' the amount is 12.34.
    */
-  private final BigDecimal amount;
+  private final Decimal amount;
 
   //-------------------------------------------------------------------------
   /**
@@ -54,7 +56,7 @@ public class Money
    * @return the zero amount instance
    */
   public static Money zero(Currency currency) {
-    return of(currency, BigDecimal.ZERO);
+    return of(currency, Decimal.ZERO);
   }
 
   /**
@@ -64,7 +66,7 @@ public class Money
    * @return the currency amount
    */
   public static Money of(CurrencyAmount currencyAmount) {
-    return new Money(currencyAmount.getCurrency(), BigDecimal.valueOf(currencyAmount.getAmount()));
+    return new Money(currencyAmount.getCurrency(), Decimal.of(currencyAmount.getAmount()));
   }
 
   /**
@@ -74,7 +76,7 @@ public class Money
    * @return the currency amount
    */
   public static Money of(BigMoney money) {
-    return new Money(money.getCurrency(), money.getAmount());
+    return new Money(money.getCurrency(), money.getValue());
   }
 
   /**
@@ -85,7 +87,7 @@ public class Money
    * @return the currency amount
    */
   public static Money of(Currency currency, double amount) {
-    return new Money(currency, BigDecimal.valueOf(amount));
+    return new Money(currency, Decimal.of(amount));
   }
 
   /**
@@ -96,6 +98,17 @@ public class Money
    * @return the currency amount
    */
   public static Money of(Currency currency, BigDecimal amount) {
+    return new Money(currency, Decimal.of(amount));
+  }
+
+  /**
+   * Obtains an instance of {@code Money} for the specified currency and amount.
+   *
+   * @param currency  the currency the amount is in
+   * @param amount  the amount of the currency to represent, as an instance of {@link Decimal}
+   * @return the currency amount
+   */
+  public static Money of(Currency currency, Decimal amount) {
     return new Money(currency, amount);
   }
 
@@ -118,7 +131,7 @@ public class Money
     }
     try {
       Currency cur = Currency.parse(split.get(0));
-      return new Money(cur, new BigDecimal(split.get(1)));
+      return new Money(cur, Decimal.of(split.get(1)));
     } catch (RuntimeException ex) {
       throw new IllegalArgumentException("Unable to parse amount: " + amountStr, ex);
     }
@@ -131,7 +144,7 @@ public class Money
    * @param currency  the currency
    * @param amount  the amount
    */
-  private Money(Currency currency, BigDecimal amount) {
+  private Money(Currency currency, Decimal amount) {
     ArgChecker.notNull(currency, "currency");
     ArgChecker.notNull(amount, "amount");
     this.currency = currency;
@@ -151,16 +164,29 @@ public class Money
   }
 
   /**
-   * Gets the amount of the currency.
+   * Gets the numeric amount of the money, as a {@code BigDecimal}.
    * <p>
-   * The amount will be rounded to the currency specifications.
-   * <p>
-   * For example, in the value 'GBP 12.34' the amount is 12.34.
+   * For example, in the amount 'GBP 12.34' the decimal value returned is 12.34,
+   * and for 'GBP 13.40' the amount returned is '13.40'.
    *
-   * @return the amount
+   * @return the amount, with a scale equal to the currency minor digits
+   * @deprecated Use {@link #getValue()}
    */
+  @Deprecated
   public BigDecimal getAmount() {
-    return amount;
+    return amount.toBigDecimal().setScale(currency.getMinorUnitDigits());
+  }
+
+  /**
+   * Gets the numeric amount of the money.
+   * <p>
+   * For example, in the amount 'GBP 12.34' the decimal value returned is '12.34',
+   * whereas for 'GBP 13.40' the amount returned is '13.40'.
+   *
+   * @return the amount, with a scale equal to the currency minor digits
+   */
+  public FixedScaleDecimal getValue() {
+    return amount.toFixedScale(currency.getMinorUnitDigits());
   }
 
   //-------------------------------------------------------------------------
@@ -178,7 +204,7 @@ public class Money
   public Money plus(Money amountToAdd) {
     ArgChecker.notNull(amountToAdd, "amountToAdd");
     ArgChecker.isTrue(amountToAdd.getCurrency().equals(currency), "Unable to add amounts in different currencies");
-    return new Money(currency, amount.add(amountToAdd.amount));
+    return new Money(currency, amount.plus(amountToAdd.amount));
   }
 
   /**
@@ -195,7 +221,7 @@ public class Money
   public Money minus(Money amountToSubtract) {
     ArgChecker.notNull(amountToSubtract, "amountToSubtract");
     ArgChecker.isTrue(amountToSubtract.getCurrency().equals(currency), "Unable to subtract amounts in different currencies");
-    return new Money(currency, amount.subtract(amountToSubtract.amount));
+    return new Money(currency, amount.minus(amountToSubtract.amount));
   }
 
   //-------------------------------------------------------------------------
@@ -210,7 +236,7 @@ public class Money
    * @return an amount based on this with the amount multiplied
    */
   public Money multipliedBy(long valueToMultiplyBy) {
-    return new Money(currency, amount.multiply(BigDecimal.valueOf(valueToMultiplyBy)));
+    return new Money(currency, amount.multipliedBy(valueToMultiplyBy));
   }
 
   /**
@@ -225,9 +251,27 @@ public class Money
    * @param mapper  the operator to be applied to the amount
    * @return a copy of this amount with the mapping applied to the original amount
    */
-  public Money mapAmount(UnaryOperator<BigDecimal> mapper) {
+  public Money map(UnaryOperator<Decimal> mapper) {
     ArgChecker.notNull(mapper, "mapper");
     return new Money(currency, mapper.apply(amount));
+  }
+
+  /**
+   * Applies an operation to the amount.
+   * <p>
+   * This is generally used to apply a mathematical operation to the amount.
+   * For example, the operator could multiply the amount by a constant, or take the inverse.
+   * <pre>
+   *   abs = base.mapAmount(value -> value.abs());
+   * </pre>
+   *
+   * @param mapper  the operator to be applied to the amount
+   * @return a copy of this amount with the mapping applied to the original amount
+   * @deprecated Use {@link #map(UnaryOperator)}, potentially using a lambda {@code decimal -> decimal.mapAsBigDecimal(mapper)}
+   */
+  @Deprecated
+  public Money mapAmount(UnaryOperator<BigDecimal> mapper) {
+    return map(decimal -> decimal.mapAsBigDecimal(mapper));
   }
 
   //-------------------------------------------------------------------------
@@ -237,7 +281,7 @@ public class Money
    * @return true if zero
    */
   public boolean isZero() {
-    return amount.signum() == 0;
+    return amount.isZero();
   }
 
   /**
@@ -248,7 +292,7 @@ public class Money
    * @return true if positive
    */
   public boolean isPositive() {
-    return amount.signum() > 0;
+    return amount.unscaledValue() > 0;
   }
 
   /**
@@ -259,7 +303,7 @@ public class Money
    * @return true if negative
    */
   public boolean isNegative() {
-    return amount.signum() < 0;
+    return amount.unscaledValue() < 0;
   }
 
   //-------------------------------------------------------------------------
@@ -276,7 +320,7 @@ public class Money
     if (isZero()) {
       return this;
     }
-    return new Money(currency, amount.negate());
+    return new Money(currency, amount.negated());
   }
 
   /**
@@ -340,13 +384,31 @@ public class Money
    * @throws IllegalArgumentException if the FX is not 1 when no conversion is required
    */
   public Money convertedTo(Currency resultCurrency, BigDecimal fxRate) {
+    return convertedTo(resultCurrency, Decimal.of(fxRate));
+  }
+
+  /**
+   * Converts this amount to an equivalent amount the specified currency.
+   * <p>
+   * The result will be expressed in terms of the given currency, converting
+   * using the specified FX rate.
+   * <p>
+   * For example, if this represents 'GBP 100' and this method is called with
+   * arguments {@code (USD, 1.6)} then the result will be 'USD 160'.
+   *
+   * @param resultCurrency  the currency of the result
+   * @param fxRate  the FX rate from this currency to the result currency
+   * @return the converted instance, which should be expressed in the specified currency
+   * @throws IllegalArgumentException if the FX is not 1 when no conversion is required
+   */
+  public Money convertedTo(Currency resultCurrency, Decimal fxRate) {
     if (currency.equals(resultCurrency)) {
       if (DoubleMath.fuzzyEquals(fxRate.doubleValue(), 1d, 1e-8)) {
         return this;
       }
       throw new IllegalArgumentException("FX rate must be 1 when no conversion required");
     }
-    return Money.of(resultCurrency, amount.multiply(fxRate));
+    return Money.of(resultCurrency, amount.multipliedBy(fxRate));
   }
 
   /**
@@ -427,7 +489,7 @@ public class Money
   @Override
   @ToString
   public String toString() {
-    return currency + " " + amount.toPlainString();
+    return currency + " " + amount.formatAtLeast(currency.getMinorUnitDigits());
   }
 
 }

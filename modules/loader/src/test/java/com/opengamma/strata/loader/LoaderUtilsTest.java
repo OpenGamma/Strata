@@ -8,7 +8,7 @@ package com.opengamma.strata.loader;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.within;
 
 import java.math.BigDecimal;
@@ -33,6 +33,10 @@ import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConventions;
+import com.opengamma.strata.collect.BasisPoints;
+import com.opengamma.strata.collect.Decimal;
+import com.opengamma.strata.collect.Percentage;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.common.PayReceive;
@@ -49,7 +53,7 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.findIndex("GBP-SONIA")).isEqualTo(OvernightIndices.GBP_SONIA);
     assertThat(LoaderUtils.findIndex("GB-RPI")).isEqualTo(PriceIndices.GB_RPI);
     assertThat(LoaderUtils.findIndex("GBP/USD-WM")).isEqualTo(FxIndices.GBP_USD_WM);
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.findIndex("Rubbish"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.findIndex("Rubbish"));
   }
 
   @Test
@@ -66,7 +70,7 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseBoolean("f")).isFalse();
     assertThat(LoaderUtils.parseBoolean("no")).isFalse();
     assertThat(LoaderUtils.parseBoolean("n")).isFalse();
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseBoolean("Rubbish"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parseBoolean("Rubbish"));
   }
 
   @Test
@@ -78,22 +82,22 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseInteger("(12,345,000)")).isEqualTo(-12_345_000);
     assertThat(LoaderUtils.parseInteger("12,345,6,7,8")).isEqualTo(12_345_678);
     assertThat(LoaderUtils.parseInteger("(12,345,6,7,8)")).isEqualTo(-12_345_678);
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseInteger("12,,000"))
         .withMessage("Unable to parse integer from '12,,000'");
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseInteger("12,000,"))
         .withMessage("Unable to parse integer from '12,000,'");
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseInteger("(12,120,)"))
         .withMessage("Unable to parse integer from '(12,120,)'");
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseInteger("()"))
         .withMessage("Unable to parse integer from '()'");
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseInteger("(2)3)"))
         .withMessage("Unable to parse integer from '(2)3)'");
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseInteger("Rubbish"))
         .withMessage("Unable to parse integer from 'Rubbish'");
   }
@@ -110,22 +114,22 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseDouble("(1,234.)")).isEqualTo(-1_234.0d, within(1e-10));
     assertThat(LoaderUtils.parseDouble(".123")).isEqualTo(0.123d, within(1e-10));
     assertThat(LoaderUtils.parseDouble("(.123)")).isEqualTo(-0.123d, within(1e-10));
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseDouble("12,,000.2"))
         .withMessage("Unable to parse double from '12,,000.2'");
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseDouble("12,000.2,"))
         .withMessage("Unable to parse double from '12,000.2,'");
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseDouble("12.345.678,12"))
         .withMessage("Unable to parse double from '12.345.678,12'"); // European formats are not supported
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseDouble("()"))
         .withMessage("Unable to parse double from '()'");
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseDouble("(1.2)3)"))
         .withMessage("Unable to parse double from '(1.2)3)'");
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseDouble("Rubbish"))
         .withMessage("Unable to parse double from 'Rubbish'");
   }
@@ -134,13 +138,13 @@ public class LoaderUtilsTest {
   public void test_parseDoublePercent() {
     assertThat(LoaderUtils.parseDoublePercent("1.2")).isEqualTo(0.012d, within(1e-10));
     assertThat(LoaderUtils.parseDoublePercent("(1.2)")).isEqualTo(-0.012d, within(1e-10));
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseDoublePercent("()"))
         .withMessage("Unable to parse percentage from '()'");
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseDoublePercent("(1.2(3)"))
         .withMessage("Unable to parse percentage from '(1.2(3)'");
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseDoublePercent("Rubbish"))
         .withMessage("Unable to parse percentage from 'Rubbish'");
   }
@@ -157,54 +161,148 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseBigDecimal("(1,234.)")).isEqualTo(BigDecimal.valueOf(-1_234d).setScale(0));
     assertThat(LoaderUtils.parseBigDecimal(".123")).isEqualTo(BigDecimal.valueOf(0.123d));
     assertThat(LoaderUtils.parseBigDecimal("(.123)")).isEqualTo(BigDecimal.valueOf(-0.123d));
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseBigDecimal("12,,000.2"))
-        .withMessage("Unable to parse BigDecimal from '12,,000.2'");
-    assertThatIllegalArgumentException()
+        .withMessage("Unable to parse decimal from '12,,000.2'");
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseBigDecimal("12,000.2,"))
-        .withMessage("Unable to parse BigDecimal from '12,000.2,'");
-    assertThatIllegalArgumentException()
+        .withMessage("Unable to parse decimal from '12,000.2,'");
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseBigDecimal("12.345.678,12"))
-        .withMessage("Unable to parse BigDecimal from '12.345.678,12'"); // European formats are not supported
-    assertThatIllegalArgumentException()
+        .withMessage("Unable to parse decimal from '12.345.678,12'"); // European formats are not supported
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseBigDecimal("()"))
-        .withMessage("Unable to parse BigDecimal from '()'");
-    assertThatIllegalArgumentException()
+        .withMessage("Unable to parse decimal from '()'");
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseBigDecimal("(1.2(3)"))
-        .withMessage("Unable to parse BigDecimal from '(1.2(3)'");
-    assertThatIllegalArgumentException()
+        .withMessage("Unable to parse decimal from '(1.2(3)'");
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseBigDecimal("Rubbish"))
-        .withMessage("Unable to parse BigDecimal from 'Rubbish'");
+        .withMessage("Unable to parse decimal from 'Rubbish'");
   }
 
   @Test
   public void test_parseBigDecimalPercent() {
     assertThat(LoaderUtils.parseBigDecimalPercent("1.2")).isEqualTo(BigDecimal.valueOf(0.012d));
     assertThat(LoaderUtils.parseBigDecimalPercent("(1.2)")).isEqualTo(BigDecimal.valueOf(-0.012d));
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseBigDecimalPercent("()"))
-        .withMessage("Unable to parse BigDecimal percentage from '()'");
-    assertThatIllegalArgumentException()
+        .withMessage("Unable to parse decimal percentage from '()'");
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseBigDecimalPercent("(1.2(3)"))
-        .withMessage("Unable to parse BigDecimal percentage from '(1.2(3)'");
-    assertThatIllegalArgumentException()
+        .withMessage("Unable to parse decimal percentage from '(1.2(3)'");
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseBigDecimalPercent("Rubbish"))
-        .withMessage("Unable to parse BigDecimal percentage from 'Rubbish'");
+        .withMessage("Unable to parse decimal percentage from 'Rubbish'");
   }
 
   @Test
   public void test_parseBigDecimalBasisPoint() {
     assertThat(LoaderUtils.parseBigDecimalBasisPoint("1.2")).isEqualTo(BigDecimal.valueOf(0.00012d));
     assertThat(LoaderUtils.parseBigDecimalBasisPoint("(1.2)")).isEqualTo(BigDecimal.valueOf(-0.00012d));
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseBigDecimalBasisPoint("()"))
-        .withMessage("Unable to parse BigDecimal basis point from '()'");
-    assertThatIllegalArgumentException()
+        .withMessage("Unable to parse decimal basis points from '()'");
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseBigDecimalBasisPoint("(1.2(3)"))
-        .withMessage("Unable to parse BigDecimal basis point from '(1.2(3)'");
-    assertThatIllegalArgumentException()
+        .withMessage("Unable to parse decimal basis points from '(1.2(3)'");
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseBigDecimalBasisPoint("Rubbish"))
-        .withMessage("Unable to parse BigDecimal basis point from 'Rubbish'");
+        .withMessage("Unable to parse decimal basis points from 'Rubbish'");
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_parseDecimal() {
+    assertThat(LoaderUtils.parseDecimal("1.2")).isEqualTo(Decimal.of(1.2d));
+    assertThat(LoaderUtils.parseDecimal("(1.2)")).isEqualTo(Decimal.of(-1.2d));
+    assertThat(LoaderUtils.parseDecimal("1,234,567.2")).isEqualTo(Decimal.of(1_234_567.2d));
+    assertThat(LoaderUtils.parseDecimal("(1,234,567.2)")).isEqualTo(Decimal.of(-1_234_567.2d));
+    assertThat(LoaderUtils.parseDecimal("1,234,5,6,7.2")).isEqualTo(Decimal.of(1_234_567.2d));
+    assertThat(LoaderUtils.parseDecimal("(1,234,5,6,7.2)")).isEqualTo(Decimal.of(-1_234_567.2d));
+    assertThat(LoaderUtils.parseDecimal("1,234.")).isEqualTo(Decimal.of(1_234d));
+    assertThat(LoaderUtils.parseDecimal("(1,234.)")).isEqualTo(Decimal.of(-1_234d));
+    assertThat(LoaderUtils.parseDecimal(".123")).isEqualTo(Decimal.of(0.123d));
+    assertThat(LoaderUtils.parseDecimal("(.123)")).isEqualTo(Decimal.of(-0.123d));
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimal("12,,000.2"))
+        .withMessage("Unable to parse decimal from '12,,000.2'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimal("12,000.2,"))
+        .withMessage("Unable to parse decimal from '12,000.2,'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimal("12.345.678,12"))
+        .withMessage("Unable to parse decimal from '12.345.678,12'"); // European formats are not supported
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimal("()"))
+        .withMessage("Unable to parse decimal from '()'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimal("(1.2(3)"))
+        .withMessage("Unable to parse decimal from '(1.2(3)'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimal("Rubbish"))
+        .withMessage("Unable to parse decimal from 'Rubbish'");
+  }
+
+  @Test
+  public void test_parseDecimalPercent() {
+    assertThat(LoaderUtils.parseDecimalPercent("1.2")).isEqualTo(Decimal.of(0.012d));
+    assertThat(LoaderUtils.parseDecimalPercent("(1.2)")).isEqualTo(Decimal.of(-0.012d));
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimalPercent("()"))
+        .withMessage("Unable to parse decimal percentage from '()'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimalPercent("(1.2(3)"))
+        .withMessage("Unable to parse decimal percentage from '(1.2(3)'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimalPercent("Rubbish"))
+        .withMessage("Unable to parse decimal percentage from 'Rubbish'");
+  }
+
+  @Test
+  public void test_parseDecimalBasisPoint() {
+    assertThat(LoaderUtils.parseDecimalBasisPoint("1.2")).isEqualTo(Decimal.of(0.00012d));
+    assertThat(LoaderUtils.parseDecimalBasisPoint("(1.2)")).isEqualTo(Decimal.of(-0.00012d));
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimalBasisPoint("()"))
+        .withMessage("Unable to parse decimal basis points from '()'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimalBasisPoint("(1.2(3)"))
+        .withMessage("Unable to parse decimal basis points from '(1.2(3)'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseDecimalBasisPoint("Rubbish"))
+        .withMessage("Unable to parse decimal basis points from 'Rubbish'");
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_parsePercentage() {
+    assertThat(LoaderUtils.parsePercentage("1.2")).isEqualTo(Percentage.of(1.2d));
+    assertThat(LoaderUtils.parsePercentage("(12,345.234)")).isEqualTo(Percentage.of(-12345.234d));
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parsePercentage("()"))
+        .withMessage("Unable to parse percentage from '()'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parsePercentage("(1.2(3)"))
+        .withMessage("Unable to parse percentage from '(1.2(3)'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parsePercentage("Rubbish"))
+        .withMessage("Unable to parse percentage from 'Rubbish'");
+  }
+
+  @Test
+  public void test_parseBasisPoints() {
+    assertThat(LoaderUtils.parseBasisPoints("1.2")).isEqualTo(BasisPoints.of(1.2d));
+    assertThat(LoaderUtils.parseBasisPoints("(12,345.234)")).isEqualTo(BasisPoints.of(-12345.234d));
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseBasisPoints("()"))
+        .withMessage("Unable to parse basis points from '()'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseBasisPoints("(1.2(3)"))
+        .withMessage("Unable to parse basis points from '(1.2(3)'");
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> LoaderUtils.parseBasisPoints("Rubbish"))
+        .withMessage("Unable to parse basis points from 'Rubbish'");
   }
 
   //-------------------------------------------------------------------------
@@ -214,7 +312,7 @@ public class LoaderUtilsTest {
     DateTimeFormatter formatter2 = DateTimeFormatter.ISO_DATE;
     assertThat(LoaderUtils.parseDate("2012y 06m 30d", formatter, formatter2))
         .isEqualTo(LocalDate.of(2012, 6, 30));
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LoaderUtils.parseDate("2012-06-30", formatter));
     assertThat(LoaderUtils.parseDate("2012-06-30", formatter, formatter2))
         .isEqualTo(LocalDate.of(2012, 6, 30));
@@ -241,8 +339,8 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseDate("4-May-12")).isEqualTo(LocalDate.of(2012, 5, 4));
     assertThat(LoaderUtils.parseDate("4May2012")).isEqualTo(LocalDate.of(2012, 5, 4));
     assertThat(LoaderUtils.parseDate("4May12")).isEqualTo(LocalDate.of(2012, 5, 4));
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseDate("040512"));
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseDate("Rubbish"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parseDate("040512"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parseDate("Rubbish"));
   }
 
   @Test
@@ -257,11 +355,11 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseYearMonth("01/6/2012")).isEqualTo(YearMonth.of(2012, 6));
     assertThat(LoaderUtils.parseYearMonth("1/06/2012")).isEqualTo(YearMonth.of(2012, 6));
     assertThat(LoaderUtils.parseYearMonth("01/06/2012")).isEqualTo(YearMonth.of(2012, 6));
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseYearMonth("2/6/2012"));
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseYearMonth("1/6/12"));
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseYearMonth("Jun1"));
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseYearMonth("12345678"));
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseYearMonth("Rubbish"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parseYearMonth("2/6/2012"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parseYearMonth("1/6/12"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parseYearMonth("Jun1"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parseYearMonth("12345678"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parseYearMonth("Rubbish"));
   }
 
   @Test
@@ -271,7 +369,7 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseTime("11:30")).isEqualTo(LocalTime.of(11, 30));
     assertThat(LoaderUtils.parseTime("11:30:20")).isEqualTo(LocalTime.of(11, 30, 20));
     assertThat(LoaderUtils.parseTime("11:30:20.123")).isEqualTo(LocalTime.of(11, 30, 20, 123_000_000));
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseTime("Rubbish"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parseTime("Rubbish"));
   }
 
   //-------------------------------------------------------------------------
@@ -279,7 +377,7 @@ public class LoaderUtilsTest {
   public void test_parsePeriod() {
     assertThat(LoaderUtils.parsePeriod("P2D")).isEqualTo(Period.ofDays(2));
     assertThat(LoaderUtils.parsePeriod("2D")).isEqualTo(Period.ofDays(2));
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parsePeriod("2"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parsePeriod("2"));
   }
 
   @Test
@@ -299,7 +397,7 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseMarketTenor("2D")).isEqualTo(MarketTenor.ofSpotDays(2));
     assertThat(LoaderUtils.parseMarketTenor("ON")).isEqualTo(MarketTenor.ON);
     assertThat(LoaderUtils.parseMarketTenor("TN")).isEqualTo(MarketTenor.TN);
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseMarketTenor("2"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parseMarketTenor("2"));
   }
 
   @Test
@@ -319,7 +417,7 @@ public class LoaderUtilsTest {
   public void test_parseTenor() {
     assertThat(LoaderUtils.parseTenor("P2D")).isEqualTo(Tenor.ofDays(2));
     assertThat(LoaderUtils.parseTenor("2D")).isEqualTo(Tenor.ofDays(2));
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseTenor("2"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parseTenor("2"));
   }
 
   @Test
@@ -341,7 +439,7 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseFrequency("T")).isEqualTo(Frequency.TERM);
     assertThat(LoaderUtils.parseFrequency("0T")).isEqualTo(Frequency.TERM);
     assertThat(LoaderUtils.parseFrequency("1T")).isEqualTo(Frequency.TERM);
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseFrequency("2"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parseFrequency("2"));
   }
 
   @Test
@@ -362,7 +460,7 @@ public class LoaderUtilsTest {
   @Test
   public void test_parseCurrency() {
     assertThat(LoaderUtils.parseCurrency("GBP")).isEqualTo(Currency.GBP);
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseCurrency("A"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parseCurrency("A"));
   }
 
   @Test
@@ -380,14 +478,14 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseBusinessDayConvention("MODFOLLOW")).isEqualTo(MODIFIED_FOLLOWING);
     assertThat(LoaderUtils.parseBusinessDayConvention("ModifiedFollowing")).isEqualTo(MODIFIED_FOLLOWING);
     assertThat(LoaderUtils.parseBusinessDayConvention("MF")).isEqualTo(MODIFIED_FOLLOWING);
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseBusinessDayConvention("Rubbish"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parseBusinessDayConvention("Rubbish"));
   }
 
   @Test
   public void test_parseRollConvention() {
     assertThat(LoaderUtils.parseRollConvention("IMM")).isEqualTo(RollConventions.IMM);
     assertThat(LoaderUtils.parseRollConvention("imm")).isEqualTo(RollConventions.IMM);
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseRollConvention("Rubbish"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parseRollConvention("Rubbish"));
   }
 
   //-------------------------------------------------------------------------
@@ -401,7 +499,7 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseBuySell("Sell")).isEqualTo(BuySell.SELL);
     assertThat(LoaderUtils.parseBuySell("sell")).isEqualTo(BuySell.SELL);
     assertThat(LoaderUtils.parseBuySell("s")).isEqualTo(BuySell.SELL);
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseBuySell("Rubbish"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parseBuySell("Rubbish"));
   }
 
   @Test
@@ -415,7 +513,7 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parsePayReceive("receive")).isEqualTo(PayReceive.RECEIVE);
     assertThat(LoaderUtils.parsePayReceive("rec")).isEqualTo(PayReceive.RECEIVE);
     assertThat(LoaderUtils.parsePayReceive("r")).isEqualTo(PayReceive.RECEIVE);
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parsePayReceive("Rubbish"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parsePayReceive("Rubbish"));
   }
 
   @Test
@@ -428,7 +526,7 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parsePutCall("Call")).isEqualTo(PutCall.CALL);
     assertThat(LoaderUtils.parsePutCall("call")).isEqualTo(PutCall.CALL);
     assertThat(LoaderUtils.parsePutCall("c")).isEqualTo(PutCall.CALL);
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parsePutCall("Rubbish"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parsePutCall("Rubbish"));
   }
 
   @Test
@@ -441,7 +539,7 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseLongShort("Short")).isEqualTo(LongShort.SHORT);
     assertThat(LoaderUtils.parseLongShort("short")).isEqualTo(LongShort.SHORT);
     assertThat(LoaderUtils.parseLongShort("s")).isEqualTo(LongShort.SHORT);
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseLongShort("Rubbish"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parseLongShort("Rubbish"));
   }
 
   //-------------------------------------------------------------------------
@@ -449,7 +547,7 @@ public class LoaderUtilsTest {
   public void test_parseRedCode() {
     assertThat(LoaderUtils.parseRedCode("123456")).isEqualTo(StandardId.of(StandardSchemes.RED6_SCHEME, "123456"));
     assertThat(LoaderUtils.parseRedCode("123456789")).isEqualTo(StandardId.of(StandardSchemes.RED9_SCHEME, "123456789"));
-    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseRedCode("0"));
+    assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> LoaderUtils.parseRedCode("0"));
   }
 
   //-------------------------------------------------------------------------

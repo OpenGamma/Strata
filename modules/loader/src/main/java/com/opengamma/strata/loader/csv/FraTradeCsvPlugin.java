@@ -44,6 +44,7 @@ import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
@@ -129,7 +130,7 @@ final class FraTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
     // use convention if available
     if (conventionOpt.isPresent()) {
       if (indexOpt.isPresent() || interpolatedOpt.isPresent() || dayCountOpt.isPresent()) {
-        throw new IllegalArgumentException(
+        throw new ParseFailureException(
             "Fra trade had invalid combination of fields. When '" + CONVENTION_FIELD +
                 "' is present these fields must not be present: " +
                 ImmutableList.of(INDEX_FIELD, INTERPOLATED_INDEX_FIELD, DAY_COUNT_FIELD));
@@ -138,7 +139,7 @@ final class FraTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
       // explicit dates take precedence over relative ones
       if (startDateOpt.isPresent() && endDateOpt.isPresent()) {
         if (periodToStartOpt.isPresent()) {
-          throw new IllegalArgumentException(
+          throw new ParseFailureException(
               "Fra trade had invalid combination of fields. When these fields are found " +
                   ImmutableList.of(CONVENTION_FIELD, START_DATE_FIELD, END_DATE_FIELD) +
                   " then these fields must not be present " +
@@ -153,7 +154,7 @@ final class FraTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
       // relative dates
       if (periodToStartOpt.isPresent() && info.getTradeDate().isPresent()) {
         if (startDateOpt.isPresent() || endDateOpt.isPresent()) {
-          throw new IllegalArgumentException(
+          throw new ParseFailureException(
               "Fra trade had invalid combination of fields. When these fields are found " +
                   ImmutableList.of(CONVENTION_FIELD, PERIOD_TO_START_FIELD, TRADE_DATE_FIELD) +
                   " then these fields must not be present " +
@@ -183,7 +184,7 @@ final class FraTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
       return adjustTrade(FraTrade.of(info, builder.build()), currencyOpt, discMethodOpt, dateCnv, dateCalOpt);
     }
     // no match
-    throw new IllegalArgumentException(
+    throw new ParseFailureException(
         "Fra trade had invalid combination of fields. These fields are mandatory:" +
             ImmutableList.of(BUY_SELL_FIELD, NOTIONAL_FIELD, FIXED_RATE_FIELD) +
             " and one of these combinations is mandatory: " +

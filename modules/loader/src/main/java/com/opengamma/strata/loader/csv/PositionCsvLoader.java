@@ -25,6 +25,7 @@ import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.MapStream;
+import com.opengamma.strata.collect.io.CharSources;
 import com.opengamma.strata.collect.io.CsvIterator;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
@@ -319,21 +320,29 @@ public final class PositionCsvLoader {
       if (!csv.headers().contains(POSITION_TYPE_FIELD)) {
         return ValueWithFailures.of(
             ImmutableList.of(),
-            FailureItem.of(FailureReason.PARSING, "CSV file does not contain '{header}' header: {}", POSITION_TYPE_FIELD, charSource));
+            FailureItem.of(
+                FailureReason.PARSING,
+                "CSV position file '{fileName}' does not contain '{header}' header",
+                CharSources.extractFileName(charSource),
+                POSITION_TYPE_FIELD));
       }
-      return parseFile(csv, positionType);
+      return parseFile(csv, charSource, positionType);
 
     } catch (RuntimeException ex) {
       return ValueWithFailures.of(
           ImmutableList.of(),
           FailureItem.of(
-              FailureReason.PARSING, ex, "CSV file could not be parsed: {exceptionMessage}: {}", ex.getMessage(), charSource));
+              FailureReason.PARSING,
+              ex,
+              "CSV position file '{fileName}' could not be parsed: {exceptionMessage}",
+              CharSources.extractFileName(charSource),
+              ex.getMessage()));
     }
   }
 
   // loads a single CSV file
   @SuppressWarnings("unchecked")
-  private <T extends Position> ValueWithFailures<List<T>> parseFile(CsvIterator csv, Class<T> posType) {
+  private <T extends Position> ValueWithFailures<List<T>> parseFile(CsvIterator csv, CharSource charSource, Class<T> posType) {
     List<T> positions = new ArrayList<>();
     List<FailureItem> failures = new ArrayList<>();
     for (CsvRow row : csv.asIterable()) {
@@ -351,15 +360,18 @@ public final class PositionCsvLoader {
           // failed to find the type
           failures.add(FailureItem.of(
               FailureReason.PARSING,
-              "CSV position file type '{tradeType}' is not known at line {lineNumber}",
+              "CSV position file '{fileName}' contained unknown position type '{type}' at line {lineNumber}",
+              CharSources.extractFileName(charSource),
               typeRaw,
               row.lineNumber()));
         }
+
       } catch (RuntimeException ex) {
         failures.add(FailureItem.of(
             FailureReason.PARSING,
             ex,
-            "CSV position file type '{tradeType}' could not be parsed at line {lineNumber}: {exceptionMessage}",
+            "CSV position file '{fileName}' type '{type}' could not be parsed at line {lineNumber}: {exceptionMessage}",
+            CharSources.extractFileName(charSource),
             typeRaw,
             row.lineNumber(),
             ex.getMessage()));

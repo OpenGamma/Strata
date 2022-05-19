@@ -27,6 +27,7 @@ import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.collect.io.StringCharSource;
 import com.opengamma.strata.collect.result.FailureItem;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.ValueWithFailures;
@@ -380,18 +381,19 @@ public class PositionCsvLoaderTest {
     assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure.getMessage().contains("CSV file could not be parsed")).isTrue();
+    assertThat(failure.getMessage()).contains("CSV position file 'Unknown.txt' could not be parsed");
   }
 
   @Test
   public void test_load_invalidNoType() {
     PositionCsvLoader test = PositionCsvLoader.standard();
-    ValueWithFailures<List<Position>> trades = test.parse(ImmutableList.of(CharSource.wrap("Id")));
+    CharSource source = StringCharSource.of("Id").withFileName("Test.csv");
+    ValueWithFailures<List<Position>> trades = test.parse(ImmutableList.of(source));
 
     assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure.getMessage().contains("CSV file does not contain 'Strata Position Type' header")).isTrue();
+    assertThat(failure.getMessage()).contains("CSV position file 'Test.csv' does not contain 'Strata Position Type' header");
   }
 
   @Test
@@ -402,7 +404,7 @@ public class PositionCsvLoaderTest {
     assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure.getMessage()).isEqualTo("CSV position file type 'Foo' is not known at line 2");
+    assertThat(failure.getMessage()).isEqualTo("CSV position file 'Unknown.txt' contained unknown position type 'Foo' at line 2");
   }
 
   @Test
@@ -425,7 +427,7 @@ public class PositionCsvLoaderTest {
     assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure.getMessage()).isEqualTo("CSV position file type 'FUT' could not be parsed at line 2: " +
+    assertThat(failure.getMessage()).isEqualTo("CSV position file 'Unknown.txt' type 'FUT' could not be parsed at line 2: " +
         "Security must contain a quantity column, either 'Quantity' or 'Long Quantity' and 'Short Quantity'");
   }
 

@@ -7,7 +7,7 @@ package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.market.observable.IndexQuoteId;
@@ -89,21 +90,23 @@ public class FixingSeriesCsvLoaderTest {
 
   @Test
   public void test_priceIndex_invalidDate() {
-    assertThatIllegalArgumentException().isThrownBy(() -> FixingSeriesCsvLoader.load(FIXING_SERIES_PRICE_INVALID));
+    assertThatExceptionOfType(ParseFailureException.class)
+        .isThrownBy(() -> FixingSeriesCsvLoader.load(FIXING_SERIES_PRICE_INVALID));
   }
 
   @Test
   public void test_single_series_multiple_files() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> FixingSeriesCsvLoader.load(FIXING_SERIES_1, FIXING_SERIES_1))
-        .withMessageStartingWith("Multiple entries with same key: ");
+        .withMessageStartingWith("Error parsing CSV files '[")
+        .withMessageContaining("Multiple entries with same key: ");
   }
 
   @Test
   public void test_invalidDate() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> FixingSeriesCsvLoader.load(FIXING_SERIES_INVALID_DATE))
-        .withMessageStartingWith("Error processing resource as CSV file: ");
+        .withMessageStartingWith("Error parsing CSV file 'fixings-invalid-date.csv': Unable to parse date from '1971-01-32',");
   }
 
   //-------------------------------------------------------------------------

@@ -94,7 +94,7 @@ final class FraFpmlParserPlugin
         fraBuilder.indexInterpolated((IborIndex) indexes.get(1));
         break;
       default:
-        throw new FpmlParseException("Expected one or two indexes, but found " + indexes.size());
+        throw new FpmlParseException("Expected one or two indexes, but found {value}", indexes.size());
     }
     // discounting
     fraBuilder.discounting(FraDiscountingMethod.of(fraEl.getChild("fraDiscounting").getContent()));

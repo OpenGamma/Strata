@@ -22,6 +22,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.collect.Decimal;
+import com.opengamma.strata.collect.Percentage;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.PortfolioItemType;
 import com.opengamma.strata.product.Position;
@@ -36,7 +38,7 @@ import com.opengamma.strata.product.Trade;
 public final class SummarizerUtils {
 
   /** Date format. */
-  private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dMMMuu", Locale.UK);
+  private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dMMMuu", Locale.ENGLISH);
 
   // restricted constructor
   private SummarizerUtils() {
@@ -74,7 +76,7 @@ public final class SummarizerUtils {
   public static String datePeriod(LocalDate start, LocalDate end) {
     int months = Math.toIntExact(MONTHS.between(start, end.plusDays(3)));
     if (months > 0) {
-      return Tenor.of(Period.ofMonths((int) months)).normalized().toString();
+      return Tenor.of(Period.ofMonths(months)).normalized().toString();
     } else {
       return Tenor.of(Period.ofDays((int) start.until(end, ChronoUnit.DAYS))).toString();
     }
@@ -112,7 +114,7 @@ public final class SummarizerUtils {
     if (dec.scale() > currency.getMinorUnitDigits()) {
       dec = dec.setScale(currency.getMinorUnitDigits(), RoundingMode.HALF_UP);
     }
-    DecimalFormat formatter = new DecimalFormat("###,###.###", new DecimalFormatSymbols(Locale.UK));
+    DecimalFormat formatter = new DecimalFormat("###,###.###", new DecimalFormatSymbols(Locale.ENGLISH));
     return symbol + formatter.format(dec);
   }
 
@@ -123,26 +125,19 @@ public final class SummarizerUtils {
    * @return the string form
    */
   public static String value(double value) {
-    BigDecimal dec = BigDecimal.valueOf(value).stripTrailingZeros();
-    if (dec.scale() > 6) {
-      dec = dec.setScale(6, RoundingMode.HALF_UP);
-    }
-    return dec.toPlainString();
+    Decimal dec = Decimal.of(value);
+    return dec.roundToScale(6, RoundingMode.HALF_UP).toString();
   }
 
   /**
    * Converts a value to a percentage string.
    * 
-   * @param value  the value
+   * @param decimalForm  the value in decimal form
    * @return the string form
    */
-  public static String percent(double value) {
-    BigDecimal dec = BigDecimal.valueOf(value);
-    dec = dec.multiply(BigDecimal.valueOf(100)).stripTrailingZeros();
-    if (dec.scale() > 4) {
-      dec = dec.setScale(4, RoundingMode.HALF_UP);
-    }
-    return dec.toPlainString() + "%";
+  public static String percent(double decimalForm) {
+    Percentage pct = Percentage.fromDecimalForm(decimalForm);
+    return pct.map(dec -> dec.roundToScale(4, RoundingMode.HALF_UP)).toString();
   }
 
   //-------------------------------------------------------------------------
