@@ -55,6 +55,13 @@ public class FixedScaleDecimalTest {
     assertThat(test.map(d -> d.multipliedBy(2))).isEqualTo(FixedScaleDecimal.parse("2.50"));
   }
 
+  @Test
+  public void testParse() {
+    assertThat(FixedScaleDecimal.parse("1.25")).isEqualTo(FixedScaleDecimal.of(Decimal.parse("1.25"), 2));
+    assertThat(FixedScaleDecimal.parse("1.20")).isEqualTo(FixedScaleDecimal.of(Decimal.parse("1.2"), 2));
+    assertThat(FixedScaleDecimal.parse("1")).isEqualTo(FixedScaleDecimal.of(Decimal.parse("1"), 0));
+  }
+
   public static Object[][] dataBad() {
     return new Object[][] {
         {"1.2", 0},

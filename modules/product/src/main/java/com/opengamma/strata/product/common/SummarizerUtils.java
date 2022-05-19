@@ -114,7 +114,7 @@ public final class SummarizerUtils {
     if (dec.scale() > currency.getMinorUnitDigits()) {
       dec = dec.setScale(currency.getMinorUnitDigits(), RoundingMode.HALF_UP);
     }
-    DecimalFormat formatter = new DecimalFormat("###,###.###", new DecimalFormatSymbols(Locale.UK));
+    DecimalFormat formatter = new DecimalFormat("###,###.###", new DecimalFormatSymbols(Locale.ENGLISH));
     return symbol + formatter.format(dec);
   }
 
