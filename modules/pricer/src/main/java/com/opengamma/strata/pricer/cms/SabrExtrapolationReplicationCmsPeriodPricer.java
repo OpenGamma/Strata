@@ -347,13 +347,7 @@ public final class SabrExtrapolationReplicationCmsPeriodPricer {
             "Unable to get fixing for {} on date {}, no time-series supplied", cmsPeriod.getIndex(), fixingDate));
       }
     }
-
     double forward = swapPricer.parRate(swap, provider);
-    if (expiryTime < MIN_TIME) {
-      double payoff = payOff(cmsPeriod.getCmsPeriodType(), strikeCpn, forward);
-      return provider.discountFactors(ccy).zeroRatePointSensitivity(
-          cmsPeriod.getPaymentDate()).multipliedBy(payoff * cmsPeriod.getNotional() * cmsPeriod.getYearFraction());
-    }
     double eta = index.getTemplate().getConvention().getFixedLeg().getDayCount()
         .relativeYearFraction(cmsPeriod.getPaymentDate(), swap.getStartDate());
     CmsDeltaIntegrantProvider intProv = new CmsDeltaIntegrantProvider(
@@ -426,9 +420,6 @@ public final class SabrExtrapolationReplicationCmsPeriodPricer {
       }
     }
     double expiryTime = swaptionVolatilities.relativeTime(expiryDate);
-    if (expiryTime < MIN_TIME) {
-      return PointSensitivityBuilder.none();
-    }
     double shift = swaptionVolatilities.shift(expiryTime, tenor);
     double strikeCpn = cmsPeriod.getCmsPeriodType().equals(CmsPeriodType.COUPON) ? -shift : cmsPeriod.getStrike();
     double forward = swapPricer.parRate(swap, provider);
@@ -495,9 +486,6 @@ public final class SabrExtrapolationReplicationCmsPeriodPricer {
     double tenor = swaptionVolatilities.tenor(swap.getStartDate(), swap.getEndDate());
     ZonedDateTime expiryDate = fixingDate.atTime(index.getFixingTime()).atZone(index.getFixingZone());
     double expiryTime = swaptionVolatilities.relativeTime(expiryDate);
-    if (expiryTime < MIN_TIME) {
-      return 0d;
-    }
     double strike = cmsPeriod.getStrike();
     double shift = swaptionVolatilities.shift(expiryTime, tenor);
     if (!fixingDate.isAfter(valuationDate.toLocalDate())) {
