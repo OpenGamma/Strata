@@ -140,6 +140,12 @@ public final class OvernightIndices {
    */
   public static final OvernightIndex SEK_SIOR = OvernightIndex.of("SEK-SIOR");
   /**
+   * The THOR index for THB.
+   * <p>
+   * The "Thai Overnight Repurchase Rate" index.
+   */
+  public static final OvernightIndex THB_THOR = OvernightIndex.of("THB-THOR");
+  /**
    * The SABOR index for ZAR.
    * <p>
    * The "South African Benchmark Overnight Rate" index.

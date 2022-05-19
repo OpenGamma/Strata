@@ -18,6 +18,7 @@ import static com.opengamma.strata.basics.currency.Currency.NZD;
 import static com.opengamma.strata.basics.currency.Currency.PLN;
 import static com.opengamma.strata.basics.currency.Currency.SEK;
 import static com.opengamma.strata.basics.currency.Currency.SGD;
+import static com.opengamma.strata.basics.currency.Currency.THB;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.currency.Currency.ZAR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
@@ -365,6 +366,21 @@ public class OvernightIndexTest {
     assertThat(test.getDayCount()).isEqualTo(ACT_365F);
     assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_365F);
     assertThat(test.toString()).isEqualTo("SGD-SORA");
+  }
+
+  @Test
+  public void test_thbThor() {
+    HolidayCalendarId cal = HolidayCalendarId.of("THBA");
+    OvernightIndex test = OvernightIndex.of("THB-THOR");
+    assertThat(test.getName()).isEqualTo("THB-THOR");
+    assertThat(test.getCurrency()).isEqualTo(THB);
+    assertThat(test.isActive()).isEqualTo(true);
+    assertThat(test.getFixingCalendar()).isEqualTo(cal);
+    assertThat(test.getPublicationDateOffset()).isEqualTo(0);
+    assertThat(test.getEffectiveDateOffset()).isEqualTo(2);
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.toString()).isEqualTo("THB-THOR");
   }
 
   @Test
