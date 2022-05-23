@@ -71,6 +71,7 @@ public class OvernightRateSwapLegConventionTest {
     assertThat(test.getPaymentFrequency()).isEqualTo(P12M);
     assertThat(test.getPaymentDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(2, GBP_SONIA.getFixingCalendar()));
     assertThat(test.getCompoundingMethod()).isEqualTo(CompoundingMethod.NONE);
+    assertThat(test.isNotionalExchange()).isFalse();
   }
 
   @Test
@@ -90,6 +91,7 @@ public class OvernightRateSwapLegConventionTest {
     assertThat(test.getPaymentFrequency()).isEqualTo(P12M);
     assertThat(test.getPaymentDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(2, GBP_SONIA.getFixingCalendar()));
     assertThat(test.getCompoundingMethod()).isEqualTo(CompoundingMethod.NONE);
+    assertThat(test.isNotionalExchange()).isFalse();
   }
 
   @Test
@@ -111,6 +113,7 @@ public class OvernightRateSwapLegConventionTest {
     assertThat(test.getPaymentFrequency()).isEqualTo(TERM);
     assertThat(test.getPaymentDateOffset()).isEqualTo(DaysAdjustment.NONE);
     assertThat(test.getCompoundingMethod()).isEqualTo(CompoundingMethod.NONE);
+    assertThat(test.isNotionalExchange()).isFalse();
   }
 
   //-------------------------------------------------------------------------
@@ -137,6 +140,7 @@ public class OvernightRateSwapLegConventionTest {
         .paymentFrequency(P6M)
         .paymentDateOffset(PLUS_TWO_DAYS)
         .compoundingMethod(CompoundingMethod.FLAT)
+        .notionalExchange(true)
         .build();
     assertThat(test.getIndex()).isEqualTo(GBP_SONIA);
     assertThat(test.getAccrualMethod()).isEqualTo(COMPOUNDED);
@@ -152,6 +156,7 @@ public class OvernightRateSwapLegConventionTest {
     assertThat(test.getPaymentFrequency()).isEqualTo(P6M);
     assertThat(test.getPaymentDateOffset()).isEqualTo(PLUS_TWO_DAYS);
     assertThat(test.getCompoundingMethod()).isEqualTo(CompoundingMethod.FLAT);
+    assertThat(test.isNotionalExchange()).isTrue();
   }
 
   //-------------------------------------------------------------------------
@@ -202,6 +207,42 @@ public class OvernightRateSwapLegConventionTest {
             .paymentDateOffset(DaysAdjustment.NONE)
             .build())
         .notionalSchedule(NotionalSchedule.of(GBP, NOTIONAL_2M))
+        .calculation(OvernightRateCalculation.builder()
+            .index(GBP_SONIA)
+            .accrualMethod(AVERAGED)
+            .spread(ValueSchedule.of(0.25d))
+            .build())
+        .build();
+    assertThat(test).isEqualTo(expected);
+  }
+
+  @Test
+  public void test_toLeg_withSpreadNotionalExchange() {
+    OvernightRateSwapLegConvention base = OvernightRateSwapLegConvention.builder()
+        .index(GBP_SONIA)
+        .accrualMethod(AVERAGED)
+        .notionalExchange(true)
+        .build();
+    LocalDate startDate = LocalDate.of(2015, 5, 5);
+    LocalDate endDate = LocalDate.of(2020, 5, 5);
+    RateCalculationSwapLeg test = base.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d);
+    RateCalculationSwapLeg expected = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .frequency(TERM)
+            .startDate(startDate)
+            .endDate(endDate)
+            .businessDayAdjustment(BDA_MOD_FOLLOW)
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(TERM)
+            .paymentDateOffset(DaysAdjustment.NONE)
+            .build())
+        .notionalSchedule(NotionalSchedule.builder()
+            .currency(GBP)
+            .finalExchange(true)
+            .initialExchange(true)
+            .amount(ValueSchedule.of(NOTIONAL_2M)).build())
         .calculation(OvernightRateCalculation.builder()
             .index(GBP_SONIA)
             .accrualMethod(AVERAGED)
