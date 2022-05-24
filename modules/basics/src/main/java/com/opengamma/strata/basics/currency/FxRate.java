@@ -158,6 +158,9 @@ public final class FxRate
    */
   @Override
   public double fxRate(Currency baseCurrency, Currency counterCurrency) {
+    if(pair.getBase().equals(Currency.NOK) && pair.getCounter().equals(Currency.EUR)){
+      pair.inverse();
+    }
     if (baseCurrency.equals(counterCurrency)) {
       return 1d;
     }
