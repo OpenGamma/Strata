@@ -194,7 +194,7 @@ public class FloatingRateNamesTest {
   public void test_defaultOvernightIndex() {
     assertThat(FloatingRateName.defaultOvernightIndex(Currency.GBP)).isEqualTo(FloatingRateName.of("GBP-SONIA"));
     assertThat(FloatingRateName.defaultOvernightIndex(Currency.EUR)).isEqualTo(FloatingRateName.of("EUR-ESTR"));
-    assertThat(FloatingRateName.defaultOvernightIndex(Currency.USD)).isEqualTo(FloatingRateName.of("USD-FED-FUND"));
+    assertThat(FloatingRateName.defaultOvernightIndex(Currency.USD)).isEqualTo(FloatingRateName.of("USD-SOFR"));
   }
 
   //-------------------------------------------------------------------------
