@@ -1,0 +1,4 @@
+Curve Name,Value Type,Day Count,Interpolator,Left Extrapolator,Right Extrapolator
+USD-DSCSOFR-OIS,Zero,Act/365F,Linear,Flat,Flat
+EUR-DSC-FXXCCY,Zero,Act/365F,Linear,Flat,Flat
+EUR-ESTR-OIS,Zero,Act/365F,Linear,Flat,Flat

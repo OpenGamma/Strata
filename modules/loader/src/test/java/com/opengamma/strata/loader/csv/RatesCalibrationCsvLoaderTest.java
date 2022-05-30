@@ -128,7 +128,7 @@ public class RatesCalibrationCsvLoaderTest {
     assertThat(entry1.getIndices()).containsOnly(IborIndices.USD_LIBOR_3M);
     assertThat(defn1.getName()).isEqualTo(CurveName.of("USD-3ML"));
     assertThat(defn1.getYValueType()).isEqualTo(ValueType.ZERO_RATE);
-    assertThat(defn1.getParameterCount()).isEqualTo(27);
+    assertThat(defn1.getParameterCount()).isEqualTo(29);
 
     assertThat(entry2.getDiscountCurrencies()).isEmpty();
     assertThat(entry2.getIndices()).containsOnly(PriceIndices.US_CPI_U);

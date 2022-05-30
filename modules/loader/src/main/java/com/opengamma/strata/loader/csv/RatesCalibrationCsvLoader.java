@@ -61,6 +61,7 @@ import com.opengamma.strata.market.curve.node.OvernightIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.TermDepositCurveNode;
 import com.opengamma.strata.market.curve.node.ThreeLegBasisSwapCurveNode;
 import com.opengamma.strata.market.curve.node.XCcyIborIborSwapCurveNode;
+import com.opengamma.strata.market.curve.node.XCcyOvernightOvernightSwapCurveNode;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositConvention;
 import com.opengamma.strata.product.deposit.type.IborFixingDepositTemplate;
@@ -88,6 +89,8 @@ import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapConvention;
 import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapTemplate;
 import com.opengamma.strata.product.swap.type.XCcyIborIborSwapConvention;
 import com.opengamma.strata.product.swap.type.XCcyIborIborSwapTemplate;
+import com.opengamma.strata.product.swap.type.XCcyOvernightOvernightSwapConvention;
+import com.opengamma.strata.product.swap.type.XCcyOvernightOvernightSwapTemplate;
 
 /**
  * Loads a set of definitions to calibrate rates curves by reading from CSV resources.
@@ -472,6 +475,9 @@ public final class RatesCalibrationCsvLoader {
     if ("XCS".equalsIgnoreCase(typeStr) || "XCcyIborIborSwap".equalsIgnoreCase(typeStr)) {
       return curveXCcyIborIborCurveNode(conventionStr, timeStr, label, quoteId, spread, date, order);
     }
+    if ("XCO".equalsIgnoreCase(typeStr) || "XCcyOvernightOvernightSwap".equalsIgnoreCase(typeStr)) {
+      return curveXCcyOvernightOvernightCurveNode(conventionStr, timeStr, label, quoteId, spread, date, order);
+    }
     if ("FXS".equalsIgnoreCase(typeStr) || "FxSwap".equalsIgnoreCase(typeStr)) {
       return curveFxSwapCurveNode(conventionStr, timeStr, label, quoteId, spread, date, order);
     }
@@ -758,6 +764,32 @@ public final class RatesCalibrationCsvLoader {
     XCcyIborIborSwapConvention convention = XCcyIborIborSwapConvention.of(conventionStr);
     XCcyIborIborSwapTemplate template = XCcyIborIborSwapTemplate.of(Tenor.of(periodToEnd), convention);
     return XCcyIborIborSwapCurveNode.builder()
+        .template(template)
+        .spreadId(quoteId)
+        .additionalSpread(spread)
+        .label(label)
+        .date(date)
+        .dateOrder(order)
+        .build();
+  }
+
+  private static CurveNode curveXCcyOvernightOvernightCurveNode(
+      String conventionStr,
+      String timeStr,
+      String label,
+      QuoteId quoteId,
+      double spread,
+      CurveNodeDate date,
+      CurveNodeDateOrder order) {
+
+    Matcher matcher = SIMPLE_YM_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    if (!matcher.matches()) {
+      throw new ParseFailureException("Invalid time format for Cross Currency Swap: '{value}'", timeStr);
+    }
+    Period periodToEnd = Period.parse("P" + matcher.group(1));
+    XCcyOvernightOvernightSwapConvention convention = XCcyOvernightOvernightSwapConvention.of(conventionStr);
+    XCcyOvernightOvernightSwapTemplate template = XCcyOvernightOvernightSwapTemplate.of(Tenor.of(periodToEnd), convention);
+    return XCcyOvernightOvernightSwapCurveNode.builder()
         .template(template)
         .spreadId(quoteId)
         .additionalSpread(spread)
