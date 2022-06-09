@@ -590,6 +590,13 @@ public class DecimalTest {
     assertThat(Decimal.ofScaled(-123, 2).negated()).isEqualTo(Decimal.ofScaled(123, 2));
   }
 
+  @Test
+  public void testSignum() {
+    assertThat(Decimal.ofScaled(123, 2).signum()).isEqualTo(1);
+    assertThat(Decimal.ZERO.signum()).isZero();
+    assertThat(Decimal.ofScaled(-123, 2).signum()).isEqualTo(-1);
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void testMapAsDouble() {
@@ -700,6 +707,9 @@ public class DecimalTest {
           assertThat(base.dividedBy(other, RoundingMode.DOWN))
               .as(base + " / " + other)
               .isEqualTo(Decimal.of(base.toBigDecimal().divide(other.toBigDecimal(), new MathContext(18, RoundingMode.DOWN))));
+          assertThat(base.remainder(other))
+              .as(base + " % " + other)
+              .isEqualTo(Decimal.of(base.toBigDecimal().remainder(other.toBigDecimal())));
         }
       }
     }

@@ -632,6 +632,21 @@ public final class Decimal implements Serializable, Comparable<Decimal> {
     return dividedBy(Decimal.of(other));
   }
 
+  /**
+   * Returns the remainder when dividing this value by the specified value.
+   * <p>
+   * The result will have a scale in the range 0-18.
+   * The result may be truncated (rounded down) if necessary.
+   * 
+   * @param other  the other value
+   * @return the remainder of the division
+   * @throws ArithmeticException if dividing by zero
+   * @throws IllegalArgumentException if the result is too large
+   */
+  public Decimal remainder(Decimal other) {
+    return ofRounded(toBigDecimal().remainder(other.toBigDecimal(), MATH_CONTEXT));
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Returns a decimal value rounded to the specified scale.
@@ -665,14 +680,18 @@ public final class Decimal implements Serializable, Comparable<Decimal> {
     }
     // scales above 18 will have no effect
     int adjScale = Math.min(desiredScale, 18);
-    // optimize the two most common rounding modes
+    // optimize common rounding modes
     switch (roundingMode) {
       case DOWN:
         return roundDownToScale(adjScale);
       case HALF_UP:
         return roundHalfUpToScale(adjScale);
+      case UP:
+        return roundUpToScale(adjScale);
       case FLOOR:
-        return unscaled > 0 ? roundDownToScale(adjScale) : of(toBigDecimal().setScale(adjScale, roundingMode));
+        return unscaled > 0 ? roundDownToScale(adjScale) : roundUpToScale(adjScale);
+      case CEILING:
+        return unscaled > 0 ? roundUpToScale(adjScale) : roundDownToScale(adjScale);
       default:
         return of(toBigDecimal().setScale(adjScale, roundingMode));
     }
@@ -699,6 +718,19 @@ public final class Decimal implements Serializable, Comparable<Decimal> {
       return ofScaled(rescaled + bump, adjScale);
     }
     return of(toBigDecimal().setScale(adjScale, RoundingMode.HALF_DOWN));
+  }
+
+  // round up using round down
+  private Decimal roundUpToScale(int adjScale) {
+    int scaleDiff = scale - adjScale;
+    if (scaleDiff <= MAX_SCALE) {
+      long rescaled = unscaled / POWERS[scaleDiff];
+      if (unscaled == rescaled) {
+        return this;
+      }
+      return Decimal.ofScaled(rescaled + Long.signum(unscaled), adjScale);
+    }
+    return of(toBigDecimal().setScale(adjScale, RoundingMode.UP));
   }
 
   /**
@@ -751,6 +783,15 @@ public final class Decimal implements Serializable, Comparable<Decimal> {
     return new Decimal(-unscaled, scale);
   }
 
+  /**
+   * Returns the sign, -1 for negative, 0 for zero and 1 for positive.
+   *
+   * @return -1 for negative, 0 for zero and 1 for positive
+   */
+  public int signum() {
+    return Long.signum(unscaled);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Maps this decimal value using the maths operations of {@code double}.
@@ -783,7 +824,13 @@ public final class Decimal implements Serializable, Comparable<Decimal> {
    * @return the equivalent value
    */
   public double doubleValue() {
-    return toBigDecimal().doubleValue();
+    if (scale == 0) {
+      return unscaled;
+    }
+    if (Math.abs(unscaled) < 1L << 52) {
+      return ((double) unscaled) / POWERS[scale];
+    }
+    return Double.parseDouble(toString());
   }
 
   /**
