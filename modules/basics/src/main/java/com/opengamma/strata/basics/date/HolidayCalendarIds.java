@@ -203,6 +203,12 @@ public final class HolidayCalendarIds {
    */
   public static final HolidayCalendarId SEST = HolidayCalendarId.of("SEST");
   /**
+   * An identifier for the holiday calendar of Bangkok, Thailand., with code 'THBA'.
+   * <p>
+   * This constant references the calendar for Bangkok bank holidays.
+   */
+  public static final HolidayCalendarId THBA = HolidayCalendarId.of("THBA");
+  /**
    * An identifier for the holiday calendar of Johannesburg, South Africa, with code 'ZAJO'.
    * <p>
    * This constant references the calendar for Johannesburg bank holidays.

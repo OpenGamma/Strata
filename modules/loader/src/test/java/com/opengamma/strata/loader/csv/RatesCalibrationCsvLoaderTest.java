@@ -8,7 +8,7 @@ package com.opengamma.strata.loader.csv;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.product.index.type.IborFutureContractSpecs.GBP_LIBOR_3M_IMM_ICE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.time.Period;
 import java.util.Map;
@@ -22,6 +22,7 @@ import com.opengamma.strata.basics.date.SequenceDate;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveDefinition;
@@ -66,37 +67,37 @@ public class RatesCalibrationCsvLoaderTest {
 
   @Test
   public void test_noSettings() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> RatesCalibrationCsvLoader.load(
             ResourceLocator.of(GROUPS_1),
             ResourceLocator.of(SETTINGS_EMPTY),
             ResourceLocator.of(CALIBRATION_1)))
-        .withMessageMatching("Missing settings for curve: .*");
+        .withMessageStartingWith("Error parsing curve definition CSV file 'calibration-1.csv': Missing settings for curve");
   }
   
   @Test
   public void test_noNodes() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> RatesCalibrationCsvLoader.load(
             ResourceLocator.of(GROUPS_1),
             ResourceLocator.of(SETTINGS_1),
             ResourceLocator.of(CALIBRATION_NO_NODES)))
-        .withMessageMatching("Missing nodes for curve: .*");
+        .withMessageStartingWith("Error parsing rates calibration CSV files: Missing nodes for curve");
   }
   
   @Test
   public void test_single_curve_multiple_Files() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> RatesCalibrationCsvLoader.load(
             ResourceLocator.of(GROUPS_1),
             ResourceLocator.of(SETTINGS_1),
             ImmutableList.of(ResourceLocator.of(CALIBRATION_1), ResourceLocator.of(CALIBRATION_1))))
-        .withMessageMatching("Multiple entries with same key: .*");
+        .withMessageStartingWith("Error parsing rates calibration CSV files: Multiple entries with same key:");
   }
 
   @Test
   public void test_invalid_curve_duplicate_points() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> RatesCalibrationCsvLoader.load(
             ResourceLocator.of(GROUPS_1),
             ResourceLocator.of(SETTINGS_1),
@@ -127,7 +128,7 @@ public class RatesCalibrationCsvLoaderTest {
     assertThat(entry1.getIndices()).containsOnly(IborIndices.USD_LIBOR_3M);
     assertThat(defn1.getName()).isEqualTo(CurveName.of("USD-3ML"));
     assertThat(defn1.getYValueType()).isEqualTo(ValueType.ZERO_RATE);
-    assertThat(defn1.getParameterCount()).isEqualTo(27);
+    assertThat(defn1.getParameterCount()).isEqualTo(29);
 
     assertThat(entry2.getDiscountCurrencies()).isEmpty();
     assertThat(entry2.getIndices()).containsOnly(PriceIndices.US_CPI_U);

@@ -38,7 +38,6 @@ import static com.opengamma.strata.loader.csv.CsvLoaderUtils.formattedPercentage
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
@@ -57,12 +56,14 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.capfloor.IborCapFloor;
 import com.opengamma.strata.product.capfloor.IborCapFloorLeg;
 import com.opengamma.strata.product.capfloor.IborCapFloorTrade;
+import com.opengamma.strata.product.common.CapFloor;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 
@@ -181,15 +182,11 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
         .currency(currency)
         .notional(ValueSchedule.of(notional))
         .calculation(IborRateCalculation.of(iborIndex));
-    String capFloorType = row.getValue(CAP_FLOOR_FIELD);
-    if (capFloorType.toUpperCase(Locale.ENGLISH).equals("CAP")) {
+    CapFloor capFloorType = LoaderUtils.parseCapFloor(row.getValue(CAP_FLOOR_FIELD));
+    if (capFloorType.isCap()) {
       capFloorLegBuilder.capSchedule(strike);
-    } else if (capFloorType.toUpperCase(Locale.ENGLISH).equals("FLOOR")) {
-      capFloorLegBuilder.floorSchedule(strike);
     } else {
-      throw new IllegalArgumentException(
-          "Unknown CapFloor value, must be 'Cap' or 'Floor' but was '" + capFloorType + "'; " +
-              "parser is case insensitive.");
+      capFloorLegBuilder.floorSchedule(strike);
     }
     IborCapFloorLeg iborCapFloorLeg = capFloorLegBuilder.build();
     return IborCapFloor.of(iborCapFloorLeg);
@@ -201,7 +198,7 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
     if (index instanceof IborIndex) {
       return (IborIndex) index;
     } else {
-      throw new IllegalArgumentException("Index " + index.getName() + "is not an IBOR index");
+      throw new ParseFailureException("Index '{value}' is not an IBOR index", index.getName());
     }
   }
 

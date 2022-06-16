@@ -9,11 +9,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.collect.Decimal;
 
 /**
  * A convention defining how to round a number.
  * <p>
- * This defines a standard mechanism for rounding a {@code double} or {@link BigDecimal}.
+ * This defines a standard mechanism for rounding a {@code double}, {@link BigDecimal} or  {@link Decimal}.
  * Since financial instruments have different and complex conventions, rounding is extensible.
  * <p>
  * Note that rounding a {@code double} is not straightforward as floating point
@@ -99,5 +100,15 @@ public interface Rounding {
    * @return the rounded value
    */
   public abstract BigDecimal round(BigDecimal value);
+
+  /**
+   * Rounds the specified value according to the rules of the convention.
+   * 
+   * @param value  the value to be rounded
+   * @return the rounded value
+   */
+  public default Decimal round(Decimal value) {
+    return Decimal.of(round(value.toBigDecimal()));
+  }
 
 }

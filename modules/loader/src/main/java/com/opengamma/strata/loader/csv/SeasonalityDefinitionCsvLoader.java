@@ -12,10 +12,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.io.CharSources;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.io.UnicodeBom;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.SeasonalityDefinition;
@@ -73,18 +75,27 @@ public final class SeasonalityDefinitionCsvLoader {
    * @return the map of seasonality definitions
    */
   public static Map<CurveName, SeasonalityDefinition> parseSeasonalityDefinitions(CharSource charSource) {
-    ImmutableMap.Builder<CurveName, SeasonalityDefinition> builder = ImmutableMap.builder();
-    CsvFile csv = CsvFile.of(charSource, true);
-    for (CsvRow row : csv.rows()) {
-      String curveNameStr = row.getField(CURVE_NAME);
-      String shiftTypeStr = row.getField(SHIFT_TYPE);
-      DoubleArray values = DoubleArray.of(12, i -> Double.parseDouble(row.getField(MONTH_PAIRS.get(i))));
+    try {
+      ImmutableMap.Builder<CurveName, SeasonalityDefinition> builder = ImmutableMap.builder();
+      CsvFile csv = CsvFile.of(charSource, true);
+      for (CsvRow row : csv.rows()) {
+        String curveNameStr = row.getField(CURVE_NAME);
+        String shiftTypeStr = row.getField(SHIFT_TYPE);
+        DoubleArray values = DoubleArray.of(12, i -> Double.parseDouble(row.getField(MONTH_PAIRS.get(i))));
+  
+        CurveName curveName = CurveName.of(curveNameStr);
+        ShiftType shiftType = ShiftType.valueOf(shiftTypeStr.toUpperCase(Locale.ENGLISH));
+        builder.put(curveName, SeasonalityDefinition.of(values, shiftType));
+      }
+      return builder.build();
 
-      CurveName curveName = CurveName.of(curveNameStr);
-      ShiftType shiftType = ShiftType.valueOf(shiftTypeStr.toUpperCase(Locale.ENGLISH));
-      builder.put(curveName, SeasonalityDefinition.of(values, shiftType));
+    } catch (RuntimeException ex) {
+      throw new ParseFailureException(
+          ex,
+          "Error parsing seasonality CSV file '{fileName}': {exceptionMessage}", 
+          CharSources.extractFileName(charSource),
+          ex.getMessage());
     }
-    return builder.build();
   }
 
   //-------------------------------------------------------------------------

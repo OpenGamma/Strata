@@ -8,6 +8,7 @@ package com.opengamma.strata.loader.csv;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.param.TenoredParameterMetadata;
 import com.opengamma.strata.product.PortfolioItemInfo;
@@ -93,12 +94,12 @@ public interface SensitivityCsvInfoResolver {
    * 
    * @param tenor  the tenor to check and potentially alter
    * @return the potentially adjusted tenor
+   * @throws ParseFailureException if the tenor is invalid
    */
   public default Tenor checkSensitivityTenor(Tenor tenor) {
     Tenor resultTenor = tenor.normalized();
     if (resultTenor.getPeriod().toTotalMonths() > 0 && resultTenor.getPeriod().getDays() > 0) {
-      throw new IllegalArgumentException(
-          "Invalid tenor, cannot mix years/months and days: " + tenor);
+      throw new ParseFailureException("Invalid tenor, cannot mix years/months and days: '{value}'", tenor);
     }
     return resultTenor;
   }

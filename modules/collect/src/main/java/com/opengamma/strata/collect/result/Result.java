@@ -114,7 +114,7 @@ public final class Result<T>
    */
   public static <R> Result<R> failure(FailureReason reason, String message, Object... messageArgs) {
     String msg = Messages.format(message, messageArgs);
-    return new Result<>(Failure.of(FailureItem.of(reason, msg, 1)));
+    return new Result<>(Failure.of(FailureItem.ofAutoStackTrace(reason, msg, 1)));
   }
 
   /**
@@ -123,6 +123,7 @@ public final class Result<T>
    * <p>
    * Note that if the supplier throws an exception, this will be caught
    * and converted to a failure {@code Result}.
+   * This recognizes and handles {@link FailureException} and {@link FailureItemProvider} exceptions.
    *
    * @param <T> the type of the value
    * @param supplier  supplier of the result value
@@ -131,8 +132,8 @@ public final class Result<T>
   public static <T> Result<T> of(Supplier<T> supplier) {
     try {
       return success(supplier.get());
-    } catch (Exception e) {
-      return failure(e);
+    } catch (Exception ex) {
+      return failure(ex);
     }
   }
 
@@ -141,6 +142,7 @@ public final class Result<T>
    * <p>
    * Note that if the supplier throws an exception, this will be caught
    * and converted to a failure {@code Result}.
+   * This recognizes and handles {@link FailureException} and {@link FailureItemProvider} exceptions.
    *
    * @param <T> the type of the result value
    * @param supplier  supplier of the result
@@ -149,28 +151,30 @@ public final class Result<T>
   public static <T> Result<T> wrap(Supplier<Result<T>> supplier) {
     try {
       return supplier.get();
-    } catch (Exception e) {
-      return failure(e);
+    } catch (Exception ex) {
+      return failure(ex);
     }
   }
 
   /**
    * Creates a failed result caused by a throwable.
    * <p>
-   * The failure will have a reason of {@code ERROR}.
+   * This recognizes and handles {@link FailureException} and {@link FailureItemProvider} exceptions.
+   * If the exception type is not recognized, the failure will have a reason of {@code ERROR}.
    *
    * @param <R> the expected type of the result
    * @param cause  the cause of the failure
    * @return a failure result
    */
   public static <R> Result<R> failure(Throwable cause) {
-    return new Result<>(Failure.of(FailureReason.ERROR, cause));
+    return failure(Failure.from(cause));
   }
 
   /**
    * Creates a failed result caused by an exception.
    * <p>
-   * The failure will have a reason of {@code ERROR}.
+   * This recognizes and handles {@link FailureException} and {@link FailureItemProvider} exceptions.
+   * If the exception type is not recognized, the failure will have a reason of {@code ERROR}.
    *
    * @param <R> the expected type of the result
    * @param cause  the cause of the failure
@@ -178,7 +182,7 @@ public final class Result<T>
    */
   public static <R> Result<R> failure(Exception cause) {
     // this method is retained to ensure binary compatibility
-    return new Result<>(Failure.of(FailureReason.ERROR, cause));
+    return failure(Failure.from(cause));
   }
 
   /**
@@ -567,8 +571,8 @@ public final class Result<T>
           success(function.apply(extractSuccesses(results))) :
           failure(results);
 
-    } catch (Exception e) {
-      return failure(e);
+    } catch (Exception ex) {
+      return failure(ex);
     }
   }
 
@@ -623,8 +627,8 @@ public final class Result<T>
           function.apply(extractSuccesses(results)) :
           failure(results);
 
-    } catch (Exception e) {
-      return failure(e);
+    } catch (Exception ex) {
+      return failure(ex);
     }
   }
 
@@ -823,12 +827,12 @@ public final class Result<T>
   public <R> Result<R> map(Function<? super T, ? extends R> function) {
     if (isSuccess()) {
       try {
-        return Result.success(function.apply(value));
-      } catch (Exception e) {
-        return Result.failure(e);
+        return success(function.apply(value));
+      } catch (Exception ex) {
+        return failure(ex);
       }
     } else {
-      return Result.failure(this);
+      return failure(this);
     }
   }
 
@@ -852,9 +856,9 @@ public final class Result<T>
   public Result<T> mapFailure(Function<Failure, Failure> function) {
     if (isFailure()) {
       try {
-        return Result.failure(function.apply(failure));
-      } catch (Exception e) {
-        return Result.failure(e);
+        return failure(function.apply(failure));
+      } catch (Exception ex) {
+        return failure(ex);
       }
     } else {
       return this;
@@ -881,9 +885,9 @@ public final class Result<T>
   public Result<T> mapFailureItems(Function<FailureItem, FailureItem> function) {
     if (isFailure()) {
       try {
-        return Result.failure(failure.mapItems(function));
-      } catch (Exception e) {
-        return Result.failure(e);
+        return failure(failure.mapItems(function));
+      } catch (Exception ex) {
+        return failure(ex);
       }
     } else {
       return this;
@@ -918,11 +922,11 @@ public final class Result<T>
     if (isSuccess()) {
       try {
         return Objects.requireNonNull(function.apply(value));
-      } catch (Exception e) {
-        return failure(e);
+      } catch (Exception ex) {
+        return failure(ex);
       }
     } else {
-      return Result.failure(this);
+      return failure(this);
     }
   }
 
@@ -955,8 +959,8 @@ public final class Result<T>
     if (isSuccess() && other.isSuccess()) {
       try {
         return Objects.requireNonNull(function.apply(value, other.value));
-      } catch (Exception e) {
-        return failure(e);
+      } catch (Exception ex) {
+        return failure(ex);
       }
     } else {
       return failure(this, other);

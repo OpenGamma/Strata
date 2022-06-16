@@ -50,6 +50,7 @@ import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
@@ -238,7 +239,7 @@ final class SwapTradeCsvPlugin implements TradeCsvParserPlugin {
       if (payReceive.isPresent()) {
         return FullSwapTradeCsvPlugin.parse(row, info);
       }
-      throw new IllegalArgumentException(
+      throw new ParseFailureException(
           "Swap trade had invalid combination of fields. Must include either '" +
               CONVENTION_FIELD + "' or '" + "Leg 1 " + DIRECTION_FIELD + "'");
     }
@@ -266,7 +267,7 @@ final class SwapTradeCsvPlugin implements TradeCsvParserPlugin {
     // explicit dates take precedence over relative ones
     if (startDateOpt.isPresent() && endDateOpt.isPresent()) {
       if (periodToStartOpt.isPresent() || tenorOpt.isPresent()) {
-        throw new IllegalArgumentException(
+        throw new ParseFailureException(
             "Swap trade had invalid combination of fields. When these fields are found " +
                 ImmutableList.of(CONVENTION_FIELD, START_DATE_FIELD, END_DATE_FIELD) +
                 " then these fields must not be present " +
@@ -281,7 +282,7 @@ final class SwapTradeCsvPlugin implements TradeCsvParserPlugin {
     // start date + tenor
     if (startDateOpt.isPresent() && tenorOpt.isPresent()) {
       if (periodToStartOpt.isPresent() || endDateOpt.isPresent()) {
-        throw new IllegalArgumentException(
+        throw new ParseFailureException(
             "Swap trade had invalid combination of fields. When these fields are found " +
                 ImmutableList.of(CONVENTION_FIELD, START_DATE_FIELD, TENOR_FIELD) +
                 " then these fields must not be present " +
@@ -297,7 +298,7 @@ final class SwapTradeCsvPlugin implements TradeCsvParserPlugin {
     // relative dates
     if (periodToStartOpt.isPresent() && tenorOpt.isPresent() && info.getTradeDate().isPresent()) {
       if (startDateOpt.isPresent() || endDateOpt.isPresent()) {
-        throw new IllegalArgumentException(
+        throw new ParseFailureException(
             "Swap trade had invalid combination of fields. When these fields are found " +
                 ImmutableList.of(CONVENTION_FIELD, PERIOD_TO_START_FIELD, TENOR_FIELD, TRADE_DATE_FIELD) +
                 " then these fields must not be present " +
@@ -323,7 +324,7 @@ final class SwapTradeCsvPlugin implements TradeCsvParserPlugin {
     }
 
     // no match
-    throw new IllegalArgumentException(
+    throw new ParseFailureException(
         "Swap trade had invalid combination of fields. These fields are mandatory:" +
             ImmutableList.of(BUY_SELL_FIELD, NOTIONAL_FIELD, FIXED_RATE_FIELD) +
             " and one of these combinations is mandatory: " +

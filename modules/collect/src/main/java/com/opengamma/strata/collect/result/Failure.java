@@ -84,7 +84,7 @@ public final class Failure
    */
   public static Failure of(FailureReason reason, String message, Object... messageArgs) {
     String msg = Messages.format(message, messageArgs);
-    return Failure.of(FailureItem.of(reason, msg, 1));
+    return Failure.of(FailureItem.ofAutoStackTrace(reason, msg, 1));
   }
 
   /**
@@ -188,6 +188,27 @@ public final class Failure
         .map(FailureItem::getReason)
         .reduce((s1, s2) -> s1 == s2 ? s1 : FailureReason.MULTIPLE).get();
     return new Failure(reason, message, itemSet);
+  }
+
+  /**
+   * Creates a failure from the throwable.
+   * <p>
+   * This recognizes {@link FailureException} and {@link FailureItemProvider}.
+   *
+   * @param th  the throwable to be processed
+   * @return the failure
+   */
+  public static Failure from(Throwable th) {
+    try {
+      throw th;
+    } catch (FailureException ex) {
+      return ex.getFailure();
+    } catch (Throwable ex) {
+      if (ex instanceof FailureItemProvider) {
+        return of(((FailureItemProvider) ex).getFailureItem());
+      }
+      return of(FailureReason.ERROR, ex);
+    }
   }
 
   //-----------------------------------------------------------------------

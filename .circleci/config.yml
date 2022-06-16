@@ -23,6 +23,15 @@ executors:
       JAVA_TOOL_OPTIONS: -XX:MaxRAM=3572m
       MAVEN_OPTS: -Xmx1g
 
+#----------------------------------------------------------------------------
+  jdk17:
+    docker:
+      - image: cimg/openjdk:17.0
+    working_directory: ~/repo
+    environment:
+      JAVA_TOOL_OPTIONS: -XX:MaxRAM=3572m
+      MAVEN_OPTS: -Xmx1g
+
 
 #############################################################################
 # reusable commands
@@ -241,6 +250,15 @@ jobs:
             - maven_install
             - maven_test
 
+  build17:
+    executor: jdk17
+    steps:
+      - checkout
+      - with_maven:
+          actions:
+            - maven_install
+            - maven_test
+
 #----------------------------------------------------------------------------
   release:
     executor: jdk8
@@ -293,6 +311,8 @@ workflows:
       - build:
           context: OG-OSS
       - build11:
+          context: OG-OSS
+      - build17:
           context: OG-OSS
 
 #----------------------------------------------------------------------------

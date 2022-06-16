@@ -13,46 +13,54 @@ import java.math.BigDecimal;
 
 import org.junit.jupiter.api.Test;
 
+import com.opengamma.strata.collect.Decimal;
+
 /**
  * Test {@link BigMoney}.
  */
 public class BigMoneyTest {
 
   private static final Currency CCY_AUD = Currency.AUD;
+  private static final Currency CCY_RON = Currency.RON;
+  private static final Currency CCY_BHD = Currency.BHD; //3 decimals
+
   private static final double AMT_100 = 100;
   private static final double AMT_100_12 = 100.12;
   private static final double AMT_100_1249 = 100.1249;
-  private static final Currency CCY_RON = Currency.RON;
   private static final double AMT_200_2345 = 200.2345;
-  private static final Currency CCY_BHD = Currency.BHD; //3 decimals
   private static final CurrencyAmount CCYAMT = CurrencyAmount.of(CCY_RON, AMT_200_2345);
-  private static final BigMoney MONEY_100_RON = BigMoney.of(CCY_RON, 100);
+  private static final BigMoney MONEY_100_RON = BigMoney.of(CCY_RON, BigDecimal.valueOf(100));
   private static final BigMoney MONEY_200_2345_RON = BigMoney.of(CCYAMT);
   private static final BigMoney MONEY_100_AUD = BigMoney.of(CCY_AUD, AMT_100);
   private static final BigMoney MONEY_100_1249_AUD = BigMoney.of(CCY_AUD, AMT_100_1249);
   private static final BigMoney MONEY_200_AUD = BigMoney.of(CCY_AUD, 200);
-  private static final BigMoney MONEY_200_RON_ALTERNATIVE = BigMoney.of(CCY_RON, AMT_200_2345);
+  private static final BigMoney MONEY_200_2345_RON_ALTERNATIVE = BigMoney.of(CCY_RON, AMT_200_2345);
   private static final BigMoney MONEY_100_12_BHD = BigMoney.of(CCY_BHD, AMT_100_12);
   private static final BigMoney MONEY_100_1249_BHD = BigMoney.of(CCY_BHD, AMT_100_1249);
 
   //-------------------------------------------------------------------------
   @Test
+  @SuppressWarnings("deprecation")
   public void testOfCurrencyAndAmount() throws Exception {
     assertThat(MONEY_100_AUD.getCurrency()).isEqualTo(CCY_AUD);
-    assertThat(MONEY_100_AUD.getAmount()).isEqualTo(new BigDecimal("100.00"));
+    assertThat(MONEY_100_AUD.getValue()).isEqualTo(Decimal.of(AMT_100));
+    assertThat(MONEY_100_AUD.getAmount()).isEqualTo(BigDecimal.valueOf(10000, 2));
     assertThat(MONEY_100_1249_AUD.getCurrency()).isEqualTo(CCY_AUD);
-    assertThat(MONEY_100_1249_AUD.getAmount()).isEqualTo(new BigDecimal("100.1249"));
+    assertThat(MONEY_100_1249_AUD.getValue()).isEqualTo(Decimal.of(AMT_100_1249));
+    assertThat(MONEY_100_1249_AUD.getAmount()).isEqualTo(BigDecimal.valueOf(1001249, 4));
     assertThat(MONEY_100_12_BHD.getCurrency()).isEqualTo(CCY_BHD);
-    assertThat(MONEY_100_12_BHD.getAmount()).isEqualTo(new BigDecimal("100.120"));
+    assertThat(MONEY_100_12_BHD.getValue()).isEqualTo(Decimal.of(AMT_100_12));
+    assertThat(MONEY_100_12_BHD.getAmount()).isEqualTo(BigDecimal.valueOf(100120, 3));
     assertThat(MONEY_100_1249_BHD.getCurrency()).isEqualTo(CCY_BHD);
-    assertThat(MONEY_100_1249_BHD.getAmount()).isEqualTo(new BigDecimal("100.1249"));
+    assertThat(MONEY_100_1249_BHD.getValue()).isEqualTo(Decimal.of(AMT_100_1249));
+    assertThat(MONEY_100_1249_BHD.getAmount()).isEqualTo(BigDecimal.valueOf(1001249, 4));
 
   }
 
   @Test
   public void testOfCurrencyAmount() throws Exception {
     assertThat(MONEY_200_2345_RON.getCurrency()).isEqualTo(CCY_RON);
-    assertThat(MONEY_200_2345_RON.getAmount()).isEqualTo(BigDecimal.valueOf(AMT_200_2345));
+    assertThat(MONEY_200_2345_RON.getValue()).isEqualTo(Decimal.of(AMT_200_2345));
   }
 
   //-------------------------------------------------------------------------
@@ -79,10 +87,13 @@ public class BigMoneyTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void testMapAmount() throws Exception {
     BigMoney a = BigMoney.of(GBP, 1.23);
+    assertThat(a.map(amount -> amount.multipliedBy(Decimal.of(10))))
+        .isEqualTo(BigMoney.of(GBP, Decimal.of("12.30")));
     assertThat(a.mapAmount(amount -> amount.multiply(BigDecimal.TEN)))
-        .isEqualTo(BigMoney.of(GBP, new BigDecimal("12.30")));
+        .isEqualTo(BigMoney.of(GBP, Decimal.of("12.30")));
   }
 
   //-------------------------------------------------------------------------
@@ -125,8 +136,10 @@ public class BigMoneyTest {
   //-------------------------------------------------------------------------
   @Test
   public void testConvertedToWithExplicitRate() throws Exception {
-    assertThat(MONEY_200_2345_RON.convertedTo(CCY_RON, BigDecimal.valueOf(1)))
+    assertThat(MONEY_200_2345_RON.convertedTo(CCY_RON, Decimal.of(1)))
         .isEqualTo(BigMoney.of(Currency.RON, 200.2345));
+    assertThat(MONEY_100_AUD.convertedTo(CCY_RON, Decimal.of("2.6031")))
+        .isEqualTo(BigMoney.of(Currency.RON, 260.31));
     assertThat(MONEY_100_AUD.convertedTo(CCY_RON, new BigDecimal("2.6031")))
         .isEqualTo(BigMoney.of(Currency.RON, 260.31));
   }
@@ -134,7 +147,7 @@ public class BigMoneyTest {
   @Test
   public void testConvertedToWithExplicitRateForSameCurrency() throws Exception {
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> MONEY_200_2345_RON.convertedTo(CCY_RON, BigDecimal.valueOf(1.1)))
+        .isThrownBy(() -> MONEY_200_2345_RON.convertedTo(CCY_RON, Decimal.of(1.1)))
         .withMessage("FX rate must be 1 when no conversion required");
   }
 
@@ -153,25 +166,26 @@ public class BigMoneyTest {
   @Test
   public void testCompareTo() throws Exception {
     assertThat(MONEY_100_AUD.compareTo(MONEY_200_2345_RON)).isEqualTo(-1);
-    assertThat(MONEY_200_2345_RON.compareTo(MONEY_200_RON_ALTERNATIVE)).isEqualTo(0);
+    assertThat(MONEY_200_2345_RON.compareTo(MONEY_200_2345_RON_ALTERNATIVE)).isEqualTo(0);
   }
 
   @Test
   public void testEqualsHashCode() throws Exception {
     assertThat(MONEY_200_2345_RON)
         .isEqualTo(MONEY_200_2345_RON)
-        .isEqualTo(MONEY_200_RON_ALTERNATIVE)
+        .isEqualTo(MONEY_200_2345_RON_ALTERNATIVE)
         .isNotEqualTo(MONEY_100_AUD)
         .isNotEqualTo(MONEY_200_AUD)
         .isNotEqualTo(MONEY_100_RON)
         .isNotEqualTo(MONEY_100_12_BHD)
         .isNotEqualTo("")
         .isNotEqualTo(null)
-        .hasSameHashCodeAs(MONEY_200_RON_ALTERNATIVE);
+        .hasSameHashCodeAs(MONEY_200_2345_RON_ALTERNATIVE);
   }
 
   @Test
   public void testToString() throws Exception {
+    assertThat(MONEY_200_AUD).hasToString("AUD 200.00");
     assertThat(MONEY_200_2345_RON.toString()).isEqualTo("RON 200.2345");
   }
 

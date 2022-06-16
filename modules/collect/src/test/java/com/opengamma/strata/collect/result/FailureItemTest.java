@@ -6,6 +6,7 @@
 package com.opengamma.strata.collect.result;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +23,7 @@ public class FailureItemTest {
     FailureItem test = FailureItem.of(FailureReason.INVALID, "my {} {} failure", "big", "bad");
     assertThat(test.getReason()).isEqualTo(FailureReason.INVALID);
     assertThat(test.getMessage()).isEqualTo("my big bad failure");
+    assertThat(test.getMessageTemplate()).isEqualTo("my big bad failure");
     assertThat(test.getCauseType()).isEmpty();
     assertThat(test.getStackTrace()).doesNotContain(".FailureItem.of(");
     assertThat(test.getStackTrace()).doesNotContain(".Failure.of(");
@@ -111,7 +113,7 @@ public class FailureItemTest {
   }
 
   @Test
-  public void test_of_reasonMessageWithAttributes() {
+  public void test_of_reasonMessageExceptionWithAttributes() {
     IllegalArgumentException innerEx = new IllegalArgumentException("inner");
     IllegalArgumentException ex = new IllegalArgumentException("exmsg", innerEx);
     FailureItem test = FailureItem.of(FailureReason.INVALID, ex, "failure: {exceptionMessage}", "error");
@@ -121,17 +123,69 @@ public class FailureItemTest {
     assertThat(test.getMessage()).isEqualTo("failure: error");
     assertThat(test.getCauseType()).isPresent();
     assertThat(test.getCauseType()).hasValue(IllegalArgumentException.class);
-    assertThat(test.getStackTrace()).contains(".test_of_reasonMessageWithAttributes(");
+    assertThat(test.getStackTrace()).contains(".test_of_reasonMessageExceptionWithAttributes(");
     assertThat(test.toString()).isEqualTo("INVALID: failure: error: java.lang.IllegalArgumentException: exmsg");
   }
 
   @Test
+  public void test_of_reasonMessageExceptionWithFailureItemException() {
+    ParseFailureException ex = new ParseFailureException("Bad value '{value}'", "foo");
+    FailureItem test = FailureItem.of(FailureReason.INVALID, ex, "Error on line {lineNumber}: {exceptionMessage}", 23, "NPE");
+    assertThat(test.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(test.getMessage()).isEqualTo("Error on line 23: Bad value 'foo'");
+    assertThat(test.getAttributes()).containsOnly(
+        entry(FailureAttributeKeys.TEMPLATE_LOCATION, "lineNumber:14:2|value:29:3"),
+        entry(FailureAttributeKeys.LINE_NUMBER, "23"),
+        entry(FailureAttributeKeys.VALUE, "foo"));
+    assertThat(test.getCauseType()).isEmpty();
+    assertThat(test.getStackTrace()).contains(".test_of_reasonMessageExceptionWithFailureItemException(");
+  }
+
+  @Test
+  public void test_of_reasonMessageExceptionWithFailureItemExceptionNoExMessageParam() {
+    ParseFailureException ex = new ParseFailureException("Bad value '{value}'", "foo");
+    FailureItem test = FailureItem.of(FailureReason.INVALID, ex, "Error on line {lineNumber}: \n {exceptionMessage}", 23, "NPE");
+    assertThat(test.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(test.getMessage()).isEqualTo("Error on line 23: Bad value 'foo'");
+    assertThat(test.getAttributes()).containsOnly(
+        entry(FailureAttributeKeys.TEMPLATE_LOCATION, "lineNumber:14:2|value:29:3"),
+        entry(FailureAttributeKeys.LINE_NUMBER, "23"),
+        entry(FailureAttributeKeys.VALUE, "foo"));
+  }
+
+  @Test
+  public void test_of_reasonMessageExceptionWithFailureItemExceptionDuplicateName() {
+    ParseFailureException ex = new ParseFailureException("Bad value {value}", 3);
+    FailureItem test = FailureItem.of(FailureReason.INVALID, ex, "Error {value} {value1}", 1, 2);
+    assertThat(test.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(test.getMessage()).isEqualTo("Error 1 2: Bad value 3");
+    assertThat(test.getAttributes()).containsOnly(
+        entry(FailureAttributeKeys.TEMPLATE_LOCATION, "value:6:1|value1:8:1|value2:21:1"),
+        entry("value", "1"),
+        entry("value1", "2"),
+        entry("value2", "3"));
+  }
+
+  @Test
+  public void test_from_Throwable() {
+    FailureItem base = FailureItem.of(FailureReason.INVALID, "failure");
+    assertThat(FailureItem.from(new FailureItemException(base))).isSameAs(base);
+
+    FailureItem item = FailureItem.from(new RuntimeException("foo"));
+    assertThat(item.getReason()).isEqualTo(FailureReason.ERROR);
+    assertThat(item.getMessage()).isEqualTo("foo");
+  }
+
+  @Test
   public void test_withAttribute() {
-    FailureItem test = FailureItem.of(FailureReason.INVALID, "my {one} {two} failure", "big", "bad");
+    FailureItem test = FailureItem.of(FailureReason.INVALID, "my {fileId} {two} failure", "big", "bad");
     test = test.withAttribute("foo", "bar");
-    assertThat(test.getAttributes()).isEqualTo(ImmutableMap.of("one", "big", "two", "bad", "foo", "bar"));
+    assertThat(test.getAttributes())
+        .isEqualTo(ImmutableMap.of(
+            FailureAttributeKeys.FILE_ID, "big", "two", "bad", "foo", "bar", "templateLocation", "fileId:3:3|two:7:3"));
     assertThat(test.getReason()).isEqualTo(FailureReason.INVALID);
     assertThat(test.getMessage()).isEqualTo("my big bad failure");
+    assertThat(test.getMessageTemplate()).isEqualTo("my {fileId} {two} failure");
     assertThat(test.getCauseType()).isEmpty();
     assertThat(test.getStackTrace()).doesNotContain(".FailureItem.of(");
     assertThat(test.getStackTrace()).doesNotContain(".Failure.of(");
@@ -144,9 +198,11 @@ public class FailureItemTest {
   public void test_withAttributes() {
     FailureItem test = FailureItem.of(FailureReason.INVALID, "my {one} {two} failure", "big", "bad");
     test = test.withAttributes(ImmutableMap.of("foo", "bar", "two", "good"));
-    assertThat(test.getAttributes()).isEqualTo(ImmutableMap.of("one", "big", "two", "good", "foo", "bar"));
+    assertThat(test.getAttributes())
+        .isEqualTo(ImmutableMap.of("one", "big", "two", "good", "foo", "bar", "templateLocation", "one:3:3|two:7:3"));
     assertThat(test.getReason()).isEqualTo(FailureReason.INVALID);
     assertThat(test.getMessage()).isEqualTo("my big bad failure");
+    assertThat(test.getMessageTemplate()).isEqualTo("my {one} {two} failure");
     assertThat(test.getCauseType()).isEmpty();
     assertThat(test.getStackTrace()).doesNotContain(".FailureItem.of(");
     assertThat(test.getStackTrace()).doesNotContain(".Failure.of(");

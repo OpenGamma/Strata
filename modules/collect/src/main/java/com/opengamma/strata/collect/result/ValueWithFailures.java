@@ -115,6 +115,9 @@ public final class ValueWithFailures<T>
    * <p>
    * If the supplier succeeds normally, the supplied value will be returned.
    * If the supplier fails, the empty value will be returned along with a failure.
+   * <p>
+   * This recognizes and handles {@link FailureItemProvider} exceptions.
+   * If the exception type is not recognized, the failure item will have a reason of {@code ERROR}.
    *
    * @param <T> the type of the value
    * @param emptyValue  the empty value
@@ -125,7 +128,7 @@ public final class ValueWithFailures<T>
     try {
       return of(supplier.get());
     } catch (Exception ex) {
-      return ValueWithFailures.of(emptyValue, FailureItem.of(FailureReason.ERROR, ex));
+      return ValueWithFailures.of(emptyValue, FailureItem.from(ex));
     }
   }
 

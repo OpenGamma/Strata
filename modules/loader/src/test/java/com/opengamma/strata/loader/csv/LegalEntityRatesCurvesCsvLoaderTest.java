@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.LocalDate;
@@ -23,6 +24,7 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -183,68 +185,68 @@ public class LegalEntityRatesCurvesCsvLoaderTest {
 
   @Test
   public void test_invalid_settings_missing_column_file() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
             ALL_DATES.get(6),
             ResourceLocator.of(GROUPS),
             ResourceLocator.of(SETTINGS_MISSING_CURVE_NAME),
             ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2))))
-        .withMessage("Header not found: 'Curve Name'");
+        .withMessage("Error parsing legal entity CSV files: Header not found: 'Curve Name'");
   }
 
   @Test
   public void test_invalid_settings_day_count_file() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
             ALL_DATES.get(1),
             ResourceLocator.of(GROUPS),
             ResourceLocator.of(SETTINGS_INVALID_DCC),
             ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2))))
-        .withMessageMatching("Unknown DayCount value.*");
+        .withMessageStartingWith("Error parsing legal entity CSV files: Unable to parse day count from");
   }
 
   @Test
   public void test_invalid_settings_interpolator_file() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
             ALL_DATES.get(6),
             ResourceLocator.of(GROUPS),
             ResourceLocator.of(SETTINGS_INVALID_INTERP),
             ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2))))
-        .withMessage("CurveInterpolator name not found: Polynomial");
+        .withMessage("Error parsing legal entity CSV files: CurveInterpolator name not found: Polynomial");
   }
 
   @Test
   public void test_invalid_settings_left_extrapolator_file() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
             ALL_DATES.get(2),
             ResourceLocator.of(GROUPS),
             ResourceLocator.of(SETTINGS_INVALID_LEFT),
             ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2))))
-        .withMessage("CurveExtrapolator name not found: Polynomial");
+        .withMessage("Error parsing legal entity CSV files: CurveExtrapolator name not found: Polynomial");
   }
 
   @Test
   public void test_invalid_settings_right_extrapolator_file() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
             ALL_DATES.get(4),
             ResourceLocator.of(GROUPS),
             ResourceLocator.of(SETTINGS_INVALID_RIGHT),
             ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2))))
-        .withMessage("CurveExtrapolator name not found: Cubic");
+        .withMessage("Error parsing legal entity CSV files: CurveExtrapolator name not found: Cubic");
   }
 
   @Test
   public void test_invalid_settings_value_type_file() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
             ALL_DATES.get(0),
             ResourceLocator.of(GROUPS),
             ResourceLocator.of(SETTINGS_INVALID_VALUE),
             ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2))))
-        .withMessage("Unsupported Value Type in curve settings: Forward");
+        .withMessage("Error parsing legal entity CSV files: Unsupported Value Type in curve settings 'Forward'");
   }
 
   //-------------------------------------------------------------------------
@@ -260,35 +262,35 @@ public class LegalEntityRatesCurvesCsvLoaderTest {
 
   @Test
   public void test_invalid_curve_type() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
             ALL_DATES.get(6),
             ResourceLocator.of(GROUPS_INVALID_CURVE_TYPE),
             ResourceLocator.of(SETTINGS),
             ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2))))
-        .withMessage("Unsupported curve type: Forward");
+        .withMessage("Error parsing legal entity CSV files: Unsupported curve type 'Forward'");
   }
 
   @Test
   public void test_missing_issuer_curve() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
             ALL_DATES.get(2),
             ResourceLocator.of(GROUPS),
             ResourceLocator.of(SETTINGS),
             ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2_ISSUER_MISSING))))
-        .withMessageMatching("Issuer curve values .*");
+        .withMessageStartingWith("Error parsing legal entity CSV files: Issuer curve values");
   }
 
   @Test
   public void test_missing_repo_curve() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
             ALL_DATES.get(5),
             ResourceLocator.of(GROUPS),
             ResourceLocator.of(SETTINGS),
             ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2_REPO_MISSING))))
-        .withMessageMatching("Repo curve values .*");
+        .withMessageStartingWith("Error parsing legal entity CSV files: Repo curve values");
   }
 
   @Test
@@ -303,18 +305,18 @@ public class LegalEntityRatesCurvesCsvLoaderTest {
 
   @Test
   public void test_multiple_curves() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
             ALL_DATES.get(6),
             ResourceLocator.of(GROUPS),
             ResourceLocator.of(SETTINGS),
             ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2))))
-        .withMessageMatching("Rates curve loader found multiple curves with the same name: .*");
+        .withMessageStartingWith("Error parsing legal entity CSV files: Rates curve loader found multiple curves with the same name");
   }
 
   @Test
   public void test_invalid_curve_duplicate_points() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.loadAllDates(
             ResourceLocator.of(GROUPS),
             ResourceLocator.of(SETTINGS),

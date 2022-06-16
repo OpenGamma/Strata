@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.offset;
 
@@ -24,6 +25,7 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveGroupName;
@@ -78,50 +80,50 @@ public class RatesCurvesCsvLoaderTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_missing_settings_file() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(IllegalArgumentException.class)
         .isThrownBy(() -> testSettings("classpath:invalid"));
   }
 
   @Test
   public void test_invalid_settings_missing_column_file() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> testSettings(SETTINGS_INVALID_MISSING_COLUMN))
-        .withMessage("Header not found: 'Curve Name'");
+        .withMessage("Error parsing CSV file 'settings-invalid-missing-column.csv': Header not found: 'Curve Name'");
   }
 
   @Test
   public void test_invalid_settings_day_count_file() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> testSettings(SETTINGS_INVALID_DAY_COUNT))
-        .withMessageMatching("Unknown DayCount value.*");
+        .withMessageStartingWith("Error parsing CSV file 'settings-invalid-day-count.csv': Unable to parse day count from");
   }
 
   @Test
   public void test_invalid_settings_interpolator_file() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> testSettings(SETTINGS_INVALID_INTERPOLATOR))
-        .withMessage("CurveInterpolator name not found: Wacky");
+        .withMessage("Error parsing CSV file 'settings-invalid-interpolator.csv': CurveInterpolator name not found: Wacky");
   }
 
   @Test
   public void test_invalid_settings_left_extrapolator_file() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> testSettings(SETTINGS_INVALID_LEFT_EXTRAPOLATOR))
-        .withMessage("CurveExtrapolator name not found: Polynomial");
+        .withMessage("Error parsing CSV file 'settings-invalid-left-extrapolator.csv': CurveExtrapolator name not found: Polynomial");
   }
 
   @Test
   public void test_invalid_settings_right_extrapolator_file() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> testSettings(SETTINGS_INVALID_RIGHT_EXTRAPOLATOR))
-        .withMessage("CurveExtrapolator name not found: Polynomial");
+        .withMessage("Error parsing CSV file 'settings-invalid-right-extrapolator.csv': CurveExtrapolator name not found: Polynomial");
   }
 
   @Test
   public void test_invalid_settings_value_type_file() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> testSettings(SETTINGS_INVALID_VALUE_TYPE))
-        .withMessage("Unsupported Value Type in curve settings: DS");
+        .withMessage("Error parsing CSV file 'settings-invalid-value-type.csv': Unsupported Value Type in curve settings 'DS'");
   }
 
   private void testSettings(String settingsResource) {
@@ -141,16 +143,16 @@ public class RatesCurvesCsvLoaderTest {
 
   @Test
   public void test_invalid_groups_curve_type_file() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> testGroups(GROUPS_INVALID_CURVE_TYPE))
-        .withMessage("Unsupported curve type: Inflation");
+        .withMessage("Error parsing groups CSV file 'groups-invalid-curve-type.csv': Unsupported curve type 'Inflation'");
   }
 
   @Test
   public void test_invalid_groups_reference_index_file() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> testGroups(GROUPS_INVALID_REFERENCE_INDEX))
-        .withMessage("Index name not found: LIBOR");
+        .withMessage("Error parsing groups CSV file 'groups-invalid-reference-index.csv': Unable to parse index from 'LIBOR'");
   }
 
   private void testGroups(String groupsResource) {
@@ -163,24 +165,24 @@ public class RatesCurvesCsvLoaderTest {
 
   @Test
   public void test_noSettings() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> RatesCurvesCsvLoader.load(
             CURVE_DATE,
             ResourceLocator.of(GROUPS_1),
             ResourceLocator.of(SETTINGS_EMPTY),
             ImmutableList.of(ResourceLocator.of(CURVES_1))))
-        .withMessageMatching("Missing settings for curve: .*");
+        .withMessageStartingWith("Error parsing rates curve CSV file 'curves-1.csv': Missing settings for curve");
   }
 
   @Test
   public void test_single_curve_multiple_Files() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> RatesCurvesCsvLoader.load(
             CURVE_DATE,
             ResourceLocator.of(GROUPS_1),
             ResourceLocator.of(SETTINGS_1),
             ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_1))))
-        .withMessageMatching("Rates curve loader found multiple curves with the same name: .*");
+        .withMessageStartingWith("Error parsing rates curves CSV files: Rates curve loader found multiple curves with the same name");
   }
 
   @Test
@@ -207,7 +209,7 @@ public class RatesCurvesCsvLoaderTest {
 
   @Test
   public void test_invalid_curve_duplicate_points() {
-    assertThatIllegalArgumentException()
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> RatesCurvesCsvLoader.load(
             CURVE_DATE,
             ResourceLocator.of(GROUPS_1),

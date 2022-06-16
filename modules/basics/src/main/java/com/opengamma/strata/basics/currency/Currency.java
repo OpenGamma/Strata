@@ -20,6 +20,7 @@ import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Decimal;
 
 /**
  * A unit of currency.
@@ -450,6 +451,18 @@ public final class Currency
    */
   public BigDecimal roundMinorUnits(BigDecimal amount) {
     return amount.setScale(minorUnitDigits, RoundingMode.HALF_UP);
+  }
+
+  /**
+   * Rounds the specified amount according to the minor units.
+   * <p>
+   * For example, 'USD' has 2 minor digits, so 63.347 will be rounded to 63.35.
+   * 
+   * @param amount  the amount to round
+   * @return the rounded amount
+   */
+  public Decimal roundMinorUnits(Decimal amount) {
+    return amount.roundToScale(minorUnitDigits, RoundingMode.HALF_UP);
   }
 
   //-------------------------------------------------------------------------

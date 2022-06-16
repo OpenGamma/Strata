@@ -6,8 +6,11 @@
 package com.opengamma.strata.collect.result;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.Function;
@@ -48,7 +51,7 @@ public final class FailureItem
   /**
    * Attribute used to store the exception message.
    */
-  public static final String EXCEPTION_MESSAGE_ATTRIBUTE = "exceptionMessage";
+  public static final String EXCEPTION_MESSAGE_ATTRIBUTE = FailureAttributeKeys.EXCEPTION_MESSAGE;
   /**
    * Header used when generating stack trace internally.
    */
@@ -123,7 +126,7 @@ public final class FailureItem
    * @param skipFrames  the number of caller frames to skip, not including this one
    * @return the failure
    */
-  static FailureItem of(FailureReason reason, String message, int skipFrames) {
+  static FailureItem ofAutoStackTrace(FailureReason reason, String message, int skipFrames) {
     ArgChecker.notNull(reason, "reason");
     ArgChecker.notEmpty(message, "message");
     String stackTrace = localGetStackTraceAsString(message, skipFrames);
@@ -161,6 +164,8 @@ public final class FailureItem
 
   /**
    * Obtains a failure from a reason and exception.
+   * <p>
+   * This recognizes and handles {@link FailureItemProvider} exceptions.
    * 
    * @param reason  the reason
    * @param cause  the cause
@@ -169,9 +174,8 @@ public final class FailureItem
   public static FailureItem of(FailureReason reason, Throwable cause) {
     ArgChecker.notNull(reason, "reason");
     ArgChecker.notNull(cause, "cause");
-    String causeMessage = cause.getMessage();
-    String message = Strings.isNullOrEmpty(causeMessage) ? cause.getClass().getSimpleName() : causeMessage;
-    return FailureItem.of(reason, cause, message);
+    String causeMessage = extractCauseMessage(cause);
+    return FailureItem.of(reason, cause, causeMessage);
   }
 
   /**
@@ -183,24 +187,106 @@ public final class FailureItem
    * If there are too many arguments, then the excess arguments are appended to the
    * end of the message. No attempt is made to format the arguments.
    * See {@link Messages#formatWithAttributes(String, Object...)} for more details.
+   * <p>
+   * It can be useful to capture the underlying exception message. This should be achieved by adding
+   * ': {exceptionMessage}' to the template and 'cause.toString()' or 'cause.getMessage()' to the arguments.
+   * <p>
+   * This recognizes and handles {@link FailureItemProvider} exceptions.
    * 
    * @param reason  the reason
    * @param cause  the cause
-   * @param message  a message explaining the failure, not empty, uses "{}" for inserting {@code messageArgs}
+   * @param messageTemplate  a message explaining the failure, not empty, uses "{}" for inserting {@code messageArgs}
    * @param messageArgs  the arguments for the message
    * @return the failure
    */
-  public static FailureItem of(FailureReason reason, Throwable cause, String message, Object... messageArgs) {
+  public static FailureItem of(FailureReason reason, Throwable cause, String messageTemplate, Object... messageArgs) {
     ArgChecker.notNull(reason, "reason");
     ArgChecker.notNull(cause, "cause");
-    Pair<String, Map<String, String>> msg = Messages.formatWithAttributes(message, messageArgs);
+    if (cause instanceof FailureItemProvider) {
+      return ofWrappedFailureItem(((FailureItemProvider) cause).getFailureItem(), reason, messageTemplate, messageArgs);
+    }
+    Pair<String, Map<String, String>> msg = Messages.formatWithAttributes(messageTemplate, messageArgs);
     String stackTrace = Throwables.getStackTraceAsString(cause).replace(System.lineSeparator(), "\n");
     FailureItem base = new FailureItem(reason, msg.getFirst(), msg.getSecond(), stackTrace, cause.getClass());
-    String causeMessage = cause.getMessage();
+    String causeMessage = extractCauseMessage(cause);
     if (!base.getAttributes().containsKey(EXCEPTION_MESSAGE_ATTRIBUTE) && !Strings.isNullOrEmpty(causeMessage)) {
       return base.withAttribute(EXCEPTION_MESSAGE_ATTRIBUTE, causeMessage);
     }
     return base;
+  }
+
+  // extracts the cause message
+  private static String extractCauseMessage(Throwable cause) {
+    String causeMessage = cause.getMessage();
+    return Strings.isNullOrEmpty(causeMessage) ? cause.getClass().getSimpleName() : causeMessage;
+  }
+
+  // handles a cause that contains a FailureItem
+  private static FailureItem ofWrappedFailureItem(
+      FailureItem underlying,
+      FailureReason reason,
+      String messageTemplate,
+      Object... messageArgs) {
+
+    // strip trailing 'exceptionMessage'
+    if (messageTemplate.endsWith("{exceptionMessage}")) {
+      String adjustedTemplate = messageTemplate.substring(0, messageTemplate.length() - 18).trim();
+      adjustedTemplate = adjustedTemplate.endsWith(":") ? adjustedTemplate.substring(0, adjustedTemplate.length() - 1) : adjustedTemplate;
+      Object[] adjustedArgs = messageArgs.length >= 1 ? Arrays.copyOfRange(messageArgs, 0, messageArgs.length - 1) : messageArgs;
+      return ofWrappedFailureItem(underlying, reason, adjustedTemplate, adjustedArgs);
+    }
+
+    // format and combine message
+    Pair<String, Map<String, String>> msgPair = Messages.formatWithAttributes(messageTemplate, messageArgs);
+    String baseMsg = msgPair.getFirst() + ": ";
+    Map<String, String> baseAttrs = msgPair.getSecond();
+    String combinedMsg = baseMsg + underlying.message;
+
+    // combine attributes
+    String underlyingLocation = underlying.attributes.getOrDefault(FailureAttributeKeys.TEMPLATE_LOCATION, "");
+    String baseLocation = baseAttrs.getOrDefault(FailureAttributeKeys.TEMPLATE_LOCATION, "");
+    Map<String, String> combinedAttrs = new LinkedHashMap<>(baseAttrs);
+    combinedAttrs.remove(FailureAttributeKeys.TEMPLATE_LOCATION);
+    for (Entry<String, String> entry : underlying.attributes.entrySet()) {
+      String key = entry.getKey();
+      if (!FailureAttributeKeys.TEMPLATE_LOCATION.equals(key)) {
+        String adjKey = key;
+        int count = 1;
+        while (combinedAttrs.containsKey(adjKey)) {
+          adjKey = key + (count++);
+        }
+        if (!adjKey.equals(key)) {
+          underlyingLocation = underlyingLocation.replace(key, adjKey);
+        }
+        combinedAttrs.put(adjKey, entry.getValue());
+      }
+    }
+
+    // adjust location
+    String mergedLocation = Messages.mergeTemplateLocations(baseLocation, underlyingLocation, baseMsg.length());
+    if (!mergedLocation.isEmpty()) {
+      combinedAttrs.put(FailureAttributeKeys.TEMPLATE_LOCATION, mergedLocation);
+    }
+    return new FailureItem(underlying.reason, combinedMsg, combinedAttrs, underlying.stackTrace, underlying.causeType);
+  }
+
+  /**
+   * Creates a failure item from the throwable.
+   * <p>
+   * This recognizes and handles {@link FailureItemProvider} exceptions.
+   *
+   * @param th  the throwable to be processed
+   * @return the failure item
+   */
+  public static FailureItem from(Throwable th) {
+    try {
+      throw th;
+    } catch (Throwable ex) {
+      if (ex instanceof FailureItemProvider) {
+        return ((FailureItemProvider) ex).getFailureItem();
+      }
+      return of(FailureReason.ERROR, ex);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -219,6 +305,19 @@ public final class FailureItem
     this.message = message;
     this.stackTrace = INTERNER.intern(stackTrace);
     this.causeType = causeType;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the message template that was used to create the message.
+   * <p>
+   * This method derives the template from 'templateLocation' in the attributes.
+   * This only works if the template location correctly matches the message.
+   * 
+   * @return the message template
+   */
+  public String getMessageTemplate() {
+    return Messages.recreateTemplate(message, attributes.get(FailureAttributeKeys.TEMPLATE_LOCATION));
   }
 
   /**

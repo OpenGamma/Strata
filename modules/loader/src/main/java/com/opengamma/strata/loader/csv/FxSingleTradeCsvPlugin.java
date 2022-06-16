@@ -34,10 +34,10 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
@@ -157,10 +157,10 @@ class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlug
         .orElseGet(() -> row.getValue(prefix + PAYMENT_DATE_FIELD, LoaderUtils::parseDate));
     Optional<BusinessDayAdjustment> paymentAdj = parsePaymentDateAdjustment(row);
     if (amount1.isPositive() == amount2.isPositive()) {
-      throw new IllegalArgumentException(Messages.format(
-          "FxSingle legs must not have the same direction: {}, {}",
+      throw new ParseFailureException(
+          "FxSingle legs must not have the same direction: {value}, {value2}",
           row.getValue(prefix + LEG_1_DIRECTION_FIELD),
-          row.getValue(prefix + LEG_2_DIRECTION_FIELD)));
+          row.getValue(prefix + LEG_2_DIRECTION_FIELD));
     }
     Payment payment1 = Payment.of(amount1, paymentDate1);
     Payment payment2 = Payment.of(amount2, paymentDate2);

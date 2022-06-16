@@ -329,7 +329,10 @@ public class ArrayByteSourceTest {
     assertThat(test.sizeIfKnown().get()).isEqualTo((Long) 3L);
     assertThat(test.readUtf8()).isEqualTo("ABC");
     assertThat(test.readUtf8UsingBom()).isEqualTo("ABC");
+    assertThat(test.asCharSource(StandardCharsets.US_ASCII).read()).isEqualTo("ABC");
+    assertThat(test.asCharSourceUtf8().read()).isEqualTo("ABC");
     assertThat(test.asCharSourceUtf8UsingBom().read()).isEqualTo("ABC");
+    assertThat(test.asCharSourceUtf8().asByteSourceUtf8()).isEqualTo(test);
     assertThat(test.contentEquals(test)).isTrue();
     assertThat(test.toString()).isEqualTo("ArrayByteSource[3 bytes]");
     assertThat(test.withFileName("name.txt").toString()).isEqualTo("ArrayByteSource[3 bytes, name.txt]");
@@ -410,6 +413,7 @@ public class ArrayByteSourceTest {
     byte[] bytes = new byte[] {65, 66, 67, 99};
     ArrayByteSource test = ArrayByteSource.copyOf(bytes);
     coverImmutableBean(test);
+    coverImmutableBean(test.asCharSourceUtf8());
     test.metaBean().metaProperty("array").metaBean();
     test.metaBean().metaProperty("array").propertyGenericType();
     test.metaBean().metaProperty("array").annotations();

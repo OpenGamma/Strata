@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.TreeMap;
@@ -84,6 +87,25 @@ public final class Guavate {
   }
 
   /**
+   * Concatenates a number of items onto a single base list.
+   * <p>
+   * This returns a new list, the input is unaltered.
+   *
+   * @param <T>  the type of element in the iterable
+   * @param baseList  the base list
+   * @param additionalItems  the additional items
+   * @return the list that combines the inputs
+   */
+  @SafeVarargs
+  public static <T> ImmutableList<T> concatItemsToList(Iterable<? extends T> baseList, T... additionalItems) {
+    // this cannot be named concatToList() as it would be ambiguous for callers
+    return ImmutableList.<T>builder()
+        .addAll(baseList)
+        .addAll(ImmutableList.copyOf(additionalItems))
+        .build();
+  }
+
+  /**
    * Concatenates a number of iterables into a single set.
    * <p>
    * This is harder than it should be, a method {@code Stream.of(Iterable)}
@@ -100,7 +122,7 @@ public final class Guavate {
 
   //-------------------------------------------------------------------------
   /**
-   * Combines two distinct maps into a single map.
+   * Combines two distinct maps into a single map, throwing an exception for duplicate keys.
    *
    * @param first  the first map
    * @param second  the second map
@@ -115,6 +137,23 @@ public final class Guavate {
 
     return Stream.concat(first.entrySet().stream(), second.entrySet().stream())
         .collect(entriesToImmutableMap());
+  }
+
+  /**
+   * Combines two distinct maps into a single map, choosing the key from the second map in case of duplicates.
+   *
+   * @param first  the first map
+   * @param second  the second map
+   * @param <K>  the type of the keys
+   * @param <V>  the type of the values
+   * @return a combined map
+   */
+  public static <K, V> ImmutableMap<K, V> combineMapsOverwriting(
+      Map<? extends K, ? extends V> first,
+      Map<? extends K, ? extends V> second) {
+
+    return Stream.concat(first.entrySet().stream(), second.entrySet().stream())
+        .collect(entriesToImmutableMap((a, b) -> b));
   }
 
   /**
@@ -137,6 +176,25 @@ public final class Guavate {
 
     return Stream.concat(first.entrySet().stream(), second.entrySet().stream())
         .collect(entriesToImmutableMap(mergeFn));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Combines a map with new entries, choosing the last entry if there is a duplicate key.
+   *
+   * @param baseMap  the base map
+   * @param additionalEntries  the additional entries
+   * @param <K>  the type of the keys
+   * @param <V>  the type of the values
+   * @return the combined map
+   */
+  @SafeVarargs
+  public static <K, V> ImmutableMap<K, V> combineMapsOverwriting(
+      Map<? extends K, ? extends V> baseMap,
+      Entry<? extends K, ? extends V>... additionalEntries) {
+
+    return Stream.concat(baseMap.entrySet().stream(), Stream.of(additionalEntries))
+        .collect(entriesToImmutableMap((a, b) -> b));
   }
 
   //-------------------------------------------------------------------------
@@ -276,6 +334,46 @@ public final class Guavate {
       builder.add(element);
     }
     return builder.build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Boxes an {@code OptionalInt}.
+   * <p>
+   * {@code OptionalInt} has almost no useful methods and no easy way to convert it to an {@code Optional}.
+   * This method provides the conversion to {@code Optional<Integer>}.
+   * 
+   * @param optional the {@code OptionalInt}
+   * @return an equivalent optional
+   */
+  public static Optional<Integer> boxed(OptionalInt optional) {
+    return optional.isPresent() ? Optional.of(optional.getAsInt()) : Optional.empty();
+  }
+
+  /**
+   * Boxes an {@code OptionalLong}.
+   * <p>
+   * {@code OptionalLong} has almost no useful methods and no easy way to convert it to an {@code Optional}.
+   * This method provides the conversion to {@code Optional<Long>}.
+   * 
+   * @param optional the {@code OptionalLong}
+   * @return an equivalent optional
+   */
+  public static Optional<Long> boxed(OptionalLong optional) {
+    return optional.isPresent() ? Optional.of(optional.getAsLong()) : Optional.empty();
+  }
+
+  /**
+   * Boxes an {@code OptionalDouble}.
+   * <p>
+   * {@code OptionalDouble} has almost no useful methods and no easy way to convert it to an {@code Optional}.
+   * This method provides the conversion to {@code Optional<Double>}.
+   * 
+   * @param optional the {@code OptionalDouble}
+   * @return an equivalent optional
+   */
+  public static Optional<Double> boxed(OptionalDouble optional) {
+    return optional.isPresent() ? Optional.of(optional.getAsDouble()) : Optional.empty();
   }
 
   //-------------------------------------------------------------------------

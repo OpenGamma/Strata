@@ -15,7 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.result.FailureAttributeKeys;
 import com.opengamma.strata.collect.tuple.Pair;
 
 /**
@@ -154,23 +156,40 @@ public class MessagesTest {
         {"", new Object[] {"testValueMissingKey"}, Pair.of(" - [testValueMissingKey]", ImmutableMap.of())},
         {"{}", new Object[] {"testValue"}, Pair.of("testValue", ImmutableMap.of())},
         {"{}", new Object[] {null}, Pair.of("null", ImmutableMap.of())},
-        {"{a}", new Object[] {"testValue"}, Pair.of("testValue", ImmutableMap.of("a", "testValue"))},
-        {"{a} bcd", new Object[] {"testValue"}, Pair.of("testValue bcd", ImmutableMap.of("a", "testValue"))},
+        {"{a}", new Object[] {"testValue"},
+            Pair.of("testValue", ImmutableMap.of("a", "testValue", "templateLocation", "a:0:9"))},
+        {"{a} bcd", new Object[] {"testValue"},
+            Pair.of("testValue bcd", ImmutableMap.of("a", "testValue", "templateLocation", "a:0:9"))},
         {"Test {abc} test2 {def} test3", new Object[] {"abcValue", 123456},
-            Pair.of("Test abcValue test2 123456 test3", ImmutableMap.of("abc", "abcValue", "def", "123456"))},
+            Pair.of(
+                "Test abcValue test2 123456 test3",
+                ImmutableMap.of("abc", "abcValue", "def", "123456", "templateLocation", "abc:5:8|def:20:6"))},
         {"Test {abc} test2 {} test3", new Object[] {"abcValue", 123456},
-            Pair.of("Test abcValue test2 123456 test3", ImmutableMap.of("abc", "abcValue"))},
+            Pair.of(
+                "Test abcValue test2 123456 test3",
+                ImmutableMap.of("abc", "abcValue", "templateLocation", "abc:5:8"))},
         {"Test {abc} test2 {} test3 {} test4", new Object[] {"abcValue", 123456, 789},
-            Pair.of("Test abcValue test2 123456 test3 789 test4", ImmutableMap.of("abc", "abcValue"))},
+            Pair.of(
+                "Test abcValue test2 123456 test3 789 test4",
+                ImmutableMap.of("abc", "abcValue", "templateLocation", "abc:5:8"))},
         {"Test {abc} test2 {def} test3", new Object[] {"abcValue", 123456, 789},
-            Pair.of("Test abcValue test2 123456 test3 - [789]", ImmutableMap.of("abc", "abcValue", "def", "123456"))},
-        {"Test {abc} test2 {abc} test3", new Object[] {"abcValue", 123456, 789},
-            Pair.of("Test abcValue test2 123456 test3 - [789]", ImmutableMap.of("abc", "123456"))},
+            Pair.of(
+                "Test abcValue test2 123456 test3 - [789]",
+                ImmutableMap.of("abc", "abcValue", "def", "123456", "templateLocation", "abc:5:8|def:20:6|+:32"))},
+        {"Test {abc} test2 {abc} test3", new Object[] {"abcValue", "abcValue"},
+            Pair.of(
+                "Test abcValue test2 abcValue test3",
+                ImmutableMap.of("abc", "abcValue", "templateLocation", "abc:5:8|abc:20:8"))},
+        {"Test {abc} diff2 {abc} test3", new Object[] {"abcValue", 123456, 789},
+            Pair.of(
+                "Test abcValue diff2 123456 test3 - [789]",
+                ImmutableMap.of("abc", "abcValue", "arg2", "123456", "templateLocation", "abc:5:8|arg2:20:6|+:32"))},
         {"Test {abc} test2 {def} test3", new Object[] {"abcValue"},
-            Pair.of("Test abcValue test2 {def} test3", ImmutableMap.of("abc", "abcValue"))},
-        {"{a} bcd", new Object[] {"$testValue"}, Pair.of("$testValue bcd", ImmutableMap.of("a", "\\$testValue"))}, //The $ must be escaped
+            Pair.of("Test abcValue test2 {def} test3", ImmutableMap.of("abc", "abcValue", "templateLocation", "abc:5:8"))},
+        {"{a} bcd", new Object[] {"$testValue"},
+            Pair.of("$testValue bcd", ImmutableMap.of("a", "$testValue", "templateLocation", "a:0:10"))},
         {"Test {abc} test2 {def} test3 {ghi} test4", new Object[] {"abcValue"},
-            Pair.of("Test abcValue test2 {def} test3 {ghi} test4", ImmutableMap.of("abc", "abcValue"))}
+            Pair.of("Test abcValue test2 {def} test3 {ghi} test4", ImmutableMap.of("abc", "abcValue", "templateLocation", "abc:5:8"))}
     };
   }
 
@@ -181,7 +200,58 @@ public class MessagesTest {
       Object[] args,
       Pair<String, Map<String, String>> expectedOutput) {
 
-    assertThat(Messages.formatWithAttributes(template, args)).isEqualTo(expectedOutput);
+    Pair<String, Map<String, String>> formatted = Messages.formatWithAttributes(template, args);
+    assertThat(formatted.getFirst()).isEqualTo(expectedOutput.getFirst());
+    assertThat(formatted.getSecond()).isEqualTo(expectedOutput.getSecond());
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_formatMessageWithAttributes")
+  public void test_recreateTemplate(
+      String template,
+      Object[] args,
+      Pair<String, Map<String, String>> expectedOutput) {
+
+    String message = expectedOutput.getFirst();
+    String templateLocation = expectedOutput.getSecond().get(FailureAttributeKeys.TEMPLATE_LOCATION);
+    if (templateLocation != null) {
+      // patch up the templates
+      String adjTemplate = Strings.nullToEmpty(template);
+      adjTemplate = adjTemplate.replaceFirst("diff2 \\{abc\\}", "diff2 {arg2}")
+          .replaceFirst("test2 \\{\\}", args.length >= 2 ? "test2 " + args[1] : "")
+          .replaceFirst("test3 \\{\\}", args.length >= 3 ? "test3 " + args[2] : "");
+      assertThat(Messages.recreateTemplate(message, templateLocation)).isEqualTo(adjTemplate);
+    }
+  }
+
+  @Test
+  public void test_recreateTemplateBadLocation() {
+    String message = "A B";
+    assertThat(Messages.recreateTemplate(message, "a:0:1|b:4:1")).isEqualTo("A B");
+  }
+
+  public static Object[][] data_mergeTemplateLocations() {
+    return new Object[][] {
+        {"x:2:3", "a:0:1", 5, "x:2:3|a:5:1"},
+        {"x:2:3", "a:0:1|b:4:1", 5, "x:2:3|a:5:1|b:9:1"},
+        {"x:2:3|y:5:1", "a:0:1|b:4:1", 7, "x:2:3|y:5:1|a:7:1|b:11:1"},
+        {"x:2:3|y:5:1", "a:0:1|b:4:1|+:8", 7, "x:2:3|y:5:1|a:7:1|b:11:1|+:15"},
+        {"x:2:3|y:5:1|+:6", "a:0:1|b:4:1|+:8", 7, "x:2:3|y:5:1|a:7:1|b:11:1|+:15"},
+        {"a:0:1|b:4:1", "", 5, "a:0:1|b:4:1"},
+        {"+:2", "a:2:1", 6, "a:8:1"},
+        {"", "a:0:1|b:4:1", 5, "a:5:1|b:9:1"},
+        {null, "a:0:1|b:4:1", 5, "a:5:1|b:9:1"},
+        {"x:2:3", "a:0:1", -1, ""},
+        {"x:2:3", "a", 6, ""},
+        {"x:2:3", "a:1", 6, ""},
+        {"x:2:3", "a:1:1:1", 6, ""},
+    };
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_mergeTemplateLocations")
+  public void test_mergeTemplateLocations(String loc1, String loc2, int loc1MsgLength, String expected) {
+    assertThat(Messages.mergeTemplateLocations(loc1, loc2, loc1MsgLength)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------

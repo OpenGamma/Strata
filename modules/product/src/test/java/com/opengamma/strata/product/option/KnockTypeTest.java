@@ -22,9 +22,15 @@ public class KnockTypeTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_isKnockIn() {
+  public void test_constants() {
     assertThat(KnockType.KNOCK_IN.isKnockIn()).isTrue();
     assertThat(KnockType.KNOCK_OUT.isKnockIn()).isFalse();
+  }
+
+  @Test
+  public void test_aliases() {
+    assertThat(KnockType.of("In")).isEqualTo(KnockType.KNOCK_IN);
+    assertThat(KnockType.of("Out")).isEqualTo(KnockType.KNOCK_OUT);
   }
 
   //-------------------------------------------------------------------------

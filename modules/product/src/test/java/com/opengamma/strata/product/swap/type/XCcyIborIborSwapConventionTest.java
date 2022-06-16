@@ -148,47 +148,49 @@ public class XCcyIborIborSwapConventionTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_name() {
     return new Object[][] {
-        {IborIborSwapConventions.USD_LIBOR_1M_LIBOR_3M, "USD-LIBOR-1M-LIBOR-3M"},
-        {IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M, "USD-LIBOR-3M-LIBOR-6M"},
+        {XCcyIborIborSwapConventions.EUR_EURIBOR_3M_USD_LIBOR_3M, "EUR-EURIBOR-3M-USD-LIBOR-3M"},
+        {XCcyIborIborSwapConventions.GBP_LIBOR_3M_USD_LIBOR_3M, "GBP-LIBOR-3M-USD-LIBOR-3M"},
+        {XCcyIborIborSwapConventions.GBP_LIBOR_3M_EUR_EURIBOR_3M, "GBP-LIBOR-3M-EUR-EURIBOR-3M"},
+        {XCcyIborIborSwapConventions.GBP_LIBOR_3M_JPY_LIBOR_3M, "GBP-LIBOR-3M-JPY-LIBOR-3M"}
     };
   }
 
   @ParameterizedTest
   @MethodSource("data_name")
-  public void test_name(IborIborSwapConvention convention, String name) {
+  public void test_name(XCcyIborIborSwapConvention convention, String name) {
     assertThat(convention.getName()).isEqualTo(name);
   }
 
   @ParameterizedTest
   @MethodSource("data_name")
-  public void test_toString(IborIborSwapConvention convention, String name) {
+  public void test_toString(XCcyIborIborSwapConvention convention, String name) {
     assertThat(convention.toString()).isEqualTo(name);
   }
 
   @ParameterizedTest
   @MethodSource("data_name")
-  public void test_of_lookup(IborIborSwapConvention convention, String name) {
-    assertThat(IborIborSwapConvention.of(name)).isEqualTo(convention);
+  public void test_of_lookup(XCcyIborIborSwapConvention convention, String name) {
+    assertThat(XCcyIborIborSwapConvention.of(name)).isEqualTo(convention);
   }
 
   @ParameterizedTest
   @MethodSource("data_name")
-  public void test_extendedEnum(IborIborSwapConvention convention, String name) {
-    IborIborSwapConvention.of(name);  // ensures map is populated
-    ImmutableMap<String, IborIborSwapConvention> map = IborIborSwapConvention.extendedEnum().lookupAll();
+  public void test_extendedEnum(XCcyIborIborSwapConvention convention, String name) {
+    XCcyIborIborSwapConvention.of(name);  // ensures map is populated
+    ImmutableMap<String, XCcyIborIborSwapConvention> map = XCcyIborIborSwapConvention.extendedEnum().lookupAll();
     assertThat(map.get(name)).isEqualTo(convention);
   }
 
   @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> IborIborSwapConvention.of("Rubbish"));
+        .isThrownBy(() -> XCcyIborIborSwapConvention.of("Rubbish"));
   }
 
   @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> IborIborSwapConvention.of((String) null));
+        .isThrownBy(() -> XCcyIborIborSwapConvention.of((String) null));
   }
 
   //-------------------------------------------------------------------------

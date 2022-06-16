@@ -56,7 +56,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Period;
 import java.time.ZoneId;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -102,6 +101,7 @@ import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.basics.value.ValueStepSequence;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.io.XmlElement;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.common.PayReceive;
@@ -1693,7 +1693,7 @@ public class FpmlDocumentParserTest {
     FpmlDocumentParser parser = FpmlDocumentParser.of(FpmlPartySelector.any(),
         FpmlTradeInfoParserPlugin.standard(),
         ImmutableMap.of("foo", tradeParser));
-    assertThatExceptionOfType(DateTimeParseException.class)
+    assertThatExceptionOfType(ParseFailureException.class)
         .isThrownBy(() -> parser.parseTrades(rootEl, ImmutableMap.of()))
         .withMessageMatching(".*2000/06/30.*");
   }
