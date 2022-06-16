@@ -81,6 +81,7 @@ public final class LoaderUtils {
   private static final DateTimeFormatter YYYY_M_D_SLASH = DateTimeFormatter.ofPattern("yyyy/M/d", Locale.ENGLISH);
   private static final DateTimeFormatter YYYY_MM_DD_DASH = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
   private static final DateTimeFormatter YYYYMMDD = DateTimeFormatter.ofPattern("yyyyMMdd", Locale.ENGLISH);
+  private static final DateTimeFormatter DD_MM_YYYY_SLASH = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH);
   private static final DateTimeFormatter D_MMM_YEAR_DASH = new DateTimeFormatterBuilder()
       .parseCaseInsensitive()
       .appendPattern("d-MMM-")
@@ -379,6 +380,10 @@ public final class LoaderUtils {
       // yyyy-MM-dd
       if (str.length() == 10 && str.charAt(4) == '-' && str.charAt(7) == '-') {
         return LocalDate.parse(str, YYYY_MM_DD_DASH);
+      }
+      // dd/MM/yyyy
+      if (str.length() == 10 && str.charAt(2) == '/' && str.charAt(5) == '/') {
+        return LocalDate.parse(str, DD_MM_YYYY_SLASH);
       }
       // yyyy/M/d
       if (str.length() >= 8 && str.charAt(4) == '/') {
