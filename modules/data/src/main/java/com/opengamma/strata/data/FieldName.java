@@ -57,6 +57,10 @@ public final class FieldName
    * The field name for the volatility of an asset.
    */
   public static final FieldName VOLATILITY = of("Volatility");
+  /**
+   * The field name for the contract value factor of an asset.
+   */
+  public static final FieldName CONVERSION_FACTOR = of("ConversionFactor");
 
   //-------------------------------------------------------------------------
   /**
