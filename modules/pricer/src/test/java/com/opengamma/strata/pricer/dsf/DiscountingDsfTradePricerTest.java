@@ -211,7 +211,6 @@ public class DiscountingDsfTradePricerTest {
     CurrencyParameterSensitivities sensi = PROVIDER.parameterSensitivity(point);
     double tolerance = NOTIONAL * QUANTITY * EPS;
     assertThat(sensi.getSensitivity(USD_DSC_NAME, USD).getSensitivity().equalWithTolerance(dscExp, tolerance)).isTrue();
-    System.out.println(sensi.getSensitivity(USD_FWD3_NAME, USD));
     assertThat(sensi.getSensitivity(USD_FWD3_NAME, USD).getSensitivity().equalWithTolerance(fwdExp, tolerance)).isTrue();
   }
 
