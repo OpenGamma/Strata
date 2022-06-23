@@ -328,6 +328,10 @@ final class GlobalHolidayCalendars {
     } else {
       holidays.add(date(year, 5, 1).with(lastInMonth(MONDAY)));
     }
+    // juneteenth (seems like it wasn't widely applied in 2021)
+    if (year >= 2022) {
+      holidays.add(bumpToFriOrMon(date(year, 6, 19)));
+    }
     // labor day
     holidays.add(date(year, 9, 1).with(firstInMonth(MONDAY)));
     // columbus day
