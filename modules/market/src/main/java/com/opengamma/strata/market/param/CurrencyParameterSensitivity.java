@@ -40,6 +40,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.function.IntDoubleToDoubleFunction;
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.surface.Surface;
@@ -359,6 +360,29 @@ public final class CurrencyParameterSensitivity
   // maps the sensitivities and potentially changes the currency
   private CurrencyParameterSensitivity mapSensitivity(DoubleUnaryOperator operator, Currency currency) {
     return new CurrencyParameterSensitivity(marketDataName, parameterMetadata, currency, sensitivity.map(operator),
+        parameterSplit);
+  }
+
+  /**
+   * Returns an instance with an operation applied to each indexed value in the sensitivity values.
+   * <p>
+   * Each value in the sensitivity array will be operated on.
+   * The function receives both the index and the value.
+   * For example, the operator could multiply the sensitivities by the index.
+   * <pre>
+   *   result = base.mapSensitivityWithIndex((index, value) -> index * value);
+   * </pre>
+   * This instance is immutable and unaffected by this method.
+   *
+   * @param function  the function to be applied to the sensitivities
+   * @return an instance based on this one, with the operator applied to the sensitivity values
+   */
+  public CurrencyParameterSensitivity mapSensitivityWithIndex(IntDoubleToDoubleFunction function) {
+    return new CurrencyParameterSensitivity(
+        marketDataName,
+        parameterMetadata,
+        currency,
+        sensitivity.mapWithIndex(function),
         parameterSplit);
   }
 

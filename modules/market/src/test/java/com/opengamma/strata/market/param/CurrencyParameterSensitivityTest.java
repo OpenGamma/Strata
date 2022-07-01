@@ -24,6 +24,7 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.function.IntDoubleToDoubleFunction;
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.curve.CurveName;
 
@@ -297,6 +298,14 @@ public class CurrencyParameterSensitivityTest {
         CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1, parameterSplit);
     UnitParameterSensitivity test = base.toUnitParameterSensitivity();
     assertThat(test).isEqualTo(UnitParameterSensitivity.of(NAME1, METADATA_USD1, VECTOR_USD1, parameterSplit));
+  }
+
+  @Test
+  public void test_mapSensitivityWithIndex() {
+    CurrencyParameterSensitivity base = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
+    IntDoubleToDoubleFunction mappingFunction = (index, value) -> index * value;
+    assertThat(base.mapSensitivityWithIndex(mappingFunction).getSensitivity())
+        .isEqualTo(VECTOR_USD1.mapWithIndex(mappingFunction));
   }
 
   //-------------------------------------------------------------------------

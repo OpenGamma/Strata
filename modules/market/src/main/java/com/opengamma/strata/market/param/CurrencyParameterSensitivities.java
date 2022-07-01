@@ -44,6 +44,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.function.IntDoubleToDoubleFunction;
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.surface.Surface;
@@ -419,6 +420,29 @@ public final class CurrencyParameterSensitivities
   public CurrencyParameterSensitivities mapSensitivities(DoubleUnaryOperator operator) {
     return sensitivities.stream()
         .map(s -> s.mapSensitivity(operator))
+        .collect(
+            Collectors.collectingAndThen(
+                Guavate.toImmutableList(),
+                CurrencyParameterSensitivities::new));
+  }
+
+  /**
+   * Returns an instance with an operation applied to each indexed value in the sensitivity values.
+   * <p>
+   * Each value in the sensitivity array will be operated on.
+   * The function receives both the index and the value.
+   * For example, the operator could multiply the sensitivities by the index.
+   * <pre>
+   *   result = base.mapSensitivityWithIndex((index, value) -> index * value);
+   * </pre>
+   * This instance is immutable and unaffected by this method.
+   *
+   * @param function  the function to be applied to the sensitivities
+   * @return an instance based on this one, with the operator applied to the sensitivity values
+   */
+  public CurrencyParameterSensitivities mapSensitivitiesWithIndex(IntDoubleToDoubleFunction function) {
+    return sensitivities.stream()
+        .map(s -> s.mapSensitivityWithIndex(function))
         .collect(
             Collectors.collectingAndThen(
                 Guavate.toImmutableList(),
