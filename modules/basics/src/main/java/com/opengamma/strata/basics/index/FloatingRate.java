@@ -5,11 +5,11 @@
  */
 package com.opengamma.strata.basics.index;
 
-import java.util.Optional;
-
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.Named;
+
+import java.util.Optional;
 
 /**
  * An index or group of indices used to provide floating rates, typically in interest rate swaps.
@@ -58,6 +58,7 @@ public interface FloatingRate
    * @param indexStr  the index string to parse
    * @return the floating rate index, empty if not found
    */
+  //DPDPDP
   public static Optional<FloatingRate> tryParse(String indexStr) {
     Optional<IborIndex> iborOpt = IborIndex.extendedEnum().find(indexStr);
     if (iborOpt.isPresent()) {

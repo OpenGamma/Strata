@@ -48,6 +48,9 @@ final class StandardMeasures {
   public static final Measure PAR_SPREAD = ImmutableMeasure.of("ParSpread", false);
   // the resolved target
   public static final Measure RESOLVED_TARGET = ImmutableMeasure.of("ResolvedTarget", false);
+
+  public static final Measure GROSS_VALUE = ImmutableMeasure.of("GrossValue", false);
+
   // unit price, which is treated as a simple decimal number even if it refers to a currency
   public static final Measure UNIT_PRICE = ImmutableMeasure.of("UnitPrice", false);
 

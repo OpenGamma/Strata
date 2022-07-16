@@ -5,9 +5,10 @@
  */
 package com.opengamma.strata.product.swap;
 
-import java.io.Serializable;
-import java.lang.invoke.MethodHandles;
-
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.product.rate.RateComputation;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
@@ -16,10 +17,8 @@ import org.joda.beans.gen.BeanDefinition;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.product.rate.RateComputation;
+import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Defines a known amount of interest as a rate computation.
@@ -28,7 +27,7 @@ import com.opengamma.strata.product.rate.RateComputation;
  * It is used to pass the known amount through the standard rate computation process.
  * This computation is converted to a {@link KnownAmountNotionalSwapPaymentPeriod} for pricing.
  */
-@BeanDefinition(style = "light")
+@BeanDefinition(style = "light") //DPDPDP
 final class KnownAmountRateComputation
     implements RateComputation, ImmutableBean, Serializable {
   // package scoped, as this is not intended for general use

@@ -5,11 +5,6 @@
  */
 package com.opengamma.strata.report.framework.expression;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableList;
-
-import java.util.List;
-import java.util.Set;
-
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ResolvableCalculationTarget;
@@ -18,14 +13,13 @@ import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.product.GenericSecurityTrade;
-import com.opengamma.strata.product.Position;
-import com.opengamma.strata.product.Product;
-import com.opengamma.strata.product.ProductTrade;
-import com.opengamma.strata.product.Security;
-import com.opengamma.strata.product.SecurityTrade;
-import com.opengamma.strata.product.Trade;
+import com.opengamma.strata.product.*;
 import com.opengamma.strata.report.ReportCalculationResults;
+
+import java.util.List;
+import java.util.Set;
+
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 /**
  * Wraps a set of {@link ReportCalculationResults} and exposes the contents of a single row.
@@ -102,6 +96,10 @@ class ResultsRow {
     if (target instanceof ProductTrade) {
       return Result.success(((ProductTrade) target).getProduct());
     }
+    if (target instanceof SecuritizedProductPosition) {
+      return Result.success(((SecuritizedProductPosition) target).getProduct());
+    }
+
     if (target instanceof Trade) {
       return Result.failure(FailureReason.INVALID, "Trade does not contain a product");
     }

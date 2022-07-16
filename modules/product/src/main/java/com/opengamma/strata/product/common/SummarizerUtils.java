@@ -5,7 +5,14 @@
  */
 package com.opengamma.strata.product.common;
 
-import static java.time.temporal.ChronoUnit.MONTHS;
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.collect.Decimal;
+import com.opengamma.strata.collect.Percentage;
+import com.opengamma.strata.product.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -17,18 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 
-import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.currency.FxRate;
-import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.collect.Decimal;
-import com.opengamma.strata.collect.Percentage;
-import com.opengamma.strata.product.PortfolioItemSummary;
-import com.opengamma.strata.product.PortfolioItemType;
-import com.opengamma.strata.product.Position;
-import com.opengamma.strata.product.ProductType;
-import com.opengamma.strata.product.Trade;
+import static java.time.temporal.ChronoUnit.MONTHS;
 
 /**
  * Utilities to support summarizing portfolio items.

@@ -5,16 +5,9 @@
  */
 package com.opengamma.strata.product.rate;
 
-import java.io.Serializable;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.ImmutableBean;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaBean;
-import org.joda.beans.MetaProperty;
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.index.Index;
+import org.joda.beans.*;
 import org.joda.beans.gen.BeanDefinition;
 import org.joda.beans.gen.ImmutableConstructor;
 import org.joda.beans.gen.PropertyDefinition;
@@ -23,8 +16,14 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
-import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.index.Index;
+import java.io.Serializable;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
+import org.joda.beans.MetaProperty;
 
 /**
  * Defines a known annual fixed rate of interest that follows overnight compounding.
@@ -80,7 +79,7 @@ public final class FixedOvernightCompoundedAnnualRateComputation
    */
   public double getSimpleRate() {
     return simpleRate;
-  }
+  } //DPDPDP
 
   //-------------------------------------------------------------------------
   @Override

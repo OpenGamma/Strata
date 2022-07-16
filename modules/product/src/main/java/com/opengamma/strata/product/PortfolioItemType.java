@@ -37,6 +37,11 @@ public enum PortfolioItemType implements NamedEnum {
    */
   SENSITIVITIES,
   /**
+   * A corporate action.
+   * DPDPDP
+   */
+  CORPORATE_ACTION,
+  /**
    * Any other kind of portfolio item.
    */
   OTHER;

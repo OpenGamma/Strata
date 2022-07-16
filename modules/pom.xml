@@ -115,7 +115,7 @@
           </additionalOptions>
         </configuration>
       </plugin>
-      <!--  checkstyle -->
+      <!--  checkstyle
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
@@ -131,7 +131,7 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
+      </plugin> -->
       <!-- obtain git commit -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>

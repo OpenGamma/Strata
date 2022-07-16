@@ -143,6 +143,9 @@ public final class Measures {
    */
   public static final Measure RESOLVED_TARGET = Measure.of(StandardMeasures.RESOLVED_TARGET.getName());
 
+  public static final Measure GROSS_VALUE = Measure.of(StandardMeasures.GROSS_VALUE.getName());
+
+
   //-------------------------------------------------------------------------
   private Measures() {
   }

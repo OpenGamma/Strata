@@ -5,15 +5,6 @@
  */
 package com.opengamma.strata.report.framework.expression;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableSet;
-
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-
-import org.joda.beans.Bean;
-import org.joda.beans.Property;
-
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -22,8 +13,17 @@ import com.google.common.primitives.Ints;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.product.common.PayReceive;
+import com.opengamma.strata.product.corporateaction.ImmutableCorporateActionLeg;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapLegType;
+import org.joda.beans.Bean;
+import org.joda.beans.Property;
+
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
+import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 /**
  * Evaluates a token against an iterable object and returns a value.
@@ -55,6 +55,7 @@ public class IterableTokenEvaluator extends TokenEvaluator<Iterable<?>> {
   private static final Set<Class<?>> SUPPORTED_FIELD_TYPES = ImmutableSet.of(
       Currency.class,
       SwapLegType.class,
+      ImmutableCorporateActionLeg.class,
       PayReceive.class);
 
   @Override

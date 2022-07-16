@@ -5,16 +5,17 @@
  */
 package com.opengamma.strata.report.framework.format;
 
-import java.time.LocalDate;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.product.SecurityId;
+
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Provides and caches format settings across types.
@@ -36,6 +37,7 @@ public class FormatSettingsProvider {
           .put(String.class, FormatSettings.of(FormatCategory.TEXT, ValueFormatters.TO_STRING))
           .put(Currency.class, FormatSettings.of(FormatCategory.TEXT, ValueFormatters.TO_STRING))
           .put(StandardId.class, FormatSettings.of(FormatCategory.TEXT, ValueFormatters.TO_STRING))
+          .put(SecurityId.class, FormatSettings.of(FormatCategory.TEXT, ValueFormatters.TO_STRING))
           .put(LocalDate.class, FormatSettings.of(FormatCategory.DATE, ValueFormatters.TO_STRING))
           .put(AdjustableDate.class, FormatSettings.of(FormatCategory.DATE, ValueFormatters.ADJUSTABLE_DATE))
           .put(CurrencyAmount.class, FormatSettings.of(FormatCategory.NUMERIC, ValueFormatters.CURRENCY_AMOUNT))
