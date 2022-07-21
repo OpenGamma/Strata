@@ -107,6 +107,9 @@ public interface DiscountFactors
    */
   public default double discountFactor(LocalDate date) {
     double yearFraction = relativeYearFraction(date);
+    if (yearFraction <= 0d) {
+      return 1d;
+    }
     return discountFactor(yearFraction);
   }
 
