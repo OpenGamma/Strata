@@ -104,7 +104,7 @@ public class ZeroRateDiscountFactorsTest {
 
   @Test
   public void test_discountFactor_beforeValDate() {
-    SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
+    ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
     assertThat(test.discountFactor(DATE_BEFORE)).isEqualTo(1d);
   }
   
@@ -145,7 +145,7 @@ public class ZeroRateDiscountFactorsTest {
 
   @Test
   public void test_discountFactor_withSpread_continuous_beforeValDate() {
-    SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
+    ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
     assertThat(test.discountFactorWithSpread(DATE_BEFORE, SPREAD, CONTINUOUS, 0)).isEqualTo(1d);
   }
 
@@ -163,7 +163,7 @@ public class ZeroRateDiscountFactorsTest {
   @Test
   public void test_discountFactor_withSpread_periodic_beforeValDate() {
     int periodPerYear = 4;
-    SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
+    ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
     assertThat(test.discountFactorWithSpread(DATE_BEFORE, SPREAD, PERIODIC, periodPerYear)).isEqualTo(1d);
   }
 
@@ -189,7 +189,7 @@ public class ZeroRateDiscountFactorsTest {
 
   @Test
   public void test_zeroRatePointSensitivity_beforeValDate() {
-    SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
+    ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_BEFORE);
     ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, relativeYearFraction, 0d);
     assertThat(test.zeroRatePointSensitivity(DATE_BEFORE)).isEqualTo(expected);
@@ -216,7 +216,7 @@ public class ZeroRateDiscountFactorsTest {
 
   @Test
   public void test_zeroRatePointSensitivityWithSpread_continuous_beforeValDate() {
-    SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
+    ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_BEFORE);
     ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, relativeYearFraction, 0d);
     assertThat(test.zeroRatePointSensitivityWithSpread(DATE_BEFORE, SPREAD, CONTINUOUS, 0)).isEqualTo(expected);
@@ -254,7 +254,7 @@ public class ZeroRateDiscountFactorsTest {
   @Test
   public void test_zeroRatePointSensitivityWithSpread_periodic_beforeValDate() {
     int periodPerYear = 4;
-    SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
+    ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_BEFORE);
     ZeroRateSensitivity computed = test.zeroRatePointSensitivityWithSpread(
         DATE_BEFORE, SPREAD, PERIODIC, periodPerYear);
@@ -287,14 +287,14 @@ public class ZeroRateDiscountFactorsTest {
   @Test
   public void test_zeroRatePointSensitivityWithSpread_smallYearFraction() {
     ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
-    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, 0d, -0d);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, 0d, 0d);
     assertThat(test.zeroRatePointSensitivityWithSpread(DATE_VAL, SPREAD, CONTINUOUS, 0)).isEqualTo(expected);
   }
 
   @Test
   public void test_zeroRatePointSensitivityWithSpread_sensitivityCurrency_smallYearFraction() {
     ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
-    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, 0d, USD, -0d);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, 0d, USD, 0d);
     assertThat(test.zeroRatePointSensitivityWithSpread(DATE_VAL, USD, SPREAD, PERIODIC, 2)).isEqualTo(expected);
   }
 
@@ -313,7 +313,7 @@ public class ZeroRateDiscountFactorsTest {
 
   @Test
   public void test_currencyParameterSensitivity_beforeValDate() {
-    SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
+    ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
     ZeroRateSensitivity sens = test.zeroRatePointSensitivity(DATE_BEFORE);
     assertThat(test.parameterSensitivity(sens)).isEqualTo(CurrencyParameterSensitivities.empty());
   }

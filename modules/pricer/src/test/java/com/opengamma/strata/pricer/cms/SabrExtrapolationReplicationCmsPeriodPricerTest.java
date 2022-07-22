@@ -349,7 +349,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     PointSensitivityBuilder pvSensiFloorletOtm =
         PRICER.presentValueSensitivityRates(FLOORLET_NEGATIVE, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
     double paymentTime = RATES_PROVIDER_ON_PAY.discountFactors(EUR).relativeYearFraction(PAYMENT);
-    PointSensitivityBuilder expected = ZeroRateSensitivity.of(EUR, paymentTime, -0d);
+    PointSensitivityBuilder expected = ZeroRateSensitivity.of(EUR, paymentTime, 0d);
     assertThat(pvSensi).isEqualTo(expected);
     assertThat(pvSensiCapletOtm).isEqualTo(expected);
     assertThat(pvSensiCapletItm).isEqualTo(expected);

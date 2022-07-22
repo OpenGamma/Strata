@@ -289,14 +289,14 @@ public class SimpleDiscountFactorsTest {
   @Test
   public void test_zeroRatePointSensitivityWithSpread_smallYearFraction() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
-    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, 0d, -0d);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, 0d, 0d);
     assertThat(test.zeroRatePointSensitivityWithSpread(DATE_VAL, SPREAD, CONTINUOUS, 0)).isEqualTo(expected);
   }
 
   @Test
   public void test_zeroRatePointSensitivityWithSpread_sensitivityCurrency_smallYearFraction() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
-    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, 0d, USD, -0d);
+    ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, 0d, USD, 0d);
     assertThat(test.zeroRatePointSensitivityWithSpread(DATE_VAL, USD, SPREAD, PERIODIC, 2)).isEqualTo(expected);
   }
 

@@ -419,6 +419,9 @@ public interface DiscountFactors
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
+    if (yearFraction <= EFFECTIVE_ZERO) {
+      return ZeroRateSensitivity.of(getCurrency(), yearFraction, sensitivityCurrency, 0d);
+    }
     ZeroRateSensitivity sensi = zeroRatePointSensitivity(yearFraction, sensitivityCurrency);
     double factor;
     if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
