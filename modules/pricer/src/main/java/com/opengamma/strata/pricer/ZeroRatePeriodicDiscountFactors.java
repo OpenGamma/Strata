@@ -179,12 +179,18 @@ public final class ZeroRatePeriodicDiscountFactors
 
   @Override
   public double discountFactor(double relativeYearFraction) {
+    if (relativeYearFraction <= EFFECTIVE_ZERO) {
+      return 1d;
+    }
     // convert zero rate periodically compounded to discount factor
     return Math.pow(1d + curve.yValue(relativeYearFraction) / frequency, -relativeYearFraction * frequency);
   }
 
   @Override
   public double discountFactorTimeDerivative(double yearFraction) {
+    if (yearFraction <= EFFECTIVE_ZERO) {
+      return 0d;
+    }
     double zr = curve.yValue(yearFraction);
     double periodIF = 1d + zr / frequency;
     double df = Math.pow(periodIF, -yearFraction * frequency);
@@ -194,6 +200,9 @@ public final class ZeroRatePeriodicDiscountFactors
 
   @Override
   public double zeroRate(double yearFraction) {
+    if (yearFraction <= EFFECTIVE_ZERO) {
+      return 0d;
+    }
     double ratePeriod = curve.yValue(yearFraction);
     return frequency * Math.log(1d + ratePeriod / frequency);
   }
@@ -202,6 +211,9 @@ public final class ZeroRatePeriodicDiscountFactors
   @Override
   public ZeroRateSensitivity zeroRatePointSensitivity(double yearFraction, Currency sensitivityCurrency) {
     double discountFactor = discountFactor(yearFraction);
+    if (yearFraction <= EFFECTIVE_ZERO) {
+      return ZeroRateSensitivity.of(currency, yearFraction, sensitivityCurrency, 0d);
+    }
     return ZeroRateSensitivity.of(currency, yearFraction, sensitivityCurrency, -discountFactor * yearFraction);
   }
 
@@ -213,7 +225,7 @@ public final class ZeroRatePeriodicDiscountFactors
       CompoundedRateType compoundedRateType,
       int periodPerYear) {
 
-    if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
+    if (yearFraction < EFFECTIVE_ZERO) {
       return ZeroRateSensitivity.of(currency, yearFraction, sensitivityCurrency, 0);
     }
     if (compoundedRateType.equals(CompoundedRateType.CONTINUOUS)) {
@@ -231,6 +243,9 @@ public final class ZeroRatePeriodicDiscountFactors
   @Override
   public CurrencyParameterSensitivities parameterSensitivity(ZeroRateSensitivity pointSens) {
     double yearFraction = pointSens.getYearFraction();
+    if (yearFraction <= EFFECTIVE_ZERO) {
+      return CurrencyParameterSensitivities.empty();
+    }
     double rp = curve.yValue(yearFraction);
     double rcBar = 1.0;
     double rpBar = 1.0 / (1 + rp / frequency) * rcBar;
