@@ -82,16 +82,4 @@ public class DiscountFactorsTest {
         .isThrownBy(() -> DiscountFactors.of(GBP, DATE_VAL, CURVE_PRICES));
   }
 
-  @Test
-  public void test_discountFactors_withDateToday() {
-    DiscountFactors test = DiscountFactors.of(GBP, DATE_VAL, CURVE_DF);
-    assertThat(test.discountFactor(DATE_VAL)).isEqualTo(1d);
-  }
-
-  @Test
-  public void test_discountFactors_withDateYesterday() {
-    DiscountFactors test = DiscountFactors.of(GBP, DATE_VAL, CURVE_DF);
-    assertThat(test.discountFactor(DATE_VAL.minusDays(1))).isEqualTo(1d);
-  }
-
 }

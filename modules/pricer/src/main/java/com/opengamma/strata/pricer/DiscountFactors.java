@@ -107,9 +107,6 @@ public interface DiscountFactors
    */
   public default double discountFactor(LocalDate date) {
     double yearFraction = relativeYearFraction(date);
-    if (yearFraction <= 0d) {
-      return 1d;
-    }
     return discountFactor(yearFraction);
   }
 
@@ -189,7 +186,7 @@ public interface DiscountFactors
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
+    if (yearFraction < EFFECTIVE_ZERO) {
       return 1d;
     }
     double df = discountFactor(yearFraction);
@@ -423,9 +420,6 @@ public interface DiscountFactors
       int periodsPerYear) {
 
     ZeroRateSensitivity sensi = zeroRatePointSensitivity(yearFraction, sensitivityCurrency);
-    if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
-      return sensi;
-    }
     double factor;
     if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
       double df = discountFactor(yearFraction);

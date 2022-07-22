@@ -171,12 +171,18 @@ public final class SimpleDiscountFactors
 
   @Override
   public double discountFactor(double yearFraction) {
+    if (yearFraction <= EFFECTIVE_ZERO) {
+      return 1d;
+    }
     // read discount factor directly off curve
     return curve.yValue(yearFraction);
   }
 
   @Override
   public double discountFactorTimeDerivative(double yearFraction) {
+    if (yearFraction <= EFFECTIVE_ZERO) {
+      return 0d;
+    }
     return curve.firstDerivative(yearFraction);
   }
 
@@ -191,6 +197,9 @@ public final class SimpleDiscountFactors
   @Override
   public ZeroRateSensitivity zeroRatePointSensitivity(double yearFraction, Currency sensitivityCurrency) {
     double discountFactor = discountFactor(yearFraction);
+    if (yearFraction <= EFFECTIVE_ZERO) {
+      return ZeroRateSensitivity.of(currency, yearFraction, sensitivityCurrency, 0d);
+    }
     return ZeroRateSensitivity.of(currency, yearFraction, sensitivityCurrency, -discountFactor * yearFraction);
   }
 
@@ -198,8 +207,8 @@ public final class SimpleDiscountFactors
   @Override
   public CurrencyParameterSensitivities parameterSensitivity(ZeroRateSensitivity pointSens) {
     double yearFraction = pointSens.getYearFraction();
-    if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
-      return CurrencyParameterSensitivities.empty(); // Discount factor in 0 is always 1, no sensitivity.
+    if (yearFraction <= EFFECTIVE_ZERO) {
+      return CurrencyParameterSensitivities.empty();
     }
     double discountFactor = discountFactor(yearFraction);
     UnitParameterSensitivity unitSens = curve.yValueParameterSensitivity(yearFraction);
