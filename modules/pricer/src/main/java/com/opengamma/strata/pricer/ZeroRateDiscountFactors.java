@@ -187,6 +187,9 @@ public final class ZeroRateDiscountFactors
 
   @Override
   public double zeroRate(double yearFraction) {
+    if (yearFraction <= EFFECTIVE_ZERO) {
+      return 0d;
+    }
     return curve.yValue(yearFraction);
   }
 

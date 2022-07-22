@@ -200,8 +200,10 @@ public final class ZeroRatePeriodicDiscountFactors
 
   @Override
   public double zeroRate(double yearFraction) {
-    double yearFractionMod = Math.max(EFFECTIVE_ZERO, yearFraction);
-    double ratePeriod = curve.yValue(yearFractionMod);
+    if (yearFraction <= EFFECTIVE_ZERO) {
+      return 0d;
+    }
+    double ratePeriod = curve.yValue(yearFraction);
     return frequency * Math.log(1d + ratePeriod / frequency);
   }
 
