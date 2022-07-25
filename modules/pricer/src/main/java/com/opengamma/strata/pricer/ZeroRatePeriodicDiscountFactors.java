@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer;
 
+import static com.opengamma.strata.pricer.SimpleDiscountFactors.EFFECTIVE_ZERO;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
@@ -243,13 +245,15 @@ public final class ZeroRatePeriodicDiscountFactors
   @Override
   public CurrencyParameterSensitivities parameterSensitivity(ZeroRateSensitivity pointSens) {
     double yearFraction = pointSens.getYearFraction();
+    UnitParameterSensitivity curveSens = curve.yValueParameterSensitivity(yearFraction);
     if (yearFraction <= EFFECTIVE_ZERO) {
-      return CurrencyParameterSensitivities.empty();
+      return CurrencyParameterSensitivities.of(curveSens.multipliedBy(pointSens.getCurrency(), 0d));
+      // Discount factor in 0 is always 1, no sensitivity.
     }
     double rp = curve.yValue(yearFraction);
     double rcBar = 1.0;
     double rpBar = 1.0 / (1 + rp / frequency) * rcBar;
-    UnitParameterSensitivity unitSens = curve.yValueParameterSensitivity(yearFraction).multipliedBy(rpBar);
+    UnitParameterSensitivity unitSens = curveSens.multipliedBy(rpBar);
     CurrencyParameterSensitivity curSens = unitSens.multipliedBy(pointSens.getCurrency(), pointSens.getSensitivity());
     return CurrencyParameterSensitivities.of(curSens);
   }

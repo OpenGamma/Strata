@@ -312,10 +312,27 @@ public class ZeroRateDiscountFactorsTest {
   }
 
   @Test
+  public void test_currencyParameterSensitivity_onValDate() {
+    ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
+    ZeroRateSensitivity sens = test.zeroRatePointSensitivity(DATE_VAL);
+
+    double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_VAL);
+    CurrencyParameterSensitivities expected = CurrencyParameterSensitivities.of(
+        CURVE.yValueParameterSensitivity(relativeYearFraction)
+            .multipliedBy(sens.getCurrency(), 0d));
+    assertThat(test.parameterSensitivity(sens)).isEqualTo(expected);
+  }
+
+  @Test
   public void test_currencyParameterSensitivity_beforeValDate() {
     ZeroRateDiscountFactors test = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
     ZeroRateSensitivity sens = test.zeroRatePointSensitivity(DATE_BEFORE);
-    assertThat(test.parameterSensitivity(sens)).isEqualTo(CurrencyParameterSensitivities.empty());
+
+    double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_BEFORE);
+    CurrencyParameterSensitivities expected = CurrencyParameterSensitivities.of(
+        CURVE.yValueParameterSensitivity(relativeYearFraction)
+            .multipliedBy(sens.getCurrency(), 0d));
+    assertThat(test.parameterSensitivity(sens)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------

@@ -206,10 +206,11 @@ public final class ZeroRateDiscountFactors
   @Override
   public CurrencyParameterSensitivities parameterSensitivity(ZeroRateSensitivity pointSens) {
     double yearFraction = pointSens.getYearFraction();
-    if (yearFraction <= EFFECTIVE_ZERO) {
-      return CurrencyParameterSensitivities.empty(); // Discount factor in 0 is always 1, no sensitivity.
-    }
     UnitParameterSensitivity unitSens = curve.yValueParameterSensitivity(yearFraction);
+    if (yearFraction <= EFFECTIVE_ZERO) {
+      return CurrencyParameterSensitivities.of(unitSens.multipliedBy(pointSens.getCurrency(), 0d));
+      // Discount factor in 0 is always 1, no sensitivity.
+    }
     CurrencyParameterSensitivity curSens = unitSens.multipliedBy(pointSens.getCurrency(), pointSens.getSensitivity());
     return CurrencyParameterSensitivities.of(curSens);
   }
