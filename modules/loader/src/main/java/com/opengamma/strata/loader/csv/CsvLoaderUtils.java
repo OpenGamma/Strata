@@ -233,24 +233,19 @@ public final class CsvLoaderUtils {
         }
       }
     } else {
-      EtdSettlementType settleType = settleTypeOpt.get();
       if (day == 0) {
-        // allow only this special case of physical options for now
-        if (settleType.equals(EtdSettlementType.PHYSICAL) && type.equals(EtdType.OPTION)) {
-          return Pair.of(yearMonth, EtdVariant.ofMonthly(EtdSettlementType.PHYSICAL));
-        }
         throw new ParseFailureException("Unable to parse ETD variant for Flex '{value}', must set expiry day", type);
       }
       if (week != 0) {
         throw new ParseFailureException("Unable to parse ETD variant for Flex '{value}', must not set expiry week", type);
       }
       if (type == EtdType.FUTURE) {
-        return Pair.of(yearMonth, EtdVariant.ofFlexFuture(day, settleType));
+        return Pair.of(yearMonth, EtdVariant.ofFlexFuture(day, settleTypeOpt.get()));
       } else {
         if (!optionTypeOpt.isPresent()) {
           throw new ParseFailureException("Unable to parse ETD variant for Flex Option, must set option type", type);
         }
-        return Pair.of(yearMonth, EtdVariant.ofFlexOption(day, settleType, optionTypeOpt.get()));
+        return Pair.of(yearMonth, EtdVariant.ofFlexOption(day, settleTypeOpt.get(), optionTypeOpt.get()));
       }
     }
   }
