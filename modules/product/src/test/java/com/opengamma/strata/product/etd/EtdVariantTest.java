@@ -31,30 +31,6 @@ public class EtdVariantTest {
   }
 
   @Test
-  public void test_monthlySettlementType() {
-    EtdVariant test = EtdVariant.ofMonthly(EtdSettlementType.PHYSICAL);
-    assertThat(test.getType()).isEqualTo(EtdExpiryType.MONTHLY);
-    assertThat(test.getDateCode()).isNotPresent();
-    assertThat(test.getSettlementType()).hasValue(EtdSettlementType.PHYSICAL);
-    assertThat(test.getOptionType()).isNotPresent();
-    assertThat(test.isFlex()).isFalse();
-    assertThat(test.getCode()).isEqualTo("E");
-    assertThat(EtdVariant.parseCode(test.getCode())).isEqualTo(test);
-  }
-
-  @Test
-  public void test_monthlySettlementTypeCash() {
-    EtdVariant test = EtdVariant.ofMonthly(EtdSettlementType.CASH);
-    assertThat(test.getType()).isEqualTo(EtdExpiryType.MONTHLY);
-    assertThat(test.getDateCode()).isNotPresent();
-    assertThat(test.getSettlementType()).isEmpty();
-    assertThat(test.getOptionType()).isNotPresent();
-    assertThat(test.isFlex()).isFalse();
-    assertThat(test.getCode()).isEmpty();
-    assertThat(EtdVariant.parseCode(test.getCode())).isEqualTo(test);
-  }
-
-  @Test
   public void test_weekly() {
     EtdVariant test = EtdVariant.ofWeekly(2);
     assertThat(test.getType()).isEqualTo(EtdExpiryType.WEEKLY);
