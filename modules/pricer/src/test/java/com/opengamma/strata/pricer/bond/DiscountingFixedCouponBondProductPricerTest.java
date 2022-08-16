@@ -743,6 +743,35 @@ public class DiscountingFixedCouponBondProductPricerTest {
   }
 
   @Test
+  public void dirtyPriceFromYieldGerman_longFirst() {
+    LocalDate startDateLong = LocalDate.of(2022, 7, 8);
+    LocalDate endDateLong = LocalDate.of(2032, 8, 15);
+    PeriodicSchedule scheduleLongFirst = SCHEDULE_GER.toBuilder()
+        .startDate(startDateLong).endDate(endDateLong)
+        .stubConvention(StubConvention.LONG_INITIAL).build();
+    ResolvedFixedCouponBond product = FixedCouponBond.builder()
+        .securityId(SECURITY_ID)
+        .dayCount(DayCounts.ACT_ACT_ICMA)
+        .fixedRate(0.0170)
+        .legalEntityId(ISSUER_ID)
+        .currency(Currency.EUR)
+        .notional(100)
+        .accrualSchedule(scheduleLongFirst)
+        .settlementDateOffset(DaysAdjustment.ofBusinessDays(3, SAT_SUN))
+        .yieldConvention(FixedCouponBondYieldConvention.DE_BONDS)
+        .exCouponPeriod(DaysAdjustment.NONE)
+        .build()
+        .resolve(REF_DATA);
+    LocalDate settlementDate = LocalDate.of(2022, 9, 12);
+    double notionalYield = 0.06; // Yield used in bond futures conversion factor
+    double dirtyPrice = PRICER.dirtyPriceFromYield(product, settlementDate, notionalYield);
+    double cleanPrice = PRICER.cleanPriceFromDirtyPrice(product, settlementDate, dirtyPrice);
+    assertThat(cleanPrice).isCloseTo(0.685182, offset(1.0E-6)); // From Eurex conversion factor table
+    double yield = PRICER.yieldFromDirtyPrice(product, settlementDate, dirtyPrice);
+    assertThat(yield).isCloseTo(notionalYield, offset(TOL));
+  }
+
+  @Test
   public void dirtyPriceFromYieldGermanLastPeriod() {
     double dirtyPrice = PRICER.dirtyPriceFromYield(PRODUCT_GER, SETTLEMENT_LAST_GER, YIELD_GER);
     assertThat(dirtyPrice).isCloseTo(1.039406595790844, offset(TOL)); // 2.x.

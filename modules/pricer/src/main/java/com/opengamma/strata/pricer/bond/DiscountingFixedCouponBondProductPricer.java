@@ -1046,10 +1046,7 @@ public class DiscountingFixedCouponBondProductPricer {
     int couponIndex = couponIndex(bond.getPeriodicPayments(), settlementDate);
     double factorSpot = accruedYearFraction(bond, settlementDate);
     double factorPeriod = bond.getPeriodicPayments().get(couponIndex).getYearFraction();
-    if (bond.getYieldConvention().equals(GB_BUMP_DMO)) {
-      return (factorPeriod - factorSpot) * ((double) bond.getFrequency().eventsPerYear());
-    }
-    return (factorPeriod - factorSpot) / factorPeriod;
+    return (factorPeriod - factorSpot) * ((double) bond.getFrequency().eventsPerYear());
   }
 
   private int couponIndex(ImmutableList<FixedCouponBondPaymentPeriod> list, LocalDate date) {
