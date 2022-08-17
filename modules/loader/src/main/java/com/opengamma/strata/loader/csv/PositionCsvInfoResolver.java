@@ -185,10 +185,10 @@ public interface PositionCsvInfoResolver {
    */
   public default Position parseNonEtdPosition(CsvRow row, PositionInfo info) {
     SecurityPosition base = parseNonEtdSecurityPosition(row, info);
-    Optional<Double> tickSizeOpt = row.findValue(TICK_SIZE_FIELD).map(str -> LoaderUtils.parseDouble(str));
-    Optional<Currency> currencyOpt = row.findValue(CURRENCY_FIELD).map(str -> Currency.of(str));
-    Optional<Double> tickValueOpt = row.findValue(TICK_VALUE_FIELD).map(str -> LoaderUtils.parseDouble(str));
-    double contractSize = row.findValue(CONTRACT_SIZE_FIELD).map(str -> LoaderUtils.parseDouble(str)).orElse(1d);
+    Optional<Double> tickSizeOpt = row.findValue(TICK_SIZE_FIELD).map(LoaderUtils::parseDouble);
+    Optional<Currency> currencyOpt = row.findValue(CURRENCY_FIELD).map(Currency::of);
+    Optional<Double> tickValueOpt = row.findValue(TICK_VALUE_FIELD).map(LoaderUtils::parseDouble);
+    double contractSize = row.findValue(CONTRACT_SIZE_FIELD).map(LoaderUtils::parseDouble).orElse(1d);
     if (tickSizeOpt.isPresent() && currencyOpt.isPresent() && tickValueOpt.isPresent()) {
       SecurityPriceInfo priceInfo =
           SecurityPriceInfo.of(tickSizeOpt.get(), CurrencyAmount.of(currencyOpt.get(), tickValueOpt.get()), contractSize);
@@ -249,7 +249,7 @@ public interface PositionCsvInfoResolver {
    */
   public default Position parseEtdFuturePosition(CsvRow row, PositionInfo info) {
     EtdContractSpec contract = parseEtdContractSpec(row, EtdType.FUTURE);
-    Pair<YearMonth, EtdVariant> variant = CsvLoaderUtils.parseEtdVariant(row, EtdType.FUTURE);
+    Pair<YearMonth, EtdVariant> variant = CsvLoaderUtils.parseEtdVariant(row, EtdType.FUTURE, contract.getExchangeId());
     EtdFutureSecurity security = contract.createFuture(variant.getFirst(), variant.getSecond());
     DoublesPair quantity = CsvLoaderUtils.parseQuantity(row);
     EtdFuturePosition position = EtdFuturePosition.ofLongShort(info, security, quantity.getFirst(), quantity.getSecond());
@@ -271,12 +271,12 @@ public interface PositionCsvInfoResolver {
    */
   public default Position parseEtdOptionPosition(CsvRow row, PositionInfo info) {
     EtdContractSpec contract = parseEtdContractSpec(row, EtdType.OPTION);
-    Pair<YearMonth, EtdVariant> variant = CsvLoaderUtils.parseEtdVariant(row, EtdType.OPTION);
+    Pair<YearMonth, EtdVariant> variant = CsvLoaderUtils.parseEtdVariant(row, EtdType.OPTION, contract.getExchangeId());
     int version = row.findValue(VERSION_FIELD).map(Integer::parseInt).orElse(DEFAULT_OPTION_VERSION_NUMBER);
     PutCall putCall = row.getValue(PUT_CALL_FIELD, LoaderUtils::parsePutCall);
     double strikePrice = row.getValue(EXERCISE_PRICE_FIELD, LoaderUtils::parseDouble);
     YearMonth underlyingExpiry = row.findValue(UNDERLYING_EXPIRY_FIELD)
-        .map(str -> LoaderUtils.parseYearMonth(str))
+        .map(LoaderUtils::parseYearMonth)
         .orElse(null);
     EtdOptionSecurity security = contract.createOption(
         variant.getFirst(), variant.getSecond(), version, putCall, strikePrice, underlyingExpiry);
@@ -299,7 +299,7 @@ public interface PositionCsvInfoResolver {
   public default SecurityPosition parseEtdFutureSecurityPosition(CsvRow row, PositionInfo info) {
     ExchangeId exchangeId = row.getValue(EXCHANGE_FIELD, ExchangeId::of);
     EtdContractCode contractCode = row.getValue(CONTRACT_CODE_FIELD, EtdContractCode::of);
-    Pair<YearMonth, EtdVariant> variant = CsvLoaderUtils.parseEtdVariant(row, EtdType.FUTURE);
+    Pair<YearMonth, EtdVariant> variant = CsvLoaderUtils.parseEtdVariant(row, EtdType.FUTURE, exchangeId);
     SecurityId securityId = EtdIdUtils.futureId(exchangeId, contractCode, variant.getFirst(), variant.getSecond());
     DoublesPair quantity = CsvLoaderUtils.parseQuantity(row);
     SecurityPosition position = SecurityPosition.ofLongShort(info, securityId, quantity.getFirst(), quantity.getSecond());
@@ -319,12 +319,12 @@ public interface PositionCsvInfoResolver {
   public default SecurityPosition parseEtdOptionSecurityPosition(CsvRow row, PositionInfo info) {
     ExchangeId exchangeId = row.getValue(EXCHANGE_FIELD, ExchangeId::of);
     EtdContractCode contractCode = row.getValue(CONTRACT_CODE_FIELD, EtdContractCode::of);
-    Pair<YearMonth, EtdVariant> variant = CsvLoaderUtils.parseEtdVariant(row, EtdType.OPTION);
+    Pair<YearMonth, EtdVariant> variant = CsvLoaderUtils.parseEtdVariant(row, EtdType.OPTION, exchangeId);
     int version = row.findValue(VERSION_FIELD).map(Integer::parseInt).orElse(DEFAULT_OPTION_VERSION_NUMBER);
     PutCall putCall = row.getValue(PUT_CALL_FIELD, LoaderUtils::parsePutCall);
     double strikePrice = row.getValue(EXERCISE_PRICE_FIELD, LoaderUtils::parseDouble);
     YearMonth underlyingExpiry = row.findValue(UNDERLYING_EXPIRY_FIELD)
-        .map(str -> LoaderUtils.parseYearMonth(str))
+        .map(LoaderUtils::parseYearMonth)
         .orElse(null);
     SecurityId securityId = EtdIdUtils.optionId(
         exchangeId, contractCode, variant.getFirst(), variant.getSecond(), version, putCall, strikePrice, underlyingExpiry);

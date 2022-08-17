@@ -43,6 +43,8 @@ import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.loader.LoaderUtils;
+import com.opengamma.strata.product.common.ExchangeId;
+import com.opengamma.strata.product.common.ExchangeIds;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.etd.EtdOptionType;
 import com.opengamma.strata.product.etd.EtdSettlementType;
@@ -210,14 +212,14 @@ public final class CsvLoaderUtils {
    * @return the expiry year-month and variant
    * @throws ParseFailureException if the row cannot be parsed
    */
-  public static Pair<YearMonth, EtdVariant> parseEtdVariant(CsvRow row, EtdType type) {
+  public static Pair<YearMonth, EtdVariant> parseEtdVariant(CsvRow row, EtdType type, ExchangeId exchangeId) {
     YearMonth yearMonth = row.getValue(EXPIRY_FIELD, LoaderUtils::parseYearMonth);
     int week = row.findValue(EXPIRY_WEEK_FIELD, LoaderUtils::parseInteger).orElse(0);
     int day = row.findValue(EXPIRY_DAY_FIELD, LoaderUtils::parseInteger).orElse(0);
     Optional<EtdSettlementType> settleTypeOpt = row.findValue(SETTLEMENT_TYPE_FIELD, CsvLoaderUtils::parseEtdSettlementType);
     Optional<EtdOptionType> optionTypeOpt = row.findValue(EXERCISE_STYLE_FIELD, CsvLoaderUtils::parseEtdOptionType);
-    // check valid combinations
-    if (!settleTypeOpt.isPresent()) {
+    // check valid combinations - FlexOptions/Futures only valid for Eurex
+    if (!settleTypeOpt.isPresent() || !exchangeId.equals(ExchangeIds.ECAG)) {
       if (day == 0) {
         if (week == 0) {
           return Pair.of(yearMonth, EtdVariant.ofMonthly());
