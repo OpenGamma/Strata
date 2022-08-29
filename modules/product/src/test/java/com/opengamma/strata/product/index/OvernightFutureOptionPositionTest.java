@@ -68,14 +68,22 @@ public class OvernightFutureOptionPositionTest {
   @Test
   public void test_withQuantity() {
     OvernightFutureOptionPosition base = sut();
-    double quantity = 75343d;
-    OvernightFutureOptionPosition computed = base.withQuantity(quantity);
-    OvernightFutureOptionPosition expected = OvernightFutureOptionPosition.builder()
+    double quantityLong = 75343d;
+    OvernightFutureOptionPosition computedLong = base.withQuantity(quantityLong);
+    OvernightFutureOptionPosition expectedLong = OvernightFutureOptionPosition.builder()
         .info(POSITION_INFO)
         .product(PRODUCT)
-        .longQuantity(quantity)
+        .longQuantity(quantityLong)
         .build();
-    assertThat(computed).isEqualTo(expected);
+    assertThat(computedLong).isEqualTo(expectedLong);
+    double quantityShort = -75343d;
+    OvernightFutureOptionPosition computedShort = base.withQuantity(quantityShort);
+    OvernightFutureOptionPosition expectedShort = OvernightFutureOptionPosition.builder()
+        .info(POSITION_INFO)
+        .product(PRODUCT)
+        .shortQuantity(-quantityShort)
+        .build();
+    assertThat(computedShort).isEqualTo(expectedShort);
   }
 
   //-------------------------------------------------------------------------

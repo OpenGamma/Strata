@@ -77,7 +77,7 @@ public final class OvernightFutureOption
    * This is the price at which the option applies and refers to the price of the underlying future.
    * The rate implied by the strike can take negative values.
    * <p>
-   * Strata uses <i>decimal prices</i> for Ibor futures in the trade model, pricers and market data.
+   * Strata uses <i>decimal prices</i> for overnight futures in the trade model, pricers and market data.
    * The decimal price is based on the decimal rate equivalent to the percentage.
    * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
    */
@@ -277,7 +277,7 @@ public final class OvernightFutureOption
    * This is the price at which the option applies and refers to the price of the underlying future.
    * The rate implied by the strike can take negative values.
    * <p>
-   * Strata uses <i>decimal prices</i> for Ibor futures in the trade model, pricers and market data.
+   * Strata uses <i>decimal prices</i> for overnight futures in the trade model, pricers and market data.
    * The decimal price is based on the decimal rate equivalent to the percentage.
    * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
    * @return the value of the property
@@ -794,7 +794,7 @@ public final class OvernightFutureOption
      * This is the price at which the option applies and refers to the price of the underlying future.
      * The rate implied by the strike can take negative values.
      * <p>
-     * Strata uses <i>decimal prices</i> for Ibor futures in the trade model, pricers and market data.
+     * Strata uses <i>decimal prices</i> for overnight futures in the trade model, pricers and market data.
      * The decimal price is based on the decimal rate equivalent to the percentage.
      * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
      * @param strikePrice  the new value

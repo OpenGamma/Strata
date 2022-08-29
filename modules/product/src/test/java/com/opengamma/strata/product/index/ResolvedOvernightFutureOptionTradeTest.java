@@ -24,8 +24,8 @@ import com.opengamma.strata.product.TradedPrice;
  */
 public class ResolvedOvernightFutureOptionTradeTest {
 
-  private static final ResolvedIborFutureOption PRODUCT = ResolvedIborFutureOptionTest.sut();
-  private static final ResolvedIborFutureOption PRODUCT2 = ResolvedIborFutureOptionTest.sut2();
+  private static final ResolvedOvernightFutureOption PRODUCT = ResolvedOvernightFutureOptionTest.sut();
+  private static final ResolvedOvernightFutureOption PRODUCT2 = ResolvedOvernightFutureOptionTest.sut2();
   private static final LocalDate TRADE_DATE = date(2014, 6, 30);
   private static final TradeInfo TRADE_INFO = TradeInfo.of(TRADE_DATE);
   private static final TradeInfo TRADE_INFO2 = TradeInfo.of(date(2014, 7, 1));
@@ -37,7 +37,7 @@ public class ResolvedOvernightFutureOptionTradeTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_builder() {
-    ResolvedIborFutureOptionTrade test = sut();
+    ResolvedOvernightFutureOptionTrade test = sut();
     assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
     assertThat(test.getProduct()).isEqualTo(PRODUCT);
     assertThat(test.getQuantity()).isEqualTo(QUANTITY);
@@ -57,8 +57,8 @@ public class ResolvedOvernightFutureOptionTradeTest {
   }
 
   //-------------------------------------------------------------------------
-  static ResolvedIborFutureOptionTrade sut() {
-    return ResolvedIborFutureOptionTrade.builder()
+  static ResolvedOvernightFutureOptionTrade sut() {
+    return ResolvedOvernightFutureOptionTrade.builder()
         .info(TRADE_INFO)
         .product(PRODUCT)
         .quantity(QUANTITY)
@@ -66,8 +66,8 @@ public class ResolvedOvernightFutureOptionTradeTest {
         .build();
   }
 
-  static ResolvedIborFutureOptionTrade sut2() {
-    return ResolvedIborFutureOptionTrade.builder()
+  static ResolvedOvernightFutureOptionTrade sut2() {
+    return ResolvedOvernightFutureOptionTrade.builder()
         .info(TRADE_INFO2)
         .product(PRODUCT2)
         .quantity(QUANTITY2)
