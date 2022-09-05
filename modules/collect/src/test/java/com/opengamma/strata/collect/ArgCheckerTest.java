@@ -63,7 +63,7 @@ public class ArgCheckerTest {
         .isThrownBy(() -> ArgChecker.isTrue(false, "Message {} {} {}", "A", 2, 3d))
         .withMessage("Message A 2 3.0");
 
-    ;
+    
   }
 
   @Test
@@ -377,7 +377,7 @@ public class ArgCheckerTest {
   @Test
   public void test_notEmpty_Iterable_ok() {
     Iterable<String> expected = Arrays.asList("Element");
-    Iterable<String> result = ArgChecker.notEmpty((Iterable<String>) expected, "name");
+    Iterable<String> result = ArgChecker.notEmpty(expected, "name");
     assertThat(result).isEqualTo(expected);
   }
 
@@ -548,7 +548,7 @@ public class ArgCheckerTest {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ArgChecker.notNegative(-1, "name"))
         .withMessageMatching(".*'name'.*negative.*");
-    ;
+    
   }
 
   @Test
@@ -577,6 +577,16 @@ public class ArgCheckerTest {
         .withMessageMatching(".*'name'.*negative.*");
   }
 
+  @Test
+  public void test_notNegative_Decimal() {
+    assertThat(ArgChecker.notNegative(Decimal.of(0d), "name")).isEqualTo(Decimal.of(0d));
+    assertThat(ArgChecker.notNegative(Decimal.of(1.2d), "name")).isEqualTo(Decimal.of(1.2d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notNegative(Decimal.of(-1.2d), "name"))
+        .withMessageMatching(".*'name'.*negative.*");
+  }
+
+  //-------------------------------------------------------------------------
   @Test
   public void test_notNaN_double_ok() {
     assertThat(ArgChecker.notNaN(0d, "name")).isEqualTo(0d);
@@ -666,6 +676,17 @@ public class ArgCheckerTest {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ArgChecker.notNegativeOrZero(-1.0d, 0.0001d, "name"))
         .withMessageMatching(".*'name'.*greater.*zero.*");
+  }
+
+  @Test
+  public void test_notNegativeOrZero_Decimal() {
+    assertThat(ArgChecker.notNegativeOrZero(Decimal.of(1.2d), "name")).isEqualTo(Decimal.of(1.2d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notNegativeOrZero(Decimal.of(0d), "name"))
+        .withMessageMatching(".*'name'.*negative.*zero.*");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notNegativeOrZero(Decimal.of(-1.2d), "name"))
+        .withMessageMatching(".*'name'.*negative.*zero.*");
   }
 
   //-------------------------------------------------------------------------
