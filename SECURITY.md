@@ -5,7 +5,7 @@ This document outlines the security procedure for Strata: https://github.com/Ope
 ## Supported Versions
 
 We only support the latest version of Strata.
-If an issue is found, users will be expected to upgrade to the latest version to pickup the patch.
+If an issue is found, users will be expected to upgrade to the latest version to pick up the patch.
 
 ## Reporting a Vulnerability
 
