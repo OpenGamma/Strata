@@ -765,7 +765,7 @@
     <root.dir>${project.basedir}/..</root.dir>
     <!-- Versions -->
     <asm.version>9.2</asm.version>
-    <assertj.version>3.22.0</assertj.version>
+    <assertj.version>3.23.1</assertj.version>
     <bridger.version>1.6.Final</bridger.version>
     <guava.version>31.1-jre</guava.version><!-- didn't want to go beyond v27 but forced to by security https://github.com/google/guava/issues/3320 -->
     <guava-docs.version>26.0-jre</guava-docs.version>
