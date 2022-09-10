@@ -121,6 +121,7 @@ final class GlobalHolidayCalendars {
   // 1969, 26th May, 1st Sep - http://hansard.millbanksystems.com/written_answers/1967/mar/21/bank-holidays-1969-dates
   // 1970, 25th May, 31st Aug - http://hansard.millbanksystems.com/written_answers/1967/jul/28/bank-holidays
   // 2022, 2nd and 3rd Jun - https://www.gov.uk/government/news/extra-bank-holiday-to-mark-the-queens-platinum-jubilee-in-2022
+  // 2022, 19th Sep - https://www.gov.uk/government/news/bank-holiday-announced-for-her-majesty-queen-elizabeth-iis-state-funeral-on-monday-19-september
   static ImmutableHolidayCalendar generateLondon() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
@@ -166,6 +167,10 @@ final class GlobalHolidayCalendars {
         holidays.add(first(year, 8).with(lastInMonth(SATURDAY)).plusDays(2));
       } else {
         holidays.add(first(year, 8).with(lastInMonth(MONDAY)));
+      }
+      // queen's funeral
+      if (year == 2022) {
+        holidays.add(date(2022, 9, 19));
       }
       // christmas
       holidays.add(christmasBumpedSatSun(year));

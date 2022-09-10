@@ -203,10 +203,10 @@ public class DiscountingDsfTradePricerTest {
     DoubleArray dscExp = DoubleArray.of(
         347963.1427498563, 240275.26230191416, 123908.37739051704,
         -1302968.1341957184, -8402797.591029292, -9024590.733895564);
-    // these values changed when Juneteenth became a US holiday
+    // these values often change when calendars are updated
     DoubleArray fwdExp = DoubleArray.of(
         1.5288758221797276E7, 1.2510651813905593E7, -1535786.5368292872,
-        -9496881.098540511, -3.580372692298218E7, -1.1342676436208358E9);
+        -9496881.098540511, -3.577412088711747E7, -1.1342972496567006E9);
     PointSensitivities point = TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE, PROVIDER);
     CurrencyParameterSensitivities sensi = PROVIDER.parameterSensitivity(point);
     double tolerance = NOTIONAL * QUANTITY * EPS;
