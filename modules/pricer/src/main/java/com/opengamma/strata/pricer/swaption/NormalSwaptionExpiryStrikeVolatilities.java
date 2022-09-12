@@ -45,7 +45,6 @@ import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.pricer.impl.option.NormalFormulaRepository;
 import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.swap.type.FixedFloatSwapConvention;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
  * Volatility for swaptions in the normal or Bachelier model based on a surface.

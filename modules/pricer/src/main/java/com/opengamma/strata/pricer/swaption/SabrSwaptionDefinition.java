@@ -25,7 +25,6 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 import com.opengamma.strata.product.swap.type.FixedFloatSwapConvention;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
  * Definition of standard inputs to SABR swaption calibration.
