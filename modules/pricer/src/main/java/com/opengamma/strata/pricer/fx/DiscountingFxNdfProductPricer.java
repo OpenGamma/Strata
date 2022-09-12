@@ -5,10 +5,15 @@
  */
 package com.opengamma.strata.pricer.fx;
 
+import java.time.LocalDate;
+import java.util.OptionalDouble;
+
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -89,7 +94,8 @@ public class DiscountingFxNdfProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the currency exposure by discounting each payment in its own currency.
+   * Calculates the currency exposure by discounting each payment in its own currency before fixing and one amount in
+   * the delivery currency after.
    * 
    * @param ndf  the product
    * @param provider  the rates provider
@@ -104,9 +110,35 @@ public class DiscountingFxNdfProductPricer {
     double dfSettle = provider.discountFactor(ccySettle, ndf.getPaymentDate());
     Currency ccyOther = ndf.getNonDeliverableCurrency();
     double agreedRate = ndf.getAgreedFxRate().fxRate(ccySettle, ccyOther);
-    double dfOther = provider.discountFactor(ccyOther, ndf.getPaymentDate());
-    return MultiCurrencyAmount.of(notionalSettle.multipliedBy(dfSettle))
-        .plus(CurrencyAmount.of(ccyOther, -notionalSettle.getAmount() * agreedRate * dfOther));
+    LocalDate fixingDate = ndf.getObservation().getFixingDate();
+    LocalDate valuationDate = provider.getValuationDate();
+    if (fixingDate.isAfter(valuationDate)) {
+      double dfOther = provider.discountFactor(ccyOther, ndf.getPaymentDate());
+      return MultiCurrencyAmount.of(notionalSettle.multipliedBy(dfSettle))
+          .plus(CurrencyAmount.of(ccyOther, -notionalSettle.getAmount() * agreedRate * dfOther));
+    }
+    if (fixingDate.equals(valuationDate)) {
+      FxIndexRates fxIndexRates = provider.fxIndexRates(ndf.getObservation().getIndex());
+      LocalDateDoubleTimeSeries fixings = fxIndexRates.getFixings();
+      OptionalDouble fixedRate = fixings.get(fixingDate);
+      if (fixedRate.isPresent()) {
+        return MultiCurrencyAmount.of(notionalSettle.multipliedBy(dfSettle * (1 - agreedRate / fixedRate.getAsDouble())));
+      } else {
+        double dfOther = provider.discountFactor(ccyOther, ndf.getPaymentDate());
+        return MultiCurrencyAmount.of(notionalSettle.multipliedBy(dfSettle))
+            .plus(CurrencyAmount.of(ccyOther, -notionalSettle.getAmount() * agreedRate * dfOther));
+      }
+    } else { // fixing before valuation date
+      FxIndexRates fxIndexRates = provider.fxIndexRates(ndf.getObservation().getIndex());
+      LocalDateDoubleTimeSeries fixings = fxIndexRates.getFixings();
+      OptionalDouble fixedRate = fixings.get(fixingDate);
+      if (fixedRate.isPresent()) {
+        return MultiCurrencyAmount.of(notionalSettle.multipliedBy(dfSettle * (1 - agreedRate / fixedRate.getAsDouble())));
+      } else {
+        throw new IllegalArgumentException(Messages.format("Unable to get fixing for {} on date {}",
+            ndf.getObservation().getIndex(), fixingDate));
+      }
+    }
   }
 
   /**
