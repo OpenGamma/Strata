@@ -845,8 +845,12 @@ final class GlobalHolidayCalendars {
     } else {
       holidays.add(date(year, 4, 25));
     }
-    // queens birthday
+    // queen's birthday
     holidays.add(first(year, 6).with(firstInMonth(MONDAY)));
+    // queen's funeral
+    if (year == 2022) {
+      holidays.add(date(year, 9, 26));
+    }
     // labour day
     holidays.add(first(year, 10).with(dayOfWeekInMonth(4, MONDAY)));
     // christmas
@@ -975,6 +979,10 @@ final class GlobalHolidayCalendars {
       holidays.add(first(year, 6).with(dayOfWeekInMonth(2, MONDAY)));
       // bank holiday
       holidays.add(first(year, 8).with(dayOfWeekInMonth(1, MONDAY)));
+      // queen's funeral
+      if (year == 2022) {
+        holidays.add(date(year, 9, 22));
+      }
       // labour day
       holidays.add(first(year, 10).with(dayOfWeekInMonth(1, MONDAY)));
       // christmas
