@@ -116,7 +116,7 @@ public class NormalOvernightFutureOptionMarginedProductPricer {
       NormalOvernightFutureOptionVolatilities volatilities) {
 
     double futurePrice = futurePrice(futureOption, ratesProvider);
-    return price(futureOption, ratesProvider, volatilities, futurePrice);
+    return price(futureOption, volatilities, futurePrice);
   }
 
   /**
@@ -126,14 +126,12 @@ public class NormalOvernightFutureOptionMarginedProductPricer {
    * The price of the option is the price on the valuation date.
    * 
    * @param futureOption  the option product
-   * @param ratesProvider  the rates provider
    * @param volatilities  the volatilities
    * @param futurePrice  the price of the underlying future, in decimal form
    * @return the price of the product, in decimal form
    */
   public double price(
       ResolvedOvernightFutureOption futureOption,
-      RatesProvider ratesProvider,
       NormalOvernightFutureOptionVolatilities volatilities,
       double futurePrice) {
 
@@ -141,12 +139,10 @@ public class NormalOvernightFutureOptionMarginedProductPricer {
         "Premium style should be DAILY_MARGIN");
     ArgChecker.isTrue(futureOption.getUnderlyingFuture().getIndex().equals(volatilities.getIndex()),
         "Future index should be the same as data index");
-
     double timeToExpiry = volatilities.relativeTime(futureOption.getExpiry());
     double strike = futureOption.getStrikePrice();
     ResolvedOvernightFuture future = futureOption.getUnderlyingFuture();
     double volatility = volatilities.volatility(timeToExpiry, future.getLastTradeDate(), strike, futurePrice);
-
     return NormalFormulaRepository.price(futurePrice, strike, timeToExpiry, volatility, futureOption.getPutCall());
   }
 
@@ -170,7 +166,7 @@ public class NormalOvernightFutureOptionMarginedProductPricer {
       NormalOvernightFutureOptionVolatilities volatilities) {
 
     double futurePrice = futurePrice(futureOption, ratesProvider);
-    return deltaStickyStrike(futureOption, ratesProvider, volatilities, futurePrice);
+    return deltaStickyStrike(futureOption, volatilities, futurePrice);
   }
 
   /**
@@ -181,25 +177,21 @@ public class NormalOvernightFutureOptionMarginedProductPricer {
    * The volatility is unchanged for a fixed strike in the sensitivity computation, hence the "StickyStrike" name.
    * 
    * @param futureOption  the option product
-   * @param ratesProvider  the rates provider
    * @param volatilities  the volatilities
    * @param futurePrice  the price of the underlying future, in decimal form
    * @return the price curve sensitivity of the product
    */
   public double deltaStickyStrike(
       ResolvedOvernightFutureOption futureOption,
-      RatesProvider ratesProvider,
       NormalOvernightFutureOptionVolatilities volatilities,
       double futurePrice) {
 
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN),
         "Premium style should be DAILY_MARGIN");
-
     double timeToExpiry = volatilities.relativeTime(futureOption.getExpiry());
     double strike = futureOption.getStrikePrice();
     ResolvedOvernightFuture future = futureOption.getUnderlyingFuture();
     double volatility = volatilities.volatility(timeToExpiry, future.getLastTradeDate(), strike, futurePrice);
-
     return NormalFormulaRepository.delta(futurePrice, strike, timeToExpiry, volatility, futureOption.getPutCall());
   }
 
@@ -248,7 +240,7 @@ public class NormalOvernightFutureOptionMarginedProductPricer {
       NormalOvernightFutureOptionVolatilities volatilities,
       double futurePrice) {
 
-    double delta = deltaStickyStrike(futureOption, ratesProvider, volatilities, futurePrice);
+    double delta = deltaStickyStrike(futureOption, volatilities, futurePrice);
     PointSensitivities futurePriceSensitivity =
         futurePricer.priceSensitivity(futureOption.getUnderlyingFuture(), ratesProvider);
     return futurePriceSensitivity.multipliedBy(delta);
@@ -273,7 +265,7 @@ public class NormalOvernightFutureOptionMarginedProductPricer {
       NormalOvernightFutureOptionVolatilities volatilities) {
 
     double futurePrice = futurePrice(futureOption, ratesProvider);
-    return priceSensitivityModelParamsVolatility(futureOption, ratesProvider, volatilities, futurePrice);
+    return priceSensitivityModelParamsVolatility(futureOption, volatilities, futurePrice);
   }
 
   /**
@@ -283,25 +275,21 @@ public class NormalOvernightFutureOptionMarginedProductPricer {
    * This sensitivity is also called the <i>price normal vega</i>.
    * 
    * @param futureOption  the option product
-   * @param ratesProvider  the rates provider
    * @param volatilities  the volatilities
    * @param futurePrice  the underlying future price, in decimal form
    * @return the sensitivity
    */
   public OvernightFutureOptionSensitivity priceSensitivityModelParamsVolatility(
       ResolvedOvernightFutureOption futureOption,
-      RatesProvider ratesProvider,
       NormalOvernightFutureOptionVolatilities volatilities,
       double futurePrice) {
 
     ArgChecker.isTrue(futureOption.getPremiumStyle().equals(FutureOptionPremiumStyle.DAILY_MARGIN),
         "Premium style should be DAILY_MARGIN");
-
     double timeToExpiry = volatilities.relativeTime(futureOption.getExpiry());
     double strike = futureOption.getStrikePrice();
     ResolvedOvernightFuture future = futureOption.getUnderlyingFuture();
     double volatility = volatilities.volatility(timeToExpiry, future.getLastTradeDate(), strike, futurePrice);
-
     double vega = NormalFormulaRepository.vega(futurePrice, strike, timeToExpiry, volatility, futureOption.getPutCall());
     return OvernightFutureOptionSensitivity.of(
         volatilities.getName(), timeToExpiry, future.getLastTradeDate(), strike, futurePrice, future.getCurrency(), vega);

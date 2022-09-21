@@ -18,9 +18,11 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 
+import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.OvernightIndexObservation;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -30,6 +32,7 @@ import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
 import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
+import com.opengamma.strata.pricer.ZeroRateSensitivity;
 import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
 import com.opengamma.strata.pricer.impl.option.NormalFunctionData;
 import com.opengamma.strata.pricer.impl.option.NormalPriceFunction;
@@ -84,11 +87,11 @@ public class NormalOvernightFutureOptionMarginedProductPricerTest {
   private static final double TOLERANCE_PRICE = 1.0E-10;
   private static final double TOLERANCE_PRICE_DELTA = 1.0E-8;
   private static final double TOLERANCE_PARAM = 1.0E-8;
+  private static final Offset<Double> TOLERANCE_INDEX = offset(1.0E-8);
 
   // ----------     price     ----------
   @Test
   public void price_from_future_price() {
-    SimpleRatesProvider prov = new SimpleRatesProvider();
     double futurePrice = 0.9875;
     double strike = OPTION.getStrikePrice();
     double timeToExpiry = ACT_365F.relativeYearFraction(VAL_DATE, OPTION.getExpiryDate());
@@ -97,7 +100,7 @@ public class NormalOvernightFutureOptionMarginedProductPricerTest {
     EuropeanVanillaOption option = EuropeanVanillaOption.of(strike, timeToExpiry, OPTION.getPutCall());
     NormalFunctionData normalPoint = NormalFunctionData.of(futurePrice, 1.0, normalVol);
     double optionPriceExpected = NORMAL_FUNCTION.getPriceFunction(option).apply(normalPoint);
-    double optionPriceComputed = OPTION_PRICER.price(OPTION, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
+    double optionPriceComputed = OPTION_PRICER.price(OPTION, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     assertThat(optionPriceComputed).isCloseTo(optionPriceExpected, offset(TOLERANCE_PRICE));
   }
 
@@ -112,7 +115,7 @@ public class NormalOvernightFutureOptionMarginedProductPricerTest {
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setOvernightRates(mockOvernight);
     double futurePrice = 1.0 - RATE;
-    double optionPriceExpected = OPTION_PRICER.price(OPTION, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
+    double optionPriceExpected = OPTION_PRICER.price(OPTION, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     double optionPriceComputed = OPTION_PRICER.price(OPTION, prov, VOL_SIMPLE_MONEY_PRICE);
     assertThat(optionPriceComputed).isCloseTo(optionPriceExpected, offset(TOLERANCE_PRICE));
   }
@@ -120,7 +123,6 @@ public class NormalOvernightFutureOptionMarginedProductPricerTest {
   // ----------     delta     ----------
   @Test
   public void delta_from_future_price() {
-    SimpleRatesProvider prov = new SimpleRatesProvider();
     double futurePrice = 0.9875;
     double strike = OPTION.getStrikePrice();
     double timeToExpiry = ACT_365F.relativeYearFraction(VAL_DATE, OPTION.getExpiryDate());
@@ -130,7 +132,7 @@ public class NormalOvernightFutureOptionMarginedProductPricerTest {
     NormalFunctionData normalPoint = NormalFunctionData.of(futurePrice, 1.0, normalVol);
     double optionDeltaExpected = NORMAL_FUNCTION.getDelta(option, normalPoint);
     double optionDeltaComputed =
-        OPTION_PRICER.deltaStickyStrike(OPTION, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
+        OPTION_PRICER.deltaStickyStrike(OPTION, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     assertThat(optionDeltaComputed).isCloseTo(optionDeltaExpected, offset(TOLERANCE_PRICE));
   }
 
@@ -146,7 +148,7 @@ public class NormalOvernightFutureOptionMarginedProductPricerTest {
     prov.setOvernightRates(mockOvernight);
     double futurePrice = 1.0 - RATE;
     double optionDeltaExpected =
-        OPTION_PRICER.deltaStickyStrike(OPTION, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
+        OPTION_PRICER.deltaStickyStrike(OPTION, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     double optionDeltaComputed = OPTION_PRICER.deltaStickyStrike(OPTION, prov, VOL_SIMPLE_MONEY_PRICE);
     assertThat(optionDeltaComputed).isCloseTo(optionDeltaExpected, offset(TOLERANCE_PRICE));
   }
@@ -166,7 +168,7 @@ public class NormalOvernightFutureOptionMarginedProductPricerTest {
     double futurePrice = 0.9875;
     PointSensitivities futurePriceSensitivity =
         FUTURE_PRICER.priceSensitivity(OPTION.getUnderlyingFuture(), prov);
-    double delta = OPTION_PRICER.deltaStickyStrike(OPTION, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
+    double delta = OPTION_PRICER.deltaStickyStrike(OPTION, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     PointSensitivities optionPriceSensitivityExpected = futurePriceSensitivity.multipliedBy(delta);
     PointSensitivities optionPriceSensitivityComputed =
         OPTION_PRICER.priceSensitivityRatesStickyStrike(OPTION, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
@@ -212,7 +214,7 @@ public class NormalOvernightFutureOptionMarginedProductPricerTest {
     NormalFunctionData normalPoint = NormalFunctionData.of(futurePrice, 1.0, normalVol);
     double optionVegaExpected = NORMAL_FUNCTION.getVega(option, normalPoint);
     OvernightFutureOptionSensitivity optionVegaComputed = OPTION_PRICER.priceSensitivityModelParamsVolatility(
-        OPTION, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
+        OPTION, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     assertThat(optionVegaComputed.getSensitivity()).isCloseTo(optionVegaExpected, offset(TOLERANCE_PRICE));
     assertThat(optionVegaComputed.getExpiry()).isEqualTo(timeToExpiry);
     assertThat(optionVegaComputed.getFixingDate()).isEqualTo(obs.getFixingDate());
@@ -235,7 +237,7 @@ public class NormalOvernightFutureOptionMarginedProductPricerTest {
     prov.setOvernightRates(mockOvernight);
     double futurePrice = 1.0 - RATE;
     OvernightFutureOptionSensitivity optionVegaExpected = OPTION_PRICER.priceSensitivityModelParamsVolatility(
-        OPTION, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
+        OPTION, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     OvernightFutureOptionSensitivity optionVegaComputed = OPTION_PRICER.priceSensitivityModelParamsVolatility(
         OPTION, prov, VOL_SIMPLE_MONEY_PRICE);
     assertThat(optionVegaExpected.getStrikePrice()).isEqualTo(optionVegaComputed.getStrikePrice(), offset(TOLERANCE_PARAM));
@@ -244,6 +246,27 @@ public class NormalOvernightFutureOptionMarginedProductPricerTest {
     assertThat(optionVegaComputed.getSensitivity()).isCloseTo(optionVegaExpected.getSensitivity(), offset(TOLERANCE_PRICE_DELTA));
     assertThat(optionVegaComputed.getCurrency()).isEqualTo(optionVegaExpected.getCurrency());
     assertThat(optionVegaComputed.getFixingDate()).isEqualTo(optionVegaExpected.getFixingDate());
+  }
+
+  // ----------     Margin Index     ----------
+
+  @Test
+  public void marginIndex() {
+    double optionPrice = 0.0250;
+    double indexComputed = OPTION_PRICER.marginIndex(OPTION, optionPrice);
+    double indexExpected = UNDERLYING.getAccrualFactor() * UNDERLYING.getNotional() * optionPrice;
+    assertThat(indexComputed).isEqualTo(indexExpected, TOLERANCE_INDEX);
+  }
+
+  @Test
+  public void marginIndexSensitivity() {
+    double sensitivityAmount = 1234.56;
+    PointSensitivities priceSensitivity = ZeroRateSensitivity.of(Currency.AUD, 0.75, sensitivityAmount).build();
+    PointSensitivities indexSensitivityComputed = OPTION_PRICER.marginIndexSensitivity(OPTION, priceSensitivity);
+    assertThat(indexSensitivityComputed.getSensitivities().size()).isEqualTo(1);
+    assertThat(indexSensitivityComputed.getSensitivities().get(0).getSensitivity())
+        .isEqualTo(sensitivityAmount * UNDERLYING.getAccrualFactor() * UNDERLYING.getNotional(), TOLERANCE_INDEX);
+    assertThat(indexSensitivityComputed.getSensitivities().get(0).getCurrency()).isEqualTo(Currency.AUD);
   }
 
 }
