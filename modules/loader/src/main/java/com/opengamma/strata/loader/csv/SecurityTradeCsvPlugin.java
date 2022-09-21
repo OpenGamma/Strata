@@ -203,7 +203,7 @@ public class SecurityTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
   }
 
   //Restricted constructor
-  private SecurityTradeCsvPlugin(){
+  private SecurityTradeCsvPlugin() {
   }
 }
 
