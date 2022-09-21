@@ -15,6 +15,7 @@ import static com.opengamma.strata.market.model.SabrParameterType.BETA;
 import static com.opengamma.strata.market.model.SabrParameterType.NU;
 import static com.opengamma.strata.market.model.SabrParameterType.RHO;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
@@ -58,7 +59,7 @@ public class NormalSabrParametersSwaptionVolatilitiesTest {
   private static final LocalTime TIME = LocalTime.of(10, 0);
   private static final ZoneId ZONE = ZoneId.of("Europe/London");
   private static final ZonedDateTime DATE_TIME = DATE.atTime(TIME).atZone(ZONE);
-  private static final SabrInterestRateParameters PARAM = SwaptionSabrRateVolatilityDataSet.SABR_PARAM_USD;
+  private static final SabrInterestRateParameters PARAM = SwaptionSabrRateVolatilityDataSet.SABR_PARAM_NORMAL_USD;
   private static final FixedFloatSwapConvention CONV = FixedOvernightSwapConventions.USD_FIXED_1Y_SOFR_OIS;
 
   private static final ZonedDateTime[] TEST_OPTION_EXPIRY = new ZonedDateTime[] {
@@ -307,6 +308,13 @@ public class NormalSabrParametersSwaptionVolatilitiesTest {
   }
 
   @Test
+  public void wrong_formula() {
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> NormalSabrParametersSwaptionVolatilities
+            .of(NAME, CONV, DATE_TIME, SwaptionSabrRateVolatilityDataSet.SABR_PARAM_USD));
+  }
+
+  @Test
   public void coverage() {
     NormalSabrParametersSwaptionVolatilities test1 = NormalSabrParametersSwaptionVolatilities.of(NAME, CONV, DATE_TIME, PARAM);
     coverImmutableBean(test1);
@@ -314,7 +322,7 @@ public class NormalSabrParametersSwaptionVolatilitiesTest {
         NAME2,
         SwaptionSabrRateVolatilityDataSet.SWAP_CONVENTION_EUR,
         DATE_TIME.plusDays(1),
-        SwaptionSabrRateVolatilityDataSet.SABR_PARAM_USD);
+        SwaptionSabrRateVolatilityDataSet.SABR_PARAM_NORMAL_USD);
     coverBeanEquals(test1, test2);
   }
 }
