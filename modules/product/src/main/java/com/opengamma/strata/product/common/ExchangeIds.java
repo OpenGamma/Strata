@@ -144,6 +144,9 @@ public final class ExchangeIds {
   /** Nodal Exchange. */
   public static final ExchangeId NODX = ExchangeId.of("NODX");
 
+  /** Zhengzhou Commodity Exchange. */
+  public static final ExchangeId XZCE = ExchangeId.of("XZCE");
+
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
