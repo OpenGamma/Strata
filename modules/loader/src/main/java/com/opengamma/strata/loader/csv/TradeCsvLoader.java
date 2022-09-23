@@ -453,7 +453,8 @@ public final class TradeCsvLoader {
         if (typeUpper.equals("VARIABLE")) {
           failures.add(FailureItem.of(
               FailureReason.PARSING,
-              "CSV trade file '{fileName}' contained a 'Variable' type at line {lineNumber} that was not preceeded by a 'Swap' or 'Swaption'",
+              "CSV trade file '{fileName}' contained a 'Variable' type at line {lineNumber} " +
+                  "that was not preceeded by a 'Swap' or 'Swaption'",
               CharSources.extractFileName(charSource),
               row.lineNumber()));
         } else {

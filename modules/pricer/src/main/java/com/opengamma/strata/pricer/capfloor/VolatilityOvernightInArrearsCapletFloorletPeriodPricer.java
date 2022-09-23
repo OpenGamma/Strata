@@ -21,13 +21,14 @@ import com.opengamma.strata.product.rate.OvernightCompoundedRateComputation;
 /**
  * Pricer for overnight in-arrears caplet/floorlet based on volatilities.
  * <p>
- * The pricing methodologies are defined in individual implementations of the volatilities, {@link IborCapletFloorletVolatilities}.
+ * The pricing methodologies are defined in individual implementations of the volatilities, {@code IborCapletFloorletVolatilities}.
  * <p>
- * The volatilities are stored in {@link IborCapletFloorletVolatilities}, it should be understood as "TermRateCapletFloorletVolatilities".
+ * The volatilities are stored in {@code IborCapletFloorletVolatilities}, it should be understood as "TermRateCapletFloorletVolatilities".
  * <p>
- * The pricing is based on "interpolated volatilities" for the compounded in-arrears rates, in particular Section 6.3 of the reference below.
- * Reference: A. Lyashenko and F. Mercurio. Looking forward to backward-looking rates: A modeling frame- work for term rates replacing LIBOR. 
- * SSRN Working Paper 3330240, March 2019.
+ * The pricing is based on "interpolated volatilities" for the compounded in-arrears rates,
+ * in particular Section 6.3 of the reference below.
+ * Reference: A. Lyashenko and F. Mercurio. Looking forward to backward-looking rates: A modeling frame- 
+ * work for term rates replacing LIBOR. SSRN Working Paper 3330240, March 2019.
  */
 public class VolatilityOvernightInArrearsCapletFloorletPeriodPricer {
 
@@ -66,7 +67,7 @@ public class VolatilityOvernightInArrearsCapletFloorletPeriodPricer {
     OvernightCompoundedRateComputation onComputation = period.getOvernightRate();
     LocalDate startDate = onComputation.getStartDate();
     LocalDate endDate = onComputation.getEndDate();
-    double startTime = volatilities.relativeTime(startDate.atStartOfDay(ZoneOffset.UTC)); // The ON rates don't have an exact fixing time
+    double startTime = volatilities.relativeTime(startDate.atStartOfDay(ZoneOffset.UTC)); // ON rates don't have an exact fixing time
     double endTime = volatilities.relativeTime(endDate.atStartOfDay(ZoneOffset.UTC));
     double df = ratesProvider.discountFactor(currency, period.getPaymentDate());
     PutCall putCall = period.getPutCall();
@@ -104,7 +105,7 @@ public class VolatilityOvernightInArrearsCapletFloorletPeriodPricer {
     OvernightCompoundedRateComputation onComputation = period.getOvernightRate();
     LocalDate startDate = onComputation.getStartDate();
     LocalDate endDate = onComputation.getEndDate();
-    double startTime = volatilities.relativeTime(startDate.atStartOfDay(ZoneOffset.UTC)); // The ON rates don't have an exact fixing time
+    double startTime = volatilities.relativeTime(startDate.atStartOfDay(ZoneOffset.UTC)); // ON rates don't have an exact fixing time
     double endTime = volatilities.relativeTime(endDate.atStartOfDay(ZoneOffset.UTC));
     double dfPayment = ratesProvider.discountFactor(currency, period.getPaymentDate());
     PutCall putCall = period.getPutCall();
@@ -156,7 +157,7 @@ public class VolatilityOvernightInArrearsCapletFloorletPeriodPricer {
     OvernightCompoundedRateComputation onComputation = period.getOvernightRate();
     LocalDate startDate = onComputation.getStartDate();
     LocalDate endDate = onComputation.getEndDate();
-    double startTime = volatilities.relativeTime(startDate.atStartOfDay(ZoneOffset.UTC)); // The ON rates don't have an exact fixing time
+    double startTime = volatilities.relativeTime(startDate.atStartOfDay(ZoneOffset.UTC)); // ON rates don't have an exact fixing time
     double endTime = volatilities.relativeTime(endDate.atStartOfDay(ZoneOffset.UTC));
     double df = ratesProvider.discountFactor(currency, period.getPaymentDate());
     PutCall putCall = period.getPutCall();
