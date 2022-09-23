@@ -27,7 +27,7 @@ public class LinearInterpolatorTest {
   private static final LinearInterpolator INTERP = new LinearInterpolator();
 
   /**
-   * 
+   *
    */
   @Test
   public void recov2ptsTest() {
@@ -60,7 +60,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void recov4ptsTest() {
@@ -94,7 +94,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void nullXvaluesTest() {
@@ -105,7 +105,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void nullYvaluesTest() {
@@ -116,7 +116,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void wrongDatalengthTest() {
@@ -127,7 +127,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void shortDataLengthTest() {
@@ -138,7 +138,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void naNxValuesTest() {
@@ -149,7 +149,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void naNyValuesTest() {
@@ -160,7 +160,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void infxValuesTest() {
@@ -171,7 +171,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void infyValuesTest() {
@@ -182,7 +182,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void coincideXvaluesTest() {
@@ -193,7 +193,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void recov2ptsMultiTest() {
@@ -222,7 +222,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void recov4ptsMultiTest() {
@@ -252,7 +252,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void nullXvaluesMultiTest() {
@@ -263,7 +263,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void nullYvaluesMultiTest() {
@@ -274,7 +274,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void wrongDatalengthMultiTest() {
@@ -285,7 +285,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void shortDataLengthMultiTest() {
@@ -296,7 +296,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void naNxValuesMultiTest() {
@@ -307,7 +307,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void naNyValuesMultiTest() {
@@ -318,7 +318,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void infxValuesMultiTest() {
@@ -329,7 +329,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void infyValuesMultiTest() {
@@ -340,7 +340,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void coincideXvaluesMultiTest() {
@@ -415,7 +415,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void largeOutputTest() {
@@ -426,7 +426,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void largeOutputMultiTest() {
@@ -437,7 +437,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void largeInterpolantsTest() {
@@ -448,7 +448,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void nullKeyTest() {
@@ -460,7 +460,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void nullKeyMultiTest() {
@@ -472,7 +472,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void nullKeyMatrixTest() {
@@ -484,7 +484,7 @@ public class LinearInterpolatorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void nullKeyMatrixMultiTest() {
@@ -493,32 +493,6 @@ public class LinearInterpolatorTest {
     double[][] xKey = null;
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues, xKey));
-  }
-
-  /**
-   * 
-   */
-  @Test
-  public void notReconnectedTest() {
-    double[] xValues = new double[] {1., 2.000000000001, 2.000000000002, 4.};
-    double[] yValues = new double[] {2., 4.e10, 3.e-5, 5.e11};
-
-    PiecewisePolynomialInterpolator interpPos = new LinearInterpolator();
-    assertThatIllegalArgumentException()
-        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
-  }
-
-  /**
-   * 
-   */
-  @Test
-  public void notReconnectedMultiTest() {
-    double[] xValues = new double[] {1., 2.000000000001, 2.000000000002, 4.};
-    double[][] yValues = new double[][] {{2., 4.e10, 3.e-5, 5.e11}};
-
-    PiecewisePolynomialInterpolator interpPos = new LinearInterpolator();
-    assertThatIllegalArgumentException()
-        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   //-------------------------------------------------------------------------
