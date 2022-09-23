@@ -91,7 +91,7 @@ public class SabrOvernightInArrearsCapletFloorletPeriodPricer {
     OvernightCompoundedRateComputation onComputation = period.getOvernightRate();
     LocalDate startDate = onComputation.getStartDate();
     LocalDate endDate = onComputation.getEndDate();
-    double startTime = sabrVolatilities.relativeTime(startDate.atStartOfDay(ZoneOffset.UTC)); // The ON rates don't have an exact fixing time
+    double startTime = sabrVolatilities.relativeTime(startDate.atStartOfDay(ZoneOffset.UTC)); // ON rates don't have an exact fixing time
     double endTime = sabrVolatilities.relativeTime(endDate.atStartOfDay(ZoneOffset.UTC));
     double df = ratesProvider.discountFactor(currency, period.getPaymentDate());
     PutCall putCall = period.getPutCall();
@@ -137,7 +137,7 @@ public class SabrOvernightInArrearsCapletFloorletPeriodPricer {
     OvernightCompoundedRateComputation onComputation = period.getOvernightRate();
     LocalDate startDate = onComputation.getStartDate();
     LocalDate endDate = onComputation.getEndDate();
-    double startTime = sabrVolatilities.relativeTime(startDate.atStartOfDay(ZoneOffset.UTC)); // The ON rates don't have an exact fixing time
+    double startTime = sabrVolatilities.relativeTime(startDate.atStartOfDay(ZoneOffset.UTC)); // ON rates don't have an exact fixing time
     double endTime = sabrVolatilities.relativeTime(endDate.atStartOfDay(ZoneOffset.UTC));
     double df = ratesProvider.discountFactor(currency, period.getPaymentDate());
     PutCall putCall = period.getPutCall();

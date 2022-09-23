@@ -602,7 +602,6 @@
                   <goal>jar-no-fork</goal>
                 </goals>
                 <configuration>
-                  <skipIfEmpty>true</skipIfEmpty>
                   <archive>
                     <manifest>
                       <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
@@ -630,7 +629,6 @@
                   <goal>jar</goal>
                 </goals>
                 <configuration>
-                  <skipIfEmpty>true</skipIfEmpty>
                   <archive>
                     <manifest>
                       <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
@@ -764,7 +762,7 @@
     <!-- Locate the root directory of the multi-module build -->
     <root.dir>${project.basedir}/..</root.dir>
     <!-- Versions -->
-    <asm.version>9.2</asm.version>
+    <asm.version>9.3</asm.version>
     <assertj.version>3.23.1</assertj.version>
     <bridger.version>1.6.Final</bridger.version>
     <guava.version>31.1-jre</guava.version><!-- didn't want to go beyond v27 but forced to by security https://github.com/google/guava/issues/3320 -->
@@ -778,8 +776,8 @@
     <slf4j.version>1.7.36</slf4j.version>
     <!-- Properties for maven-checkstyle-plugin -->
     <!-- versions must be retained to allow the version to be overridden on the command line -->
-    <build-config.version>2.6.0</build-config.version>
-    <checkstyle.version>8.26</checkstyle.version>
+    <build-config.version>2.8.1</build-config.version>
+    <checkstyle.version>8.45.1</checkstyle.version>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata</h1>]]></doctitle>

@@ -184,7 +184,6 @@
                   <goal>jar-no-fork</goal>
                 </goals>
                 <configuration>
-                  <skipIfEmpty>true</skipIfEmpty>
                   <archive>
                     <manifest>
                       <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
