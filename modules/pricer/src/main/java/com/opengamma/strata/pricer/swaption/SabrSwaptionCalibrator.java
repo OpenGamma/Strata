@@ -46,7 +46,6 @@ import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.FixedFloatSwapConvention;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 
 /**
  * Swaption SABR calibrator.

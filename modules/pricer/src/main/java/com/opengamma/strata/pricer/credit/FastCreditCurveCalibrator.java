@@ -55,6 +55,11 @@ public final class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCal
    * The root finder.
    */
   private static final RealSingleRootFinder ROOTFINDER = new BrentSingleRootFinder();
+  /**
+   * The maximum value of rate times year fraction
+   * for which the survival probability is numerically zero within the tolerance of {@code RealSingleRootFinder}.
+   */
+  private static final double MAX_RT = 37d;
 
   //-------------------------------------------------------------------------
   /**
@@ -162,6 +167,8 @@ public final class FastCreditCurveCalibrator extends IsdaCompliantCreditCurveCal
           } catch (final MathException e) { //handling bracketing failure due to small survival probability
             if (Math.abs(func.apply(creditCurve.getYValues().get(i - 1))) < 1.e-12) {
               creditCurve = creditCurve.withParameter(i, creditCurve.getYValues().get(i - 1));
+            } else if (func.apply(MAX_RT / times.get(i)) <  -1.e-12) { // root does not exist for positive survival probability
+              creditCurve = creditCurve.withParameter(i, MAX_RT / times.get(i));
             } else {
               throw new MathException(e);
             }

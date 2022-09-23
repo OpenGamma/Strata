@@ -39,6 +39,7 @@ import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
 import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
+import com.opengamma.strata.pricer.impl.volatility.smile.SabrHaganNormalVolatilityFormula;
 import com.opengamma.strata.pricer.model.SabrInterestRateParameters;
 import com.opengamma.strata.pricer.model.SabrVolatilityFormula;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -144,6 +145,8 @@ public class SwaptionSabrRateVolatilityDataSet {
       INTERPOLATOR_2D);
   static final SabrInterestRateParameters SABR_PARAM_USD = SabrInterestRateParameters.of(
       SURFACE_ALPHA_USD, SURFACE_BETA_USD, SURFACE_RHO_USD, SURFACE_NU_USD, SabrVolatilityFormula.hagan());
+  static final SabrInterestRateParameters SABR_PARAM_NORMAL_USD = SabrInterestRateParameters.of(
+      SURFACE_ALPHA_USD, SURFACE_BETA_USD, SURFACE_RHO_USD, SURFACE_NU_USD, SabrHaganNormalVolatilityFormula.DEFAULT);
 
   static final double SHIFT = 0.025;
   private static final DefaultSurfaceMetadata META_SHIFT = DefaultSurfaceMetadata.of("Test-SABR-Shift");
