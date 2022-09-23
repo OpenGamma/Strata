@@ -56,8 +56,6 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
         ArgChecker.isFalse(Double.isNaN(coefMatrix.get(i, j)), "Too large input");
         ArgChecker.isFalse(Double.isInfinite(coefMatrix.get(i, j)), "Too large input");
       }
-      double bound = Math.max(Math.abs(ref) + Math.abs(yValuesSrt[i + 1]), 1.e-1);
-      ArgChecker.isTrue(Math.abs(ref - yValuesSrt[i + 1]) < ERROR * bound, "Input is too large/small or data are not distinct enough");
     }
 
     return new PiecewisePolynomialResult(DoubleArray.copyOf(xValuesSrt), coefMatrix, coefMatrix.columnCount(), 1);
@@ -101,8 +99,6 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
           ArgChecker.isFalse(Double.isNaN(coefMatrix[i].get(k, j)), "Too large input");
           ArgChecker.isFalse(Double.isInfinite(coefMatrix[i].get(k, j)), "Too large input");
         }
-        double bound = Math.max(Math.abs(ref) + Math.abs(yValuesSrt[k + 1]), 1.e-1);
-        ArgChecker.isTrue(Math.abs(ref - yValuesSrt[k + 1]) < ERROR * bound, "Input is too large/small or data points are too close");
       }
     }
 
@@ -154,9 +150,6 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
         ArgChecker.isFalse(Double.isNaN(coefMatrix.get(i, j)), "Too large input");
         ArgChecker.isFalse(Double.isInfinite(coefMatrix.get(i, j)), "Too large input");
       }
-      double bound = Math.max(Math.abs(ref) + Math.abs(yValuesSrt[i + 1]), 1.e-1);
-      ArgChecker.isTrue(Math.abs(ref - yValuesSrt[i + 1]) < ERROR * bound,
-          "Input is too large/small or data are not distinct enough");
     }
 
     return new PiecewisePolynomialResultsWithSensitivity(
