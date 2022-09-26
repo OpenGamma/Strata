@@ -774,6 +774,9 @@
     <junit5.version>5.9.0</junit5.version>
     <mockito.version>4.8.0</mockito.version>
     <slf4j.version>1.7.36</slf4j.version>
+    <!-- Versions after M3 cause RequireFilesExist to reject relative paths -->
+    <extra-enforcer-rules.version>1.2</extra-enforcer-rules.version>
+    <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
     <!-- Properties for maven-checkstyle-plugin -->
     <!-- versions must be retained to allow the version to be overridden on the command line -->
     <build-config.version>2.8.1</build-config.version>
