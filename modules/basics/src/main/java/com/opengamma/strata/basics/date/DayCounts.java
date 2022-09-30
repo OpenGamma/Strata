@@ -14,7 +14,7 @@ import com.opengamma.strata.collect.named.ExtendedEnum;
  * Constants and implementations for standard day count conventions.
  * <p>
  * The purpose of each convention is to define how to convert dates into numeric year fractions.
- * The is of use when calculating accrued interest over time.
+ * The day count is of use when calculating accrued interest over time.
  */
 public final class DayCounts {
   // constants are indirected via ENUM_LOOKUP to allow them to be replaced by config
