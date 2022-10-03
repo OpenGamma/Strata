@@ -27,10 +27,12 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
@@ -121,11 +123,17 @@ final class CdsIndexTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
     Optional<String> redCodeOpt = row.findValue(RED_CODE_FIELD);
     Optional<String> seriesOpt = row.findValue(INDEX_SERIES_FIELD);
     Optional<String> versionOpt = row.findValue(INDEX_VERSION_FIELD);
-    if (redCodeOpt.isPresent() && seriesOpt.isPresent() && versionOpt.isPresent()) {
+    if (redCodeOpt.isPresent()) {
       StandardId redCode = LoaderUtils.parseRedCode(redCodeOpt.get());
+      if (!redCode.getScheme().equals(StandardSchemes.RED9_SCHEME)) {
+        throw new ParseFailureException("RED9 must be present for CdsIndex but found: {value1}", redCode.getScheme());
+      }
       String stem = redCode.getValue() + "-CDX";
-      String variant = "S" + seriesOpt.get() + "V" + versionOpt.get();
-      return StandardId.of(DEFAULT_TICKER_SCHEME, stem + '-' + variant);
+      if (seriesOpt.isPresent() && versionOpt.isPresent()) {
+        String variant = "S" + seriesOpt.get() + "V" + versionOpt.get();
+        return StandardId.of(DEFAULT_TICKER_SCHEME, stem + '-' + variant);
+      }
+      return StandardId.of(DEFAULT_TICKER_SCHEME, stem + "-STD");
     }
     String indexScheme = row.findValue(CDS_INDEX_ID_SCHEME_FIELD).orElse(DEFAULT_CDS_INDEX_SCHEME);
     return StandardId.of(indexScheme, row.getValue(CDS_INDEX_ID_FIELD));
