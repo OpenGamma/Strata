@@ -202,11 +202,11 @@ public class DiscountingOvernightFutureTradePricer {
   }
 
   /**
-   * Returns the forwardRate rate.
+   * Returns the forward rate.
    *
    * @param trade  the overnight future trade
    * @param ratesProvider  the rates provider
-   * @return  the forwardRate rate
+   * @return  the forward rate
    */
   public double forwardRate(ResolvedOvernightFutureTrade trade, RatesProvider ratesProvider) {
     return productPricer.forwardRate(trade.getProduct(), ratesProvider);
