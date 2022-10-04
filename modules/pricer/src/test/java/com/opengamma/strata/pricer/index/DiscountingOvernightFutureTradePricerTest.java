@@ -91,7 +91,7 @@ public class DiscountingOvernightFutureTradePricerTest {
   private static final double TOLERANCE_PRICE = 1.0e-9;
   private static final double TOLERANCE_PV = 1.0e-4;
 
-  //------------------------------------------------------------------------- 
+  //-------------------------------------------------------------------------
   @Test
   public void test_price() {
     double computed = PRICER_TRADE.price(RESOLVED_TRADE, RATES_PROVIDER);
@@ -148,7 +148,7 @@ public class DiscountingOvernightFutureTradePricerTest {
     assertThat(parSpreadComputed).isCloseTo(parSpreadExpected, offset(TOLERANCE_PRICE));
   }
 
-  //------------------------------------------------------------------------- 
+  //-------------------------------------------------------------------------
   @Test
   public void test_presentValue_after_trade_date() {
     double lastClosingPrice = 1.005;
@@ -170,7 +170,7 @@ public class DiscountingOvernightFutureTradePricerTest {
     assertThat(computed.getCurrency()).isEqualTo(FUTURE.getCurrency());
   }
 
-  //-------------------------------------------------------------------------   
+  //-------------------------------------------------------------------------
   @Test
   public void test_presentValueSensitivity() {
     PointSensitivities computed = PRICER_TRADE.presentValueSensitivity(RESOLVED_TRADE, RATES_PROVIDER);
@@ -193,6 +193,14 @@ public class DiscountingOvernightFutureTradePricerTest {
     PointSensitivities sensiExpected = PRICER_PRODUCT.priceSensitivity(RESOLVED_TRADE.getProduct(), RATES_PROVIDER);
     PointSensitivities sensiComputed = PRICER_TRADE.priceSensitivity(RESOLVED_TRADE, RATES_PROVIDER);
     assertThat(sensiComputed.equalWithTolerance(sensiExpected, TOL)).isTrue();
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_forwardRate() {
+    double expectedForwardRate = PRICER_PRODUCT.forwardRate(RESOLVED_TRADE.getProduct(), RATES_PROVIDER);
+    double forwardRate = PRICER_TRADE.forwardRate(RESOLVED_TRADE, RATES_PROVIDER);
+    assertThat(forwardRate).isEqualTo(expectedForwardRate);
   }
 
 }
