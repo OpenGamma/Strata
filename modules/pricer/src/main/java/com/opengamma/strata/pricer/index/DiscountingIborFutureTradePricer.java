@@ -197,4 +197,14 @@ public class DiscountingIborFutureTradePricer {
     return productPricer.priceSensitivity(trade.getProduct(), ratesProvider);
   }
 
+  /**
+   * Returns the forward rate.
+   *
+   * @param trade  the ibor future trade
+   * @param ratesProvider  the rates provider
+   * @return  the forward rate
+   */
+  public double forwardRate(ResolvedIborFutureTrade trade, RatesProvider ratesProvider) {
+    return productPricer.forwardRate(trade.getProduct(), ratesProvider);
+  }
 }

@@ -179,4 +179,17 @@ public class DiscountingIborFutureTradePricerTest {
     assertThat(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PRICE_DELTA)).isTrue();
   }
 
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_forwardRate() {
+    SimpleRatesProvider ratesProvider = new SimpleRatesProvider();
+    IborIndexRates mockIbor = mock(IborIndexRates.class);
+    ratesProvider.setIborRates(mockIbor);
+    when(mockIbor.rate(FUTURE.getIborRate().getObservation())).thenReturn(RATE);
+
+    double expectedForwardRate = PRICER_PRODUCT.forwardRate(FUTURE, ratesProvider);
+    double forwardRate = PRICER_TRADE.forwardRate(FUTURE_TRADE, ratesProvider);
+    assertThat(forwardRate).isEqualTo(expectedForwardRate);
+  }
+
 }

@@ -34,6 +34,7 @@ import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityC
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.index.OvernightFuture;
 import com.opengamma.strata.product.index.ResolvedOvernightFuture;
+import com.opengamma.strata.product.rate.OvernightRateComputation;
 import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 
 /**
@@ -77,7 +78,7 @@ public class DiscountingOvernightFutureProductPricerTest {
   private static final DiscountingOvernightFutureProductPricer PRICER = DiscountingOvernightFutureProductPricer.DEFAULT;
   private static final RatesFiniteDifferenceSensitivityCalculator FD_CALC = new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
-  //------------------------------------------------------------------------- 
+  //-------------------------------------------------------------------------
   @Test
   public void test_marginIndex() {
     double notional = FUTURE.getNotional();
@@ -98,7 +99,7 @@ public class DiscountingOvernightFutureProductPricerTest {
     assertThat(sensiComputed.equalWithTolerance(priceSensitivity.multipliedBy(accrualFactor * notional), TOL * notional)).isTrue();
   }
 
-  //------------------------------------------------------------------------- 
+  //-------------------------------------------------------------------------
   @Test
   public void test_price() {
     double computed = PRICER.price(FUTURE, RATES_PROVIDER);
@@ -115,6 +116,19 @@ public class DiscountingOvernightFutureProductPricerTest {
     CurrencyParameterSensitivities expected = FD_CALC.sensitivity(
         RATES_PROVIDER, r -> CurrencyAmount.of(USD, PRICER.price(FUTURE, r)));
     assertThat(computed.equalWithTolerance(expected, EPS)).isTrue();
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_forwardRate() {
+    OvernightRateComputation computation = FUTURE.getOvernightRate();
+    double rate = PRICER.forwardRate(FUTURE, RATES_PROVIDER);
+    double expected = DispatchingRateComputationFn.DEFAULT.rate(
+        computation,
+        computation.getStartDate(),
+        computation.getEndDate(),
+        RATES_PROVIDER);
+    assertThat(rate).isEqualTo(expected);
   }
 
 }

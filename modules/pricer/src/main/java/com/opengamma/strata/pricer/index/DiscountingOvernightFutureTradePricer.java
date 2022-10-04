@@ -201,4 +201,15 @@ public class DiscountingOvernightFutureTradePricer {
     return productPricer.priceSensitivity(trade.getProduct(), ratesProvider);
   }
 
+  /**
+   * Returns the forward rate.
+   *
+   * @param trade  the overnight future trade
+   * @param ratesProvider  the rates provider
+   * @return  the forward rate
+   */
+  public double forwardRate(ResolvedOvernightFutureTrade trade, RatesProvider ratesProvider) {
+    return productPricer.forwardRate(trade.getProduct(), ratesProvider);
+  }
+
 }
