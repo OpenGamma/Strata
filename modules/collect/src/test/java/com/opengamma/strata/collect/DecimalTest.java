@@ -609,7 +609,7 @@ public class DecimalTest {
 
     assertTrue(Decimal.of(9.99999999).isLessThan(Decimal.of(10d)));
     assertTrue(Decimal.of(9.99999999).isLessThanEqualTo(Decimal.of(10d)));
-    assertTrue(Decimal.of(9.99999999).isLessThanEqualTo(Decimal.of(9.99999999)));
+    assertTrue(Decimal.of(10d).isLessThanEqualTo(Decimal.of(10d)));
     assertFalse(Decimal.of(10d).isLessThan(Decimal.of(9.999999999d)));
     assertFalse(Decimal.of(10d).isLessThanEqualTo(Decimal.of(9.999999999d)));
   }
