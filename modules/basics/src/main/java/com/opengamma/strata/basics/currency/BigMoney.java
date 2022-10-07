@@ -327,7 +327,7 @@ public class BigMoney
   }
 
   /**
-   * Returns a copy with the amount rounded to the specified scale.
+   *Returns a copy of this {@code BigMoney} with the amount rounded to the specified scale.
    * <p>
    * The underlying amount will be rounded using {@link Decimal#roundToScale(int, RoundingMode)}
    * <p>
