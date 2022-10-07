@@ -287,7 +287,7 @@ public class BigMoney
    */
   public boolean isGreaterThan(BigMoney otherAmount) {
     ArgChecker.notNull(otherAmount, "other");
-    ArgChecker.isTrue(otherAmount.getCurrency().equals(currency), "Unable to subtract amounts in different currencies");
+    ArgChecker.isTrue(otherAmount.getCurrency().equals(currency), "Unable to compare amounts in different currencies");
     return amount.isGreaterThan(otherAmount.getValue());
   }
 
@@ -300,7 +300,7 @@ public class BigMoney
    */
   public boolean isGreaterThanEqualTo(BigMoney otherAmount) {
     ArgChecker.notNull(otherAmount, "otherAmount");
-    ArgChecker.isTrue(otherAmount.getCurrency().equals(currency), "Unable to subtract amounts in different currencies");
+    ArgChecker.isTrue(otherAmount.getCurrency().equals(currency), "Unable to compare amounts in different currencies");
     return amount.isGreaterThanEqualTo(otherAmount.getValue());
   }
 
