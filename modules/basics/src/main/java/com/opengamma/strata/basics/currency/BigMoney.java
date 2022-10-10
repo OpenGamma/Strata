@@ -312,7 +312,9 @@ public class BigMoney
    * @throws IllegalArgumentException if the currencies are not equal
    */
   public boolean isLessThan(BigMoney otherAmount) {
-    return !isGreaterThanEqualTo(otherAmount);
+    ArgChecker.notNull(otherAmount, "otherAmount");
+    ArgChecker.isTrue(otherAmount.getCurrency().equals(currency), "Unable to compare amounts in different currencies");
+    return amount.isLessThan(otherAmount.getValue());
   }
 
   /**
@@ -323,7 +325,9 @@ public class BigMoney
    * @throws IllegalArgumentException if the currencies are not equal
    */
   public boolean isLessThanEqualTo(BigMoney otherAmount) {
-    return !isGreaterThan(otherAmount);
+    ArgChecker.notNull(otherAmount, "otherAmount");
+    ArgChecker.isTrue(otherAmount.getCurrency().equals(currency), "Unable to compare amounts in different currencies");
+    return amount.isLessThanEqualTo(otherAmount.getValue());
   }
 
   /**

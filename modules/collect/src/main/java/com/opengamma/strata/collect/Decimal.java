@@ -933,7 +933,7 @@ public final class Decimal implements Serializable, Comparable<Decimal> {
    * @return true if this is less than the other
    */
   public boolean isLessThan(Decimal other) {
-    return !isGreaterThanEqualTo(other);
+    return compareTo(other) < 0;
   }
 
   /**
@@ -943,7 +943,7 @@ public final class Decimal implements Serializable, Comparable<Decimal> {
    * @return true if this is less than or equal to the other
    */
   public boolean isLessThanEqualTo(Decimal other) {
-    return !isGreaterThan(other);
+    return compareTo(other) <= 0;
   }
 
   // formats the string
