@@ -10,7 +10,11 @@ import static com.opengamma.strata.basics.date.DateSequences.MONTHLY_1ST;
 import static com.opengamma.strata.basics.date.DateSequences.MONTHLY_IMM;
 import static com.opengamma.strata.basics.date.DateSequences.QUARTERLY_IMM;
 import static com.opengamma.strata.basics.date.DateSequences.QUARTERLY_IMM_6_SERIAL;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.CHZU;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.index.OvernightIndices.CHF_SARON;
+import static com.opengamma.strata.basics.index.OvernightIndices.EUR_ESTR;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_SOFR;
@@ -24,6 +28,50 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
  * Commonly traded Overnight future contract specifications.
  */
 final class StandardOvernightFutureContractSpecs {
+
+
+  /**
+   * The 'CHF_SARON_3M_IMM_ICE' convention.
+   * "SA3"
+   */
+  public static final OvernightFutureContractSpec CHF_SARON_3M_IMM_ICE = //TODO check
+      ImmutableOvernightFutureContractSpec.builder()
+          .name("CHF-SARON-3M-IMM-ICE")
+          .index(CHF_SARON)
+          .dateSequence(QUARTERLY_IMM)
+          .accrualMethod(COMPOUNDED)
+          .lastTradeDateAdjustment(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, CHZU)))
+          .notional(1_000_000d)
+          .build();
+
+  /**
+   * The 'CHF_SARON_3M_IMM_ICE' convention.
+   * "FSR3"
+   */
+  public static final OvernightFutureContractSpec CHF_SARON_3M_IMM_EUREX = //TODO check
+      ImmutableOvernightFutureContractSpec.builder()
+          .name("CHF-SARON-3M-IMM-EUREX")
+          .index(CHF_SARON)
+          .dateSequence(QUARTERLY_IMM)
+          .accrualMethod(COMPOUNDED)
+          .lastTradeDateAdjustment(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, CHZU)))
+          .notional(1_000_000d)
+          .build();
+
+
+  /**
+   * The 'EUR_ESTR_1M_IMM_ICE' convention.
+   * "EON"
+   */
+  public static final OvernightFutureContractSpec EUR_ESTR_1M_IMM_ICE = //TODO check maybe add TARGET 2
+      ImmutableOvernightFutureContractSpec.builder()
+          .name("EUR-ESTR-1M-IMM-ICE")
+          .index(EUR_ESTR)
+          .dateSequence(MONTHLY_IMM)
+          .accrualMethod(COMPOUNDED)
+          .lastTradeDateAdjustment(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, EUTA)))
+          .notional(1_000_000d)
+          .build();
 
   /**
    * The 'GBP-SONIA-3M-IMM-CME' convention.
@@ -69,6 +117,7 @@ final class StandardOvernightFutureContractSpecs {
   /**
    * The 'GBP-SONIA-1M-ICE' convention.
    * https://www.theice.com/products/66380299/One-Month-SONIA-Index-Futures
+   * "SO3"
    */
   public static final OvernightFutureContractSpec GBP_SONIA_1M_ICE =
       ImmutableOvernightFutureContractSpec.builder()
@@ -94,9 +143,25 @@ final class StandardOvernightFutureContractSpecs {
           .build();
 
   //-------------------------------------------------------------------------
+
   /**
    * The 'USD-SOFR-3M-IMM-CME' convention.
    * https://www.cmegroup.com/trading/interest-rates/stir/three-month-sofr_contract_specifications.html
+   * "SR1"
+   */
+  public static final OvernightFutureContractSpec USD_SOFR_1M_IMM_CME =
+      ImmutableOvernightFutureContractSpec.builder()
+          .name("USD-SOFR-1M-IMM-CME")
+          .index(USD_SOFR)
+          .dateSequence(MONTHLY_IMM)
+          .accrualMethod(COMPOUNDED)
+          .notional(1_000_000d)
+          .build();
+
+  /**
+   * The 'USD-SOFR-3M-IMM-CME' convention.
+   * https://www.cmegroup.com/trading/interest-rates/stir/three-month-sofr_contract_specifications.html
+   * "SR3"
    */
   public static final OvernightFutureContractSpec USD_SOFR_3M_IMM_CME =
       ImmutableOvernightFutureContractSpec.builder()
@@ -150,6 +215,8 @@ final class StandardOvernightFutureContractSpecs {
   /**
    * The 'USD-FED-FUND-1M-CME' convention.
    * https://www.cmegroup.com/trading/interest-rates/stir/30-day-federal-fund_contract_specifications.html
+   *
+   * "ZQ"
    */
   public static final OvernightFutureContractSpec USD_FED_FUND_1M_CME =
       ImmutableOvernightFutureContractSpec.builder()
