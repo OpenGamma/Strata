@@ -61,7 +61,6 @@ final class StandardIborFutureContractSpecs {
           .notional(1_000_000d)
           .build();
 
-
   //-------------------------------------------------------------------------
   /**
    * The 'EUR-EURIBOR-3M-IMM-EUREX' contract.

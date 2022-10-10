@@ -29,7 +29,6 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
  */
 final class StandardOvernightFutureContractSpecs {
 
-
   /**
    * The 'CHF_SARON_3M_IMM_ICE' convention.
    * "SA3"
@@ -57,7 +56,6 @@ final class StandardOvernightFutureContractSpecs {
           .lastTradeDateAdjustment(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, CHZU)))
           .notional(1_000_000d)
           .build();
-
 
   /**
    * The 'EUR_ESTR_1M_IMM_ICE' convention.
