@@ -381,7 +381,7 @@ public class OvernightFutureContractSpecTest {
   @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> OvernightFutureContractSpec.of((String) null));
+        .isThrownBy(() -> OvernightFutureContractSpec.of(null));
   }
 
   //-------------------------------------------------------------------------
