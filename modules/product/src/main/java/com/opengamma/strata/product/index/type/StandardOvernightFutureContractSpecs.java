@@ -138,7 +138,7 @@ final class StandardOvernightFutureContractSpecs {
           .index(GBP_SONIA)
           .dateSequence(MONTHLY_IMM)
           .accrualMethod(AVERAGED_DAILY)
-          .notional(1_000_000d)
+          .notional(3_000_000d)
           .build();
 
   /**
@@ -170,7 +170,7 @@ final class StandardOvernightFutureContractSpecs {
           .index(USD_SOFR)
           .dateSequence(MONTHLY_IMM)
           .accrualMethod(COMPOUNDED)
-          .notional(4_167d)
+          .notional(5_000_000d)
           .build();
 
   /**
