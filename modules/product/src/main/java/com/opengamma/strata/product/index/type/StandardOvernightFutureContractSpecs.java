@@ -156,7 +156,6 @@ final class StandardOvernightFutureContractSpecs {
           .build();
 
   //-------------------------------------------------------------------------
-
   /**
    * The 'USD-SOFR-3M-IMM-CME' convention.
    * <p>
