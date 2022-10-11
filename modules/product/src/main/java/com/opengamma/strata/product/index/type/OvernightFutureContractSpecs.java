@@ -18,7 +18,6 @@ public final class OvernightFutureContractSpecs {
   static final ExtendedEnum<OvernightFutureContractSpec> ENUM_LOOKUP = ExtendedEnum.of(OvernightFutureContractSpec.class);
 
   //-------------------------------------------------------------------------
-
   /**
    * The 'GBP-SONIA-3M-IMM-CME' contract.
    * <p>
