@@ -45,7 +45,7 @@ final class StandardOvernightFutureContractSpecs {
           .dateSequence(QUARTERLY_IMM_6_SERIAL)
           .accrualMethod(COMPOUNDED)
           .lastTradeDateAdjustment(DaysAdjustment.ofBusinessDays(1, CHZU, BusinessDayAdjustment.of(PRECEDING, CHZU)))
-          .notional(2_500d)
+          .notional(1_000_000d)
           .build();
 
   /**
@@ -138,7 +138,7 @@ final class StandardOvernightFutureContractSpecs {
           .index(GBP_SONIA)
           .dateSequence(MONTHLY_IMM)
           .accrualMethod(AVERAGED_DAILY)
-          .notional(2_500d)
+          .notional(1_000_000d)
           .build();
 
   /**
@@ -186,7 +186,7 @@ final class StandardOvernightFutureContractSpecs {
           .index(USD_SOFR)
           .dateSequence(QUARTERLY_IMM)
           .accrualMethod(COMPOUNDED)
-          .notional(2_500d)
+          .notional(1_000_000d)
           .build();
 
   /**
