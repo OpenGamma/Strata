@@ -33,10 +33,10 @@ final class StandardOvernightFutureContractSpecs {
   /**
    * The 'CHF_SARON_3M_IMM_ICE' convention.
    * <p>
-   *  https://www.theice.com/products/72270612/Three-Month-Saron-Index-Futures-Contract
-   *  <p>
-   *  Contract code "SA3"
-   *  16 delivery months are available for trading
+   * https://www.theice.com/products/72270612/Three-Month-Saron-Index-Futures-Contract
+   * <p>
+   * Contract code "SA3"
+   * 16 delivery months are available for trading
    */
   public static final OvernightFutureContractSpec CHF_SARON_3M_IMM_ICE =
       ImmutableOvernightFutureContractSpec.builder()
@@ -100,7 +100,10 @@ final class StandardOvernightFutureContractSpecs {
 
   /**
    * The 'GBP-SONIA-3M-IMM-ICE' convention.
+   * <p>
    * https://www.theice.com/products/68361266/Three-Month-Sonia-Index-Futures
+   * <p>
+   * Contract code "SO3"
    */
   public static final OvernightFutureContractSpec GBP_SONIA_3M_IMM_ICE =
       ImmutableOvernightFutureContractSpec.builder()
@@ -127,16 +130,13 @@ final class StandardOvernightFutureContractSpecs {
 
   /**
    * The 'GBP-SONIA-1M-ICE' convention.
-   * <p>
    * https://www.theice.com/products/66380299/One-Month-SONIA-Index-Futures
-   * <p>
-   * Contract code "SO3"
    */
   public static final OvernightFutureContractSpec GBP_SONIA_1M_ICE =
       ImmutableOvernightFutureContractSpec.builder()
           .name("GBP-SONIA-1M-ICE")
           .index(GBP_SONIA)
-          .dateSequence(MONTHLY_IMM)
+          .dateSequence(MONTHLY_1ST)
           .accrualMethod(AVERAGED_DAILY)
           .notional(3_000_000d)
           .build();
@@ -232,8 +232,8 @@ final class StandardOvernightFutureContractSpecs {
   /**
    * The 'USD-FED-FUND-1M-CME' convention.
    * https://www.cmegroup.com/trading/interest-rates/stir/30-day-federal-fund_contract_specifications.html
-   *
-   * "ZQ"
+   * <p>
+   * Contract code "ZQ"
    */
   public static final OvernightFutureContractSpec USD_FED_FUND_1M_CME =
       ImmutableOvernightFutureContractSpec.builder()
