@@ -66,12 +66,13 @@ final class StandardIborFutureContractSpecs {
    * The 'EUR-EURIBOR-3M-IMM-EUREX' contract.
    * <p>
    * The EUREX "FEU3" contract based on quarterly IMM dates, also known as "FEU3".
+   * https://www.eurex.com/ex-en/markets/int/mon/packs-bundles/euribor/Three-Month-EURIBOR-Futures-137458
    */
   public static final IborFutureContractSpec EUR_EURIBOR_3M_IMM_EUREX =
       ImmutableIborFutureContractSpec.builder()
           .name("EUR-EURIBOR-3M-IMM-ICE")
           .index(EUR_EURIBOR_3M)
-          .dateSequence(QUARTERLY_IMM_6_SERIAL) //TODO check
+          .dateSequence(QUARTERLY_IMM_6_SERIAL)
           .notional(1_000_000d)
           .build();
   //-------------------------------------------------------------------------
@@ -79,12 +80,14 @@ final class StandardIborFutureContractSpecs {
    * The 'USD-LIBOR-1M-IMM-CME' contract.
    * <p>
    * The CME "GLB" contract based on monthly IMM dates.
+   * https://www.cmegroup.com/markets/interest-rates/stirs/1-month-libor.contractSpecs.html
+   *
    */
   public static final IborFutureContractSpec USD_LIBOR_1M_IMM_CME =
       ImmutableIborFutureContractSpec.builder()
           .name("USD-LIBOR-1M-IMM-CME")
           .index(USD_LIBOR_1M)
-          .dateSequence(MONTHLY_IMM) //TODO check
+          .dateSequence(MONTHLY_IMM)
           .notional(1_000_000d)
           .build();
 
@@ -93,6 +96,7 @@ final class StandardIborFutureContractSpecs {
    * The 'USD-LIBOR-3M-IMM-CME' contract.
    * <p>
    * The CME "ED" contract based on quarterly IMM dates.
+   * https://www.cmegroup.com/markets/interest-rates/stirs/eurodollar.contractSpecs.html
    */
   public static final IborFutureContractSpec USD_LIBOR_3M_IMM_CME =
       ImmutableIborFutureContractSpec.builder()
