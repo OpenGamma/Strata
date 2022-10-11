@@ -49,7 +49,7 @@ final class StandardOvernightFutureContractSpecs {
           .build();
 
   /**
-   * The 'CHF_SARON_3M_IMM_ICE' convention.
+   * The 'CHF_SARON_3M_IMM_EUREX' convention.
    * <p>
    * https://www.eurex.com/ex-en/markets/int/mon/saron-futures/saron/3M-SARON-Futures-1405958
    * <p>
