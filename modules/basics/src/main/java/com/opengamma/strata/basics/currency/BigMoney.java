@@ -420,17 +420,6 @@ public class BigMoney
     return isPositive() ? negated() : this;
   }
 
-  /**
-   * Returns a copy of this {@code BigMoney} with an abs amount.
-   * <p>
-   * This instance is immutable and unaffected by this method.
-   *
-   * @return an abs amount
-   */
-  public BigMoney abs() {
-    return new BigMoney(currency, amount.abs());
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Converts this monetary amount to the equivalent {@code CurrencyAmount}.

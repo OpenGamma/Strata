@@ -101,12 +101,6 @@ public class BigMoneyTest {
   }
 
   @Test
-  public void testAbs() {
-    assertThat(BigMoney.of(GBP, 123).abs()).isEqualTo(BigMoney.of(GBP, 123));
-    assertThat(BigMoney.of(GBP, -123).abs()).isEqualTo(BigMoney.of(GBP, 123));
-  }
-
-  @Test
   public void testCompare() {
     assertTrue(BigMoney.of(GBP, 1.000009d).isGreaterThan(BigMoney.of(GBP, 1d)));
     assertTrue(BigMoney.of(GBP, 1.000009d).isGreaterThanEqualTo(BigMoney.of(GBP, 1d)));
