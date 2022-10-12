@@ -27,6 +27,30 @@ public final class OvernightFutureContractSpecs {
       OvernightFutureContractSpec.of(StandardOvernightFutureContractSpecs.GBP_SONIA_3M_IMM_CME.getName());
 
   /**
+   * The 'CHF-SARON-3M-IMM-CME' contract.
+   * <p>
+   * The ICE "SA3" contract based on quarterly IMM dates.
+   */
+  public static final OvernightFutureContractSpec CHF_SARON_3M_IMM_ICE =
+      OvernightFutureContractSpec.of(StandardOvernightFutureContractSpecs.CHF_SARON_3M_IMM_ICE.getName());
+
+  /**
+   * The 'GBP-CHF-SARON-3M-IMM-EUREX' contract.
+   * <p>
+   * The EUREX "FSR3" contract based on quarterly IMM dates.
+   */
+  public static final OvernightFutureContractSpec CHF_SARON_3M_IMM_EUREX =
+      OvernightFutureContractSpec.of(StandardOvernightFutureContractSpecs.CHF_SARON_3M_IMM_EUREX.getName());
+
+  /**
+   * The 'EUR_ESTR_1M_IMM_ICE' contract.
+   * <p>
+   * The ICE "EON" contract based on quarterly IMM dates.
+   */
+  public static final OvernightFutureContractSpec EUR_ESTR_1M_IMM_ICE =
+      OvernightFutureContractSpec.of(StandardOvernightFutureContractSpecs.EUR_ESTR_1M_IMM_ICE.getName());
+
+  /**
    * The 'GBP-SONIA-3M-IMM-ICE' contract.
    * <p>
    * The ICE "SO3" contract based on quarterly IMM dates.
@@ -61,6 +85,14 @@ public final class OvernightFutureContractSpecs {
       OvernightFutureContractSpec.of(StandardOvernightFutureContractSpecs.GBP_SONIA_1M_IMM_LCH.getName());
 
   //-------------------------------------------------------------------------
+  /**
+   * The 'USD-SOFR-1M-IMM-CME' convention.
+   * <p>
+   * The CME "SR1" contract based on monthly IMM dates.
+   */
+  public static final OvernightFutureContractSpec USD_SOFR_1M_IMM_CME =
+      OvernightFutureContractSpec.of(StandardOvernightFutureContractSpecs.USD_SOFR_1M_IMM_CME.getName());
+
   /**
    * The 'USD-SOFR-3M-IMM-CME' contract.
    * <p>
