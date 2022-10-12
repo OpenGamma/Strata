@@ -6,11 +6,16 @@
 package com.opengamma.strata.product.index.type;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.strata.basics.date.DateSequences.MONTHLY_1ST;
 import static com.opengamma.strata.basics.date.DateSequences.MONTHLY_IMM;
 import static com.opengamma.strata.basics.date.DateSequences.QUARTERLY_IMM;
 import static com.opengamma.strata.basics.date.DateSequences.QUARTERLY_IMM_6_SERIAL;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.CHZU;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.index.OvernightIndices.CHF_SARON;
+import static com.opengamma.strata.basics.index.OvernightIndices.EUR_ESTR;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_SOFR;
@@ -24,6 +29,60 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
  * Commonly traded Overnight future contract specifications.
  */
 final class StandardOvernightFutureContractSpecs {
+
+  /**
+   * The 'CHF_SARON_3M_IMM_ICE' convention.
+   * <p>
+   * https://www.theice.com/products/72270612/Three-Month-Saron-Index-Futures-Contract
+   * <p>
+   * Contract code "SA3"
+   * 16 delivery months are available for trading
+   */
+  public static final OvernightFutureContractSpec CHF_SARON_3M_IMM_ICE =
+      ImmutableOvernightFutureContractSpec.builder()
+          .name("CHF-SARON-3M-IMM-ICE")
+          .index(CHF_SARON)
+          .dateSequence(QUARTERLY_IMM_6_SERIAL)
+          .accrualMethod(COMPOUNDED)
+          .lastTradeDateAdjustment(DaysAdjustment.ofBusinessDays(1, CHZU, BusinessDayAdjustment.of(PRECEDING, CHZU)))
+          .notional(1_000_000d)
+          .build();
+
+  /**
+   * The 'CHF_SARON_3M_IMM_EUREX' convention.
+   * <p>
+   * https://www.eurex.com/ex-en/markets/int/mon/saron-futures/saron/3M-SARON-Futures-1405958
+   * <p>
+   * Contract code "FSR3"
+   * 12 delivery months are available for trading
+   */
+  public static final OvernightFutureContractSpec CHF_SARON_3M_IMM_EUREX =
+      ImmutableOvernightFutureContractSpec.builder()
+          .name("CHF-SARON-3M-IMM-EUREX")
+          .index(CHF_SARON)
+          .dateSequence(QUARTERLY_IMM)
+          .accrualMethod(COMPOUNDED)
+          .lastTradeDateAdjustment(DaysAdjustment.ofBusinessDays(1, CHZU, BusinessDayAdjustment.of(PRECEDING, CHZU)))
+          .notional(1_000_000d)
+          .build();
+
+  /**
+   * The 'EUR_ESTR_1M_IMM_ICE' convention.
+   * <p>
+   * https://www.theice.com/products/37650328/One-Month-ESTR-Index-Futures
+   * <p>
+   * Contract code "EON"
+   * Maximum of 24 delivery months available for trading
+   */
+  public static final OvernightFutureContractSpec EUR_ESTR_1M_IMM_ICE =
+      ImmutableOvernightFutureContractSpec.builder()
+          .name("EUR-ESTR-1M-IMM-ICE")
+          .index(EUR_ESTR)
+          .dateSequence(MONTHLY_IMM)
+          .accrualMethod(COMPOUNDED)
+          .lastTradeDateAdjustment(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, EUTA)))
+          .notional(1_000_000d)
+          .build();
 
   /**
    * The 'GBP-SONIA-3M-IMM-CME' convention.
@@ -41,7 +100,10 @@ final class StandardOvernightFutureContractSpecs {
 
   /**
    * The 'GBP-SONIA-3M-IMM-ICE' convention.
+   * <p>
    * https://www.theice.com/products/68361266/Three-Month-Sonia-Index-Futures
+   * <p>
+   * Contract code "SO3"
    */
   public static final OvernightFutureContractSpec GBP_SONIA_3M_IMM_ICE =
       ImmutableOvernightFutureContractSpec.builder()
@@ -96,7 +158,26 @@ final class StandardOvernightFutureContractSpecs {
   //-------------------------------------------------------------------------
   /**
    * The 'USD-SOFR-3M-IMM-CME' convention.
+   * <p>
    * https://www.cmegroup.com/trading/interest-rates/stir/three-month-sofr_contract_specifications.html
+   * <p>
+   * Contract code "SR1"
+   */
+  public static final OvernightFutureContractSpec USD_SOFR_1M_IMM_CME =
+      ImmutableOvernightFutureContractSpec.builder()
+          .name("USD-SOFR-1M-IMM-CME")
+          .index(USD_SOFR)
+          .dateSequence(MONTHLY_IMM)
+          .accrualMethod(COMPOUNDED)
+          .notional(5_000_000d)
+          .build();
+
+  /**
+   * The 'USD-SOFR-3M-IMM-CME' convention.
+   * <p>
+   * https://www.cmegroup.com/trading/interest-rates/stir/three-month-sofr_contract_specifications.html
+   * <p>
+   * Contract code "SR3"
    */
   public static final OvernightFutureContractSpec USD_SOFR_3M_IMM_CME =
       ImmutableOvernightFutureContractSpec.builder()
@@ -150,6 +231,8 @@ final class StandardOvernightFutureContractSpecs {
   /**
    * The 'USD-FED-FUND-1M-CME' convention.
    * https://www.cmegroup.com/trading/interest-rates/stir/30-day-federal-fund_contract_specifications.html
+   * <p>
+   * Contract code "ZQ"
    */
   public static final OvernightFutureContractSpec USD_FED_FUND_1M_CME =
       ImmutableOvernightFutureContractSpec.builder()

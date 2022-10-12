@@ -28,6 +28,14 @@ public final class IborFutureContractSpecs {
 
   //-------------------------------------------------------------------------
   /**
+   * The 'EUR-EURIBOR-3M-IMM-EUREX' contract.
+   * <p>
+   * The EUREX contract based on quarterly IMM dates, also known as "FEU3".
+   */
+  public static final IborFutureContractSpec EUR_EURIBOR_3M_IMM_EUREX =
+      IborFutureContractSpec.of(StandardIborFutureContractSpecs.EUR_EURIBOR_3M_IMM_EUREX.getName());
+
+  /**
    * The 'EUR-EURIBOR-3M-IMM-ICE' contract.
    * <p>
    * The ICE "I" contract based on quarterly IMM dates, also known as "FEI".
@@ -36,6 +44,14 @@ public final class IborFutureContractSpecs {
       IborFutureContractSpec.of(StandardIborFutureContractSpecs.EUR_EURIBOR_3M_IMM_ICE.getName());
 
   //-------------------------------------------------------------------------
+  /**
+   * The 'USD-LIBOR-3M-IMM-CME' contract.
+   * <p>
+   * The CME "GLB" contract based on monthly IMM dates.
+   */
+  public static final IborFutureContractSpec USD_LIBOR_1M_IMM_CME =
+      IborFutureContractSpec.of(StandardIborFutureContractSpecs.USD_LIBOR_1M_IMM_CME.getName());
+
   /**
    * The 'USD-LIBOR-3M-IMM-CME' contract.
    * <p>
