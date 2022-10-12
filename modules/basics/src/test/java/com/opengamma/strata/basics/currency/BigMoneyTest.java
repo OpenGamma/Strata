@@ -6,10 +6,14 @@
 package com.opengamma.strata.basics.currency;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import org.junit.jupiter.api.Test;
 
@@ -94,6 +98,75 @@ public class BigMoneyTest {
         .isEqualTo(BigMoney.of(GBP, Decimal.of("12.30")));
     assertThat(a.mapAmount(amount -> amount.multiply(BigDecimal.TEN)))
         .isEqualTo(BigMoney.of(GBP, Decimal.of("12.30")));
+  }
+
+  @Test
+  public void testCompare() {
+    assertTrue(BigMoney.of(GBP, 1.000009d).isGreaterThan(BigMoney.of(GBP, 1d)));
+    assertTrue(BigMoney.of(GBP, 1.000009d).isGreaterThanEqualTo(BigMoney.of(GBP, 1d)));
+    assertTrue(BigMoney.of(GBP, 1d).isGreaterThanEqualTo(BigMoney.of(GBP, 1d)));
+    assertFalse(BigMoney.of(GBP, 1d).isGreaterThan(BigMoney.of(GBP, 1.000009d)));
+    assertFalse(BigMoney.of(GBP, 1d).isGreaterThanEqualTo(BigMoney.of(GBP, 1.000009d)));
+
+    assertTrue(BigMoney.of(GBP, 9.99999999).isLessThan(BigMoney.of(GBP, 10d)));
+    assertTrue(BigMoney.of(GBP, 9.99999999).isLessThanEqualTo(BigMoney.of(GBP, 10d)));
+    assertTrue(BigMoney.of(GBP, 10d).isLessThanEqualTo(BigMoney.of(GBP, 10d)));
+    assertFalse(BigMoney.of(GBP, 10d).isLessThan(BigMoney.of(GBP, 9.999999999d)));
+    assertFalse(BigMoney.of(GBP, 10d).isLessThanEqualTo(BigMoney.of(GBP, 9.999999999d)));
+  }
+
+  @Test
+  public void testCompareWithDifferentCurrencies() {
+    String expectedErrorMessage = "Unable to compare amounts in different currencies";
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BigMoney.of(GBP, 1.000009d).isGreaterThan(BigMoney.of(USD, 1d)))
+        .withMessage(expectedErrorMessage);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BigMoney.of(GBP, 1.000009d).isGreaterThanEqualTo(BigMoney.of(USD, 1d)))
+        .withMessage(expectedErrorMessage);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BigMoney.of(GBP, 10d).isLessThanEqualTo(BigMoney.of(USD, 9.999999d)))
+        .withMessage(expectedErrorMessage);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BigMoney.of(GBP, 10d).isLessThanEqualTo(BigMoney.of(USD, 9.999999d)))
+        .withMessage(expectedErrorMessage);
+  }
+
+  @Test
+  public void testRoundingWithPositiveScale() {
+    // round up
+    assertThat(BigMoney.of(GBP, 1.441).roundToScale(2, RoundingMode.CEILING))
+        .isEqualTo(BigMoney.of(GBP, 1.45));
+    assertThat(BigMoney.of(GBP, 1.441).roundToScale(2, RoundingMode.UP))
+        .isEqualTo(BigMoney.of(GBP, 1.45));
+    assertThat(BigMoney.of(GBP, 1.446).roundToScale(2, RoundingMode.HALF_UP))
+        .isEqualTo(BigMoney.of(GBP, 1.45));
+
+    // round down
+    assertThat(BigMoney.of(GBP, 1.449).roundToScale(2, RoundingMode.FLOOR))
+        .isEqualTo(BigMoney.of(GBP, 1.44));
+    assertThat(BigMoney.of(GBP, 1.449).roundToScale(2, RoundingMode.DOWN))
+        .isEqualTo(BigMoney.of(GBP, 1.44));
+    assertThat(BigMoney.of(GBP, 1.444).roundToScale(2, RoundingMode.HALF_DOWN))
+        .isEqualTo(BigMoney.of(GBP, 1.44));
+  }
+
+  @Test
+  public void testRoundingWithNegativeScale() {
+    // round up
+    assertThat(BigMoney.of(GBP, 780_001).roundToScale(-3, RoundingMode.CEILING))
+        .isEqualTo(BigMoney.of(GBP, 781_000));
+    assertThat(BigMoney.of(GBP, 780_001).roundToScale(-2, RoundingMode.UP))
+        .isEqualTo(BigMoney.of(GBP, 780_100));
+    assertThat(BigMoney.of(GBP, 780_005).roundToScale(-1, RoundingMode.HALF_UP))
+        .isEqualTo(BigMoney.of(GBP, 780_010));
+    // round down
+    assertThat(BigMoney.of(GBP, 780_999).roundToScale(-3, RoundingMode.FLOOR))
+        .isEqualTo(BigMoney.of(GBP, 780_000));
+    assertThat(BigMoney.of(GBP, 780_699).roundToScale(-2, RoundingMode.DOWN))
+        .isEqualTo(BigMoney.of(GBP, 780_600));
+    assertThat(BigMoney.of(GBP, 780_234).roundToScale(-1, RoundingMode.HALF_DOWN))
+        .isEqualTo(BigMoney.of(GBP, 780_230));
   }
 
   //-------------------------------------------------------------------------

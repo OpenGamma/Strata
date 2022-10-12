@@ -8,6 +8,8 @@ package com.opengamma.strata.collect;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -595,6 +597,21 @@ public class DecimalTest {
     assertThat(Decimal.ofScaled(123, 2).signum()).isEqualTo(1);
     assertThat(Decimal.ZERO.signum()).isZero();
     assertThat(Decimal.ofScaled(-123, 2).signum()).isEqualTo(-1);
+  }
+
+  @Test
+  public void testComparison() {
+    assertTrue(Decimal.of(1.000009d).isGreaterThan(Decimal.of(1d)));
+    assertTrue(Decimal.of(1.000009d).isGreaterThanEqualTo(Decimal.of(1d)));
+    assertTrue(Decimal.of(1d).isGreaterThanEqualTo(Decimal.of(1d)));
+    assertFalse(Decimal.of(1d).isGreaterThan(Decimal.of(1.000009d)));
+    assertFalse(Decimal.of(1d).isGreaterThanEqualTo(Decimal.of(1.000009d)));
+
+    assertTrue(Decimal.of(9.99999999).isLessThan(Decimal.of(10d)));
+    assertTrue(Decimal.of(9.99999999).isLessThanEqualTo(Decimal.of(10d)));
+    assertTrue(Decimal.of(10d).isLessThanEqualTo(Decimal.of(10d)));
+    assertFalse(Decimal.of(10d).isLessThan(Decimal.of(9.999999999d)));
+    assertFalse(Decimal.of(10d).isLessThanEqualTo(Decimal.of(9.999999999d)));
   }
 
   //-------------------------------------------------------------------------

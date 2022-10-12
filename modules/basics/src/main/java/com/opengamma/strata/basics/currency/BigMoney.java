@@ -279,6 +279,74 @@ public class BigMoney
 
   //-------------------------------------------------------------------------
   /**
+   * Checks if this amount is greater than the other amount.
+   *
+   * @param otherAmount the other amount
+   * @return true if this amount is greater than the other amount
+   * @throws IllegalArgumentException if the currencies are not equal
+   */
+  public boolean isGreaterThan(BigMoney otherAmount) {
+    ArgChecker.notNull(otherAmount, "other");
+    ArgChecker.isTrue(otherAmount.getCurrency().equals(currency), "Unable to compare amounts in different currencies");
+    return amount.isGreaterThan(otherAmount.getValue());
+  }
+
+  /**
+   * Checks if this amount is greater than or equal to the other amount.
+   *
+   * @param otherAmount the other amount
+   * @return true if this amount is greater than or equal to the other amount
+   * @throws IllegalArgumentException if the currencies are not equal
+   */
+  public boolean isGreaterThanEqualTo(BigMoney otherAmount) {
+    ArgChecker.notNull(otherAmount, "otherAmount");
+    ArgChecker.isTrue(otherAmount.getCurrency().equals(currency), "Unable to compare amounts in different currencies");
+    return amount.isGreaterThanEqualTo(otherAmount.getValue());
+  }
+
+  /**
+   * Checks if this amount is less than the other amount.
+   *
+   * @param otherAmount the other amount
+   * @return true if this amount is less than the other amount
+   * @throws IllegalArgumentException if the currencies are not equal
+   */
+  public boolean isLessThan(BigMoney otherAmount) {
+    ArgChecker.notNull(otherAmount, "otherAmount");
+    ArgChecker.isTrue(otherAmount.getCurrency().equals(currency), "Unable to compare amounts in different currencies");
+    return amount.isLessThan(otherAmount.getValue());
+  }
+
+  /**
+   * Checks if this amount is less than or equal to the other amount.
+   *
+   * @param otherAmount the other amount
+   * @return true if this amount is less than or equal to the other amount
+   * @throws IllegalArgumentException if the currencies are not equal
+   */
+  public boolean isLessThanEqualTo(BigMoney otherAmount) {
+    ArgChecker.notNull(otherAmount, "otherAmount");
+    ArgChecker.isTrue(otherAmount.getCurrency().equals(currency), "Unable to compare amounts in different currencies");
+    return amount.isLessThanEqualTo(otherAmount.getValue());
+  }
+
+  /**
+   * Returns a copy of this {@code BigMoney} with the amount rounded to the specified scale.
+   * <p>
+   * The underlying amount will be rounded using {@link Decimal#roundToScale(int, RoundingMode)}
+   * <p>
+   * This instance is immutable and unaffected by this method.
+   *
+   * @param desiredScale  the scale, positive for decimal places, negative to round the integer-part
+   * @param roundingMode  the rounding mode
+   * @return the rounded amount
+   * @throws IllegalArgumentException if the scale is -18 or less
+   */
+  public BigMoney roundToScale(int desiredScale, RoundingMode roundingMode) {
+    return new BigMoney(currency, amount.roundToScale(desiredScale, roundingMode));
+  }
+
+  /**
    * Checks if the amount is zero.
    * 
    * @return true if zero

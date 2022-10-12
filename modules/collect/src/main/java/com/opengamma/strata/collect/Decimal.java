@@ -906,6 +906,46 @@ public final class Decimal implements Serializable, Comparable<Decimal> {
     return roundToScale(decimalPlaces, roundingMode).format0(decimalPlaces);
   }
 
+  /**
+   * States if this decimal is greater than the other decimal.
+   *
+   * @param other the other decimal
+   * @return true if this is greater than the other
+   */
+  public boolean isGreaterThan(Decimal other) {
+    return compareTo(other) > 0;
+  }
+
+  /**
+   * States if this decimal is greater than or equal to the other decimal.
+   *
+   * @param other the other decimal
+   * @return true if this is greater than or equal to the other
+   */
+  public boolean isGreaterThanEqualTo(Decimal other) {
+    return compareTo(other) >= 0;
+  }
+
+  /**
+   * States if this decimal is less than the other decimal.
+   *
+   * @param other the other decimal
+   * @return true if this is less than the other
+   */
+  public boolean isLessThan(Decimal other) {
+    return compareTo(other) < 0;
+  }
+
+  /**
+   * States if this decimal is less than or equal to the other decimal.
+   *
+   * @param other the other decimal
+   * @return true if this is less than or equal to the other
+   */
+  public boolean isLessThanEqualTo(Decimal other) {
+    return compareTo(other) <= 0;
+  }
+
   // formats the string
   private String format0(int decimalPlaces) {
     // split 78345 into whole and fraction: 78 and 345
