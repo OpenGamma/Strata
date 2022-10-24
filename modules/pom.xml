@@ -772,7 +772,7 @@
     <joda-beans.version>2.8.3</joda-beans.version>
     <joda.beans.version>${joda-beans.version}</joda.beans.version>
     <junit5.version>5.9.0</junit5.version>
-    <mockito.version>4.8.0</mockito.version>
+    <mockito.version>4.8.1</mockito.version>
     <slf4j.version>1.7.36</slf4j.version>
     <!-- Versions after M3 cause RequireFilesExist to reject relative paths -->
     <extra-enforcer-rules.version>1.2</extra-enforcer-rules.version>
