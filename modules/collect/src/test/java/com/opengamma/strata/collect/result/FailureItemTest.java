@@ -29,6 +29,7 @@ public class FailureItemTest {
     assertThat(test.getStackTrace()).doesNotContain(".Failure.of(");
     assertThat(test.getStackTrace()).startsWith("com.opengamma.strata.collect.result.FailureItem: my big bad failure");
     assertThat(test.getStackTrace()).contains(".test_of_reasonMessage(");
+    assertThat(test.summarizeStackTrace()).isEmpty();
     assertThat(test.toString()).isEqualTo("INVALID: my big bad failure");
   }
 
@@ -41,6 +42,7 @@ public class FailureItemTest {
         .set("stackTrace", "Short stack trace")
         .set("causeType", IllegalArgumentException.class)
         .build();
+    assertThat(test.summarizeStackTrace()).hasValue("Short stack trace");
     assertThat(test.toString()).isEqualTo("INVALID: my issue: Short stack trace");
   }
 
@@ -54,6 +56,7 @@ public class FailureItemTest {
     assertThat(test.getCauseType()).isPresent();
     assertThat(test.getCauseType()).hasValue(IllegalArgumentException.class);
     assertThat(test.getStackTrace()).contains(".test_of_reasonException(");
+    assertThat(test.summarizeStackTrace()).hasValue("java.lang.IllegalArgumentException");
     assertThat(test.toString()).isEqualTo("INVALID: exmsg: java.lang.IllegalArgumentException");
   }
 
@@ -66,6 +69,7 @@ public class FailureItemTest {
     assertThat(test.getCauseType().isPresent()).isEqualTo(true);
     assertThat(test.getCauseType()).hasValue(NoClassDefFoundError.class);
     assertThat(test.getStackTrace()).contains(".test_of_reasonError(");
+    assertThat(test.summarizeStackTrace()).hasValue("java.lang.NoClassDefFoundError");
     assertThat(test.toString()).isEqualTo("INVALID: exmsg: java.lang.NoClassDefFoundError");
   }
 
@@ -79,6 +83,7 @@ public class FailureItemTest {
     assertThat(test.getCauseType()).isPresent();
     assertThat(test.getCauseType()).hasValue(IllegalArgumentException.class);
     assertThat(test.getStackTrace()).contains(".test_of_reasonMessageException(");
+    assertThat(test.summarizeStackTrace()).hasValue("java.lang.IllegalArgumentException: exmsg");
     assertThat(test.toString()).isEqualTo("INVALID: my failure: java.lang.IllegalArgumentException: exmsg");
   }
 
