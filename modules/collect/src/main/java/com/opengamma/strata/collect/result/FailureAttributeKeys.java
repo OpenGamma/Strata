@@ -38,6 +38,10 @@ public final class FailureAttributeKeys {
    */
   public static final String VALUE = "value";
   /**
+   * The attribute for the name of the parameter.
+   */
+  public static final String PARAM = "param";
+  /**
    * The attribute for the type that caused the failure.
    */
   public static final String TYPE = "type";
