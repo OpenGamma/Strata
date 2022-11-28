@@ -26,6 +26,7 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_FIEL
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -38,6 +39,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.loader.LoaderUtils;
+import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
@@ -126,7 +128,7 @@ class FxSwapTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin
 
   // parses the trade
   private static FxSwapTrade parseRow(CsvRow row, TradeInfo info) {
-    if (row.findValue(CONVENTION_FIELD).isPresent() || row.findValue(BUY_SELL_FIELD).isPresent()) {
+    if (row.findValue(CONVENTION_FIELD).isPresent()) {
       return parseConvention(row, info);
     } else {
       return parseFull(row, info);
@@ -151,25 +153,35 @@ class FxSwapTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin
     FxSwap fx = paymentAdj
         .map(adj -> FxSwap.of(amount, nearRate, nearPaymentDate, farRate, farPaymentDate, adj))
         .orElseGet(() -> FxSwap.of(amount, nearRate, nearPaymentDate, farRate, farPaymentDate));
-    return FxSwapTrade.of(info, fx);
+    return FxSwapTrade.of(info.withAttribute(AttributeType.BUY_SELL, buySell), fx);
   }
 
   // parse full definition
   private static FxSwapTrade parseFull(CsvRow row, TradeInfo info) {
+    Optional<BuySell> buySellOpt = row.findValue(BUY_SELL_FIELD).map(LoaderUtils::parseBuySell);
     FxSingle nearFx = FxSingleTradeCsvPlugin.parseFxSingle(row, "");
     FxSingle farFx = FxSingleTradeCsvPlugin.parseFxSingle(row, "Far ");
-    return FxSwapTrade.of(info, FxSwap.of(nearFx, farFx));
+    TradeInfo updatedInfo = buySellOpt.map(buySell -> info.withAttribute(AttributeType.BUY_SELL, buySell)).orElse(info);
+    return FxSwapTrade.of(updatedInfo, FxSwap.of(nearFx, farFx));
   }
 
   //-------------------------------------------------------------------------
   @Override
   public Set<String> headers(List<FxSwapTrade> trades) {
+    if (trades.stream()
+        .anyMatch(trade -> trade.getInfo().findAttribute(AttributeType.BUY_SELL).isPresent())) {
+      LinkedHashSet<String> headers = new LinkedHashSet<>();
+      headers.add(BUY_SELL_FIELD);
+      headers.addAll(HEADERS);
+      return headers;
+    }
     return HEADERS;
   }
 
   @Override
   public void writeCsv(CsvRowOutputWithHeaders csv, FxSwapTrade trade) {
     csv.writeCell(TRADE_TYPE_FIELD, "FxSwap");
+    trade.getInfo().findAttribute(AttributeType.BUY_SELL).ifPresent(buySell -> csv.writeCell(BUY_SELL_FIELD, buySell));
     CsvWriterUtils.writeFxSingle(csv, "", trade.getProduct().getNearLeg());
     CsvWriterUtils.writeFxSingle(csv, FAR, trade.getProduct().getFarLeg());
     csv.writeNewLine();

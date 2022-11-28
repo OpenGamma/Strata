@@ -203,6 +203,7 @@ public class TradeCsvLoaderTest {
             .tradeDate(LocalDate.parse("2016-12-06"))
             .id(StandardId.of("OG", "tradeId1"))
             .addAttribute(AttributeType.CCP, CcpIds.CME)
+            .addAttribute(AttributeType.BUY_SELL, SELL)
             .build())
         .product(FxSingle.of(
             CurrencyAmount.of(USD, -3850000),
@@ -217,6 +218,7 @@ public class TradeCsvLoaderTest {
             .tradeDate(LocalDate.parse("2016-12-22"))
             .id(StandardId.of("OG", "tradeId2"))
             .addAttribute(AttributeType.CCP, CcpIds.CME)
+            .addAttribute(AttributeType.BUY_SELL, BUY)
             .build())
         .product(FxSingle.of(CurrencyAmount.of(EUR, 1920000), FxRate.of(EUR, CZK, 25.62), LocalDate.parse("2016-12-24")))
         .build();
@@ -334,6 +336,7 @@ public class TradeCsvLoaderTest {
             .tradeDate(LocalDate.parse("2016-12-06"))
             .id(StandardId.of("OG", "tradeId11"))
             .addAttribute(AttributeType.CCP, CcpIds.CME)
+            .addAttribute(AttributeType.BUY_SELL, BUY)
             .build())
         .product(FxSwap.of(near1, far1))
         .build();
@@ -346,6 +349,7 @@ public class TradeCsvLoaderTest {
             .tradeDate(LocalDate.parse("2016-12-06"))
             .id(StandardId.of("OG", "tradeId12"))
             .addAttribute(AttributeType.CCP, CcpIds.CME)
+            .addAttribute(AttributeType.BUY_SELL, SELL)
             .build())
         .product(FxSwap.of(near2, far2))
         .build();
