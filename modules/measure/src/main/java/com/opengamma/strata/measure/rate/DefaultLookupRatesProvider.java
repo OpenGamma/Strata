@@ -65,7 +65,7 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
  * This uses a {@link DefaultRatesMarketDataLookup} to provide a view on {@link MarketData}.
  */
 @BeanDefinition(style = "light")
-final class DefaultLookupRatesProvider
+public final class DefaultLookupRatesProvider
     implements RatesProvider, ImmutableBean, Serializable {
 
   /**
