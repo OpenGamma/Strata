@@ -8,6 +8,7 @@ package com.opengamma.strata.product.bond;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.named.EnumNames;
 import com.opengamma.strata.collect.named.NamedEnum;
 
@@ -133,5 +134,23 @@ public enum BillYieldConvention implements NamedEnum {
    * @return the yield
    */
   public abstract double yieldFromPrice(double price, double accrualFactor);
+  //
+  ///**
+  // * Computes the price from a yield and an accrual factor and its derivative wrt the yield.
+  // *
+  // * @param yield  the yield
+  // * @param accrualFactor  the accrual factor
+  // * @return the price and derivative
+  // */
+  //public abstract double priceFromYieldAd(double yield, double accrualFactor);
+  //
+  ///**
+  // * Computes the yield from a price and an accrual factor and its derivative wrt the price.
+  // *
+  // * @param price the price
+  // * @param accrualFactor the accrual factor
+  // * @return the yield and derivative
+  // */
+  //public abstract ValueDerivatives yieldFromPriceAd(double price, double accrualFactor);
 
 }
