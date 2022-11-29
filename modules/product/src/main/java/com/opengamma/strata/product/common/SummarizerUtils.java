@@ -167,7 +167,7 @@ public final class SummarizerUtils {
     boolean roundBase = baseDec.scale() < counterDec.scale();
     CurrencyAmount round = roundBase ? base : counter;
     return (round.getAmount() < 0 ? "Pay " : "Rec ") +
-        SummarizerUtils.amount(round.mapAmount(a -> Math.abs(a))) + " " + "@ " + rate;
+        SummarizerUtils.amount(round.mapAmount(a -> Math.abs(a))) + " @ " + rate;
   }
 
   //-------------------------------------------------------------------------

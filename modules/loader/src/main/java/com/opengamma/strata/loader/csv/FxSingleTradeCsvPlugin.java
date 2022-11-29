@@ -24,6 +24,7 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_FIEL
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -39,6 +40,7 @@ import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.loader.LoaderUtils;
+import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
@@ -115,7 +117,7 @@ class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlug
 
   // parses the trade
   static FxSingleTrade parseRow(CsvRow row, TradeInfo info) {
-    if (row.findValue(CONVENTION_FIELD).isPresent() || row.findValue(BUY_SELL_FIELD).isPresent()) {
+    if (row.findValue(CONVENTION_FIELD).isPresent()) {
       return parseConvention(row, info);
     } else {
       return parseFull(row, info);
@@ -136,13 +138,15 @@ class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlug
     FxSingle fx = paymentAdj
         .map(adj -> FxSingle.of(amount, FxRate.of(pair, fxRate), paymentDate, adj))
         .orElseGet(() -> FxSingle.of(amount, FxRate.of(pair, fxRate), paymentDate));
-    return FxSingleTrade.of(info, fx);
+    return FxSingleTrade.of(info.withAttribute(AttributeType.BUY_SELL, buySell), fx);
   }
 
   // parse full definition
   private static FxSingleTrade parseFull(CsvRow row, TradeInfo info) {
+    Optional<BuySell> buySellOpt = row.findValue(BUY_SELL_FIELD).map(LoaderUtils::parseBuySell);
     FxSingle fx = parseFxSingle(row, "");
-    return FxSingleTrade.of(info, fx);
+    TradeInfo updatedInfo = buySellOpt.map(buySell -> info.withAttribute(AttributeType.BUY_SELL, buySell)).orElse(info);
+    return FxSingleTrade.of(updatedInfo, fx);
   }
 
   // parse an FxSingle
@@ -178,12 +182,20 @@ class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlug
   //-------------------------------------------------------------------------
   @Override
   public Set<String> headers(List<FxSingleTrade> trades) {
+    if (trades.stream()
+        .anyMatch(trade -> trade.getInfo().findAttribute(AttributeType.BUY_SELL).isPresent())) {
+      LinkedHashSet<String> headers = new LinkedHashSet<>();
+      headers.add(BUY_SELL_FIELD);
+      headers.addAll(HEADERS);
+      return headers;
+    }
     return HEADERS;
   }
 
   @Override
   public void writeCsv(CsvRowOutputWithHeaders csv, FxSingleTrade trade) {
     csv.writeCell(TRADE_TYPE_FIELD, "FxSingle");
+    trade.getInfo().findAttribute(AttributeType.BUY_SELL).ifPresent(buySell -> csv.writeCell(BUY_SELL_FIELD, buySell));
     writeFxSingle(csv, "", trade.getProduct());
     csv.writeNewLine();
   }

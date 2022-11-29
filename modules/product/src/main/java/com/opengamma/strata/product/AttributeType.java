@@ -17,6 +17,7 @@ import org.joda.convert.TypedStringConverter;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.Named;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.CcpId;
 
 /**
@@ -56,6 +57,11 @@ public final class AttributeType<T>
    * Key used to access the CCP.
    */
   public static final AttributeType<CcpId> CCP = AttributeType.registerInstance("ccp", CcpId.class);
+  /**
+   * Key used to indicate logical Buy/Sell.
+   * This can be used where the trade does not clearly indicate whether it is logically a Buy or Sell.
+   */
+  public static final AttributeType<BuySell> BUY_SELL = AttributeType.registerInstance("BuySell", BuySell.class);
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;

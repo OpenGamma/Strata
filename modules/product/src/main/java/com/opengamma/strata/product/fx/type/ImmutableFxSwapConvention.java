@@ -25,12 +25,15 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.result.IllegalArgFailureException;
+import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.fx.FxSwap;
@@ -157,19 +160,23 @@ public final class ImmutableFxSwapConvention
       LocalDate startDate,
       LocalDate endDate,
       BuySell buySell,
+      Currency buySellCurrency,
       double notional,
       double nearFxRate,
       double farLegForwardPoints) {
 
+    if (!currencyPair.contains(buySellCurrency)) {
+      throw new IllegalArgFailureException("Buy/Sell currency {value} does not match convention {options}", buySellCurrency, currencyPair);
+    }
     Optional<LocalDate> tradeDate = tradeInfo.getTradeDate();
     if (tradeDate.isPresent()) {
       ArgChecker.inOrderOrEqual(tradeDate.get(), startDate, "tradeDate", "startDate");
     }
-    double amount1 = BuySell.BUY.normalize(notional);
+    double amount1 = buySell.normalize(notional);
     return FxSwapTrade.builder()
-        .info(tradeInfo)
+        .info(tradeInfo.withAttribute(AttributeType.BUY_SELL, buySell))
         .product(FxSwap.ofForwardPoints(
-            CurrencyAmount.of(currencyPair.getBase(), amount1),
+            CurrencyAmount.of(buySellCurrency, amount1),
             FxRate.of(currencyPair, nearFxRate),
             farLegForwardPoints,
             startDate,
