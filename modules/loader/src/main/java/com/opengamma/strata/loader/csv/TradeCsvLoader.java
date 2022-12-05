@@ -9,6 +9,7 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CPTY_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CPTY_SCHEME_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ID_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ID_SCHEME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.POSITION_TYPE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SETTLEMENT_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TIME_FIELD;
@@ -79,6 +80,8 @@ import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
  *   such as 'Europe/London'
  * <li>The 'Settlement Date' column is optional, and is the date that the trade settles, such as '2017-08-01'
  * </ul>
+ * Note that positions may be included in the same file as trades.
+ * The 'Strata Trade Type' column must either be empty or have the value 'Position'.
  * 
  * <h4>Fra</h4>
  * <p>
@@ -417,6 +420,22 @@ public final class TradeCsvLoader {
     List<T> trades = new ArrayList<>();
     List<FailureItem> failures = new ArrayList<>();
     for (CsvRow row : csv.asIterable()) {
+      // handle mixed trade/position files
+      Optional<String> tradeTypeOpt = row.findValue(TRADE_TYPE_FIELD).filter(str -> !str.equalsIgnoreCase("POSITION"));
+      Optional<String> positionTypeOpt = row.findValue(POSITION_TYPE_FIELD).filter(str -> !str.equalsIgnoreCase("TRADE"));
+      if (tradeTypeOpt.isPresent() && positionTypeOpt.isPresent()) {
+        failures.add(FailureItem.of(
+            FailureReason.PARSING,
+            "CSV position file '{fileName}' contained row with mixed trade/position type '{type}' at line {lineNumber}",
+            CharSources.extractFileName(charSource),
+            tradeTypeOpt.get() + "/" + positionTypeOpt.get(),
+            row.lineNumber()));
+        continue; // ignore bad row
+      } else if (positionTypeOpt.isPresent()) {
+        continue; // quietly ignore a position row
+      }
+
+      // handle trade row
       String typeRaw = row.findField(TRADE_TYPE_FIELD).orElse("");
       String typeUpper = typeRaw.toUpperCase(Locale.ENGLISH);
       try {

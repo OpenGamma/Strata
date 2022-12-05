@@ -112,6 +112,21 @@ public class PositionCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_load_mixed() {
+    PositionCsvLoader standard = PositionCsvLoader.standard();
+    ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/mixed-trades-positions.csv");
+    ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
+    ValueWithFailures<List<Position>> loadedData = standard.parse(charSources);
+    assertThat(loadedData.getFailures().size()).as(loadedData.getFailures().toString()).isEqualTo(1);
+    assertThat(loadedData.getFailures()).first().hasToString(
+        "PARSING: CSV position file 'mixed-trades-positions.csv' contained row with mixed trade/position type 'FX/EtdFuture' at line 6");
+
+    List<Position> loadedPositions = loadedData.getValue();
+    assertThat(loadedPositions).hasSize(2).allMatch(position -> position instanceof SecurityPosition);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_load_security() {
     PositionCsvLoader test = PositionCsvLoader.standard();
     ValueWithFailures<List<Position>> trades = test.load(FILE);
