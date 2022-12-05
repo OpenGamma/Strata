@@ -8,6 +8,7 @@ package com.opengamma.strata.loader.csv;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ID_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ID_SCHEME_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.POSITION_TYPE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -68,6 +70,8 @@ import com.opengamma.strata.product.etd.EtdSettlementType;
  * <li>The 'Id' column is optional, and is the identifier of the position,
  *   such as 'POS12345'.
  * </ul>
+ * Note that trades may be included in the same file as positions.
+ * The 'Strata Position Type' column must either be empty or have the value 'Position'.
  * 
  * <h4>SEC/Security</h4>
  * <p>
@@ -346,7 +350,23 @@ public final class PositionCsvLoader {
     List<T> positions = new ArrayList<>();
     List<FailureItem> failures = new ArrayList<>();
     for (CsvRow row : csv.asIterable()) {
-      String typeRaw = row.findValue(POSITION_TYPE_FIELD).orElse("SMART");
+      // handle mixed trade/position files
+      Optional<String> tradeTypeOpt = row.findValue(TRADE_TYPE_FIELD).filter(str -> !str.equalsIgnoreCase("POSITION"));
+      Optional<String> positionTypeOpt = row.findValue(POSITION_TYPE_FIELD).filter(str -> !str.equalsIgnoreCase("TRADE"));
+      if (tradeTypeOpt.isPresent() && positionTypeOpt.isPresent()) {
+        failures.add(FailureItem.of(
+            FailureReason.PARSING,
+            "CSV position file '{fileName}' contained row with mixed trade/position type '{type}' at line {lineNumber}",
+            CharSources.extractFileName(charSource),
+            tradeTypeOpt.get() + "/" + positionTypeOpt.get(),
+            row.lineNumber()));
+        continue; // ignore bad row
+      } else if (tradeTypeOpt.isPresent()) {
+        continue; // quietly ignore a trade row
+      }
+
+      // handle position row
+      String typeRaw = positionTypeOpt.orElse("SMART");
       String typeUpper = typeRaw.toUpperCase(Locale.ENGLISH);
       try {
         PositionInfo info = parsePositionInfo(row);
