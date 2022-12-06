@@ -56,6 +56,17 @@ public class DiscountingBillTradePricer {
     this.paymentPricer = ArgChecker.notNull(paymentPricer, "paymentPricer");
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the bill product pricer.
+   *
+   * @return the product pricer
+   */
+  public DiscountingBillProductPricer getProductPricer() {
+    return productPricer;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Calculates the present value of a bill trade.
    * <p>
@@ -234,6 +245,20 @@ public class DiscountingBillTradePricer {
       return trade.getSettlement().get().getValue();
     }
     return CurrencyAmount.zero(trade.getProduct().getCurrency());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the settlement date.
+   *
+   * @param trade  the trade
+   * @param valuationDate  the valuation date
+   * @return the settlement date
+   */
+  public LocalDate settlementDate(ResolvedBillTrade trade, LocalDate valuationDate) {
+    return trade.getSettlement()
+        .map(settle -> settle.getDate())
+        .orElse(valuationDate);
   }
 
   //-------------------------------------------------------------------------

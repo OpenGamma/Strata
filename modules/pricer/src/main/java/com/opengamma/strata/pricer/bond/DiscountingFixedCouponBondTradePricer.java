@@ -66,41 +66,6 @@ public class DiscountingFixedCouponBondTradePricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the clean price of the fixed coupon bond product under the settlement date specified in the trade.
-   * <p>
-   * Strata uses <i>decimal prices</i> for bonds. For example, a price of 99.32% is represented in Strata by 0.9932.
-   *
-   * @param trade  the trade
-   * @param provider  the discounting provider
-   * @return the clean price
-   */
-  public double cleanPriceFromCurves(
-      ResolvedFixedCouponBondTrade trade,
-      LegalEntityDiscountingProvider provider) {
-
-    LocalDate settlementDate = settlementDate(trade, provider.getValuationDate());
-    double dirtyPrice = productPricer.dirtyPriceFromCurves(trade.getProduct(), provider, settlementDate);
-    return productPricer.cleanPriceFromDirtyPrice(trade.getProduct(), settlementDate, dirtyPrice);
-  }
-
-  /**
-   * Calculates the dirty price sensitivity of the fixed coupon bond product under the settlement date specified
-   * in the trade.
-   *
-   * @param trade  the trade
-   * @param provider  the discounting provider
-   * @return the dirty price sensitivity
-   */
-  public PointSensitivities dirtyPriceSensitivity(
-      ResolvedFixedCouponBondTrade trade,
-      LegalEntityDiscountingProvider provider) {
-
-    LocalDate settlementDate = settlementDate(trade, provider.getValuationDate());
-    return productPricer.dirtyPriceSensitivity(trade.getProduct(), provider, settlementDate).build();
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Calculates the present value of the fixed coupon bond trade.
    * <p>
    * The present value of the trade is the value on the valuation date.
@@ -459,8 +424,14 @@ public class DiscountingFixedCouponBondTradePricer {
   }
 
   //-------------------------------------------------------------------------
-  // calculate the settlement date
-  private LocalDate settlementDate(ResolvedFixedCouponBondTrade trade, LocalDate valuationDate) {
+  /**
+   * Calculates the settlement date.
+   *
+   * @param trade  the trade
+   * @param valuationDate  the valuation date
+   * @return the settlement date
+   */
+  public LocalDate settlementDate(ResolvedFixedCouponBondTrade trade, LocalDate valuationDate) {
     return trade.getSettlement()
         .map(settle -> settle.getSettlementDate())
         .orElse(valuationDate);
