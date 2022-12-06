@@ -964,22 +964,6 @@ public class DiscountingFixedCouponBondTradePricerTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_cleanPriceFromCurves() {
-    double computed = TRADE_PRICER.cleanPriceFromCurves(TRADE, PROVIDER);
-    double dirtyPrice = PRODUCT_PRICER.dirtyPriceFromCurves(PRODUCT, PROVIDER, SETTLEMENT);
-    double cleanPrice = PRODUCT_PRICER.cleanPriceFromDirtyPrice(PRODUCT, SETTLEMENT, dirtyPrice);
-    assertThat(computed).isCloseTo(cleanPrice, offset(TOL));
-  }
-
-  @Test
-  public void test_dirtyPriceSensitivity() {
-    PointSensitivities computed = TRADE_PRICER.dirtyPriceSensitivity(TRADE, PROVIDER);
-    PointSensitivities expected = PRODUCT_PRICER.dirtyPriceSensitivity(PRODUCT, PROVIDER, SETTLEMENT).build();
-    assertThat(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * TOL)).isTrue();
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
   public void test_currencyExposure() {
     MultiCurrencyAmount ceComputed = TRADE_PRICER.currencyExposure(TRADE, PROVIDER);
     CurrencyAmount pv = TRADE_PRICER.presentValue(TRADE, PROVIDER);
