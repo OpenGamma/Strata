@@ -1,3 +1,13 @@
+Xplain
+======
+**main** will be kept in sync with upstream and merged into **dev**. It is locked.
+
+**xplain** release branch, against which the maven release plugin will be run. It has a product specific versioning scheme in use.
+
+**dev** is the main dev branch. We may contribute PRs upstream from here. The versioning is unchanged from upstream.
+
+Feature branches should come off **dev** and be used for development and PR in the normal way.
+
 Strata
 ======
 
