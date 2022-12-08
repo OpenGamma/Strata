@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.io.Files;
 
 /**
@@ -176,8 +177,9 @@ final class GlobalHolidayCalendars {
       holidays.add(christmasBumpedSatSun(year));
       holidays.add(boxingDayBumpedSatSun(year));
     }
-    holidays.add(date(2011, 4, 29));  // royal wedding
     holidays.add(date(1999, 12, 31));  // millennium
+    holidays.add(date(2011, 4, 29));  // royal wedding
+    holidays.add(date(2023, 5, 8));  // king's coronation
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarIds.GBLO, holidays, SATURDAY, SUNDAY);
   }
@@ -638,9 +640,8 @@ final class GlobalHolidayCalendars {
   //-------------------------------------------------------------------------
   // generate CAMO
   // data sources
-  // https://www.cnt.gouv.qc.ca/en/leaves-and-absences/statutory-holidays/index.html
+  // https://www.cnesst.gouv.qc.ca/en/working-conditions/leave/statutory-holidays/list-paid-statutory-holidays
   // https://www.canada.ca/en/revenue-agency/services/tax/public-holidays.html
-  // http://www.statutoryholidayscanada.com/
   static ImmutableHolidayCalendar generateMontreal() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
@@ -659,7 +660,7 @@ final class GlobalHolidayCalendars {
       // thanksgiving
       holidays.add(first(year, 10).with(dayOfWeekInMonth(2, MONDAY)));
       // christmas
-      holidays.add(christmasBumpedSatSun(year));
+      holidays.add(bumpToMon(date(year, 12, 25)));
     }
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarId.of("CAMO"), holidays, SATURDAY, SUNDAY);
@@ -1311,7 +1312,8 @@ final class GlobalHolidayCalendars {
   }
 
   // christmas
-  private static LocalDate christmasBumpedSatSun(int year) {
+  @VisibleForTesting
+  static LocalDate christmasBumpedSatSun(int year) {
     LocalDate base = LocalDate.of(year, 12, 25);
     if (base.getDayOfWeek() == SATURDAY || base.getDayOfWeek() == SUNDAY) {
       return LocalDate.of(year, 12, 27);
@@ -1329,7 +1331,8 @@ final class GlobalHolidayCalendars {
   }
 
   // boxing day
-  private static LocalDate boxingDayBumpedSatSun(int year) {
+  @VisibleForTesting
+  static LocalDate boxingDayBumpedSatSun(int year) {
     LocalDate base = LocalDate.of(year, 12, 26);
     if (base.getDayOfWeek() == SATURDAY || base.getDayOfWeek() == SUNDAY) {
       return LocalDate.of(year, 12, 28);
