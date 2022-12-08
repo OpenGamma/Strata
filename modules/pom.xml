@@ -762,7 +762,7 @@
     <!-- Locate the root directory of the multi-module build -->
     <root.dir>${project.basedir}/..</root.dir>
     <!-- Versions -->
-    <asm.version>9.3</asm.version>
+    <asm.version>9.4</asm.version>
     <assertj.version>3.23.1</assertj.version>
     <bridger.version>1.6.Final</bridger.version>
     <guava.version>31.1-jre</guava.version><!-- didn't want to go beyond v27 but forced to by security https://github.com/google/guava/issues/3320 -->
