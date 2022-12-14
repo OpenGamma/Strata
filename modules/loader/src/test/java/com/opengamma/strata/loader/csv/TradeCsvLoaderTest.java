@@ -180,6 +180,21 @@ public class TradeCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_load_mixed() {
+    TradeCsvLoader standard = TradeCsvLoader.standard();
+    ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/mixed-trades-positions.csv");
+    ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
+    ValueWithFailures<List<Trade>> loadedData = standard.parse(charSources);
+    assertThat(loadedData.getFailures().size()).as(loadedData.getFailures().toString()).isEqualTo(1);
+    assertThat(loadedData.getFailures()).first().hasToString(
+        "PARSING: CSV position file 'mixed-trades-positions.csv' contained row with mixed trade/position type 'FX/EtdFuture' at line 6");
+
+    List<Trade> loadedTrades = loadedData.getValue();
+    assertThat(loadedTrades).hasSize(2).allMatch(trade -> trade instanceof FxSingleTrade);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_load_failures() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
@@ -203,6 +218,7 @@ public class TradeCsvLoaderTest {
             .tradeDate(LocalDate.parse("2016-12-06"))
             .id(StandardId.of("OG", "tradeId1"))
             .addAttribute(AttributeType.CCP, CcpIds.CME)
+            .addAttribute(AttributeType.BUY_SELL, SELL)
             .build())
         .product(FxSingle.of(
             CurrencyAmount.of(USD, -3850000),
@@ -217,6 +233,7 @@ public class TradeCsvLoaderTest {
             .tradeDate(LocalDate.parse("2016-12-22"))
             .id(StandardId.of("OG", "tradeId2"))
             .addAttribute(AttributeType.CCP, CcpIds.CME)
+            .addAttribute(AttributeType.BUY_SELL, BUY)
             .build())
         .product(FxSingle.of(CurrencyAmount.of(EUR, 1920000), FxRate.of(EUR, CZK, 25.62), LocalDate.parse("2016-12-24")))
         .build();
@@ -334,6 +351,7 @@ public class TradeCsvLoaderTest {
             .tradeDate(LocalDate.parse("2016-12-06"))
             .id(StandardId.of("OG", "tradeId11"))
             .addAttribute(AttributeType.CCP, CcpIds.CME)
+            .addAttribute(AttributeType.BUY_SELL, BUY)
             .build())
         .product(FxSwap.of(near1, far1))
         .build();
@@ -346,6 +364,7 @@ public class TradeCsvLoaderTest {
             .tradeDate(LocalDate.parse("2016-12-06"))
             .id(StandardId.of("OG", "tradeId12"))
             .addAttribute(AttributeType.CCP, CcpIds.CME)
+            .addAttribute(AttributeType.BUY_SELL, SELL)
             .build())
         .product(FxSwap.of(near2, far2))
         .build();

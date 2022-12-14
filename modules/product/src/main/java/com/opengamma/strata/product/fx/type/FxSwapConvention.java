@@ -13,6 +13,7 @@ import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.MarketTenor;
@@ -106,7 +107,7 @@ public interface FxSwapConvention
    * 
    * @param tradeDate  the date of the trade
    * @param marketTenor  the market tenor, defining the spot lag and tenor
-   * @param buySell  the buy/sell flag
+   * @param buySell  the buy/sell flag, relative to the first currency of the currency pair
    * @param notional  the notional amount, in the first currency of the currency pair
    * @param nearFxRate  the FX rate for the near leg
    * @param farLegForwardPoints  the FX points to be added to the FX rate at the far leg
@@ -123,11 +124,46 @@ public interface FxSwapConvention
       double farLegForwardPoints,
       ReferenceData refData) {
 
-    LocalDate startDate = marketTenor.adjustSpotLag(getSpotDateOffset()).adjust(tradeDate, refData);
-    LocalDate endDate = startDate.plus(marketTenor.getTenor());
-    return toTrade(tradeDate, startDate, endDate, buySell, notional, nearFxRate, farLegForwardPoints);
+    Currency buySellCurrency = getCurrencyPair().getBase();
+    return createTrade(tradeDate, marketTenor, buySell, buySellCurrency, notional, nearFxRate, farLegForwardPoints, refData);
   }
 
+  /**
+   * Creates a trade based on this convention using a market tenor, such as ON, TN, SN, SW or 1M.
+   * <p>
+   * This returns a trade based on the market tenor.
+   * If the market tenor is ON or TN, the spot lag of the convention will be overridden.
+   * <p>
+   * The notional is unsigned, with buy/sell determining the direction of the trade.
+   * If buying the FX Swap, the amount in the specified currency is received in the near leg and paid in the far leg.
+   * 
+   * @param tradeDate  the date of the trade
+   * @param marketTenor  the market tenor, defining the spot lag and tenor
+   * @param buySell  the buy/sell flag
+   * @param buySellCurrency  the currency being bought/sold
+   * @param buySellNotional  the unsigned notional amount, in the buy/sell currency
+   * @param nearFxRate  the FX rate for the near leg
+   * @param farLegForwardPoints  the FX points to be added to the FX rate at the far leg
+   * @param refData  the reference data, used to resolve the trade dates
+   * @return the trade
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   */
+  public default FxSwapTrade createTrade(
+      LocalDate tradeDate,
+      MarketTenor marketTenor,
+      BuySell buySell,
+      Currency buySellCurrency,
+      double buySellNotional,
+      double nearFxRate,
+      double farLegForwardPoints,
+      ReferenceData refData) {
+
+    LocalDate startDate = marketTenor.adjustSpotLag(getSpotDateOffset()).adjust(tradeDate, refData);
+    LocalDate endDate = startDate.plus(marketTenor.getTenor());
+    return toTrade(tradeDate, startDate, endDate, buySell, buySellCurrency, buySellNotional, nearFxRate, farLegForwardPoints);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates a trade based on this convention.
    * <p>
@@ -142,7 +178,7 @@ public interface FxSwapConvention
    * @param tradeDate  the date of the trade
    * @param periodToNear  the period between the spot date and the near date
    * @param periodToFar  the period between the spot date and the far date
-   * @param buySell  the buy/sell flag
+   * @param buySell  the buy/sell flag, relative to the first currency of the currency pair
    * @param notional  the notional amount, in the first currency of the currency pair
    * @param nearFxRate  the FX rate for the near leg
    * @param farLegForwardPoints  the FX points to be added to the FX rate at the far leg
@@ -160,12 +196,51 @@ public interface FxSwapConvention
       double farLegForwardPoints,
       ReferenceData refData) {
 
+    Currency buySellCurrency = getCurrencyPair().getBase();
+    return createTrade(
+        tradeDate, periodToNear, periodToFar, buySell, buySellCurrency, notional, nearFxRate, farLegForwardPoints, refData);
+  }
+
+  /**
+   * Creates a trade based on this convention.
+   * <p>
+   * This returns a trade based on the specified periods, starting from the spot date.
+   * For example, a '3M x 6M' FX swap has a period from spot to the start date of 3 months and
+   * a period from spot to the end date of 6 months
+   * <p>
+   * The notional is unsigned, with buy/sell determining the direction of the trade.
+   * If buying the FX Swap, the amount in the specified currency is received in the near leg and paid in the far leg.
+   * 
+   * @param tradeDate  the date of the trade
+   * @param periodToNear  the period between the spot date and the near date
+   * @param periodToFar  the period between the spot date and the far date
+   * @param buySell  the buy/sell flag
+   * @param buySellCurrency  the currency being bought/sold
+   * @param buySellNotional  the unsigned notional amount, in the buy/sell currency
+   * @param nearFxRate  the FX rate for the near leg
+   * @param farLegForwardPoints  the FX points to be added to the FX rate at the far leg
+   * @param refData  the reference data, used to resolve the trade dates
+   * @return the trade
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   */
+  public default FxSwapTrade createTrade(
+      LocalDate tradeDate,
+      Period periodToNear,
+      Period periodToFar,
+      BuySell buySell,
+      Currency buySellCurrency,
+      double buySellNotional,
+      double nearFxRate,
+      double farLegForwardPoints,
+      ReferenceData refData) {
+
     LocalDate spotDate = calculateSpotDateFromTradeDate(tradeDate, refData);
     LocalDate startDate = spotDate.plus(periodToNear);
     LocalDate endDate = spotDate.plus(periodToFar);
-    return toTrade(tradeDate, startDate, endDate, buySell, notional, nearFxRate, farLegForwardPoints);
+    return toTrade(tradeDate, startDate, endDate, buySell, buySellCurrency, buySellNotional, nearFxRate, farLegForwardPoints);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Creates a trade based on this convention.
    * <p>
@@ -177,8 +252,8 @@ public interface FxSwapConvention
    * @param tradeDate  the date of the trade
    * @param startDate  the start date
    * @param endDate  the end date
-   * @param buySell  the buy/sell flag
-   * @param notional  the notional amount, in the payment currency of the template
+   * @param buySell  the buy/sell flag, relative to the first currency of the currency pair
+   * @param notional  the notional amount, in the first currency of the currency pair
    * @param nearFxRate  the FX rate for the near leg
    * @param farLegForwardPoints  the FX points to be added to the FX rate at the far leg
    * @return the trade
@@ -192,8 +267,39 @@ public interface FxSwapConvention
       double nearFxRate,
       double farLegForwardPoints) {
 
+    Currency buySellCurrency = getCurrencyPair().getBase();
+    return toTrade(tradeDate, startDate, endDate, buySell, buySellCurrency, notional, nearFxRate, farLegForwardPoints);
+  }
+
+  /**
+   * Creates a trade based on this convention.
+   * <p>
+   * This returns a trade based on the specified dates.
+   * The notional is unsigned, with buy/sell determining the direction of the trade.
+   * If buying the FX Swap, the amount in the specified currency is received in the near leg and paid in the far leg.
+   * 
+   * @param tradeDate  the date of the trade
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param buySell  the buy/sell flag
+   * @param buySellCurrency  the currency being bought/sold
+   * @param buySellNotional  the unsigned notional amount, in the buy/sell currency
+   * @param nearFxRate  the FX rate for the near leg
+   * @param farLegForwardPoints  the FX points to be added to the FX rate at the far leg
+   * @return the trade
+   */
+  public default FxSwapTrade toTrade(
+      LocalDate tradeDate,
+      LocalDate startDate,
+      LocalDate endDate,
+      BuySell buySell,
+      Currency buySellCurrency,
+      double buySellNotional,
+      double nearFxRate,
+      double farLegForwardPoints) {
+
     TradeInfo tradeInfo = TradeInfo.of(tradeDate);
-    return toTrade(tradeInfo, startDate, endDate, buySell, notional, nearFxRate, farLegForwardPoints);
+    return toTrade(tradeInfo, startDate, endDate, buySell, buySellCurrency, buySellNotional, nearFxRate, farLegForwardPoints);
   }
 
   /**
@@ -207,8 +313,38 @@ public interface FxSwapConvention
    * @param tradeInfo  additional information about the trade
    * @param startDate  the start date
    * @param endDate  the end date
+   * @param buySell  the buy/sell flag, relative to the first currency of the currency pair
+   * @param notional  the notional amount, in the first currency of the currency pair
+   * @param nearFxRate  the FX rate for the near leg
+   * @param farLegForwardPoints  the FX points to be added to the FX rate at the far leg
+   * @return the trade
+   */
+  public default FxSwapTrade toTrade(
+      TradeInfo tradeInfo,
+      LocalDate startDate,
+      LocalDate endDate,
+      BuySell buySell,
+      double notional,
+      double nearFxRate,
+      double farLegForwardPoints) {
+
+    Currency buySellCurrency = getCurrencyPair().getBase();
+    return toTrade(tradeInfo, startDate, endDate, buySell, buySellCurrency, notional, nearFxRate, farLegForwardPoints);
+  }
+
+  /**
+   * Creates a trade based on this convention.
+   * <p>
+   * This returns a trade based on the specified dates.
+   * The notional is unsigned, with buy/sell determining the direction of the trade.
+   * If buying the FX Swap, the amount in the specified currency is received in the near leg and paid in the far leg.
+   * 
+   * @param tradeInfo  additional information about the trade
+   * @param startDate  the start date
+   * @param endDate  the end date
    * @param buySell  the buy/sell flag
-   * @param notional  the notional amount, in the payment currency of the template
+   * @param buySellCurrency  the currency being bought/sold
+   * @param buySellNotional  the unsigned notional amount, in the buy/sell currency
    * @param nearFxRate  the FX rate for the near leg
    * @param farLegForwardPoints  the FX points to be added to the FX rate at the far leg
    * @return the trade
@@ -218,7 +354,8 @@ public interface FxSwapConvention
       LocalDate startDate,
       LocalDate endDate,
       BuySell buySell,
-      double notional,
+      Currency buySellCurrency,
+      double buySellNotional,
       double nearFxRate,
       double farLegForwardPoints);
 
