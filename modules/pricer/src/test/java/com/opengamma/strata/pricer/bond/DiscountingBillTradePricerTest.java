@@ -142,8 +142,8 @@ public class DiscountingBillTradePricerTest {
       .build();
   
   // pricers
-  private static final DiscountingBillProductPricer PRICER_PRODUCT = DiscountingBillProductPricer.DEFAULT;
   private static final DiscountingBillTradePricer PRICER_TRADE = DiscountingBillTradePricer.DEFAULT;
+  private static final DiscountingBillProductPricer PRICER_PRODUCT = PRICER_TRADE.getProductPricer();
   private static final DiscountingPaymentPricer PRICER_PAYMENT = DiscountingPaymentPricer.DEFAULT;
   private static final double EPS = 1.0e-7;
   private static final RatesFiniteDifferenceSensitivityCalculator FD_CALC = new RatesFiniteDifferenceSensitivityCalculator(EPS);

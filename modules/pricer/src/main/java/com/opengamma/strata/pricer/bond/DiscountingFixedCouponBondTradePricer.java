@@ -65,6 +65,17 @@ public class DiscountingFixedCouponBondTradePricer {
   }
 
   //-------------------------------------------------------------------------
+
+  /**
+   * Gets the fixed coupon bond product pricer.
+   *
+   * @return the product pricer
+   */
+  public DiscountingFixedCouponBondProductPricer getProductPricer() {
+    return productPricer;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Calculates the present value of the fixed coupon bond trade.
    * <p>

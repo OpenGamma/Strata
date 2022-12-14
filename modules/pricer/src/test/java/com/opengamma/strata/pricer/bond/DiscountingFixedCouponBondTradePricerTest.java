@@ -89,8 +89,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
           return Payment.of(CurrencyAmount.zero(trade.getProduct().getCurrency()), SETTLEMENT);
         }
       };
-  private static final DiscountingFixedCouponBondProductPricer PRODUCT_PRICER =
-      DiscountingFixedCouponBondProductPricer.DEFAULT;
+  private static final DiscountingFixedCouponBondProductPricer PRODUCT_PRICER = TRADE_PRICER.getProductPricer();
   private static final DiscountingPaymentPricer PRICER_NOMINAL = DiscountingPaymentPricer.DEFAULT;
   private static final DiscountingFixedCouponBondPaymentPeriodPricer COUPON_PRICER =
       DiscountingFixedCouponBondPaymentPeriodPricer.DEFAULT;

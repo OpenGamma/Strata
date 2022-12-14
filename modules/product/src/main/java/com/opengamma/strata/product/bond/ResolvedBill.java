@@ -106,7 +106,7 @@ public final class ResolvedBill
    *
    * @param yield  the yield
    * @param settlementDate  the settlement date
-   * @return the price
+   * @return the price and derivative
    */
   public ValueDerivatives priceFromYieldAd(double yield, LocalDate settlementDate) {
     double accrualFactor = dayCount.relativeYearFraction(settlementDate, notional.getDate());
@@ -130,7 +130,7 @@ public final class ResolvedBill
    * 
    * @param price  the price
    * @param settlementDate  the settlement date
-   * @return the yield
+   * @return the yield and derivative
    */
   public ValueDerivatives yieldFromPriceAd(double price, LocalDate settlementDate) {
     double accrualFactor = dayCount.relativeYearFraction(settlementDate, notional.getDate());

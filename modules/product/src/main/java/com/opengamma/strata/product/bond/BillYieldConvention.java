@@ -94,7 +94,7 @@ public enum BillYieldConvention implements NamedEnum {
     public ValueDerivatives yieldFromPriceAd(double price, double accrualFactor) {
       return ValueDerivatives.of(
           (1d / price - 1d) / accrualFactor,
-          DoubleArray.of(-accrualFactor / (price * price)));
+          DoubleArray.of(-1d / (accrualFactor * price * price)));
     }
   },
 

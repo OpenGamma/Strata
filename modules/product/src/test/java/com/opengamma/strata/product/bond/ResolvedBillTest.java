@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 
 /**
  * Test {@link ResolvedBill}.
@@ -61,6 +62,9 @@ public class ResolvedBillTest {
     double priceExpected = 1.0d - yield * af;
     double priceComputed = bill.priceFromYield(yield, settlementDate);
     assertThat(priceExpected).isCloseTo(priceComputed, offset(TOLERANCE_PRICE));
+    ValueDerivatives adComputed = bill.priceFromYieldAd(yield, settlementDate);
+    assertThat(adComputed.getValue()).isCloseTo(priceComputed, offset(TOLERANCE_PRICE));
+    assertThat(adComputed.getDerivative(0)).isCloseTo(-af, offset(TOLERANCE_PRICE));
   }
 
   @Test
@@ -72,6 +76,9 @@ public class ResolvedBillTest {
     double yieldExpected = (1.0d - price) / af;
     double yieldComputed = bill.yieldFromPrice(price, settlementDate);
     assertThat(yieldExpected).isCloseTo(yieldComputed, offset(TOLERANCE_PRICE));
+    ValueDerivatives adComputed = bill.yieldFromPriceAd(price, settlementDate);
+    assertThat(adComputed.getValue()).isCloseTo(yieldComputed, offset(TOLERANCE_PRICE));
+    assertThat(adComputed.getDerivative(0)).isCloseTo(-1d / af, offset(TOLERANCE_PRICE));
   }
 
   @Test
@@ -84,6 +91,10 @@ public class ResolvedBillTest {
     double priceExpected = 1.0d / (1 + yield * af);
     double priceComputed = bill.priceFromYield(yield, settlementDate);
     assertThat(priceExpected).isCloseTo(priceComputed, offset(TOLERANCE_PRICE));
+    ValueDerivatives adComputed = bill.priceFromYieldAd(yield, settlementDate);
+    assertThat(adComputed.getValue()).isCloseTo(priceComputed, offset(TOLERANCE_PRICE));
+    assertThat(adComputed.getDerivative(0))
+        .isCloseTo(-af / (1 + yield * af) / (1 + yield * af), offset(TOLERANCE_PRICE));
   }
 
   @Test
@@ -96,6 +107,9 @@ public class ResolvedBillTest {
     double yieldExpected = (1.0d / price - 1.0d) / af;
     double yieldComputed = bill.yieldFromPrice(price, settlementDate);
     assertThat(yieldExpected).isCloseTo(yieldComputed, offset(TOLERANCE_PRICE));
+    ValueDerivatives adComputed = bill.yieldFromPriceAd(price, settlementDate);
+    assertThat(adComputed.getValue()).isCloseTo(yieldComputed, offset(TOLERANCE_PRICE));
+    assertThat(adComputed.getDerivative(0)).isCloseTo(-1d / price / price / af, offset(TOLERANCE_PRICE));
   }
 
   //-------------------------------------------------------------------------
