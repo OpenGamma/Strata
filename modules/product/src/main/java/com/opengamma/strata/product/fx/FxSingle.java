@@ -289,18 +289,19 @@ public final class FxSingle
     if (baseCurrencyPayment.getCurrency().equals(counterCurrencyPayment.getCurrency())) {
       throw new IllegalArgumentException("Amounts must have different currencies");
     }
-    if ((baseCurrencyPayment.getAmount() != 0d || counterCurrencyPayment.getAmount() != 0d) &&
-        Math.signum(baseCurrencyPayment.getAmount()) != -Math.signum(counterCurrencyPayment.getAmount())) {
-      throw new IllegalArgumentException("Amounts must have different signs");
-    }
-    // To be able to summarise the trade, the fx rate needs to a positive whole number
-    double fxRateUnscaled = counterCurrencyPayment.getAmount() / baseCurrencyPayment.getAmount();
-    int baseCurrencyMinorDigits = baseCurrencyPayment.getCurrency().getMinorUnitDigits();
-    BigDecimal fxRate = BigDecimal.valueOf(fxRateUnscaled)
-        .setScale(baseCurrencyMinorDigits + 2, RoundingMode.HALF_UP)
-        .abs();
-    if (fxRate.doubleValue() <= 0) {
-      throw new IllegalArgumentException("Amounts must result in a positive exchange rate");
+    if ((baseCurrencyPayment.getAmount() != 0d || counterCurrencyPayment.getAmount() != 0d)) {
+      if (Math.signum(baseCurrencyPayment.getAmount()) != -Math.signum(counterCurrencyPayment.getAmount())) {
+        throw new IllegalArgumentException("Amounts must have different signs");
+      }
+
+      double fxRateUnscaled = counterCurrencyPayment.getAmount() / baseCurrencyPayment.getAmount();
+      int baseCurrencyMinorDigits = baseCurrencyPayment.getCurrency().getMinorUnitDigits();
+      BigDecimal fxRate = BigDecimal.valueOf(fxRateUnscaled)
+          .setScale(baseCurrencyMinorDigits + 2, RoundingMode.HALF_UP)
+          .abs();
+      if (fxRate.doubleValue() <= 0) {
+        throw new IllegalArgumentException("Amounts must result in a positive exchange rate");
+      }
     }
   }
 
