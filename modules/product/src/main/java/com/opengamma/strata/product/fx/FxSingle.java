@@ -6,6 +6,8 @@
 package com.opengamma.strata.product.fx;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -287,9 +289,19 @@ public final class FxSingle
     if (baseCurrencyPayment.getCurrency().equals(counterCurrencyPayment.getCurrency())) {
       throw new IllegalArgumentException("Amounts must have different currencies");
     }
-    if ((baseCurrencyPayment.getAmount() != 0d || counterCurrencyPayment.getAmount() != 0d) &&
-        Math.signum(baseCurrencyPayment.getAmount()) != -Math.signum(counterCurrencyPayment.getAmount())) {
-      throw new IllegalArgumentException("Amounts must have different signs");
+    if ((baseCurrencyPayment.getAmount() != 0d || counterCurrencyPayment.getAmount() != 0d)) {
+      if (Math.signum(baseCurrencyPayment.getAmount()) != -Math.signum(counterCurrencyPayment.getAmount())) {
+        throw new IllegalArgumentException("Amounts must have different signs");
+      }
+
+      double fxRateUnscaled = counterCurrencyPayment.getAmount() / baseCurrencyPayment.getAmount();
+      int baseCurrencyMinorDigits = baseCurrencyPayment.getCurrency().getMinorUnitDigits();
+      BigDecimal fxRate = BigDecimal.valueOf(fxRateUnscaled)
+          .setScale(baseCurrencyMinorDigits + 2, RoundingMode.HALF_UP)
+          .abs();
+      if (fxRate.doubleValue() <= 0) {
+        throw new IllegalArgumentException("Amounts must result in a positive exchange rate");
+      }
     }
   }
 
