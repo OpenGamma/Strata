@@ -295,12 +295,13 @@ public final class FxSingle
     }
     // To be able to summarise the trade, the fx rate needs to a positive whole number
     double fxRateUnscaled = counterCurrencyPayment.getAmount() / baseCurrencyPayment.getAmount();
+    int baseCurrencyMinorDigits = baseCurrencyPayment.getCurrency().getMinorUnitDigits();
     BigDecimal fxRate = BigDecimal.valueOf(fxRateUnscaled)
-        .setScale(
-            baseCurrencyPayment.getCurrency().getMinorUnitDigits() + 2,
-            RoundingMode.HALF_UP)
+        .setScale(baseCurrencyMinorDigits + 2, RoundingMode.HALF_UP)
         .abs();
-    ArgChecker.notNegativeOrZero(fxRate.doubleValue(), "fxRate");
+    if (fxRate.doubleValue() <= 0) {
+      throw new IllegalArgumentException("Amounts must result in a positive exchange rate");
+    }
   }
 
   @ImmutablePreBuild
