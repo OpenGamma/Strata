@@ -6,6 +6,8 @@
 package com.opengamma.strata.product.fx;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -291,6 +293,14 @@ public final class FxSingle
         Math.signum(baseCurrencyPayment.getAmount()) != -Math.signum(counterCurrencyPayment.getAmount())) {
       throw new IllegalArgumentException("Amounts must have different signs");
     }
+    // To be able to summarise the trade, the fx rate needs to a positive whole number
+    double fxRateUnscaled = counterCurrencyPayment.getAmount() / baseCurrencyPayment.getAmount();
+    BigDecimal fxRate = BigDecimal.valueOf(fxRateUnscaled)
+        .setScale(
+            baseCurrencyPayment.getCurrency().getMinorUnitDigits() + 2,
+            RoundingMode.HALF_UP)
+        .abs();
+    ArgChecker.notNegativeOrZero(fxRate.doubleValue(), "fxRate");
   }
 
   @ImmutablePreBuild
