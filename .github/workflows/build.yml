@@ -1,0 +1,39 @@
+name: Solum Xplain OpenGamma Strata Library CI
+# Based on .circleci/config.yml
+on:
+  push:
+    branches:
+      - 'xplain'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 11.0.15
+      - name: Initialising Maven
+        run: mvn --version
+
+      - name: Maven install (no tests)
+        run: mvn install -T 4 -DskipTests -Dstrict
+        
+      - name: Maven run tests
+        run: mvn test -T 3 -Dcheckstyle.skip=true
+
+      - name: Publish Test Report
+        if: ${{ always() }}
+        uses: mikepenz/action-junit-report@v3.6.1
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+
+      - name: Publish to GitHub Packages
+        if: ${{ github.ref == 'refs/heads/sprout' }} #Deploy only on SPROUT branch
+        run: mvn deploy -DaltSnapshotDeploymentRepository="opengamma-repo::https://maven.pkg.github.com/sproutf/Strata" -DskipTests -Dcheckstyle.skip=true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_USER: 'x-access-token'
+
