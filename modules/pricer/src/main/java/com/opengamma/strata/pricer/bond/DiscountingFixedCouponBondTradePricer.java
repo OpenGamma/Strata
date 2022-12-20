@@ -27,7 +27,7 @@ import com.opengamma.strata.product.bond.ResolvedFixedCouponBondTrade;
  * Pricer for fixed coupon bond trades.
  * <p>
  * This function provides the ability to price a {@link ResolvedFixedCouponBondTrade}.
- * 
+ *
  * <h4>Price</h4>
  * Strata uses <i>decimal prices</i> for bonds in the trade model, pricers and market data.
  * For example, a price of 99.32% is represented in Strata by 0.9932.
@@ -52,10 +52,10 @@ public class DiscountingFixedCouponBondTradePricer {
 
   /**
    * Creates an instance.
-   * 
-   * @param productPricer  the pricer for {@link ResolvedFixedCouponBond}
-   * @param paymentPricer  the pricer for {@link Payment}
-  */
+   *
+   * @param productPricer the pricer for {@link ResolvedFixedCouponBond}
+   * @param paymentPricer the pricer for {@link Payment}
+   */
   public DiscountingFixedCouponBondTradePricer(
       DiscountingFixedCouponBondProductPricer productPricer,
       DiscountingPaymentPricer paymentPricer) {
@@ -76,6 +76,7 @@ public class DiscountingFixedCouponBondTradePricer {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Calculates the present value of the fixed coupon bond trade.
    * <p>
@@ -83,9 +84,9 @@ public class DiscountingFixedCouponBondTradePricer {
    * The result is expressed using the payment currency of the bond.
    * <p>
    * Coupon payments of the underlying product are considered based on the settlement date of the trade.
-   * 
-   * @param trade  the trade
-   * @param provider  the discounting provider
+   *
+   * @param trade the trade
+   * @param provider the discounting provider
    * @return the present value of the fixed coupon bond trade
    */
   public CurrencyAmount presentValue(ResolvedFixedCouponBondTrade trade, LegalEntityDiscountingProvider provider) {
@@ -104,12 +105,12 @@ public class DiscountingFixedCouponBondTradePricer {
    * compounded rates of the discounting curve.
    * <p>
    * Coupon payments of the underlying product are considered based on the settlement date of the trade.
-   * 
-   * @param trade  the trade
-   * @param provider  the discounting provider
-   * @param zSpread  the z-spread
-   * @param compoundedRateType  the compounded rate type
-   * @param periodsPerYear  the number of periods per year
+   *
+   * @param trade the trade
+   * @param provider the discounting provider
+   * @param zSpread the z-spread
+   * @param compoundedRateType the compounded rate type
+   * @param periodsPerYear the number of periods per year
    * @return the present value of the fixed coupon bond trade
    */
   public CurrencyAmount presentValueWithZSpread(
@@ -136,6 +137,7 @@ public class DiscountingFixedCouponBondTradePricer {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Calculates the present value of the fixed coupon bond trade from the clean price of the underlying product.
    * <p>
@@ -143,11 +145,11 @@ public class DiscountingFixedCouponBondTradePricer {
    * The result is expressed using the payment currency of the bond.
    * <p>
    * Coupon payments of the underlying product are considered based on the settlement date of the trade.
-   * 
-   * @param trade  the trade
-   * @param provider  the discounting provider
-   * @param refData  the reference data used to calculate the settlement date
-   * @param cleanPrice  the clean price
+   *
+   * @param trade the trade
+   * @param provider the discounting provider
+   * @param refData the reference data used to calculate the settlement date
+   * @param cleanPrice the clean price
    * @return the present value of the fixed coupon bond trade
    */
   public CurrencyAmount presentValueFromCleanPrice(
@@ -189,14 +191,14 @@ public class DiscountingFixedCouponBondTradePricer {
    * compounded rates of the discounting curve.
    * <p>
    * Coupon payments of the underlying product are considered based on the settlement date of the trade.
-   * 
-   * @param trade  the trade
-   * @param provider  the discounting provider
-   * @param refData  the reference data used to calculate the settlement date
-   * @param cleanPrice  the clean price
-   * @param zSpread  the z-spread
-   * @param compoundedRateType  the compounded rate type
-   * @param periodsPerYear  the number of periods per year
+   *
+   * @param trade the trade
+   * @param provider the discounting provider
+   * @param refData the reference data used to calculate the settlement date
+   * @param cleanPrice the clean price
+   * @param zSpread the z-spread
+   * @param compoundedRateType the compounded rate type
+   * @param periodsPerYear the number of periods per year
    * @return the present value of the fixed coupon bond trade
    */
   public CurrencyAmount presentValueFromCleanPriceWithZSpread(
@@ -254,6 +256,7 @@ public class DiscountingFixedCouponBondTradePricer {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Calculates the present value sensitivity of the fixed coupon bond trade.
    * <p>
@@ -261,9 +264,9 @@ public class DiscountingFixedCouponBondTradePricer {
    * the underlying curves.
    * <p>
    * Coupon payments of the underlying product are considered based on the settlement date of the trade.
-   * 
-   * @param trade  the trade
-   * @param provider  the discounting provider
+   *
+   * @param trade the trade
+   * @param provider the discounting provider
    * @return the present value curve sensitivity of the trade
    */
   public PointSensitivities presentValueSensitivity(
@@ -286,12 +289,12 @@ public class DiscountingFixedCouponBondTradePricer {
    * compounded rates of the discounting curve.
    * <p>
    * Coupon payments of the underlying product are considered based on the settlement date of the trade.
-   * 
-   * @param trade  the trade
-   * @param provider  the discounting provider
-   * @param zSpread  the z-spread
-   * @param compoundedRateType  the compounded rate type
-   * @param periodsPerYear  the number of periods per year
+   *
+   * @param trade the trade
+   * @param provider the discounting provider
+   * @param zSpread the z-spread
+   * @param compoundedRateType the compounded rate type
+   * @param periodsPerYear the number of periods per year
    * @return the present value curve sensitivity of the trade
    */
   public PointSensitivities presentValueSensitivityWithZSpread(
@@ -318,26 +321,29 @@ public class DiscountingFixedCouponBondTradePricer {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Calculates the currency exposure of the fixed coupon bond trade.
-   * 
-   * @param trade  the trade
-   * @param provider  the discounting provider
+   *
+   * @param trade the trade
+   * @param provider the discounting provider
    * @return the currency exposure of the fixed coupon bond trade
    */
-  public MultiCurrencyAmount currencyExposure(ResolvedFixedCouponBondTrade trade, LegalEntityDiscountingProvider provider) {
+  public MultiCurrencyAmount currencyExposure(
+      ResolvedFixedCouponBondTrade trade,
+      LegalEntityDiscountingProvider provider) {
 
     return MultiCurrencyAmount.of(presentValue(trade, provider));
   }
 
   /**
    * Calculates the currency exposure of the fixed coupon bond trade with z-spread.
-   * 
-   * @param trade  the trade
-   * @param provider  the discounting provider
-   * @param zSpread  the z-spread
-   * @param compoundedRateType  the compounded rate type
-   * @param periodsPerYear  the number of periods per year
+   *
+   * @param trade the trade
+   * @param provider the discounting provider
+   * @param zSpread the z-spread
+   * @param compoundedRateType the compounded rate type
+   * @param periodsPerYear the number of periods per year
    * @return the currency exposure of the fixed coupon bond trade
    */
   public MultiCurrencyAmount currencyExposureWithZSpread(
@@ -347,14 +353,19 @@ public class DiscountingFixedCouponBondTradePricer {
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    return MultiCurrencyAmount.of(presentValueWithZSpread(trade, provider, zSpread, compoundedRateType, periodsPerYear));
+    return MultiCurrencyAmount.of(presentValueWithZSpread(
+        trade,
+        provider,
+        zSpread,
+        compoundedRateType,
+        periodsPerYear));
   }
 
   /**
    * Calculates the current cash of the fixed coupon bond trade.
-   * 
-   * @param trade  the trade
-   * @param valuationDate  the valuation date
+   *
+   * @param trade the trade
+   * @param valuationDate the valuation date
    * @return the current cash amount
    */
   public CurrencyAmount currentCash(ResolvedFixedCouponBondTrade trade, LocalDate valuationDate) {
@@ -388,7 +399,9 @@ public class DiscountingFixedCouponBondTradePricer {
   }
 
   //-------------------------------------------------------------------------
-  private CurrencyAmount presentValuePayment(ResolvedFixedCouponBondTrade trade, LegalEntityDiscountingProvider provider) {
+  private CurrencyAmount presentValuePayment(
+      ResolvedFixedCouponBondTrade trade,
+      LegalEntityDiscountingProvider provider) {
     RepoCurveDiscountFactors repoDf = DiscountingFixedCouponBondProductPricer.repoCurveDf(trade.getProduct(), provider);
     Payment upfrontPayment = upfrontPayment(trade);
     return paymentPricer.presentValue(upfrontPayment, repoDf.getDiscountFactors());
@@ -409,12 +422,13 @@ public class DiscountingFixedCouponBondTradePricer {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Calculates the payment that was made for the trade.
    * <p>
    * This is the payment that was made on the settlement date, based on the quantity and clean price.
-   * 
-   * @param trade  the trade
+   *
+   * @param trade the trade
    * @return the payment that was made
    */
   public Payment upfrontPayment(ResolvedFixedCouponBondTrade trade) {
@@ -435,11 +449,14 @@ public class DiscountingFixedCouponBondTradePricer {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Calculates the settlement date.
+   * <p>
+   * The valuation date is returned if the settlement details are not stored.
    *
-   * @param trade  the trade
-   * @param valuationDate  the valuation date
+   * @param trade the trade
+   * @param valuationDate the valuation date
    * @return the settlement date
    */
   public LocalDate settlementDate(ResolvedFixedCouponBondTrade trade, LocalDate valuationDate) {
