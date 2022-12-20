@@ -269,6 +269,7 @@ public class GlobalHolidayCalendarsTest {
         {2016, mds(2016, md(1, 1), md(3, 25), md(3, 28), md(5, 2), md(5, 30), md(8, 29), md(12, 26), md(12, 27))},
         {2020, mds(2020, md(1, 1), md(4, 10), md(4, 13), md(5, 8), md(5, 25), md(8, 31), md(12, 25), md(12, 28))},
         {2022, mds(2022, md(1, 3), md(4, 15), md(4, 18), md(5, 2), md(6, 2), md(6, 3), md(8, 29), md(9, 19), md(12, 26), md(12, 27))},
+        {2023, mds(2023, md(1, 2), md(4, 7), md(4, 10), md(5, 1), md(5, 8), md(5, 29), md(8, 28), md(12, 25), md(12, 26))},
     };
   }
 
@@ -761,6 +762,8 @@ public class GlobalHolidayCalendarsTest {
             md(5, 22), md(6, 26), md(7, 3), md(9, 4), md(10, 9), md(12, 25))},
         {2018, mds(2018, md(1, 1), md(3, 30),
             md(5, 21), md(6, 25), md(7, 2), md(9, 3), md(10, 8), md(12, 25))},
+        {2022, mds(2022, md(1, 3), md(4, 15),
+            md(5, 23), md(6, 24), md(7, 1), md(9, 5), md(10, 10), md(12, 26))},
     };
   }
 
@@ -1194,6 +1197,23 @@ public class GlobalHolidayCalendarsTest {
 
   private static MonthDay md(int month, int day) {
     return MonthDay.of(month, day);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_christmas() {
+    // christmas on Friday
+    assertThat(GlobalHolidayCalendars.christmasBumpedSatSun(2020)).isEqualTo(LocalDate.of(2020, 12, 25));
+    assertThat(GlobalHolidayCalendars.boxingDayBumpedSatSun(2020)).isEqualTo(LocalDate.of(2020, 12, 28));
+    // christmas on Saturday
+    assertThat(GlobalHolidayCalendars.christmasBumpedSatSun(2021)).isEqualTo(LocalDate.of(2021, 12, 27));
+    assertThat(GlobalHolidayCalendars.boxingDayBumpedSatSun(2021)).isEqualTo(LocalDate.of(2021, 12, 28));
+    // christmas on Sunday
+    assertThat(GlobalHolidayCalendars.christmasBumpedSatSun(2022)).isEqualTo(LocalDate.of(2022, 12, 27));
+    assertThat(GlobalHolidayCalendars.boxingDayBumpedSatSun(2022)).isEqualTo(LocalDate.of(2022, 12, 26));
+    // christmas on Monday
+    assertThat(GlobalHolidayCalendars.christmasBumpedSatSun(2023)).isEqualTo(LocalDate.of(2023, 12, 25));
+    assertThat(GlobalHolidayCalendars.boxingDayBumpedSatSun(2023)).isEqualTo(LocalDate.of(2023, 12, 26));
   }
 
   //-------------------------------------------------------------------------
