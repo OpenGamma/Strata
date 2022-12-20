@@ -29,9 +29,7 @@ jobs:
 
       - name: Publish Test Report
         if: ${{ always() }}
-        uses: mikepenz/action-junit-report@v3.6.1
-        with:
-          report_paths: '**/build/test-results/test/TEST-*.xml'
+        uses: scacap/action-surefire-report@v1
 
       - name: Publish to GitHub Packages
         if: ${{ github.ref == 'refs/heads/xplain' }} #Deploy only on XPLAIN branch
