@@ -10,7 +10,7 @@
   </parent>
   <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-parent</artifactId>
-  <version>2.12.16-xplain-SNAPSHOT</version>
+  <version>2.12.18-xplain-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Strata-Parent</name>
   <description>OpenGamma Strata Parent</description>
@@ -762,7 +762,7 @@
     <!-- Locate the root directory of the multi-module build -->
     <root.dir>${project.basedir}/..</root.dir>
     <!-- Versions -->
-    <asm.version>9.3</asm.version>
+    <asm.version>9.4</asm.version>
     <assertj.version>3.23.1</assertj.version>
     <bridger.version>1.6.Final</bridger.version>
     <guava.version>31.1-jre</guava.version><!-- didn't want to go beyond v27 but forced to by security https://github.com/google/guava/issues/3320 -->
@@ -771,8 +771,8 @@
     <joda-convert.version>2.2.2</joda-convert.version>
     <joda-beans.version>2.8.3</joda-beans.version>
     <joda.beans.version>${joda-beans.version}</joda.beans.version>
-    <junit5.version>5.9.0</junit5.version>
-    <mockito.version>4.8.0</mockito.version>
+    <junit5.version>5.9.1</junit5.version>
+    <mockito.version>4.9.0</mockito.version>
     <slf4j.version>1.7.36</slf4j.version>
     <!-- Versions after M3 cause RequireFilesExist to reject relative paths -->
     <extra-enforcer-rules.version>1.2</extra-enforcer-rules.version>
