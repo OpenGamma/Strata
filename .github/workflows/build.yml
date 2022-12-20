@@ -8,9 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 11
@@ -27,12 +24,12 @@ jobs:
       - name: Maven run tests
         run: mvn test -T 3 -Dcheckstyle.skip=true
 
-      - name: Publish Test Report
-        if: ${{ always() }}
-        uses: scacap/action-surefire-report@v1
-
       - name: Publish to GitHub Packages
         if: ${{ github.ref == 'refs/heads/xplain' }} #Deploy only on XPLAIN branch
         run: mvn deploy -DaltSnapshotDeploymentRepository="github::https://maven.pkg.github.com/SolumXplain/solum-xplain-opengamma-strata" -DskipTests -Dcheckstyle.skip=true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Test Report
+        if: ${{ always() }}
+        uses: scacap/action-surefire-report@v1
