@@ -31,8 +31,8 @@ jobs:
           report_paths: '**/build/test-results/test/TEST-*.xml'
 
       - name: Publish to GitHub Packages
-        if: ${{ github.ref == 'refs/heads/sprout' }} #Deploy only on SPROUT branch
-        run: mvn deploy -DaltSnapshotDeploymentRepository="opengamma-repo::https://maven.pkg.github.com/sproutf/Strata" -DskipTests -Dcheckstyle.skip=true
+        if: ${{ github.ref == 'refs/heads/xplain' }} #Deploy only on XPLAIN branch
+        run: mvn deploy -DaltSnapshotDeploymentRepository="opengamma-repo::https://maven.pkg.github.com/SolumXplain/solum-xplain-opengamma-strata" -DskipTests -Dcheckstyle.skip=true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_USER: 'x-access-token'
