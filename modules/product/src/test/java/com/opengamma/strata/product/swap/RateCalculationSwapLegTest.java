@@ -72,12 +72,17 @@ public class RateCalculationSwapLegTest {
   private static final LocalDate DATE_01_02 = date(2014, 1, 2);
   private static final LocalDate DATE_01_05 = date(2014, 1, 5);
   private static final LocalDate DATE_01_06 = date(2014, 1, 6);
+  private static final LocalDate DATE_01_07 = date(2014, 1, 7);
+  private static final LocalDate DATE_01_09 = date(2014, 1, 9);
   private static final LocalDate DATE_01_12 = date(2014, 1, 12);
   private static final LocalDate DATE_01_13 = date(2014, 1, 13);
+  private static final LocalDate DATE_01_14 = date(2014, 1, 14);
   private static final LocalDate DATE_01_19 = date(2014, 1, 19);
   private static final LocalDate DATE_01_20 = date(2014, 1, 20);
+  private static final LocalDate DATE_01_21 = date(2014, 1, 21);
   private static final LocalDate DATE_01_26 = date(2014, 1, 26);
   private static final LocalDate DATE_01_27 = date(2014, 1, 27);
+  private static final LocalDate DATE_01_28 = date(2014, 1, 28);
   private static final LocalDate DATE_02_03 = date(2014, 2, 3);
   private static final LocalDate DATE_02_05 = date(2014, 2, 5);
   private static final LocalDate DATE_02_07 = date(2014, 2, 7);
@@ -924,6 +929,90 @@ public class RateCalculationSwapLegTest {
             .yearFraction(ACT_365F.yearFraction(DATE_02_05, DATE_02_07))
             .rateComputation(FixedRateComputation.of(0.025d))
             .build())
+        .dayCount(ACT_365F)
+        .currency(GBP)
+        .notional(-1000d)
+        .build();
+    // assertion
+    assertThat(test.resolve(REF_DATA)).isEqualTo(ResolvedSwapLeg.builder()
+        .type(FIXED)
+        .payReceive(PAY)
+        .paymentPeriods(rpp1, rpp2)
+        .build());
+  }
+
+  @Test
+  public void test_resolve_weeklyAccruals_monthlyPayments_initialStub_fixedRate() {
+    // test case
+    RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(DATE_01_05)
+            .endDate(DATE_02_07)
+            .frequency(P1W)
+            .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+            .stubConvention(SMART_INITIAL)
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(P1M)
+            .paymentDateOffset(PLUS_TWO_DAYS)
+            .build())
+        .notionalSchedule(NotionalSchedule.of(GBP, 1000d))
+        .calculation(FixedRateCalculation.builder()
+            .dayCount(ACT_365F)
+            .rate(ValueSchedule.of(0.025d))
+            .build())
+        .build();
+    // expected
+    RatePaymentPeriod rpp1 = RatePaymentPeriod.builder()
+        .paymentDate(DATE_01_09)
+        .accrualPeriods(
+            RateAccrualPeriod.builder()
+                .startDate(DATE_01_06)
+                .endDate(DATE_01_07)
+                .unadjustedStartDate(DATE_01_05)
+                .unadjustedEndDate(DATE_01_07)
+                .yearFraction(ACT_365F.yearFraction(DATE_01_06, DATE_01_07))
+                .rateComputation(FixedRateComputation.of(0.025d))
+                .build())
+        .dayCount(ACT_365F)
+        .currency(GBP)
+        .notional(-1000d)
+        .build();
+    RatePaymentPeriod rpp2 = RatePaymentPeriod.builder()
+        .paymentDate(DATE_02_11)
+        .accrualPeriods(RateAccrualPeriod.builder()
+            .startDate(DATE_01_07)
+            .endDate(DATE_01_14)
+            .unadjustedStartDate(DATE_01_07)
+            .unadjustedEndDate(DATE_01_14)
+            .yearFraction(ACT_365F.yearFraction(DATE_01_07, DATE_01_14))
+            .rateComputation(FixedRateComputation.of(0.025d))
+            .build(),
+            RateAccrualPeriod.builder()
+                .startDate(DATE_01_14)
+                .endDate(DATE_01_21)
+                .unadjustedStartDate(DATE_01_14)
+                .unadjustedEndDate(DATE_01_21)
+                .yearFraction(ACT_365F.yearFraction(DATE_01_14, DATE_01_21))
+                .rateComputation(FixedRateComputation.of(0.025d))
+                .build(),
+            RateAccrualPeriod.builder()
+                .startDate(DATE_01_21)
+                .endDate(DATE_01_28)
+                .unadjustedStartDate(DATE_01_21)
+                .unadjustedEndDate(DATE_01_28)
+                .yearFraction(ACT_365F.yearFraction(DATE_01_21, DATE_01_28))
+                .rateComputation(FixedRateComputation.of(0.025d))
+                .build(),
+            RateAccrualPeriod.builder()
+                .startDate(DATE_01_28)
+                .endDate(DATE_02_07)
+                .unadjustedStartDate(DATE_01_28)
+                .unadjustedEndDate(DATE_02_07)
+                .yearFraction(ACT_365F.yearFraction(DATE_01_28, DATE_02_07))
+                .rateComputation(FixedRateComputation.of(0.025d))
+                .build())
         .dayCount(ACT_365F)
         .currency(GBP)
         .notional(-1000d)
