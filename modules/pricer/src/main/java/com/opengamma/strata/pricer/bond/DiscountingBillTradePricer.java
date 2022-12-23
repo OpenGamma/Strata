@@ -44,10 +44,10 @@ public class DiscountingBillTradePricer {
 
   /**
    * Creates an instance.
-   * 
-   * @param productPricer  the pricer for {@link ResolvedBill}
-   * @param paymentPricer  the pricer for {@link Payment}
-  */
+   *
+   * @param productPricer the pricer for {@link ResolvedBill}
+   * @param paymentPricer the pricer for {@link Payment}
+   */
   public DiscountingBillTradePricer(
       DiscountingBillProductPricer productPricer,
       DiscountingPaymentPricer paymentPricer) {
@@ -56,15 +56,28 @@ public class DiscountingBillTradePricer {
     this.paymentPricer = ArgChecker.notNull(paymentPricer, "paymentPricer");
   }
 
+  //-------------------------------------------------------------------------
+
+  /**
+   * Gets the bill product pricer.
+   *
+   * @return the product pricer
+   */
+  public DiscountingBillProductPricer getProductPricer() {
+    return productPricer;
+  }
+
+  //-------------------------------------------------------------------------
+
   /**
    * Calculates the present value of a bill trade.
    * <p>
    * If the settlement details are provided, the present value is the sum of the underlying product's present value
-   * multiplied by the quantity and the present value of the settlement payment if still due at the valuation date. 
+   * multiplied by the quantity and the present value of the settlement payment if still due at the valuation date.
    * If not it is the underlying product's present value multiplied by the quantity.
-   * 
-   * @param trade  the trade
-   * @param provider  the discounting provider
+   *
+   * @param trade the trade
+   * @param provider the discounting provider
    * @return the present value
    */
   public CurrencyAmount presentValue(ResolvedBillTrade trade, LegalEntityDiscountingProvider provider) {
@@ -85,18 +98,18 @@ public class DiscountingBillTradePricer {
    * Calculates the present value of a bill trade with z-spread.
    * <p>
    * If the settlement details are provided, the present value is the sum of the underlying product's present value
-   * multiplied by the quantity and the present value of the settlement payment if still due at the valuation date. 
+   * multiplied by the quantity and the present value of the settlement payment if still due at the valuation date.
    * If not it is the underlying product's present value multiplied by the quantity.
    * <p>
-   * The z-spread is a parallel shift applied to continuously compounded rates or periodic compounded rates of 
+   * The z-spread is a parallel shift applied to continuously compounded rates or periodic compounded rates of
    * the issuer discounting curve. The z-spread is applied only on the legal entity curve, not on the repo curve used
    * for the settlement amount.
-   * 
-   * @param trade  the trade
-   * @param provider  the discounting provider
-   * @param zSpread  the z-spread
-   * @param compoundedRateType  the compounded rate type
-   * @param periodsPerYear  the number of periods per year
+   *
+   * @param trade the trade
+   * @param provider the discounting provider
+   * @param zSpread the z-spread
+   * @param compoundedRateType the compounded rate type
+   * @param periodsPerYear the number of periods per year
    * @return the present value
    */
   public CurrencyAmount presentValueWithZSpread(
@@ -124,11 +137,11 @@ public class DiscountingBillTradePricer {
    * Calculates the present value sensitivity of a bill trade.
    * <p>
    * If the settlement details are provided, the sensitivity is the sum of the underlying product's sensitivity
-   * multiplied by the quantity and the sensitivity of the settlement payment if still due at the valuation date. 
+   * multiplied by the quantity and the sensitivity of the settlement payment if still due at the valuation date.
    * If not it is the underlying product's sensitivity multiplied by the quantity.
-   * 
-   * @param trade  the trade
-   * @param provider  the discounting provider
+   *
+   * @param trade the trade
+   * @param provider the discounting provider
    * @return the present value sensitivity
    */
   public PointSensitivities presentValueSensitivity(ResolvedBillTrade trade, LegalEntityDiscountingProvider provider) {
@@ -150,18 +163,18 @@ public class DiscountingBillTradePricer {
    * Calculates the present value sensitivity of a bill trade with z-spread.
    * <p>
    * If the settlement details are provided, the sensitivity is the sum of the underlying product's sensitivity
-   * multiplied by the quantity and the sensitivity of the settlement payment if still due at the valuation date. 
+   * multiplied by the quantity and the sensitivity of the settlement payment if still due at the valuation date.
    * If not it is the underlying product's sensitivity multiplied by the quantity.
    * <p>
-   * The z-spread is a parallel shift applied to continuously compounded rates or periodic compounded rates of 
+   * The z-spread is a parallel shift applied to continuously compounded rates or periodic compounded rates of
    * the issuer discounting curve. The z-spread is applied only on the legal entity curve, not on the repo curve used
    * for the settlement amount.
-   * 
-   * @param trade  the trade
-   * @param provider  the discounting provider
-   * @param zSpread  the z-spread
-   * @param compoundedRateType  the compounded rate type
-   * @param periodsPerYear  the number of periods per year
+   *
+   * @param trade the trade
+   * @param provider the discounting provider
+   * @param zSpread the z-spread
+   * @param compoundedRateType the compounded rate type
+   * @param periodsPerYear the number of periods per year
    * @return the present value sensitivity
    */
   public PointSensitivities presentValueSensitivityWithZSpread(
@@ -187,11 +200,12 @@ public class DiscountingBillTradePricer {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Calculates the currency exposure of a bill trade.
-   * 
-   * @param trade  the trade
-   * @param provider  the discounting provider
+   *
+   * @param trade the trade
+   * @param provider the discounting provider
    * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposure(ResolvedBillTrade trade, LegalEntityDiscountingProvider provider) {
@@ -200,12 +214,12 @@ public class DiscountingBillTradePricer {
 
   /**
    * Calculates the currency exposure of a bill trade with z-spread.
-   * 
-   * @param trade  the trade
-   * @param provider  the discounting provider
-   * @param zSpread  the z-spread
-   * @param compoundedRateType  the compounded rate type
-   * @param periodsPerYear  the number of periods per year
+   *
+   * @param trade the trade
+   * @param provider the discounting provider
+   * @param zSpread the z-spread
+   * @param compoundedRateType the compounded rate type
+   * @param periodsPerYear the number of periods per year
    * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposureWithZSpread(
@@ -221,9 +235,9 @@ public class DiscountingBillTradePricer {
 
   /**
    * Calculates the current cash of a bill trade.
-   * 
-   * @param trade  the trade
-   * @param valuationDate  the valuation date
+   *
+   * @param trade the trade
+   * @param valuationDate the valuation date
    * @return the current cash amount
    */
   public CurrencyAmount currentCash(ResolvedBillTrade trade, LocalDate valuationDate) {
@@ -234,6 +248,23 @@ public class DiscountingBillTradePricer {
       return trade.getSettlement().get().getValue();
     }
     return CurrencyAmount.zero(trade.getProduct().getCurrency());
+  }
+
+  //-------------------------------------------------------------------------
+
+  /**
+   * Calculates the settlement date.
+   * <p>
+   * The valuation date is returned if the settlement details are not stored.
+   *
+   * @param trade the trade
+   * @param valuationDate the valuation date
+   * @return the settlement date
+   */
+  public LocalDate settlementDate(ResolvedBillTrade trade, LocalDate valuationDate) {
+    return trade.getSettlement()
+        .map(settle -> settle.getDate())
+        .orElse(valuationDate);
   }
 
   //-------------------------------------------------------------------------
