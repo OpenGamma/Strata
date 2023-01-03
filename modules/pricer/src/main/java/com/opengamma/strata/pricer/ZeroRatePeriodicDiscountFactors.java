@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.pricer;
 
-import static com.opengamma.strata.pricer.SimpleDiscountFactors.EFFECTIVE_ZERO;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
