@@ -85,15 +85,22 @@ public class RateCalculationSwapLegTest {
   private static final LocalDate DATE_01_28 = date(2014, 1, 28);
   private static final LocalDate DATE_02_03 = date(2014, 2, 3);
   private static final LocalDate DATE_02_05 = date(2014, 2, 5);
+  private static final LocalDate DATE_02_06 = date(2014, 2, 6);
   private static final LocalDate DATE_02_07 = date(2014, 2, 7);
+  private static final LocalDate DATE_02_10 = date(2014, 2, 10);
   private static final LocalDate DATE_02_11 = date(2014, 2, 11);
   private static final LocalDate DATE_03_03 = date(2014, 3, 3);
   private static final LocalDate DATE_03_05 = date(2014, 3, 5);
+  private static final LocalDate DATE_03_06 = date(2014, 3, 6);
   private static final LocalDate DATE_03_07 = date(2014, 3, 7);
+  private static final LocalDate DATE_03_10 = date(2014, 3, 10);
   private static final LocalDate DATE_04_03 = date(2014, 4, 3);
   private static final LocalDate DATE_04_05 = date(2014, 4, 5);
+  private static final LocalDate DATE_04_06 = date(2014, 4, 6);
   private static final LocalDate DATE_04_07 = date(2014, 4, 7);
+  private static final LocalDate DATE_04_08 = date(2014, 4, 8);
   private static final LocalDate DATE_04_09 = date(2014, 4, 9);
+  private static final LocalDate DATE_04_10 = date(2014, 4, 10);
   private static final LocalDate DATE_05_01 = date(2014, 5, 1);
   private static final LocalDate DATE_05_05 = date(2014, 5, 5);
   private static final LocalDate DATE_05_06 = date(2014, 5, 6);
@@ -1022,6 +1029,79 @@ public class RateCalculationSwapLegTest {
         .type(FIXED)
         .payReceive(PAY)
         .paymentPeriods(rpp1, rpp2)
+        .build());
+  }
+
+  @Test
+  public void test_accrual_offset() {
+    // test case
+    RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(DATE_01_05)
+            .endDate(DATE_04_05)
+            .frequency(P1M)
+            .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(P1M)
+            .paymentDateOffset(PLUS_TWO_DAYS)
+            .build())
+        .notionalSchedule(NotionalSchedule.of(GBP, 1000d))
+        .accrualScheduleOffset(DaysAdjustment.ofBusinessDays(1, GBLO))
+        .calculation(FixedRateCalculation.builder()
+            .dayCount(ACT_365F)
+            .rate(ValueSchedule.of(0.025d))
+            .build())
+        .build();
+    // expected
+    RatePaymentPeriod rpp1 = RatePaymentPeriod.builder()
+        .paymentDate(DATE_02_10)
+        .accrualPeriods(RateAccrualPeriod.builder()
+            .startDate(DATE_01_07)
+            .endDate(DATE_02_06)
+            .unadjustedStartDate(DATE_01_05)
+            .unadjustedEndDate(DATE_02_05)
+            .yearFraction(ACT_365F.yearFraction(DATE_01_07, DATE_02_06))
+            .rateComputation(FixedRateComputation.of(0.025d))
+            .build())
+        .dayCount(ACT_365F)
+        .currency(GBP)
+        .notional(-1000d)
+        .build();
+    RatePaymentPeriod rpp2 = RatePaymentPeriod.builder()
+        .paymentDate(DATE_03_10)
+        .accrualPeriods(RateAccrualPeriod.builder()
+            .startDate(DATE_02_06)
+            .unadjustedStartDate(DATE_02_05)
+            .endDate(DATE_03_06)
+            .unadjustedEndDate(DATE_03_05)
+            .yearFraction(ACT_365F.yearFraction(DATE_02_06, DATE_03_06))
+            .rateComputation(FixedRateComputation.of(0.025d))
+            .build())
+        .dayCount(ACT_365F)
+        .currency(GBP)
+        .notional(-1000d)
+        .build();
+    RatePaymentPeriod rpp3 = RatePaymentPeriod.builder()
+        .paymentDate(DATE_04_10)
+        .accrualPeriods(RateAccrualPeriod.builder()
+            .startDate(DATE_03_06)
+            .unadjustedStartDate(DATE_03_05)
+            .endDate(DATE_04_08)
+            .unadjustedEndDate(DATE_04_05)
+            .yearFraction(ACT_365F.yearFraction(DATE_03_06, DATE_04_08))
+            .rateComputation(FixedRateComputation.of(0.025d))
+            .build())
+        .dayCount(ACT_365F)
+        .currency(GBP)
+        .notional(-1000d)
+        .build();
+    // assertion
+    assertThat(test.resolve(REF_DATA)).isEqualTo(ResolvedSwapLeg.builder()
+        .type(FIXED)
+        .payReceive(PAY)
+        .paymentPeriods(rpp1, rpp2, rpp3)
         .build());
   }
 
