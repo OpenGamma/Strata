@@ -80,11 +80,11 @@ public final class RateCalculationSwapLeg
   private final PeriodicSchedule accrualSchedule;
 
   /**
-   * The accrual schedule.
+   * The accrual schedule offset.
    * <p>
-   * This is used to define offset all accrual periods.
+   * This is used to define offset of all accrual periods.
    */
-  @PropertyDefinition()
+  @PropertyDefinition
   private final DaysAdjustment accrualScheduleOffset;
   /**
    * The payment schedule.
