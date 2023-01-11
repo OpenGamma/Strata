@@ -76,7 +76,7 @@ public class InterpolatedNodalCurveDefinitionTest {
     assertThat(test.getExtrapolatorLeft()).isEqualTo(CurveExtrapolators.FLAT);
     assertThat(test.getExtrapolatorRight()).isEqualTo(CurveExtrapolators.FLAT);
     assertThat(test.getParameterCount()).isEqualTo(2);
-    assertThat(test.getFrequency()).isEmpty();
+    assertThat(test.getCompoundingPerYear()).isEmpty();
   }
 
   @Test
@@ -90,7 +90,7 @@ public class InterpolatedNodalCurveDefinitionTest {
         .interpolator(CurveInterpolators.LINEAR)
         .extrapolatorLeft(CurveExtrapolators.FLAT)
         .extrapolatorRight(CurveExtrapolators.FLAT)
-        .frequency(4)
+        .compoundingPerYear(4)
         .build();
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
@@ -101,7 +101,7 @@ public class InterpolatedNodalCurveDefinitionTest {
     assertThat(test.getExtrapolatorLeft()).isEqualTo(CurveExtrapolators.FLAT);
     assertThat(test.getExtrapolatorRight()).isEqualTo(CurveExtrapolators.FLAT);
     assertThat(test.getParameterCount()).isEqualTo(2);
-    assertThat(test.getFrequency()).isEqualTo(OptionalInt.of(4));
+    assertThat(test.getCompoundingPerYear()).isEqualTo(OptionalInt.of(4));
   }
 
   //-------------------------------------------------------------------------
@@ -329,7 +329,7 @@ public class InterpolatedNodalCurveDefinitionTest {
         .interpolator(CurveInterpolators.LINEAR)
         .extrapolatorLeft(CurveExtrapolators.FLAT)
         .extrapolatorRight(CurveExtrapolators.FLAT)
-        .frequency(2)
+        .compoundingPerYear(2)
         .build();
     DefaultCurveMetadata expected = DefaultCurveMetadata.builder()
         .curveName(CURVE_NAME)
@@ -384,7 +384,7 @@ public class InterpolatedNodalCurveDefinitionTest {
         .interpolator(CurveInterpolators.LINEAR)
         .extrapolatorLeft(CurveExtrapolators.FLAT)
         .extrapolatorRight(CurveExtrapolators.FLAT)
-        .frequency(4)
+        .compoundingPerYear(4)
         .build();
     CurveMetadata metadata = test.metadata(VAL_DATE, REF_DATA);
     InterpolatedNodalCurve expected = InterpolatedNodalCurve.builder()
