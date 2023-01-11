@@ -181,8 +181,11 @@ public final class RateCalculationSwapLeg
       return resolveWithPaymentFrequencyDrivenPaymentPeriods(refData);
     }
     DayCount dayCount = calculation.getDayCount();
-    DateAdjuster accrualOffsetAdjuster = accrualAdjustment().resolve(refData);
-    Schedule resolvedAccruals = accrualSchedule.createSchedule(refData).toAdjusted(accrualOffsetAdjuster);
+    Schedule resolvedAccruals = accrualSchedule.createSchedule(refData);
+    if (accrualScheduleOffset != null) {
+      resolvedAccruals = resolvedAccruals.toAdjusted(accrualScheduleOffset.resolve(refData));
+    }
+
     Schedule resolvedPayments = paymentSchedule.createSchedule(resolvedAccruals, refData);
     List<RateAccrualPeriod> accrualPeriods = calculation.createAccrualPeriods(resolvedAccruals, resolvedPayments, refData);
     List<NotionalPaymentPeriod> payPeriods = paymentSchedule.createPaymentPeriods(
@@ -202,13 +205,6 @@ public final class RateCalculationSwapLeg
     } catch (IllegalArgumentException ex) {
       return false;
     }
-  }
-
-  private DaysAdjustment accrualAdjustment() {
-    if (accrualScheduleOffset == null) {
-      return DaysAdjustment.NONE;
-    }
-    return accrualScheduleOffset;
   }
 
   /**
