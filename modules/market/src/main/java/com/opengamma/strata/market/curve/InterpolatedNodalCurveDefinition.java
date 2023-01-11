@@ -90,13 +90,13 @@ public final class InterpolatedNodalCurveDefinition
   @PropertyDefinition(get = "optional")
   private final DayCount dayCount;
   /**
-   * The frequency, optional.
+   * The compounding per year, optional.
    * <p>
    * The number of compounding periods per year of the zero-coupon rate.
    * This is used for a zero rate periodically-compounded curve. 
    */
   @PropertyDefinition(get = "optional")
-  private final Integer frequency;
+  private final Integer compoundingPerYear;
   /**
    * The nodes in the curve.
    * <p>
@@ -220,7 +220,15 @@ public final class InterpolatedNodalCurveDefinition
     // return the resolved definition
     List<CurveNode> filteredNodes = nodeDates.stream().map(p -> p.getSecond()).collect(toImmutableList());
     return new InterpolatedNodalCurveDefinition(
-        name, xValueType, yValueType, dayCount, frequency, filteredNodes, interpolator, extrapolatorLeft, extrapolatorRight);
+        name,
+        xValueType,
+        yValueType,
+        dayCount,
+        compoundingPerYear,
+        filteredNodes,
+        interpolator,
+        extrapolatorLeft,
+        extrapolatorRight);
   }
 
   //-------------------------------------------------------------------------
@@ -235,7 +243,7 @@ public final class InterpolatedNodalCurveDefinition
         .yValueType(yValueType)
         .dayCount(dayCount)
         .parameterMetadata(nodeMetadata);
-    getFrequency().ifPresent(frequency -> curveMetadataBuilder.addInfo(CurveInfoType.COMPOUNDING_PER_YEAR, frequency));
+    getCompoundingPerYear().ifPresent(frequency -> curveMetadataBuilder.addInfo(CurveInfoType.COMPOUNDING_PER_YEAR, frequency));
     return curveMetadataBuilder.build();
   }
 
@@ -306,7 +314,7 @@ public final class InterpolatedNodalCurveDefinition
       ValueType xValueType,
       ValueType yValueType,
       DayCount dayCount,
-      Integer frequency,
+      Integer compoundingPerYear,
       List<? extends CurveNode> nodes,
       CurveInterpolator interpolator,
       CurveExtrapolator extrapolatorLeft,
@@ -322,7 +330,7 @@ public final class InterpolatedNodalCurveDefinition
     this.xValueType = xValueType;
     this.yValueType = yValueType;
     this.dayCount = dayCount;
-    this.frequency = frequency;
+    this.compoundingPerYear = compoundingPerYear;
     this.nodes = ImmutableList.copyOf(nodes);
     this.interpolator = interpolator;
     this.extrapolatorLeft = extrapolatorLeft;
@@ -388,14 +396,14 @@ public final class InterpolatedNodalCurveDefinition
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the frequency, optional.
+   * Gets the compounding per year, optional.
    * <p>
    * The number of compounding periods per year of the zero-coupon rate.
    * This is used for a zero rate periodically-compounded curve.
    * @return the optional value of the property, not null
    */
-  public OptionalInt getFrequency() {
-    return frequency != null ? OptionalInt.of(frequency) : OptionalInt.empty();
+  public OptionalInt getCompoundingPerYear() {
+    return compoundingPerYear != null ? OptionalInt.of(compoundingPerYear) : OptionalInt.empty();
   }
 
   //-----------------------------------------------------------------------
@@ -458,7 +466,7 @@ public final class InterpolatedNodalCurveDefinition
           JodaBeanUtils.equal(xValueType, other.xValueType) &&
           JodaBeanUtils.equal(yValueType, other.yValueType) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
-          JodaBeanUtils.equal(frequency, other.frequency) &&
+          JodaBeanUtils.equal(compoundingPerYear, other.compoundingPerYear) &&
           JodaBeanUtils.equal(nodes, other.nodes) &&
           JodaBeanUtils.equal(interpolator, other.interpolator) &&
           JodaBeanUtils.equal(extrapolatorLeft, other.extrapolatorLeft) &&
@@ -474,7 +482,7 @@ public final class InterpolatedNodalCurveDefinition
     hash = hash * 31 + JodaBeanUtils.hashCode(xValueType);
     hash = hash * 31 + JodaBeanUtils.hashCode(yValueType);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
-    hash = hash * 31 + JodaBeanUtils.hashCode(frequency);
+    hash = hash * 31 + JodaBeanUtils.hashCode(compoundingPerYear);
     hash = hash * 31 + JodaBeanUtils.hashCode(nodes);
     hash = hash * 31 + JodaBeanUtils.hashCode(interpolator);
     hash = hash * 31 + JodaBeanUtils.hashCode(extrapolatorLeft);
@@ -490,7 +498,7 @@ public final class InterpolatedNodalCurveDefinition
     buf.append("xValueType").append('=').append(JodaBeanUtils.toString(xValueType)).append(',').append(' ');
     buf.append("yValueType").append('=').append(JodaBeanUtils.toString(yValueType)).append(',').append(' ');
     buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
-    buf.append("frequency").append('=').append(JodaBeanUtils.toString(frequency)).append(',').append(' ');
+    buf.append("compoundingPerYear").append('=').append(JodaBeanUtils.toString(compoundingPerYear)).append(',').append(' ');
     buf.append("nodes").append('=').append(JodaBeanUtils.toString(nodes)).append(',').append(' ');
     buf.append("interpolator").append('=').append(JodaBeanUtils.toString(interpolator)).append(',').append(' ');
     buf.append("extrapolatorLeft").append('=').append(JodaBeanUtils.toString(extrapolatorLeft)).append(',').append(' ');
@@ -530,10 +538,10 @@ public final class InterpolatedNodalCurveDefinition
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
         this, "dayCount", InterpolatedNodalCurveDefinition.class, DayCount.class);
     /**
-     * The meta-property for the {@code frequency} property.
+     * The meta-property for the {@code compoundingPerYear} property.
      */
-    private final MetaProperty<Integer> frequency = DirectMetaProperty.ofImmutable(
-        this, "frequency", InterpolatedNodalCurveDefinition.class, Integer.class);
+    private final MetaProperty<Integer> compoundingPerYear = DirectMetaProperty.ofImmutable(
+        this, "compoundingPerYear", InterpolatedNodalCurveDefinition.class, Integer.class);
     /**
      * The meta-property for the {@code nodes} property.
      */
@@ -564,7 +572,7 @@ public final class InterpolatedNodalCurveDefinition
         "xValueType",
         "yValueType",
         "dayCount",
-        "frequency",
+        "compoundingPerYear",
         "nodes",
         "interpolator",
         "extrapolatorLeft",
@@ -587,8 +595,8 @@ public final class InterpolatedNodalCurveDefinition
           return yValueType;
         case 1905311443:  // dayCount
           return dayCount;
-        case -70023844:  // frequency
-          return frequency;
+        case -1346403165:  // compoundingPerYear
+          return compoundingPerYear;
         case 104993457:  // nodes
           return nodes;
         case 2096253127:  // interpolator
@@ -650,11 +658,11 @@ public final class InterpolatedNodalCurveDefinition
     }
 
     /**
-     * The meta-property for the {@code frequency} property.
+     * The meta-property for the {@code compoundingPerYear} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Integer> frequency() {
-      return frequency;
+    public MetaProperty<Integer> compoundingPerYear() {
+      return compoundingPerYear;
     }
 
     /**
@@ -701,8 +709,8 @@ public final class InterpolatedNodalCurveDefinition
           return ((InterpolatedNodalCurveDefinition) bean).getYValueType();
         case 1905311443:  // dayCount
           return ((InterpolatedNodalCurveDefinition) bean).dayCount;
-        case -70023844:  // frequency
-          return ((InterpolatedNodalCurveDefinition) bean).frequency;
+        case -1346403165:  // compoundingPerYear
+          return ((InterpolatedNodalCurveDefinition) bean).compoundingPerYear;
         case 104993457:  // nodes
           return ((InterpolatedNodalCurveDefinition) bean).getNodes();
         case 2096253127:  // interpolator
@@ -736,7 +744,7 @@ public final class InterpolatedNodalCurveDefinition
     private ValueType xValueType;
     private ValueType yValueType;
     private DayCount dayCount;
-    private Integer frequency;
+    private Integer compoundingPerYear;
     private List<? extends CurveNode> nodes = ImmutableList.of();
     private CurveInterpolator interpolator;
     private CurveExtrapolator extrapolatorLeft;
@@ -758,7 +766,7 @@ public final class InterpolatedNodalCurveDefinition
       this.xValueType = beanToCopy.getXValueType();
       this.yValueType = beanToCopy.getYValueType();
       this.dayCount = beanToCopy.dayCount;
-      this.frequency = beanToCopy.frequency;
+      this.compoundingPerYear = beanToCopy.compoundingPerYear;
       this.nodes = beanToCopy.getNodes();
       this.interpolator = beanToCopy.getInterpolator();
       this.extrapolatorLeft = beanToCopy.getExtrapolatorLeft();
@@ -777,8 +785,8 @@ public final class InterpolatedNodalCurveDefinition
           return yValueType;
         case 1905311443:  // dayCount
           return dayCount;
-        case -70023844:  // frequency
-          return frequency;
+        case -1346403165:  // compoundingPerYear
+          return compoundingPerYear;
         case 104993457:  // nodes
           return nodes;
         case 2096253127:  // interpolator
@@ -808,8 +816,8 @@ public final class InterpolatedNodalCurveDefinition
         case 1905311443:  // dayCount
           this.dayCount = (DayCount) newValue;
           break;
-        case -70023844:  // frequency
-          this.frequency = (Integer) newValue;
+        case -1346403165:  // compoundingPerYear
+          this.compoundingPerYear = (Integer) newValue;
           break;
         case 104993457:  // nodes
           this.nodes = (List<? extends CurveNode>) newValue;
@@ -842,7 +850,7 @@ public final class InterpolatedNodalCurveDefinition
           xValueType,
           yValueType,
           dayCount,
-          frequency,
+          compoundingPerYear,
           nodes,
           interpolator,
           extrapolatorLeft,
@@ -907,15 +915,15 @@ public final class InterpolatedNodalCurveDefinition
     }
 
     /**
-     * Sets the frequency, optional.
+     * Sets the compounding per year, optional.
      * <p>
      * The number of compounding periods per year of the zero-coupon rate.
      * This is used for a zero rate periodically-compounded curve.
-     * @param frequency  the new value
+     * @param compoundingPerYear  the new value
      * @return this, for chaining, not null
      */
-    public Builder frequency(Integer frequency) {
-      this.frequency = frequency;
+    public Builder compoundingPerYear(Integer compoundingPerYear) {
+      this.compoundingPerYear = compoundingPerYear;
       return this;
     }
 
@@ -985,7 +993,7 @@ public final class InterpolatedNodalCurveDefinition
       buf.append("xValueType").append('=').append(JodaBeanUtils.toString(xValueType)).append(',').append(' ');
       buf.append("yValueType").append('=').append(JodaBeanUtils.toString(yValueType)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
-      buf.append("frequency").append('=').append(JodaBeanUtils.toString(frequency)).append(',').append(' ');
+      buf.append("compoundingPerYear").append('=').append(JodaBeanUtils.toString(compoundingPerYear)).append(',').append(' ');
       buf.append("nodes").append('=').append(JodaBeanUtils.toString(nodes)).append(',').append(' ');
       buf.append("interpolator").append('=').append(JodaBeanUtils.toString(interpolator)).append(',').append(' ');
       buf.append("extrapolatorLeft").append('=').append(JodaBeanUtils.toString(extrapolatorLeft)).append(',').append(' ');
