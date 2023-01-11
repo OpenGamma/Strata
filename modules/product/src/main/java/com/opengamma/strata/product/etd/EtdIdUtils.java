@@ -240,7 +240,7 @@ public final class EtdIdUtils {
       throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
     }
     YearMonth month = YearMonth.parse(dateStr.substring(0, 6), YM_FORMAT);
-    EtdVariant variant = EtdVariant.parseCode(dateStr.substring(6));
+    EtdVariant variant = EtdVariant.parse(dateStr.substring(6));
     SplitEtdId.Builder parsed = SplitEtdId.builder()
         .securityId(securityId)
         .exchangeId(exchangeId)
