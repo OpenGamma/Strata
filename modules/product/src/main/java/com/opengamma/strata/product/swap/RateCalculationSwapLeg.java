@@ -30,12 +30,13 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
-import com.opengamma.strata.basics.date.DateAdjuster;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.product.common.PayReceive;
 
@@ -225,53 +226,22 @@ public final class RateCalculationSwapLeg
    * @throws RuntimeException if unable to resolve due to an invalid swap schedule or definition
    */
   private ResolvedSwapLeg resolveWithPaymentFrequencyDrivenPaymentPeriods(ReferenceData refData) {
-    StubConvention stub = accrualSchedule.getStubConvention().orElse(StubConvention.SMART_INITIAL);
-
-    ImmutableList<NotionalPaymentPeriod> payPeriods;
-    if (stub.isCalculateForwards()) {
-      ImmutableList.Builder<NotionalPaymentPeriod> payPeriodsBuilder = ImmutableList.builder();
-      LocalDate bucketDate = accrualSchedule.getStartDate();
-      while (bucketDate.isBefore(accrualSchedule.getEndDate())) {
-        LocalDate nextBucketDate = bucketDate.plus(paymentSchedule.getPaymentFrequency());
-        if (nextBucketDate.isAfter(accrualSchedule.getEndDate())) {
-          break;
-        }
-        PeriodicSchedule bucketSchedule =
-            accrualSchedule.toBuilder().stubConvention(StubConvention.SMART_FINAL).startDate(bucketDate)
-                .endDate(nextBucketDate).build();
-        payPeriodsBuilder.addAll(resolvePayPeriodsPerBucket(bucketSchedule, refData));
-        bucketDate = nextBucketDate;
-      }
-      if (bucketDate.isBefore(accrualSchedule.getEndDate())) {
-        PeriodicSchedule bucketSchedule =
-            accrualSchedule.toBuilder().stubConvention(StubConvention.SMART_FINAL).startDate(bucketDate)
-                .endDate(accrualSchedule.getEndDate()).build();
-        payPeriodsBuilder.addAll(resolvePayPeriodsPerBucket(bucketSchedule, refData));
-      }
-      payPeriods = payPeriodsBuilder.build();
-    } else {
-      ImmutableList.Builder<NotionalPaymentPeriod> payPeriodsBuilder = ImmutableList.builder();
-      LocalDate bucketDate = accrualSchedule.getEndDate();
-      while (bucketDate.isAfter(accrualSchedule.getStartDate())) {
-        LocalDate nextBucketDate = bucketDate.minus(paymentSchedule.getPaymentFrequency());
-        if (nextBucketDate.isBefore(accrualSchedule.getStartDate())) {
-          break;
-        }
-        PeriodicSchedule bucketSchedule =
-            accrualSchedule.toBuilder().stubConvention(StubConvention.SMART_FINAL).endDate(bucketDate)
-                .startDate(nextBucketDate).build();
-        payPeriodsBuilder.addAll(resolvePayPeriodsPerBucket(bucketSchedule, refData));
-        bucketDate = nextBucketDate;
-      }
-      if (bucketDate.isAfter(accrualSchedule.getStartDate())) {
-        PeriodicSchedule bucketSchedule =
-            accrualSchedule.toBuilder().stubConvention(StubConvention.SMART_FINAL).endDate(bucketDate)
-                .startDate(accrualSchedule.getStartDate()).build();
-        payPeriodsBuilder.addAll(resolvePayPeriodsPerBucket(bucketSchedule, refData));
-      }
-      payPeriods = payPeriodsBuilder.build().reverse();
+    PeriodicSchedule paymentPeriodicSchedule = PeriodicSchedule.builder()
+        .startDate(accrualSchedule.getStartDate())
+        .endDate(accrualSchedule.getEndDate())
+        .frequency(paymentSchedule.getPaymentFrequency())
+        .businessDayAdjustment(BusinessDayAdjustment.NONE)
+        .stubConvention(accrualSchedule.getStubConvention().orElse(StubConvention.SMART_INITIAL))
+        .build();
+    Schedule schedule = paymentPeriodicSchedule.createSchedule(refData);
+    ImmutableList.Builder<NotionalPaymentPeriod> payPeriodsBuilder = ImmutableList.builder();
+    for (SchedulePeriod p : schedule.getPeriods()) {
+      PeriodicSchedule bucketSchedule =
+          accrualSchedule.toBuilder().stubConvention(StubConvention.SMART_FINAL).startDate(p.getUnadjustedStartDate())
+              .endDate(p.getUnadjustedEndDate()).build();
+      payPeriodsBuilder.addAll(resolvePayPeriodsPerBucket(bucketSchedule, refData));
     }
-
+    ImmutableList<NotionalPaymentPeriod> payPeriods = payPeriodsBuilder.build();
     LocalDate startDate = payPeriods.get(0).getStartDate();
     ImmutableList<SwapPaymentEvent> payEvents = notionalSchedule.createEvents(payPeriods, startDate, refData);
     return new ResolvedSwapLeg(getType(), payReceive, payPeriods, payEvents, getCurrency());
