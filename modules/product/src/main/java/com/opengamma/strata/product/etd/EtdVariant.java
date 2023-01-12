@@ -24,6 +24,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
 
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -127,12 +129,16 @@ public final class EtdVariant
   }
 
   /**
-   * Parses the variant code.
+   * Parses the variant short code.
+   * <p>
+   * This expects an empty string for Monthly, the week number prefixed by 'W' for Weekly,
+   * the day number for daily, with a suffix of the settlement type and option type codes.
    * 
    * @param code the variant code
    * @return the variant
    */
-  static EtdVariant parseCode(String code) {
+  @FromString
+  public static EtdVariant parse(String code) {
     switch (code.length()) {
       case 0:
         return MONTHLY;
@@ -222,6 +228,7 @@ public final class EtdVariant
    * 
    * @return the short code
    */
+  @ToString
   public String getCode() {
     return code;
   }
