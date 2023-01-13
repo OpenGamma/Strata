@@ -420,8 +420,18 @@ public class DiscountingFixedCouponBondProductPricer {
     return dirtyPriceSensitivity(bond, provider, settlementDate);
   }
 
-  // calculate the dirty price sensitivity
-  PointSensitivityBuilder dirtyPriceSensitivity(
+  /**
+   * Calculates the dirty price sensitivity of the fixed coupon bond product under the specified settlement date.
+   * <p>
+   * The dirty price sensitivity of the security is the sensitivity of the present value to
+   * the underlying curves.
+   *
+   * @param bond  the product
+   * @param provider  the discounting provider
+   * @param settlementDate  the settlement date
+   * @return the dirty price value curve sensitivity of the security
+   */
+  public PointSensitivityBuilder dirtyPriceSensitivity(
       ResolvedFixedCouponBond bond,
       LegalEntityDiscountingProvider provider,
       LocalDate settlementDate) {
