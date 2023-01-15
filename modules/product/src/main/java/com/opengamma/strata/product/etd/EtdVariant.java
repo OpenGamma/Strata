@@ -25,7 +25,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 import org.joda.convert.FromString;
-import org.joda.convert.ToString;
 
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -137,7 +136,7 @@ public final class EtdVariant
    * @param code the variant code
    * @return the variant
    */
-  @FromString
+  @FromString  // FromString without ToString, allowing incorrect serialized form to be read
   public static EtdVariant parse(String code) {
     switch (code.length()) {
       case 0:
@@ -228,7 +227,7 @@ public final class EtdVariant
    * 
    * @return the short code
    */
-  @ToString
+  // do NOT add @ToString, as that breaks the serialized form in classes like EtdFutureSecurity
   public String getCode() {
     return code;
   }
