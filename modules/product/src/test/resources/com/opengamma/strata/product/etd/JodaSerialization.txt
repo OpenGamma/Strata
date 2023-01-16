@@ -1,0 +1,399 @@
+# EtdVariant1
+{
+ "@bean": "com.opengamma.strata.product.etd.EtdVariant",
+ "type": "Monthly"
+}
+
+# EtdVariant2
+{
+ "@bean": "com.opengamma.strata.product.etd.EtdVariant",
+ "type": "Daily",
+ "dateCode": 6,
+ "settlementType": "Cash",
+ "optionType": "European"
+}
+
+# EtdContractSpec1
+{
+ "@bean": "com.opengamma.strata.product.etd.EtdContractSpec",
+ "id": "test~123",
+ "type": "Future",
+ "exchangeId": "ECAG",
+ "contractCode": "FOO",
+ "description": "A test future template",
+ "priceInfo": {
+  "tickSize": 1.0,
+  "tickValue": "GBP 1",
+  "contractSize": 100.0
+ },
+ "attributes": {}
+}
+
+# EtdContractSpec2
+{
+ "@bean": "com.opengamma.strata.product.etd.EtdContractSpec",
+ "id": "OG-ETD~O-IFEN-BAR",
+ "type": "Option",
+ "exchangeId": "IFEN",
+ "contractCode": "BAR",
+ "description": "A test option template",
+ "priceInfo": {
+  "tickSize": 1.0,
+  "tickValue": "EUR 1",
+  "contractSize": 10.0
+ },
+ "attributes": {
+  "name": "NAME"
+ }
+}
+
+# EtdFuturePosition1
+{
+ "@bean": "com.opengamma.strata.product.etd.EtdFuturePosition",
+ "info": {
+  "id": "A~B",
+  "attributes": {}
+ },
+ "security": {
+  "info": {
+   "id": "A~B",
+   "priceInfo": {
+    "tickSize": 1.0,
+    "tickValue": "GBP 1",
+    "contractSize": 100.0
+   },
+   "attributes": {}
+  },
+  "contractSpecId": "test~123",
+  "expiry": "2017-06",
+  "variant": {
+   "type": "Monthly"
+  }
+ },
+ "longQuantity": 3000.0,
+ "shortQuantity": 2000.0
+}
+
+# EtdFuturePosition2
+{
+ "@bean": "com.opengamma.strata.product.etd.EtdFuturePosition",
+ "info": {
+  "attributes": {}
+ },
+ "security": {
+  "info": {
+   "id": "B~C",
+   "priceInfo": {
+    "tickSize": 1.0,
+    "tickValue": "EUR 1",
+    "contractSize": 10.0
+   },
+   "attributes": {}
+  },
+  "contractSpecId": "test~234",
+  "expiry": "2017-09",
+  "variant": {
+   "type": "Weekly",
+   "dateCode": 2
+  }
+ },
+ "longQuantity": 4000.0,
+ "shortQuantity": 1000.0
+}
+
+# EtdFutureSecurity1
+{
+ "@bean": "com.opengamma.strata.product.etd.EtdFutureSecurity",
+ "info": {
+  "id": "A~B",
+  "priceInfo": {
+   "tickSize": 1.0,
+   "tickValue": "GBP 1",
+   "contractSize": 100.0
+  },
+  "attributes": {}
+ },
+ "contractSpecId": "test~123",
+ "expiry": "2017-06",
+ "variant": {
+  "type": "Monthly"
+ }
+}
+
+# EtdFutureSecurity1-Old
+{
+ "@bean": "com.opengamma.strata.product.etd.EtdFutureSecurity",
+ "info": {
+  "id": "A~B",
+  "priceInfo": {
+   "tickSize": 1.0,
+   "tickValue": "GBP 1",
+   "contractSize": 100.0
+  },
+  "attributes": {}
+ },
+ "contractSpecId": "test~123",
+ "expiry": "2017-06",
+ "variant": ""
+}
+
+# EtdFutureSecurity2
+{
+ "@bean": "com.opengamma.strata.product.etd.EtdFutureSecurity",
+ "info": {
+  "id": "B~C",
+  "priceInfo": {
+   "tickSize": 1.0,
+   "tickValue": "EUR 1",
+   "contractSize": 10.0
+  },
+  "attributes": {}
+ },
+ "contractSpecId": "test~234",
+ "expiry": "2017-09",
+ "variant": {
+  "type": "Weekly",
+  "dateCode": 2
+ }
+}
+
+# EtdFutureSecurity2-Old
+{
+ "@bean": "com.opengamma.strata.product.etd.EtdFutureSecurity",
+ "info": {
+  "id": "B~C",
+  "priceInfo": {
+   "tickSize": 1.0,
+   "tickValue": "EUR 1",
+   "contractSize": 10.0
+  },
+  "attributes": {}
+ },
+ "contractSpecId": "test~234",
+ "expiry": "2017-09",
+ "variant": "W2"
+}
+
+# EtdFutureTrade1
+{
+ "@bean": "com.opengamma.strata.product.etd.EtdFutureTrade",
+ "info": {
+  "tradeDate": "2017-01-01",
+  "attributes": {}
+ },
+ "security": {
+  "info": {
+   "id": "A~B",
+   "priceInfo": {
+    "tickSize": 1.0,
+    "tickValue": "GBP 1",
+    "contractSize": 100.0
+   },
+   "attributes": {}
+  },
+  "contractSpecId": "test~123",
+  "expiry": "2017-06",
+  "variant": {
+   "type": "Monthly"
+  }
+ },
+ "quantity": 3000.0,
+ "price": 20.0
+}
+
+# EtdFutureTrade2
+{
+ "@bean": "com.opengamma.strata.product.etd.EtdFutureTrade",
+ "info": {
+  "attributes": {}
+ },
+ "security": {
+  "info": {
+   "id": "B~C",
+   "priceInfo": {
+    "tickSize": 1.0,
+    "tickValue": "EUR 1",
+    "contractSize": 10.0
+   },
+   "attributes": {}
+  },
+  "contractSpecId": "test~234",
+  "expiry": "2017-09",
+  "variant": {
+   "type": "Weekly",
+   "dateCode": 2
+  }
+ },
+ "quantity": 4000.0,
+ "price": 30.0
+}
+
+# EtdOptionTrade1
+{
+ "@bean": "com.opengamma.strata.product.etd.EtdOptionTrade",
+ "info": {
+  "tradeDate": "2017-01-01",
+  "attributes": {}
+ },
+ "security": {
+  "info": {
+   "id": "A~B",
+   "priceInfo": {
+    "tickSize": 1.0,
+    "tickValue": "GBP 1",
+    "contractSize": 100.0
+   },
+   "attributes": {}
+  },
+  "contractSpecId": "test~123",
+  "expiry": "2017-06",
+  "variant": {
+   "type": "Monthly"
+  },
+  "version": 0,
+  "putCall": "Put",
+  "strikePrice": 2.0
+ },
+ "quantity": 3000.0,
+ "price": 20.0
+}
+
+# EtdOptionTrade2
+{
+ "@bean": "com.opengamma.strata.product.etd.EtdOptionTrade",
+ "info": {
+  "attributes": {}
+ },
+ "security": {
+  "info": {
+   "id": "B~C",
+   "priceInfo": {
+    "tickSize": 1.0,
+    "tickValue": "EUR 1",
+    "contractSize": 10.0
+   },
+   "attributes": {}
+  },
+  "contractSpecId": "test~234",
+  "expiry": "2017-09",
+  "variant": {
+   "type": "Weekly",
+   "dateCode": 2
+  },
+  "version": 4,
+  "putCall": "Call",
+  "strikePrice": 3.0,
+  "underlyingExpiryMonth": "2017-12"
+ },
+ "quantity": 4000.0,
+ "price": 30.0
+}
+
+# EtdOptionPosition1
+{
+ "@bean": "com.opengamma.strata.product.etd.EtdOptionPosition",
+ "info": {
+  "id": "A~B",
+  "attributes": {}
+ },
+ "security": {
+  "info": {
+   "id": "A~B",
+   "priceInfo": {
+    "tickSize": 1.0,
+    "tickValue": "GBP 1",
+    "contractSize": 100.0
+   },
+   "attributes": {}
+  },
+  "contractSpecId": "test~123",
+  "expiry": "2017-06",
+  "variant": {
+   "type": "Monthly"
+  },
+  "version": 0,
+  "putCall": "Put",
+  "strikePrice": 2.0
+ },
+ "longQuantity": 3000.0,
+ "shortQuantity": 2000.0
+}
+
+# EtdOptionPosition2
+{
+ "@bean": "com.opengamma.strata.product.etd.EtdOptionPosition",
+ "info": {
+  "attributes": {}
+ },
+ "security": {
+  "info": {
+   "id": "B~C",
+   "priceInfo": {
+    "tickSize": 1.0,
+    "tickValue": "EUR 1",
+    "contractSize": 10.0
+   },
+   "attributes": {}
+  },
+  "contractSpecId": "test~234",
+  "expiry": "2017-09",
+  "variant": {
+   "type": "Weekly",
+   "dateCode": 2
+  },
+  "version": 4,
+  "putCall": "Call",
+  "strikePrice": 3.0,
+  "underlyingExpiryMonth": "2017-12"
+ },
+ "longQuantity": 4000.0,
+ "shortQuantity": 1000.0
+}
+
+# EtdOptionSecurity1
+{
+ "@bean": "com.opengamma.strata.product.etd.EtdOptionSecurity",
+ "info": {
+  "id": "A~B",
+  "priceInfo": {
+   "tickSize": 1.0,
+   "tickValue": "GBP 1",
+   "contractSize": 100.0
+  },
+  "attributes": {}
+ },
+ "contractSpecId": "test~123",
+ "expiry": "2017-06",
+ "variant": {
+  "type": "Monthly"
+ },
+ "version": 0,
+ "putCall": "Put",
+ "strikePrice": 2.0
+}
+
+# EtdOptionSecurity2
+{
+ "@bean": "com.opengamma.strata.product.etd.EtdOptionSecurity",
+ "info": {
+  "id": "B~C",
+  "priceInfo": {
+   "tickSize": 1.0,
+   "tickValue": "EUR 1",
+   "contractSize": 10.0
+  },
+  "attributes": {}
+ },
+ "contractSpecId": "test~234",
+ "expiry": "2017-09",
+ "variant": {
+  "type": "Weekly",
+  "dateCode": 2
+ },
+ "version": 4,
+ "putCall": "Call",
+ "strikePrice": 3.0,
+ "underlyingExpiryMonth": "2017-12"
+}
+
+# END
