@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product;
 
+import static com.opengamma.strata.collect.TestHelper.assertJodaSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -230,6 +231,7 @@ public class TradeInfoTest {
         .zone(ZoneOffset.UTC)
         .settlementDate(date(2014, 6, 20))
         .build();
+    assertJodaSerialization(test, "TradeInfo1");
     assertSerialization(test);
   }
 

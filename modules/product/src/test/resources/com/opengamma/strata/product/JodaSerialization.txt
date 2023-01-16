@@ -1,0 +1,116 @@
+# GenericSecurity1
+{
+ "@bean": "com.opengamma.strata.product.GenericSecurity",
+ "info": {
+  "id": "Test~1",
+  "priceInfo": {
+   "tickSize": 0.1,
+   "tickValue": "GBP 25",
+   "contractSize": 1.0
+  },
+  "attributes": {}
+ }
+}
+
+# GenericSecurityTrade1
+{
+ "@bean": "com.opengamma.strata.product.GenericSecurityTrade",
+ "info": {
+  "tradeDate": "2016-06-30",
+  "attributes": {}
+ },
+ "security": {
+  "info": {
+   "id": "Test~1",
+   "priceInfo": {
+    "tickSize": 0.1,
+    "tickValue": "GBP 25",
+    "contractSize": 1.0
+   },
+   "attributes": {}
+  }
+ },
+ "quantity": 100.0,
+ "price": 123.5
+}
+
+# PortfolioItemInfo1
+{
+ "@bean": "com.opengamma.strata.product.ItemInfo",
+ "id": "OG-Test~123",
+ "attributes": {
+  "description": "A"
+ }
+}
+
+# PositionInfo1
+{
+ "@bean": "com.opengamma.strata.product.PositionInfo",
+ "id": "OG-Test~123",
+ "attributes": {
+  "description": "A"
+ }
+}
+
+# PortfolioItemSummary1
+{
+ "@bean": "com.opengamma.strata.product.PortfolioItemSummary",
+ "id": "A~B",
+ "portfolioItemType": "Position",
+ "productType": "Security",
+ "currencies": ["GBP"],
+ "description": "One"
+}
+
+# SecurityInfo1
+{
+ "@bean": "com.opengamma.strata.product.SecurityInfo",
+ "id": "OG-Test~Test",
+ "priceInfo": {
+  "tickSize": 0.01,
+  "tickValue": "GBP 0.01",
+  "contractSize": 1.0
+ },
+ "attributes": {}
+}
+
+# SecurityPriceInfo1
+{
+ "@bean": "com.opengamma.strata.product.SecurityPriceInfo",
+ "tickSize": 0.01,
+ "tickValue": "GBP 0.01",
+ "contractSize": 1.0
+}
+
+# SecurityTrade1
+{
+ "@bean": "com.opengamma.strata.product.SecurityTrade",
+ "info": {
+  "tradeDate": "2016-06-30",
+  "attributes": {}
+ },
+ "securityId": "OG-Test~Id",
+ "quantity": 100.0,
+ "price": 123.5
+}
+
+# SimpleAttributes1
+{
+ "@bean": "com.opengamma.strata.product.SimpleAttributes",
+ "attributes": {
+  "description": "hello"
+ }
+}
+
+# TradeInfo1
+{
+ "@bean": "com.opengamma.strata.product.TradeInfo",
+ "counterparty": "OG-Party~Other",
+ "tradeDate": "2014-06-20",
+ "tradeTime": "00:00",
+ "zone": "Z",
+ "settlementDate": "2014-06-20",
+ "attributes": {}
+}
+
+# END

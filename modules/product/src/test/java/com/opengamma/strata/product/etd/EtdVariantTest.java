@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.product.etd;
 
-import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
+import static com.opengamma.strata.collect.TestHelper.assertJodaSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -111,8 +111,9 @@ public class EtdVariantTest {
 
   @Test
   public void test_serialization() {
+    assertJodaSerialization(sut(), "EtdVariant1");
+    assertJodaSerialization(sut2(), "EtdVariant2");
     assertSerialization(sut());
-    assertJodaConvert(EtdVariant.class, sut());
   }
 
   //-------------------------------------------------------------------------
