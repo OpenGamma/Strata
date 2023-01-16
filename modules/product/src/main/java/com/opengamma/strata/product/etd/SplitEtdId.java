@@ -24,7 +24,7 @@ import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.common.ExchangeId;
 
 /**
- * An OG-ETD identifier that has been split into its constituent parts
+ * An OG-ETD identifier that has been split into its constituent parts.
  */
 @BeanDefinition(style = "minimal")
 public final class SplitEtdId implements ImmutableBean {
