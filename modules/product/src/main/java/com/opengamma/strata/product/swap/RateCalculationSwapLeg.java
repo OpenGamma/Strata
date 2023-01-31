@@ -249,7 +249,7 @@ public final class RateCalculationSwapLeg
 
   private List<NotionalPaymentPeriod> resolvePayPeriodsPerBucket(PeriodicSchedule bucketSchedule, ReferenceData refData) {
     DayCount dayCount = calculation.getDayCount();
-    Schedule resolvedAccruals = bucketSchedule.createSchedule(refData);
+    Schedule resolvedAccruals = bucketSchedule.createSchedule(refData, true);
     Schedule resolvedPayments = resolvedAccruals.mergeToTerm();
     List<RateAccrualPeriod> accrualPeriods =
         calculation.createAccrualPeriods(resolvedAccruals, resolvedPayments, refData);
