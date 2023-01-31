@@ -43,6 +43,7 @@ import java.time.YearMonth;
 
 import org.junit.jupiter.api.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -51,6 +52,8 @@ import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.index.FxIndexObservation;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.schedule.Frequency;
@@ -1006,6 +1009,61 @@ public class RateCalculationSwapLegTest {
   }
 
   @Test
+  public void test_resolve_weeklyAccruals_monthlyPayments_initialStub_fixedRate_combineDuplicateAccrualPeriods() {
+    // test case
+    RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(DATE_01_05)
+            .endDate(DATE_01_27)
+            .frequency(P1W)
+            .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, HolidayCalendarId.of("Mock")))
+            .stubConvention(SMART_INITIAL)
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(P1M)
+            .paymentDateOffset(DaysAdjustment.NONE)
+            .build())
+        .notionalSchedule(NotionalSchedule.of(GBP, 1000d))
+        .calculation(FixedRateCalculation.builder()
+            .dayCount(ACT_365F)
+            .rate(ValueSchedule.of(0.025d))
+            .build())
+        .build();
+    // expected
+    RatePaymentPeriod rpp = RatePaymentPeriod.builder()
+        .paymentDate(DATE_01_27)
+        .accrualPeriods(
+            RateAccrualPeriod.builder()
+                .startDate(DATE_01_05)
+                .endDate(DATE_01_26)
+                .unadjustedStartDate(DATE_01_05)
+                .unadjustedEndDate(DATE_01_19)
+                .yearFraction(ACT_365F.yearFraction(DATE_01_05, DATE_01_26))
+                .rateComputation(FixedRateComputation.of(0.025d))
+                .build(),
+            RateAccrualPeriod.builder()
+                .startDate(DATE_01_26)
+                .endDate(DATE_01_27)
+                .unadjustedStartDate(DATE_01_19)
+                .unadjustedEndDate(DATE_01_27)
+                .yearFraction(ACT_365F.yearFraction(DATE_01_26, DATE_01_27))
+                .rateComputation(FixedRateComputation.of(0.025d))
+                .build())
+        .dayCount(ACT_365F)
+        .currency(GBP)
+        .notional(-1000d)
+        .build();
+    // assertion
+    ReferenceData mockRd = ReferenceData.of(ImmutableMap.of(HolidayCalendarId.of("Mock"), new MockHolCal()));
+    assertThat(test.resolve(mockRd)).isEqualTo(ResolvedSwapLeg.builder()
+        .type(FIXED)
+        .payReceive(PAY)
+        .paymentPeriods(rpp)
+        .build());
+  }
+
+  @Test
   public void test_resolve_weeklyAccruals_monthlyPayments_finalSmartStub_endOfMonth_fixedRate() {
     // test case
     LocalDate tradeStartDate = LocalDate.of(2022, 11, 30);
@@ -1237,6 +1295,31 @@ public class RateCalculationSwapLegTest {
             .build())
         .build();
     assertSerialization(test);
+  }
+
+  static class MockHolCal implements HolidayCalendar {
+    @Override
+    public boolean isHoliday(LocalDate date) {
+      return date.getDayOfMonth() == 12 ||
+          date.getDayOfMonth() == 13 ||
+          date.getDayOfMonth() == 14 ||
+          date.getDayOfMonth() == 15 ||
+          date.getDayOfMonth() == 16 ||
+          date.getDayOfMonth() == 17 ||
+          date.getDayOfMonth() == 18 ||
+          date.getDayOfMonth() == 19 ||
+          date.getDayOfMonth() == 20 ||
+          date.getDayOfMonth() == 21 ||
+          date.getDayOfMonth() == 22 ||
+          date.getDayOfMonth() == 23 ||
+          date.getDayOfMonth() == 24 ||
+          date.getDayOfMonth() == 25;
+    }
+
+    @Override
+    public HolidayCalendarId getId() {
+      return HolidayCalendarId.of("Mock");
+    }
   }
 
 }
