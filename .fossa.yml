@@ -4,3 +4,6 @@ experimental:
   maven:
     configurations-only:
       - runtimeClasspath
+paths:
+  exclude:
+    - ./examples
