@@ -230,15 +230,16 @@ public final class RateCalculationSwapLeg
         .startDate(accrualSchedule.getStartDate())
         .endDate(accrualSchedule.getEndDate())
         .frequency(paymentSchedule.getPaymentFrequency())
-        .businessDayAdjustment(BusinessDayAdjustment.NONE)
+        .businessDayAdjustment(accrualSchedule.getBusinessDayAdjustment())
         .stubConvention(accrualSchedule.getStubConvention().orElse(StubConvention.SMART_INITIAL))
         .build();
     Schedule schedule = paymentPeriodicSchedule.createSchedule(refData);
     ImmutableList.Builder<NotionalPaymentPeriod> payPeriodsBuilder = ImmutableList.builder();
     for (SchedulePeriod p : schedule.getPeriods()) {
       PeriodicSchedule bucketSchedule =
-          accrualSchedule.toBuilder().stubConvention(StubConvention.SMART_FINAL).startDate(p.getUnadjustedStartDate())
-              .endDate(p.getUnadjustedEndDate()).build();
+          accrualSchedule.toBuilder().stubConvention(StubConvention.SHORT_FINAL).startDate(p.getStartDate())
+              .endDate(p.getEndDate()).businessDayAdjustment(BusinessDayAdjustment.NONE)
+              .build();
       payPeriodsBuilder.addAll(resolvePayPeriodsPerBucket(bucketSchedule, refData));
     }
     ImmutableList<NotionalPaymentPeriod> payPeriods = payPeriodsBuilder.build();
