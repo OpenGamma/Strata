@@ -33,12 +33,3 @@ jobs:
       - name: Publish Test Report
         if: ${{ always() }}
         uses: scacap/action-surefire-report@v1
-  fossa-scan:
-    runs-on: ubuntu-latest
-    steps:
-      - name: "Checkout Code"
-        uses: actions/checkout@v3
-      - name: "Run FOSSA Scan"
-        uses: fossas/fossa-action@main
-        with:
-          api-key: ${{ secrets.FOSSA_API_KEY }}
