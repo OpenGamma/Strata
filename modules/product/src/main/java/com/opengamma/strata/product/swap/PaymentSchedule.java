@@ -187,7 +187,7 @@ public final class PaymentSchedule
    * Rolling is backwards if there is an initial stub, otherwise rolling is forwards.
    * Grouping involves merging the existing accrual periods, thus the roll convention
    * of the accrual periods is implicitly applied.
-   * 
+   *
    * @param accrualSchedule  the accrual schedule
    * @param refData  the reference data to use when resolving
    * @return the payment schedule
@@ -207,7 +207,7 @@ public final class PaymentSchedule
           !lastRegularEndDate.equals(accrualSchedule.getEndDate())) {
         throw new ScheduleException("Unable to create schedule for frequency 'Term' when lastRegularEndDate != endDate");
       }
-      return accrualSchedule.mergeToTerm();
+      return adjustedPaySchedule(accrualSchedule.mergeToTerm(), refData);
     }
     // derive schedule, retaining stubs as payment periods
     int accrualPeriodsPerPayment = paymentFrequency.exactDivide(accrualSchedule.getFrequency());
@@ -236,6 +236,10 @@ public final class PaymentSchedule
       paySchedule = accrualSchedule.mergeRegular(accrualPeriodsPerPayment, rollForwards);
     }
     // adjust for business days
+    return adjustedPaySchedule(paySchedule, refData);
+  }
+
+  private Schedule adjustedPaySchedule(Schedule paySchedule, ReferenceData refData) {
     if (businessDayAdjustment != null) {
       return paySchedule.toAdjusted(businessDayAdjustment.resolve(refData));
     }
@@ -247,7 +251,7 @@ public final class PaymentSchedule
    * Builds the list of payment periods from the list of accrual periods.
    * <p>
    * This applies the payment schedule.
-   * 
+   *
    * @param accrualSchedule  the accrual schedule
    * @param paymentSchedule  the payment schedule
    * @param accrualPeriods  the list of accrual periods
