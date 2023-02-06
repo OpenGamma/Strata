@@ -13,6 +13,7 @@ import static com.opengamma.strata.basics.schedule.Frequency.P2M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.TERM;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_5;
+import static com.opengamma.strata.basics.schedule.RollConventions.EOM;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -66,6 +67,8 @@ public class PaymentScheduleTest {
   private static final LocalDate DATE_04_30 = date(2014, 4, 30);
   private static final LocalDate DATE_05_05 = date(2014, 5, 5);
   private static final LocalDate DATE_05_06 = date(2014, 5, 6);
+  private static final LocalDate DATE_05_30 = date(2014, 5, 30);
+  private static final LocalDate DATE_05_31 = date(2014, 5, 31);
   private static final BusinessDayAdjustment BDA = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SAT_SUN);
 
   private static final SchedulePeriod ACCRUAL1STUB = SchedulePeriod.of(DATE_01_08, DATE_02_05, DATE_01_08, DATE_02_05);
@@ -73,6 +76,7 @@ public class PaymentScheduleTest {
   private static final SchedulePeriod ACCRUAL2 = SchedulePeriod.of(DATE_02_05, DATE_03_05, DATE_02_05, DATE_03_05);
   private static final SchedulePeriod ACCRUAL3 = SchedulePeriod.of(DATE_03_05, DATE_04_07, DATE_03_05, DATE_04_05);
   private static final SchedulePeriod ACCRUAL4 = SchedulePeriod.of(DATE_04_07, DATE_05_06, DATE_04_05, DATE_05_05);
+  private static final SchedulePeriod ACCRUAL_5 = SchedulePeriod.of(DATE_04_30, DATE_05_31);
   private static final SchedulePeriod ACCRUAL3STUB = SchedulePeriod.of(DATE_03_05, DATE_04_04, DATE_03_05, DATE_04_04);
   private static final SchedulePeriod ACCRUAL4STUB = SchedulePeriod.of(DATE_04_07, DATE_04_30, DATE_04_05, DATE_04_30);
   private static final Schedule ACCRUAL_SCHEDULE_SINGLE = Schedule.builder()
@@ -109,6 +113,11 @@ public class PaymentScheduleTest {
       .periods(ACCRUAL1, ACCRUAL2, ACCRUAL3, ACCRUAL4STUB)
       .frequency(P1M)
       .rollConvention(DAY_5)
+      .build();
+  private static final Schedule ACCRUAL_TERM_HOLIDAY_END = Schedule.builder()
+      .periods(ACCRUAL_5)
+      .frequency(TERM)
+      .rollConvention(EOM)
       .build();
 
   //-------------------------------------------------------------------------
@@ -152,8 +161,20 @@ public class PaymentScheduleTest {
         .paymentFrequency(TERM)
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
-    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA);
+    Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE_TERM, REF_DATA);
     assertThat(schedule).isEqualTo(ACCRUAL_SCHEDULE_TERM);
+  }
+
+  @Test
+  public void test_createSchedule_term_holiday_end() {
+    PaymentSchedule test = PaymentSchedule.builder()
+        .paymentFrequency(TERM)
+        .businessDayAdjustment(BDA)
+        .paymentDateOffset(DaysAdjustment.ofBusinessDays(0, GBLO))
+        .build();
+    Schedule schedule = test.createSchedule(ACCRUAL_TERM_HOLIDAY_END, REF_DATA);
+    assertThat(schedule).isNotEqualTo(ACCRUAL_TERM_HOLIDAY_END);
+    assertThat(schedule.getEndDate()).isEqualTo(DATE_05_30);
   }
 
   @Test
