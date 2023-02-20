@@ -6,6 +6,7 @@
 package com.opengamma.strata.product;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.collect.TestHelper.assertJodaSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -122,6 +123,7 @@ public class SecurityInfoTest {
   @Test
   public void test_serialization() {
     SecurityInfo test = SecurityInfo.of(ID, PRICE_INFO);
+    assertJodaSerialization(test, "SecurityInfo1");
     assertSerialization(test);
   }
 

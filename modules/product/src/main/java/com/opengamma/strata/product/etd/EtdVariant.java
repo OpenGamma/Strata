@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
+import org.joda.convert.FromString;
 
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -127,12 +128,16 @@ public final class EtdVariant
   }
 
   /**
-   * Parses the variant code.
+   * Parses the variant short code.
+   * <p>
+   * This expects an empty string for Monthly, the week number prefixed by 'W' for Weekly,
+   * the day number for daily, with a suffix of the settlement type and option type codes.
    * 
    * @param code the variant code
    * @return the variant
    */
-  static EtdVariant parseCode(String code) {
+  @FromString  // FromString without ToString, allowing incorrect serialized form to be read
+  public static EtdVariant parse(String code) {
     switch (code.length()) {
       case 0:
         return MONTHLY;
@@ -222,6 +227,7 @@ public final class EtdVariant
    * 
    * @return the short code
    */
+  // do NOT add @ToString, as that breaks the serialized form in classes like EtdFutureSecurity
   public String getCode() {
     return code;
   }

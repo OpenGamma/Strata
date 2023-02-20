@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product.etd;
 
+import static com.opengamma.strata.collect.TestHelper.assertJodaSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -54,6 +55,8 @@ public class EtdFutureSecurityTest {
 
   @Test
   public void test_serialization() {
+    assertJodaSerialization(sut(), "EtdFutureSecurity1", "EtdFutureSecurity1-Old");
+    assertJodaSerialization(sut2(), "EtdFutureSecurity2", "EtdFutureSecurity2-Old");
     assertSerialization(sut());
   }
 

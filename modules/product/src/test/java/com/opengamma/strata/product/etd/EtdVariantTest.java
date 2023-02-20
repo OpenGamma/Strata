@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product.etd;
 
+import static com.opengamma.strata.collect.TestHelper.assertJodaSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -27,7 +28,7 @@ public class EtdVariantTest {
     assertThat(test.getOptionType()).isNotPresent();
     assertThat(test.isFlex()).isFalse();
     assertThat(test.getCode()).isEmpty();
-    assertThat(EtdVariant.parseCode(test.getCode())).isEqualTo(test);
+    assertThat(EtdVariant.parse(test.getCode())).isEqualTo(test);
   }
 
   @Test
@@ -39,7 +40,7 @@ public class EtdVariantTest {
     assertThat(test.getOptionType()).isNotPresent();
     assertThat(test.isFlex()).isFalse();
     assertThat(test.getCode()).isEqualTo("W2");
-    assertThat(EtdVariant.parseCode(test.getCode())).isEqualTo(test);
+    assertThat(EtdVariant.parse(test.getCode())).isEqualTo(test);
   }
 
   @Test
@@ -51,7 +52,7 @@ public class EtdVariantTest {
     assertThat(test.getOptionType()).isNotPresent();
     assertThat(test.isFlex()).isFalse();
     assertThat(test.getCode()).isEqualTo("24");
-    assertThat(EtdVariant.parseCode(test.getCode())).isEqualTo(test);
+    assertThat(EtdVariant.parse(test.getCode())).isEqualTo(test);
   }
 
   @Test
@@ -63,7 +64,7 @@ public class EtdVariantTest {
     assertThat(test.getOptionType()).isNotPresent();
     assertThat(test.isFlex()).isTrue();
     assertThat(test.getCode()).isEqualTo("02C");
-    assertThat(EtdVariant.parseCode(test.getCode())).isEqualTo(test);
+    assertThat(EtdVariant.parse(test.getCode())).isEqualTo(test);
   }
 
   @Test
@@ -75,7 +76,7 @@ public class EtdVariantTest {
     assertThat(test.getOptionType()).hasValue(EtdOptionType.AMERICAN);
     assertThat(test.isFlex()).isTrue();
     assertThat(test.getCode()).isEqualTo("24CA");
-    assertThat(EtdVariant.parseCode(test.getCode())).isEqualTo(test);
+    assertThat(EtdVariant.parse(test.getCode())).isEqualTo(test);
   }
 
   //-------------------------------------------------------------------------
@@ -94,11 +95,11 @@ public class EtdVariantTest {
   }
 
   @Test
-  public void test_parseCode_wrongLength() {
+  public void test_parse_wrongLength() {
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> EtdVariant.parseCode("1"));
+        .isThrownBy(() -> EtdVariant.parse("1"));
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> EtdVariant.parseCode("12345"));
+        .isThrownBy(() -> EtdVariant.parse("12345"));
   }
 
   //-------------------------------------------------------------------------
@@ -110,6 +111,8 @@ public class EtdVariantTest {
 
   @Test
   public void test_serialization() {
+    assertJodaSerialization(sut(), "EtdVariant1");
+    assertJodaSerialization(sut2(), "EtdVariant2");
     assertSerialization(sut());
   }
 
