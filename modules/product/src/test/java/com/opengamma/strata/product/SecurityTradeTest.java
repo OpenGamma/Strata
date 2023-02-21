@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product;
 
+import static com.opengamma.strata.collect.TestHelper.assertJodaSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -75,13 +76,16 @@ public class SecurityTradeTest {
   //-------------------------------------------------------------------------
   @Test
   public void coverage() {
-    coverImmutableBean(sut());
-    coverBeanEquals(sut(), sut2());
+    SecurityTrade test = sut();
+    coverImmutableBean(test);
+    coverBeanEquals(test, sut2());
   }
 
   @Test
   public void test_serialization() {
-    assertSerialization(sut());
+    SecurityTrade test = sut();
+    assertJodaSerialization(test, "SecurityTrade1");
+    assertSerialization(test);
   }
 
   //-------------------------------------------------------------------------

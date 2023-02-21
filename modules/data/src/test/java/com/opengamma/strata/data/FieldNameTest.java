@@ -16,6 +16,14 @@ import org.junit.jupiter.api.Test;
  */
 public class FieldNameTest {
 
+  @Test
+  public void test_of() {
+    FieldName yieldToMaturity = FieldName.of("YieldToMaturity");
+    assertThat(yieldToMaturity).isEqualTo(FieldName.YIELD_TO_MATURITY);
+    FieldName parYield = FieldName.of("ParYield");
+    assertThat(parYield).isEqualTo(FieldName.PAR_YIELD);
+  }
+
   //-----------------------------------------------------------------------
   @Test
   public void coverage() {

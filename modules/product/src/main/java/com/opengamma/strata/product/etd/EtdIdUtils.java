@@ -219,6 +219,41 @@ public final class EtdIdUtils {
   /**
    * Splits an OG-ETD identifier.
    *
+   * @param specId  the contract spec ID
+   * @return a split representation of the ID
+   * @throws IllegalArgumentException if the ID is not of the right scheme or format
+   */
+  public static SplitEtdContractSpecId splitId(EtdContractSpecId specId) {
+    ArgChecker.notNull(specId, "specId");
+    if (!specId.getStandardId().getScheme().equals(ETD_SCHEME)) {
+      throw new IllegalArgumentException("ETD ID cannot be parsed: " + specId);
+    }
+    List<String> split = Splitter.on('-').splitToList(specId.getStandardId().getValue());
+    if (split.size() != 3) {
+      throw new IllegalArgumentException("ETD ID cannot be parsed: " + specId);
+    }
+    EtdType type = null;
+    if (split.get(0).equals("F")) {
+      type = EtdType.FUTURE;
+    } else if (split.get(0).equals("O")) {
+      type = EtdType.OPTION;
+    } else {
+      throw new IllegalArgumentException("ETD ID cannot be parsed: " + specId);
+    }
+    // common fields
+    ExchangeId exchangeId = ExchangeId.of(split.get(1));
+    EtdContractCode contractCode = EtdContractCode.of(split.get(2));
+    return SplitEtdContractSpecId.builder()
+        .specId(specId)
+        .type(type)
+        .exchangeId(exchangeId)
+        .contractCode(contractCode)
+        .build();
+  }
+
+  /**
+   * Splits an OG-ETD identifier.
+   *
    * @param securityId  the security ID
    * @return a split representation of the ID
    * @throws IllegalArgumentException if the ID is not of the right scheme or format
@@ -240,7 +275,7 @@ public final class EtdIdUtils {
       throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
     }
     YearMonth month = YearMonth.parse(dateStr.substring(0, 6), YM_FORMAT);
-    EtdVariant variant = EtdVariant.parseCode(dateStr.substring(6));
+    EtdVariant variant = EtdVariant.parse(dateStr.substring(6));
     SplitEtdId.Builder parsed = SplitEtdId.builder()
         .securityId(securityId)
         .exchangeId(exchangeId)

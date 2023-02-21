@@ -233,6 +233,30 @@ public class DiscountingBillProductPricer {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Calculates the price sensitivity for settlement at a given settlement date using curves.
+   * <p>
+   * The price sensitivity of the security is the sensitivity of the price to the underlying curves.
+   *
+   * @param bill  the bill
+   * @param provider  the discounting provider
+   * @param settlementDate  the settlement date
+   * @return the price curve sensitivity
+   */
+  public PointSensitivityBuilder priceSensitivity(ResolvedBill bill, LegalEntityDiscountingProvider provider, LocalDate settlementDate) {
+    ArgChecker.inOrderNotEqual(settlementDate, bill.getNotional().getDate(), "settlementDate", "endDate");
+    ArgChecker.inOrderOrEqual(provider.getValuationDate(), settlementDate, "valuationDate", "settlementDate");
+    IssuerCurveDiscountFactors issuerDf = issuerCurveDf(bill, provider);
+    double dfMaturity = issuerDf.discountFactor(bill.getNotional().getDate());
+    PointSensitivityBuilder dfMaturitySensi = issuerDf.zeroRatePointSensitivity(bill.getNotional().getDate());
+    RepoCurveDiscountFactors repoDf = repoCurveDf(bill, provider);
+    double dfRepoSettle = repoDf.discountFactor(settlementDate);
+    PointSensitivityBuilder dfRepoSettleSensi = repoDf.zeroRatePointSensitivity(settlementDate);
+    return dfMaturitySensi.multipliedBy(1d / dfRepoSettle)
+        .combinedWith(dfRepoSettleSensi.multipliedBy(-dfMaturity / (dfRepoSettle * dfRepoSettle)));
+  }
+
+  //-------------------------------------------------------------------------
   // extracts the repo curve discount factors for the bond
   static RepoCurveDiscountFactors repoCurveDf(ResolvedBill bill, LegalEntityDiscountingProvider provider) {
     return provider.repoCurveDiscountFactors(bill.getSecurityId(), bill.getLegalEntityId(), bill.getCurrency());
