@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product;
 
+import static com.opengamma.strata.collect.TestHelper.assertJodaSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -107,6 +108,7 @@ public class SimpleAttributesTest {
   @Test
   public void test_serialization() {
     SimpleAttributes test = SimpleAttributes.of(AttributeType.DESCRIPTION, "hello");
+    assertJodaSerialization(test, "SimpleAttributes1");
     assertSerialization(test);
   }
 

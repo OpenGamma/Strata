@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product;
 
+import static com.opengamma.strata.collect.TestHelper.assertJodaSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -40,7 +41,9 @@ public class PortfolioItemSummaryTest {
 
   @Test
   public void test_serialization() {
-    assertSerialization(sut());
+    PortfolioItemSummary test = sut();
+    assertJodaSerialization(test, "PortfolioItemSummary1");
+    assertSerialization(test);
   }
 
   //-------------------------------------------------------------------------

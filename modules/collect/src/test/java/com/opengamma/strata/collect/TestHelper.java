@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -35,7 +36,9 @@ import org.joda.beans.test.JodaBeanTests;
 import org.joda.convert.StringConvert;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.collect.io.ResourceLocator;
 
 /**
  * Test helper.
@@ -219,6 +222,53 @@ public class TestHelper {
     } catch (IOException | ClassNotFoundException ex) {
       throw new RuntimeException(ex);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Asserts that the object can be serialized and deserialized via a string using Joda-Beans.
+   * <p>
+   * This compares against the file {@code JodaSerialization.txt}.
+   * 
+   * @param bean  the bean to be tested
+   * @param id  the ID of the expected form
+   * @param oldIds  the IDs of old forms that should be parsed to the same bean
+   */
+  public static void assertJodaSerialization(Bean bean, String id, String... oldIds) {
+    assertNotNull(bean, "assertJodaSerialization() called with null Bean");
+    String str = JodaBeanSer.PRETTY.jsonWriter().write(bean);
+
+    ResourceLocator locator = ResourceLocator.ofClasspath(bean.getClass(), "JodaSerialization.txt");
+    ImmutableList<String> lines = locator.getCharSource().readLines();
+    String expected = expectedSection(
+        id,
+        lines,
+        () -> new IllegalArgumentException("ID '" + id + "' + not found: " + locator + ", expected:\n# " + id + "\n" + str + "\n"));
+    assertEquals(str, expected, "assertJodaSerialization() JSON format has changed");
+    Bean result = JodaBeanSer.COMPACT.jsonReader().read(str);
+    assertEquals(result, bean, "Result from roundtrip not equal to base object");
+
+    // can we deserialize old forms
+    for (String oldId : oldIds) {
+      String section = expectedSection(oldId, lines, () -> new IllegalArgumentException("Old ID '" + id + "' + not found: " + locator));
+      Bean oldResult = JodaBeanSer.COMPACT.jsonReader().read(section);
+      assertEquals(oldResult, bean, "Result from old serialized form not equal to base object");
+    }
+  }
+
+  private static String expectedSection(String id, ImmutableList<String> lines, Supplier<IllegalArgumentException> exceptionFn) {
+    int start = lines.indexOf("# " + id);
+    if (start < 0) {
+      throw exceptionFn.get();
+    }
+    start++;
+    int end = start;
+    for (; end < lines.size(); end++) {
+      if (lines.get(end).startsWith("#")) {
+        break;
+      }
+    }
+    return Joiner.on("\n").join(lines.subList(start, end));
   }
 
   //-------------------------------------------------------------------------

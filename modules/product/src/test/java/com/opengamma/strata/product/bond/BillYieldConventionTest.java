@@ -18,6 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.opengamma.strata.basics.value.ValueDerivatives;
+
 /**
  * Test {@link BillYieldConvention}.
  */
@@ -27,6 +29,7 @@ public class BillYieldConventionTest {
   public static final double YIELD = 0.03;
   public static final double ACCRUAL_FACTOR = 0.123;
   public static final double TOLERANCE = 1.0E-10;
+  public static final double EPS = 1.0E-6;
 
   public static Object[][] data_name() {
     return new Object[][] {
@@ -92,6 +95,46 @@ public class BillYieldConventionTest {
   }
 
   @Test
+  public void test_price_yield_discount_ad() {
+    ValueDerivatives computed = BillYieldConvention.DISCOUNT.priceFromYieldAd(YIELD, ACCRUAL_FACTOR);
+    double derivativeExpected = (BillYieldConvention.DISCOUNT.priceFromYield(YIELD + EPS, ACCRUAL_FACTOR)
+        - BillYieldConvention.DISCOUNT.priceFromYield(YIELD - EPS, ACCRUAL_FACTOR)) * 0.5 / EPS;
+    assertThat(computed.getValue())
+        .isCloseTo(BillYieldConvention.DISCOUNT.priceFromYield(YIELD, ACCRUAL_FACTOR), offset(TOLERANCE));
+    assertThat(computed.getDerivative(0)).isCloseTo(derivativeExpected, offset(EPS));
+  }
+
+  @Test
+  public void test_price_yield_france_ad() {
+    ValueDerivatives computed = BillYieldConvention.FRANCE_CD.priceFromYieldAd(YIELD, ACCRUAL_FACTOR);
+    double derivativeExpected = (BillYieldConvention.FRANCE_CD.priceFromYield(YIELD + EPS, ACCRUAL_FACTOR)
+        - BillYieldConvention.FRANCE_CD.priceFromYield(YIELD - EPS, ACCRUAL_FACTOR)) * 0.5 / EPS;
+    assertThat(computed.getValue())
+        .isCloseTo(BillYieldConvention.FRANCE_CD.priceFromYield(YIELD, ACCRUAL_FACTOR), offset(TOLERANCE));
+    assertThat(computed.getDerivative(0)).isCloseTo(derivativeExpected, offset(EPS));
+  }
+
+  @Test
+  public void test_price_yield_intatmaturity_ad() {
+    ValueDerivatives computed = BillYieldConvention.INTEREST_AT_MATURITY.priceFromYieldAd(YIELD, ACCRUAL_FACTOR);
+    double derivativeExpected = (BillYieldConvention.INTEREST_AT_MATURITY.priceFromYield(YIELD + EPS, ACCRUAL_FACTOR)
+        - BillYieldConvention.INTEREST_AT_MATURITY.priceFromYield(YIELD - EPS, ACCRUAL_FACTOR)) * 0.5 / EPS;
+    assertThat(computed.getValue())
+        .isCloseTo(BillYieldConvention.INTEREST_AT_MATURITY.priceFromYield(YIELD, ACCRUAL_FACTOR), offset(TOLERANCE));
+    assertThat(computed.getDerivative(0)).isCloseTo(derivativeExpected, offset(EPS));
+  }
+
+  @Test
+  public void test_price_yield_japan_ad() {
+    ValueDerivatives computed = BillYieldConvention.JAPAN_BILLS.priceFromYieldAd(YIELD, ACCRUAL_FACTOR);
+    double derivativeExpected = (BillYieldConvention.JAPAN_BILLS.priceFromYield(YIELD + EPS, ACCRUAL_FACTOR)
+        - BillYieldConvention.JAPAN_BILLS.priceFromYield(YIELD - EPS, ACCRUAL_FACTOR)) * 0.5 / EPS;
+    assertThat(computed.getValue())
+        .isCloseTo(BillYieldConvention.JAPAN_BILLS.priceFromYield(YIELD, ACCRUAL_FACTOR), offset(TOLERANCE));
+    assertThat(computed.getDerivative(0)).isCloseTo(derivativeExpected, offset(EPS));
+  }
+
+  @Test
   public void test_yield_price_discount() {
     assertThat(BillYieldConvention.DISCOUNT.yieldFromPrice(PRICE, ACCRUAL_FACTOR))
         .isCloseTo((1.0d - PRICE) / ACCRUAL_FACTOR, offset(TOLERANCE));
@@ -113,6 +156,46 @@ public class BillYieldConventionTest {
   public void test_yield_price_japan() {
     assertThat(BillYieldConvention.JAPAN_BILLS.yieldFromPrice(PRICE, ACCRUAL_FACTOR))
         .isCloseTo((1.0d / PRICE - 1.0d) / ACCRUAL_FACTOR, offset(TOLERANCE));
+  }
+
+  @Test
+  public void test_yield_price_discount_ad() {
+    ValueDerivatives computed = BillYieldConvention.DISCOUNT.yieldFromPriceAd(PRICE, ACCRUAL_FACTOR);
+    assertThat(computed.getValue())
+        .isCloseTo(BillYieldConvention.DISCOUNT.yieldFromPrice(PRICE, ACCRUAL_FACTOR), offset(TOLERANCE));
+    double derivativeExpected = (BillYieldConvention.DISCOUNT.yieldFromPrice(PRICE + EPS, ACCRUAL_FACTOR)
+        - BillYieldConvention.DISCOUNT.yieldFromPrice(PRICE - EPS, ACCRUAL_FACTOR)) * 0.5 / EPS;
+    assertThat(computed.getDerivative(0)).isCloseTo(derivativeExpected, offset(EPS));
+  }
+
+  @Test
+  public void test_yield_price_france_ad() {
+    ValueDerivatives computed = BillYieldConvention.FRANCE_CD.yieldFromPriceAd(PRICE, ACCRUAL_FACTOR);
+    assertThat(computed.getValue())
+        .isCloseTo(BillYieldConvention.FRANCE_CD.yieldFromPrice(PRICE, ACCRUAL_FACTOR), offset(TOLERANCE));
+    double derivativeExpected = (BillYieldConvention.FRANCE_CD.yieldFromPrice(PRICE + EPS, ACCRUAL_FACTOR)
+        - BillYieldConvention.FRANCE_CD.yieldFromPrice(PRICE - EPS, ACCRUAL_FACTOR)) * 0.5 / EPS;
+    assertThat(computed.getDerivative(0)).isCloseTo(derivativeExpected, offset(EPS));
+  }
+
+  @Test
+  public void test_yield_price_intatmaturity_ad() {
+    ValueDerivatives computed = BillYieldConvention.INTEREST_AT_MATURITY.yieldFromPriceAd(PRICE, ACCRUAL_FACTOR);
+    assertThat(computed.getValue())
+        .isCloseTo(BillYieldConvention.INTEREST_AT_MATURITY.yieldFromPrice(PRICE, ACCRUAL_FACTOR), offset(TOLERANCE));
+    double derivativeExpected = (BillYieldConvention.INTEREST_AT_MATURITY.yieldFromPrice(PRICE + EPS, ACCRUAL_FACTOR)
+        - BillYieldConvention.INTEREST_AT_MATURITY.yieldFromPrice(PRICE - EPS, ACCRUAL_FACTOR)) * 0.5 / EPS;
+    assertThat(computed.getDerivative(0)).isCloseTo(derivativeExpected, offset(EPS));
+  }
+
+  @Test
+  public void test_yield_price_japan_ad() {
+    ValueDerivatives computed = BillYieldConvention.JAPAN_BILLS.yieldFromPriceAd(PRICE, ACCRUAL_FACTOR);
+    assertThat(computed.getValue())
+        .isCloseTo(BillYieldConvention.JAPAN_BILLS.yieldFromPrice(PRICE, ACCRUAL_FACTOR), offset(TOLERANCE));
+    double derivativeExpected = (BillYieldConvention.JAPAN_BILLS.yieldFromPrice(PRICE + EPS, ACCRUAL_FACTOR)
+        - BillYieldConvention.JAPAN_BILLS.yieldFromPrice(PRICE - EPS, ACCRUAL_FACTOR)) * 0.5 / EPS;
+    assertThat(computed.getDerivative(0)).isCloseTo(derivativeExpected, offset(EPS));
   }
 
   @Test
