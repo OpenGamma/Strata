@@ -26,7 +26,7 @@ jobs:
 
       - name: Publish to GitHub Packages
         if: ${{ github.ref == 'refs/heads/xplain' }} #Deploy only on XPLAIN branch
-        run: mvn deploy -DaltSnapshotDeploymentRepository="github::https://maven.pkg.github.com/SolumXplain/solum-xplain-opengamma-strata" -DskipTests -Dcheckstyle.skip=true
+        run: mvn deploy -DaltDeploymentRepository="github::https://maven.pkg.github.com/SolumXplain/solum-xplain-opengamma-strata" -DskipTests -Dcheckstyle.skip=true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
