@@ -6,6 +6,7 @@
 package com.opengamma.strata.product;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.collect.TestHelper.assertJodaSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -54,13 +55,16 @@ public class GenericSecurityTest {
   //-------------------------------------------------------------------------
   @Test
   public void coverage() {
-    coverImmutableBean(sut());
-    coverBeanEquals(sut(), sut2());
+    GenericSecurity test = sut();
+    coverImmutableBean(test);
+    coverBeanEquals(test, sut2());
   }
 
   @Test
   public void test_serialization() {
-    assertSerialization(sut());
+    GenericSecurity test = sut();
+    assertJodaSerialization(test, "GenericSecurity1");
+    assertSerialization(test);
   }
 
   //-------------------------------------------------------------------------

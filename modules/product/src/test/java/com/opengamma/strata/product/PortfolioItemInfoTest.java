@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product;
 
+import static com.opengamma.strata.collect.TestHelper.assertJodaSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -116,6 +117,7 @@ public class PortfolioItemInfoTest {
     ItemInfo test = ItemInfo.empty()
         .withId(ID)
         .withAttribute(AttributeType.DESCRIPTION, "A");
+    assertJodaSerialization(test, "PortfolioItemInfo1");
     assertSerialization(test);
   }
 

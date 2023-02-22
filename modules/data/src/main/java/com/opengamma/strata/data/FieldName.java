@@ -57,14 +57,27 @@ public final class FieldName
    * The field name for the volatility of an asset.
    */
   public static final FieldName VOLATILITY = of("Volatility");
+  /**
+   * The field name for the yield to maturity.
+   * <p>
+   * This is used to refer to the yield of a coupon bond or bill.
+   */
+  public static final FieldName YIELD_TO_MATURITY = of("YieldToMaturity");
+  /**
+   * The field name for the par yield.
+   * <p>
+   * This is used to refer to the par yield of a coupon bond or bill.
+   */
+  public static final FieldName PAR_YIELD = of("ParYield");
 
   //-------------------------------------------------------------------------
+
   /**
    * Obtains an instance from the specified name.
    * <p>
    * Field names may contain any character, but must not be empty.
    *
-   * @param name  the name of the field
+   * @param name the name of the field
    * @return a field with the specified name
    */
   @FromString
@@ -74,8 +87,8 @@ public final class FieldName
 
   /**
    * Creates an instance.
-   * 
-   * @param name  the name of the field
+   *
+   * @param name the name of the field
    */
   private FieldName(String name) {
     super(name);

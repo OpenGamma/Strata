@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product;
 
+import static com.opengamma.strata.collect.TestHelper.assertJodaSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -151,6 +152,7 @@ public class PositionInfoTest {
         .id(ID)
         .addAttribute(AttributeType.DESCRIPTION, "A")
         .build();
+    assertJodaSerialization(test, "PositionInfo1");
     assertSerialization(test);
   }
 

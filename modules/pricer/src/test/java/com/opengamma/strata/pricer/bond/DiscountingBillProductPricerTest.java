@@ -239,6 +239,25 @@ public class DiscountingBillProductPricerTest {
         .isThrownBy(() -> PRICER.priceFromCurvesWithZSpread(
             BILL, PROVIDER, VAL_DATE.minusDays(1), Z_SPREAD, CompoundedRateType.CONTINUOUS, 0));
   }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void price_sensitivity() {
+    LocalDate settlementDate = VAL_DATE.plusDays(1);
+    PointSensitivities pointSensiComputed = PRICER.priceSensitivity(BILL, PROVIDER, settlementDate).build();
+    CurrencyParameterSensitivities paramSensiComputed = PROVIDER.parameterSensitivity(pointSensiComputed);
+    CurrencyParameterSensitivities paramSensiExpected = FD_CALC.sensitivity(
+        PROVIDER,
+        p -> CurrencyAmount.of(DSC_FACTORS_ISSUER.getCurrency(), PRICER.priceFromCurves(BILL, p, settlementDate)));
+    assertThat(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS)).isTrue();
+  }
+
+  @Test
+  public void price_sensitivity_aftermaturity() {
+    LocalDate settlementDate = BILL_PAST.getNotional().getDate().minusMonths(3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() ->  PRICER.priceSensitivity(BILL_PAST, PROVIDER, settlementDate));
+  }
   
   //-------------------------------------------------------------------------
   @Test
