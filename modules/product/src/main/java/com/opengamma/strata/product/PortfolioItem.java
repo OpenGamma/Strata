@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * An item in a portfolio.
@@ -61,5 +62,23 @@ public interface PortfolioItem extends CalculationTarget {
    * @return the summary of the item
    */
   public abstract PortfolioItemSummary summarize();
+
+  /**
+   * Gets the attribute associated with the specified type.
+   * <p>
+   * This method obtains the specified attribute.
+   * This allows an attribute to be obtained if available.
+   * <p>
+   * If the attribute is not found, an exception is thrown.
+   *
+   * @param <T>  the type of the attribute value
+   * @param type  the type to find
+   * @return the attribute value
+   * @throws IllegalArgumentException if the attribute is not found
+   */
+  public default <T> T getAttribute(AttributeType<T> type) {
+    return getInfo().findAttribute(type).orElseThrow(() -> new IllegalArgumentException(
+        Messages.format("Attribute not found for type '{}', on {}", type, summarize())));
+  }
 
 }
