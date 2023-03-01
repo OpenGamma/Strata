@@ -194,7 +194,7 @@ public final class ProductType
    * @param description  the description
    * @return a type instance with the specified name
    */
-  private static ProductType of(String name, String description) {
+  public static ProductType of(String name, String description) {
     return new ProductType(name, description);
   }
 
