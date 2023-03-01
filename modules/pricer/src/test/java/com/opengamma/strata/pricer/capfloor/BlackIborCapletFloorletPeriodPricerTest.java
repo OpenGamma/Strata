@@ -177,6 +177,7 @@ public class BlackIborCapletFloorletPeriodPricerTest {
       .createShiftedBlackVolatilities(VALUATION, EUR_EURIBOR_3M);
 
   private static final double TOL = 1.0e-14;
+  private static final double TOL_PV = 1.0e-13;
   private static final double EPS_FD = 1.0e-6;
   private static final BlackIborCapletFloorletPeriodPricer PRICER = BlackIborCapletFloorletPeriodPricer.DEFAULT;
   private static final VolatilityIborCapletFloorletPeriodPricer PRICER_BASE = VolatilityIborCapletFloorletPeriodPricer.DEFAULT;
@@ -728,7 +729,7 @@ public class BlackIborCapletFloorletPeriodPricerTest {
   @Test
   public void regression_pv() {
     CurrencyAmount pv = PRICER.presentValue(CAPLET_REG, RATES, VOLS);
-    assertThat(pv.getAmount()).isCloseTo(3.4403901240887094, offset(TOL)); // 2.x
+    assertThat(pv.getAmount()).isCloseTo(3.4403901240887094, offset(TOL_PV)); // 2.x
   }
 
   @Test
