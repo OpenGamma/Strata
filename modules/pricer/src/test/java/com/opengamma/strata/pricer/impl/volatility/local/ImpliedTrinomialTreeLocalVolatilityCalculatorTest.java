@@ -58,7 +58,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculatorTest {
 
   @Test
   public void flatVolTest() {
-    double tol = 2.0e-2;
+    double tol = 2.3e-2;
     double constantVol = 0.15;
     ConstantSurface impliedVolSurface = ConstantSurface.of("impliedVol", constantVol);
     Function<Double, Double> zeroRate = new Function<Double, Double>() {

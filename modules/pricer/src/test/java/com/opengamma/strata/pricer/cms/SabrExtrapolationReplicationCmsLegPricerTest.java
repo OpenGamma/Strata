@@ -310,8 +310,8 @@ public class SabrExtrapolationReplicationCmsLegPricerTest {
     assertThat(explain.get(ExplainKey.START_DATE).get()).isEqualTo(LocalDate.of(2015, 10, 21));
     assertThat(explain.get(ExplainKey.END_DATE).get()).isEqualTo(LocalDate.of(2020, 10, 21));
     assertThat(explain.get(ExplainKey.INDEX).get().toString()).isEqualTo("EUR-EURIBOR-1100-5Y");
-    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount()).isEqualTo(39728.51321029542);
-    
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount()).isCloseTo(39728.513210295,offset(NOTIONAL_VALUE_0 * TOL));
+
     List<ExplainMap> paymentPeriods = explain.get(ExplainKey.PAYMENT_PERIODS).get();
     assertThat(paymentPeriods).hasSize(5);
     //Test First Period

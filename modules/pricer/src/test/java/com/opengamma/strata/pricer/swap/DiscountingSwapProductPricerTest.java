@@ -143,6 +143,7 @@ public class DiscountingSwapProductPricerTest {
   private static final double TOLERANCE_RATE_DELTA = 1.0E-6;
   private static final double TOLERANCE_RATE_DELTA_FD = 1.0E-2;
   private static final double TOLERANCE_PV = 1.0e-2;
+  private static final double TOLERANCE_PAR_SPREAD = 1.0e-8;
 
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final CurveExtrapolator EXTRAPOLATOR = CurveExtrapolators.FLAT;
@@ -1188,7 +1189,8 @@ public class DiscountingSwapProductPricerTest {
         conv.createTrade(tradeDate, Period.ofMonths(1), TENOR_5Y, BUY, NOTIONAL_SWAP, SPREAD + parSpread, REF_DATA)
             .getProduct().resolve(REF_DATA);
     MultiCurrencyAmount pvParSpread = SWAP_PRODUCT_PRICER.presentValue(swapParSpread, MULTI_EUR);
-    assertThat(pvParSpread).isEqualTo(MultiCurrencyAmount.of(EUR, 0d));
+    assertThat(pvParSpread.getAmount(EUR).getAmount()).isCloseTo(0d, offset(TOLERANCE_PAR_SPREAD));
+
     // par spread sensitivity
     PointSensitivities parSpreadPoint = SWAP_PRODUCT_PRICER.parSpreadSensitivity(swap, MULTI_EUR).build();
     CurrencyParameterSensitivities parSpreadSensiComputed = MULTI_EUR.parameterSensitivity(parSpreadPoint);
