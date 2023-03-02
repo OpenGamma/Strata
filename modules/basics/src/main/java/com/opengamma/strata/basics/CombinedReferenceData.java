@@ -24,7 +24,7 @@ import org.joda.beans.impl.light.LightMetaBean;
  * it is looked up in the second set of data.
  */
 @BeanDefinition(style = "light", constructorScope = "package")
-final class CombinedReferenceData
+public final class CombinedReferenceData
     implements ReferenceData, ImmutableBean, Serializable {
 
   /**
