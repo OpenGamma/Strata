@@ -174,7 +174,7 @@ public final class SummarizerUtils {
   /**
    * Provide a summary description of the given barrier.
    * <p>
-   * Summary contains the barrier level, the type and the knock type e.g. "[Up and KnockOut @ 1.25]".
+   * Summary contains the barrier level, the type and the knock type e.g. "Up-and-KnockOut @ 1.25".
    *
    * @param barrier the barrier
    * @param barrierObsDate the date on which the barrier level should be observed
