@@ -21,7 +21,6 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TICK_VALUE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.UNDERLYING_EXPIRY_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.VERSION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.DEFAULT_OPTION_VERSION_NUMBER;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.missingFieldException;
 import static com.opengamma.strata.loader.csv.PositionCsvLoader.DEFAULT_SECURITY_SCHEME;
 
 import java.time.YearMonth;
@@ -31,6 +30,8 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.collect.result.FailureReason;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.loader.LoaderUtils;
@@ -334,6 +335,10 @@ public interface PositionCsvInfoResolver {
     DoublesPair quantity = CsvLoaderUtils.parseQuantity(row);
     SecurityPosition position = SecurityPosition.ofLongShort(info, securityId, quantity.getFirst(), quantity.getSecond());
     return completePosition(row, position);
+  }
+
+  static ParseFailureException missingFieldException(String field) {
+    return new ParseFailureException(field, FailureReason.FIELD_MISSING, "'{field}' is empty", field);
   }
 
 }

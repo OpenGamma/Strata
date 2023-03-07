@@ -237,14 +237,14 @@ public final class CsvLoaderUtils {
       if (day == 0) {
         throw new ParseFailureException(
             FailureReason.FIELD_MISSING,
-            "'{field}' is empty. Must be set when '{}' is provided as this denotes a Flex Option.",
+            "'{field}' is empty. Must be set when '{}' is provided as this denotes a Flex Option",
             EXPIRY_DAY_FIELD,
             SETTLEMENT_TYPE_FIELD);
       }
       if (week != 0) {
         throw new ParseFailureException(
             FailureReason.FIELD_MISSING,
-            "'{field}' is empty. Must be set when '{}' is provided as this denotes a Flex Option.",
+            "'{field}' is empty. Must be set when '{}' is provided as this denotes a Flex Option",
             EXPIRY_WEEK_FIELD,
             SETTLEMENT_TYPE_FIELD);
       }
@@ -254,7 +254,7 @@ public final class CsvLoaderUtils {
         if (!optionTypeOpt.isPresent()) {
           throw new ParseFailureException(
               FailureReason.FIELD_MISSING,
-              "'{field}' is empty. Must be set when '{}' is provided as this denotes a Flex Option.",
+              "'{field}' is empty. Must be set when '{}' is provided as this denotes a Flex Option",
               EXERCISE_STYLE_FIELD,
               SETTLEMENT_TYPE_FIELD);
         }
@@ -736,9 +736,4 @@ public final class CsvLoaderUtils {
   public static String formattedDouble(double value) {
     return Decimal.of(value).toString();
   }
-
-  static ParseFailureException missingFieldException(String field) {
-    return new ParseFailureException(field, FailureReason.FIELD_MISSING, "'{field}' is empty", field);
-  }
-
 }

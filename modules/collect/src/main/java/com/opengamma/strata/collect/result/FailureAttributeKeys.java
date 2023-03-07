@@ -85,6 +85,11 @@ public final class FailureAttributeKeys {
    */
   public static final String ROOT_CAUSE = "rootCause";
 
+  /**
+   * The attribute for specifying the short message.
+   */
+  public static final String SHORT_MESSAGE = "shortMessage";
+
   // restricted constructor
   private FailureAttributeKeys() {
   }

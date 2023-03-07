@@ -28,6 +28,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.io.StringCharSource;
+import com.opengamma.strata.collect.result.FailureAttributeKeys;
 import com.opengamma.strata.collect.result.FailureItem;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.ValueWithFailures;
@@ -419,7 +420,7 @@ public class PositionCsvLoaderTest {
     assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.UNSUPPORTED);
-    assertThat(failure.getMessage()).isEqualTo("Unknown 'Strata Position Type', 'Foo'");
+    assertThat(failure.getMessage()).isEqualTo("CSV position file 'Unknown.txt' contained unknown position type 'Foo' at line 2");
   }
 
   @Test
@@ -442,7 +443,10 @@ public class PositionCsvLoaderTest {
     assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.FIELD_MISSING);
-    assertThat(failure.getMessage()).isEqualTo("Security must contain a quantity column, either 'Quantity' or 'Long Quantity' and 'Short Quantity'");
+    assertThat(failure.getMessage()).isEqualTo("CSV position file 'Unknown.txt' type 'FUT' could not be parsed at line 2: " +
+        "Security must contain a quantity column, either 'Quantity' or 'Long Quantity' and 'Short Quantity'");
+    assertThat(failure.getAttributes()).containsKey(FailureAttributeKeys.SHORT_MESSAGE);
+    assertThat((failure.getAttributes().get(FailureAttributeKeys.SHORT_MESSAGE))).isEqualTo("Security must contain a quantity column, either 'Quantity' or 'Long Quantity' and 'Short Quantity'");
   }
 
 }
