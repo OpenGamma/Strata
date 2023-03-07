@@ -80,6 +80,11 @@ public final class FailureAttributeKeys {
    */
   public static final String PRODUCT_TYPE = "productType";
 
+  /**
+   * The attribute for specifying the root cause of the error.
+   */
+  public static final String ROOT_CAUSE = "rootCause";
+
   // restricted constructor
   private FailureAttributeKeys() {
   }

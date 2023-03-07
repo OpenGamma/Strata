@@ -386,7 +386,8 @@ public final class PositionCsvLoader {
       } catch (ParseFailureException ex) {
         FailureItem failureItem = ex.getFailureItem()
             .withAttribute(FailureAttributeKeys.LINE_NUMBER, Integer.toString(row.lineNumber()))
-            .withAttribute(FailureAttributeKeys.FILE_NAME, CharSources.extractFileName(charSource));
+            .withAttribute(FailureAttributeKeys.FILE_NAME, CharSources.extractFileName(charSource))
+            .withAttribute(FailureAttributeKeys.ROOT_CAUSE, "inputData");
         failures.add(failureItem);
       } catch (RuntimeException ex) {
         failures.add(FailureItem.of(
