@@ -39,6 +39,7 @@ import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Decimal;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -228,22 +229,34 @@ public final class CsvLoaderUtils {
         if (week == 0) {
           return Pair.of(yearMonth, EtdVariant.ofDaily(day));
         } else {
-          throw new ParseFailureException(
-              "Unable to parse ETD variant, date columns conflict, must not  set both expiry day and expiry week");
+          throw new ParseFailureException(FailureReason.INVALID,
+              "Unable to parse ETD variant, date columns conflict, must not set both expiry day and expiry week");
         }
       }
     } else {
       if (day == 0) {
-        throw new ParseFailureException("Unable to parse ETD variant for Flex '{value}', must set expiry day", type);
+        throw new ParseFailureException(
+            FailureReason.FIELD_MISSING,
+            "'{field}' is empty. Must be set when '{}' is provided as this denotes a Flex Option.",
+            EXPIRY_DAY_FIELD,
+            SETTLEMENT_TYPE_FIELD);
       }
       if (week != 0) {
-        throw new ParseFailureException("Unable to parse ETD variant for Flex '{value}', must not set expiry week", type);
+        throw new ParseFailureException(
+            FailureReason.FIELD_MISSING,
+            "'{field}' is empty. Must be set when '{}' is provided as this denotes a Flex Option.",
+            EXPIRY_WEEK_FIELD,
+            SETTLEMENT_TYPE_FIELD);
       }
       if (type == EtdType.FUTURE) {
         return Pair.of(yearMonth, EtdVariant.ofFlexFuture(day, settleTypeOpt.get()));
       } else {
         if (!optionTypeOpt.isPresent()) {
-          throw new ParseFailureException("Unable to parse ETD variant for Flex Option, must set option type", type);
+          throw new ParseFailureException(
+              FailureReason.FIELD_MISSING,
+              "'{field}' is empty. Must be set when '{}' is provided as this denotes a Flex Option.",
+              EXERCISE_STYLE_FIELD,
+              SETTLEMENT_TYPE_FIELD);
         }
         return Pair.of(yearMonth, EtdVariant.ofFlexOption(day, settleTypeOpt.get(), optionTypeOpt.get()));
       }
@@ -306,6 +319,7 @@ public final class CsvLoaderUtils {
     Optional<Double> shortQuantityOpt = row.findValue(SHORT_QUANTITY_FIELD, LoaderUtils::parseDouble);
     if (!longQuantityOpt.isPresent() && !shortQuantityOpt.isPresent()) {
       throw new ParseFailureException(
+          FailureReason.FIELD_MISSING,
           "Security must contain a quantity column, either '{}' or '{}' and '{}'",
           QUANTITY_FIELD, LONG_QUANTITY_FIELD, SHORT_QUANTITY_FIELD);
     }
@@ -721,6 +735,10 @@ public final class CsvLoaderUtils {
    */
   public static String formattedDouble(double value) {
     return Decimal.of(value).toString();
+  }
+
+  static ParseFailureException missingFieldException(String field) {
+    return new ParseFailureException(field, FailureReason.FIELD_MISSING, "'{field}' is empty", field) ;
   }
 
 }

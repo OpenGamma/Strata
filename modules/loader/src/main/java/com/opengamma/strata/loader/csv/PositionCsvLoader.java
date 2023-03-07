@@ -380,12 +380,7 @@ public final class PositionCsvLoader {
               .ifPresent(parsed -> positions.add((T) parsed));
         } else {
           // failed to find the type
-          failures.add(FailureItem.of(
-              FailureReason.PARSING,
-              "CSV position file '{fileName}' contained unknown position type '{type}' at line {lineNumber}",
-              CharSources.extractFileName(charSource),
-              typeRaw,
-              row.lineNumber()));
+          throw new ParseFailureException(FailureReason.UNSUPPORTED, "Unknown '{}', '{}'", POSITION_TYPE_FIELD, typeRaw);
         }
 
       } catch (ParseFailureException ex) {

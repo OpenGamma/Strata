@@ -418,8 +418,8 @@ public class PositionCsvLoaderTest {
 
     assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
-    assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure.getMessage()).isEqualTo("CSV position file 'Unknown.txt' contained unknown position type 'Foo' at line 2");
+    assertThat(failure.getReason()).isEqualTo(FailureReason.UNSUPPORTED);
+    assertThat(failure.getMessage()).isEqualTo("Unknown 'Strata Position Type', 'Foo'");
   }
 
   @Test
@@ -441,7 +441,7 @@ public class PositionCsvLoaderTest {
 
     assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
-    assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(failure.getReason()).isEqualTo(FailureReason.FIELD_MISSING);
     assertThat(failure.getMessage()).isEqualTo("Security must contain a quantity column, either 'Quantity' or 'Long Quantity' and 'Short Quantity'");
   }
 
