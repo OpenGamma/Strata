@@ -738,7 +738,7 @@ public final class CsvLoaderUtils {
   }
 
   static ParseFailureException missingFieldException(String field) {
-    return new ParseFailureException(field, FailureReason.FIELD_MISSING, "'{field}' is empty", field) ;
+    return new ParseFailureException(field, FailureReason.FIELD_MISSING, "'{field}' is empty", field);
   }
 
 }
