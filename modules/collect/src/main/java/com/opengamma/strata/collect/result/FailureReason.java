@@ -79,6 +79,18 @@ public enum FailureReason implements NamedEnum {
    */
   CALCULATION_FAILED,
   /**
+   * The operation failed because a field was missing.
+   * <p>
+   * This is used to indicate that a field was not provided.
+   */
+  FIELD_MISSING,
+  /**
+   * The operation failed because data was not provided in the correct format.
+   * <p>
+   * This is used to indicate that a field was not provided in the expected format.
+   */
+  WRONG_FORMAT,
+  /**
    * Failure occurred for some other reason.
    * <p>
    * This reason should only be used when no other type is applicable.

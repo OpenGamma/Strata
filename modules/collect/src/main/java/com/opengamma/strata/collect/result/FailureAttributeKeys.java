@@ -79,6 +79,10 @@ public final class FailureAttributeKeys {
    * The attribute for specifying the product type associated with the error.
    */
   public static final String PRODUCT_TYPE = "productType";
+  /**
+   * The attribute for specifying the field associated with the error.
+   */
+  public static final String FIELD = "field";
 
   // restricted constructor
   private FailureAttributeKeys() {

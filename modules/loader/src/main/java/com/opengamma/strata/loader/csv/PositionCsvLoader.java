@@ -33,8 +33,10 @@ import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.io.UnicodeBom;
 import com.opengamma.strata.collect.named.ExtendedEnum;
+import com.opengamma.strata.collect.result.FailureAttributeKeys;
 import com.opengamma.strata.collect.result.FailureItem;
 import com.opengamma.strata.collect.result.FailureReason;
+import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.collect.result.ValueWithFailures;
 import com.opengamma.strata.product.Position;
 import com.opengamma.strata.product.PositionInfo;
@@ -386,6 +388,11 @@ public final class PositionCsvLoader {
               row.lineNumber()));
         }
 
+      } catch (ParseFailureException ex) {
+        FailureItem failureItem = ex.getFailureItem()
+            .withAttribute(FailureAttributeKeys.LINE_NUMBER, Integer.toString(row.lineNumber()))
+            .withAttribute(FailureAttributeKeys.FILE_NAME, CharSources.extractFileName(charSource));
+        failures.add(failureItem);
       } catch (RuntimeException ex) {
         failures.add(FailureItem.of(
             FailureReason.PARSING,
