@@ -736,4 +736,8 @@ public final class CsvLoaderUtils {
   public static String formattedDouble(double value) {
     return Decimal.of(value).toString();
   }
+
+  static ParseFailureException missingFieldException(String field) {
+    return new ParseFailureException(field, FailureReason.FIELD_MISSING, "'{field}' is empty", field);
+  }
 }
