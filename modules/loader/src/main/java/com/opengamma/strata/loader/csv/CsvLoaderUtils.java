@@ -237,7 +237,7 @@ public final class CsvLoaderUtils {
       if (day == 0) {
         throw new ParseFailureException(
             FailureReason.FIELD_MISSING,
-            "'{field}' is empty. Must be set when '{}' is provided as this denotes a Flex Option",
+            "'{field}' is empty, must be set when '{}' is provided as this denotes a Flex Option",
             EXPIRY_DAY_FIELD,
             SETTLEMENT_TYPE_FIELD);
       }
