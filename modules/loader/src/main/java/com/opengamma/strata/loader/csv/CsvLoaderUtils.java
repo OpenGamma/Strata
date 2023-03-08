@@ -236,14 +236,14 @@ public final class CsvLoaderUtils {
     } else {
       if (day == 0) {
         throw new ParseFailureException(
-            FailureReason.FIELD_MISSING,
+            FailureReason.PARSING,
             "'{field}' is empty, must be set when '{}' is provided as this denotes a Flex Option",
             EXPIRY_DAY_FIELD,
             SETTLEMENT_TYPE_FIELD);
       }
       if (week != 0) {
         throw new ParseFailureException(
-            FailureReason.FIELD_MISSING,
+            FailureReason.PARSING,
             "'{field}' is empty. Must be set when '{}' is provided as this denotes a Flex Option",
             EXPIRY_WEEK_FIELD,
             SETTLEMENT_TYPE_FIELD);
@@ -253,7 +253,7 @@ public final class CsvLoaderUtils {
       } else {
         if (!optionTypeOpt.isPresent()) {
           throw new ParseFailureException(
-              FailureReason.FIELD_MISSING,
+              FailureReason.PARSING,
               "'{field}' is empty. Must be set when '{}' is provided as this denotes a Flex Option",
               EXERCISE_STYLE_FIELD,
               SETTLEMENT_TYPE_FIELD);
@@ -319,7 +319,7 @@ public final class CsvLoaderUtils {
     Optional<Double> shortQuantityOpt = row.findValue(SHORT_QUANTITY_FIELD, LoaderUtils::parseDouble);
     if (!longQuantityOpt.isPresent() && !shortQuantityOpt.isPresent()) {
       throw new ParseFailureException(
-          FailureReason.FIELD_MISSING,
+          FailureReason.PARSING,
           "Security must contain a quantity column, either '{}' or '{}' and '{}'",
           QUANTITY_FIELD, LONG_QUANTITY_FIELD, SHORT_QUANTITY_FIELD);
     }
@@ -738,6 +738,6 @@ public final class CsvLoaderUtils {
   }
 
   static ParseFailureException missingFieldException(String field) {
-    return new ParseFailureException(field, FailureReason.FIELD_MISSING, "'{field}' is empty", field);
+    return new ParseFailureException(field, FailureReason.PARSING, "'{field}' is empty", field);
   }
 }
