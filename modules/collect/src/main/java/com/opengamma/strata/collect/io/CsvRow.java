@@ -266,7 +266,7 @@ public final class CsvRow {
    *
    * @param header  the column header
    * @return the field value, trimmed unless surrounded by quotes
-   * @throws IllegalArgumentException if the header is not found or if the value in the field is empty.
+   * @throws ParseFailureException if the header is not found or if the value in the field is empty.
    */
   public String getValue(String header) {
     String value = getField(header);
