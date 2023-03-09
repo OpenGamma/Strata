@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.result.ParseFailureException;
 
 /**
  * A row in a CSV file.
@@ -155,7 +156,7 @@ public final class CsvRow {
   public String getField(String header) {
     Integer index = findIndex(header);
     if (index == null) {
-      throw new IllegalArgumentException("Header not found: '" + header + "'");
+      throw new ParseFailureException("Header not found: '{header}'", header);
     }
     return field(index);
   }
@@ -270,7 +271,7 @@ public final class CsvRow {
   public String getValue(String header) {
     String value = getField(header);
     if (value.isEmpty()) {
-      throw new IllegalArgumentException("No value was found for field: '" + header + "'");
+      throw new ParseFailureException("No value was found for '{header}'", header);
     }
     return value;
   }

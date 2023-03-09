@@ -229,22 +229,19 @@ public final class CsvLoaderUtils {
         if (week == 0) {
           return Pair.of(yearMonth, EtdVariant.ofDaily(day));
         } else {
-          throw new ParseFailureException(FailureReason.INVALID,
-              "Unable to parse ETD variant, date columns conflict, must not set both expiry day and expiry week");
+          throw new ParseFailureException("Unable to parse ETD variant, date columns conflict, must not set both expiry day and expiry week");
         }
       }
     } else {
       if (day == 0) {
         throw new ParseFailureException(
-            FailureReason.PARSING,
             "'{field}' is empty, must be set when '{}' is provided as this denotes a Flex Option",
             EXPIRY_DAY_FIELD,
             SETTLEMENT_TYPE_FIELD);
       }
       if (week != 0) {
         throw new ParseFailureException(
-            FailureReason.PARSING,
-            "'{field}' is empty. Must be set when '{}' is provided as this denotes a Flex Option",
+            "'{field}' is empty, must be set when '{}' is provided as this denotes a Flex Option",
             EXPIRY_WEEK_FIELD,
             SETTLEMENT_TYPE_FIELD);
       }
@@ -253,8 +250,7 @@ public final class CsvLoaderUtils {
       } else {
         if (!optionTypeOpt.isPresent()) {
           throw new ParseFailureException(
-              FailureReason.PARSING,
-              "'{field}' is empty. Must be set when '{}' is provided as this denotes a Flex Option",
+              "'{field}' is empty, must be set when '{}' is provided as this denotes a Flex Option",
               EXERCISE_STYLE_FIELD,
               SETTLEMENT_TYPE_FIELD);
         }
@@ -319,7 +315,6 @@ public final class CsvLoaderUtils {
     Optional<Double> shortQuantityOpt = row.findValue(SHORT_QUANTITY_FIELD, LoaderUtils::parseDouble);
     if (!longQuantityOpt.isPresent() && !shortQuantityOpt.isPresent()) {
       throw new ParseFailureException(
-          FailureReason.PARSING,
           "Security must contain a quantity column, either '{}' or '{}' and '{}'",
           QUANTITY_FIELD, LONG_QUANTITY_FIELD, SHORT_QUANTITY_FIELD);
     }

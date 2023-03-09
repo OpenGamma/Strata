@@ -382,7 +382,7 @@ public final class PositionCsvLoader {
         } else {
           // failed to find the type
           FailureItem failureItem = FailureItem.of(
-              FailureReason.UNSUPPORTED,
+              FailureReason.PARSING,
               "CSV position file '{fileName}' contained unknown position type '{type}' at line {lineNumber}",
               CharSources.extractFileName(charSource),
               typeRaw,

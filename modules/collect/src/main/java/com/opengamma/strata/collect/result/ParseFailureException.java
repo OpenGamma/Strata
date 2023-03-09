@@ -68,44 +68,6 @@ public class ParseFailureException extends IllegalArgumentException implements F
   }
 
   /**
-   * Returns an exception from a cause, reason and message.
-   * <p>
-   * The message is produced using a template that contains zero to many "{argName}" placeholders.
-   * Each placeholder is replaced by the next available argument.
-   * If there are too few arguments, then the message will be left with placeholders.
-   * If there are too many arguments, then the excess arguments are appended to the
-   * end of the message. No attempt is made to format the arguments.
-   * See {@link Messages#formatWithAttributes(String, Object...)} for more details.
-   *
-   * @param cause  the cause
-   * @param reason the reason for the failure
-   * @param messageTemplate  a message explaining the failure, not empty, uses "{argName}" for inserting {@code messageArgs}
-   * @param messageArgs  the arguments for the message
-   */
-  public ParseFailureException(Throwable cause, FailureReason reason, String messageTemplate, Object... messageArgs) {
-    this(FailureItem.of(reason, cause, messageTemplate, messageArgs));
-    initCause(cause);
-  }
-
-  /**
-   * Returns an exception from a reason and message.
-   * <p>
-   * The message is produced using a template that contains zero to many "{argName}" placeholders.
-   * Each placeholder is replaced by the next available argument.
-   * If there are too few arguments, then the message will be left with placeholders.
-   * If there are too many arguments, then the excess arguments are appended to the
-   * end of the message. No attempt is made to format the arguments.
-   * See {@link Messages#formatWithAttributes(String, Object...)} for more details.
-   *
-   * @param reason the reason for the failure
-   * @param messageTemplate  a message explaining the failure, not empty, uses "{argName}" for inserting {@code messageArgs}
-   * @param messageArgs  the arguments for the message
-   */
-  public ParseFailureException(FailureReason reason, String messageTemplate, Object... messageArgs) {
-    this(FailureItem.of(reason, messageTemplate, messageArgs));
-  }
-
-  /**
    * Gets the failure item.
    *
    * @return the failure item

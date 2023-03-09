@@ -419,7 +419,7 @@ public class PositionCsvLoaderTest {
 
     assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
-    assertThat(failure.getReason()).isEqualTo(FailureReason.UNSUPPORTED);
+    assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
     assertThat(failure.getMessage()).isEqualTo("CSV position file 'Unknown.txt' contained unknown position type 'Foo' at line 2");
   }
 
