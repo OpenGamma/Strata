@@ -288,7 +288,7 @@ public final class CsvRow {
    * @param header  the column header
    * @param postProcessor  the post processor
    * @return the post processed field value
-   * @throws IllegalArgumentException if the header is not found or if the value in the field is empty.
+   * @throws ParseFailureException if the header is not found or if the value in the field is empty.
    */
   public <T> T getValue(String header, Function<String, T> postProcessor) {
     String value = getValue(header);
