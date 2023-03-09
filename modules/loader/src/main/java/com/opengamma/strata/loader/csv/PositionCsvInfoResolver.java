@@ -21,7 +21,6 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TICK_VALUE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.UNDERLYING_EXPIRY_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.VERSION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.DEFAULT_OPTION_VERSION_NUMBER;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.missingFieldException;
 import static com.opengamma.strata.loader.csv.PositionCsvLoader.DEFAULT_SECURITY_SCHEME;
 
 import java.time.YearMonth;
@@ -31,8 +30,6 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.io.CsvRow;
-import com.opengamma.strata.collect.result.FailureReason;
-import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.loader.LoaderUtils;
@@ -276,10 +273,8 @@ public interface PositionCsvInfoResolver {
     EtdContractSpec contract = parseEtdContractSpec(row, EtdType.OPTION);
     Pair<YearMonth, EtdVariant> variant = CsvLoaderUtils.parseEtdVariant(row, EtdType.OPTION);
     int version = row.findValue(VERSION_FIELD).map(Integer::parseInt).orElse(DEFAULT_OPTION_VERSION_NUMBER);
-    PutCall putCall = row.findValue(PUT_CALL_FIELD, LoaderUtils::parsePutCall)
-        .orElseThrow(() -> missingFieldException(PUT_CALL_FIELD));
-    double strikePrice = row.findValue(EXERCISE_PRICE_FIELD, LoaderUtils::parseDouble)
-        .orElseThrow(() -> missingFieldException(EXERCISE_PRICE_FIELD));
+    PutCall putCall = row.getValue(PUT_CALL_FIELD, LoaderUtils::parsePutCall);
+    double strikePrice = row.getValue(EXERCISE_PRICE_FIELD, LoaderUtils::parseDouble);
     YearMonth underlyingExpiry = row.findValue(UNDERLYING_EXPIRY_FIELD)
         .map(str -> LoaderUtils.parseYearMonth(str))
         .orElse(null);

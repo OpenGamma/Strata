@@ -229,7 +229,8 @@ public final class CsvLoaderUtils {
         if (week == 0) {
           return Pair.of(yearMonth, EtdVariant.ofDaily(day));
         } else {
-          throw new ParseFailureException("Unable to parse ETD variant, date columns conflict, must not set both expiry day and expiry week");
+          throw new ParseFailureException("Unable to parse ETD variant, date columns conflict, must not set both " +
+              "expiry day and expiry week");
         }
       }
     } else {
@@ -730,9 +731,5 @@ public final class CsvLoaderUtils {
    */
   public static String formattedDouble(double value) {
     return Decimal.of(value).toString();
-  }
-
-  static ParseFailureException missingFieldException(String field) {
-    return new ParseFailureException(field, FailureReason.PARSING, "'{field}' is empty", field);
   }
 }
