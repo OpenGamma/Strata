@@ -151,7 +151,7 @@ public final class CsvRow {
    * 
    * @param header  the column header
    * @return the field value, trimmed unless surrounded by quotes
-   * @throws IllegalArgumentException if the header is not found
+   * @throws ParseFailureException if the header is not found
    */
   public String getField(String header) {
     Integer index = findIndex(header);
@@ -173,7 +173,7 @@ public final class CsvRow {
    * @param header  the column header
    * @param postProcessor  the post processor
    * @return the post processed field value
-   * @throws IllegalArgumentException if the header is not found
+   * @throws ParseFailureException if the header is not found
    */
   public <T> T getField(String header, Function<String, T> postProcessor) {
     String value = getField(header);
