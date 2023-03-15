@@ -5,7 +5,9 @@
  */
 package com.opengamma.strata.pricer.impl.rate.swap;
 
+import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
@@ -27,15 +29,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.DayCounts;
+import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
+import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
@@ -46,6 +59,12 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapLegPricer;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.LegalEntityId;
+import com.opengamma.strata.product.SecurityId;
+import com.opengamma.strata.product.bond.FixedCouponBond;
+import com.opengamma.strata.product.bond.FixedCouponBondPaymentPeriod;
+import com.opengamma.strata.product.bond.FixedCouponBondYieldConvention;
+import com.opengamma.strata.product.bond.ResolvedFixedCouponBond;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.IborRateComputation;
 import com.opengamma.strata.product.rate.OvernightRateComputation;
@@ -536,6 +555,84 @@ public class CashFlowEquivalentCalculatorTest {
         ResolvedSwap.of(FIXED_LEG, CashFlowEquivalentCalculator.cashFlowEquivalentIborLeg(IBOR_LEG, PROVIDER));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CashFlowEquivalentCalculator.cashFlowEquivalentAndSensitivitySwap(swap3, PROVIDER));
+  }
+  
+  /* Check cash flow equivalent for a set of bonds corresponding to bond futures underlyings. */
+
+  private static final LegalEntityId ISSUER_ID_DE = LegalEntityId.of("OG-Ticker", "GOVT-DE");
+  private static final FixedCouponBondYieldConvention YIELD_CONVENTION_DE = FixedCouponBondYieldConvention.DE_BONDS;
+  private static final double NOTIONAL_EUR = 100000d;
+  private static final HolidayCalendarId CALENDAR_EUR = HolidayCalendarIds.EUTA;
+  private static final DaysAdjustment SETTLEMENT_DAYS_EUR = DaysAdjustment.ofBusinessDays(3, CALENDAR_EUR);
+  private static final DayCount DAY_COUNT_EUR = DayCounts.ACT_ACT_ICMA;
+  private static final BusinessDayAdjustment BUSINESS_ADJUST_EUR =
+      BusinessDayAdjustment.of(FOLLOWING, CALENDAR_EUR);
+  private static final DaysAdjustment EX_COUPON_DE = DaysAdjustment.NONE;
+  private static final int NB_BOND_EUR = 4;
+  // Underlying bonds description from www.deutsche-finanzagentur.de
+  private static final double[] COUPON_DE = new double[] {0.00, 0.0170, 0.00, 0.0050};
+  private static final LocalDate[] START_DATE_DE = new LocalDate[] {
+      LocalDate.of(2021, 8, 15), LocalDate.of(2022, 8, 15), LocalDate.of(2022, 2, 15), LocalDate.of(2018, 2, 15)};
+  private static final LocalDate[] END_DATE_DE = new LocalDate[] {
+      LocalDate.of(2031, 8, 15), LocalDate.of(2032, 8, 15), LocalDate.of(2032, 2, 15), LocalDate.of(2028, 2, 15)};
+  private static final StandardId[] BOND_SECURITY_ID_EUR = new StandardId[] {
+      StandardId.of("ISIN", "DE0001102564"),
+      StandardId.of("ISIN", "DE0001102606"),
+      StandardId.of("ISIN", "DE0001102580"),
+      StandardId.of("ISIN", "DE0001102440")};
+  public static final ResolvedFixedCouponBond[] BOND_DE = new ResolvedFixedCouponBond[NB_BOND_EUR];
+  static {
+    for (int i = 0; i < NB_BOND_EUR; ++i) {
+      PeriodicSchedule periodSchedule = PeriodicSchedule.of(
+          START_DATE_DE[i], END_DATE_DE[i], Frequency.P12M, BUSINESS_ADJUST_EUR, StubConvention.LONG_INITIAL, false);
+      FixedCouponBond product = FixedCouponBond.builder()
+          .securityId(SecurityId.of(BOND_SECURITY_ID_EUR[i]))
+          .dayCount(DAY_COUNT_EUR)
+          .fixedRate(COUPON_DE[i])
+          .legalEntityId(ISSUER_ID_DE)
+          .currency(EUR)
+          .notional(NOTIONAL_EUR)
+          .accrualSchedule(periodSchedule)
+          .settlementDateOffset(SETTLEMENT_DAYS_EUR)
+          .yieldConvention(YIELD_CONVENTION_DE)
+          .exCouponPeriod(EX_COUPON_DE)
+          .build();
+      BOND_DE[i] = product.resolve(REF_DATA);
+    }
+  }
+  private static final LocalDate[] SETTLE_DATE = new LocalDate[] {
+      LocalDate.of(2022, 9, 12), LocalDate.of(2022, 9, 12), LocalDate.of(2023, 3, 10), LocalDate.of(2023, 9, 12)};
+  private static final Offset<Double> TOLERANCE_AMOUNT = offset(1.0E-10);
+
+  @Test
+  public void cfe_bond() {
+    int[] nbCf = {10, 11, 10, 6}; // Hard-coded values
+    for (int i = 0; i < NB_BOND_EUR; ++i) {
+      ResolvedSwapLeg cfe = CashFlowEquivalentCalculator.cashFlowEquivalent(BOND_DE[i], SETTLE_DATE[i]);
+      assertThat(cfe.getPaymentEvents().size()).isEqualTo(nbCf[i]);
+      int loopcfe = 0;
+      for (int loopcpn = 0; loopcpn < BOND_DE[i].getPeriodicPayments().size(); loopcpn++) {
+        FixedCouponBondPaymentPeriod payment = BOND_DE[i].getPeriodicPayments().get(loopcpn);
+        LocalDate detachmentDate = payment.getDetachmentDate();
+        if (detachmentDate.isAfter(SETTLE_DATE[i])) {
+          double amount = payment.getYearFraction() * payment.getFixedRate() * payment.getNotional();
+          Payment paymentLocalTest = Payment.of(payment.getCurrency(), amount, detachmentDate);
+          SwapPaymentEvent paymentFromCfe = cfe.getPaymentEvents().get(loopcfe);
+          assertThat(paymentFromCfe instanceof NotionalExchange).isTrue();
+          assertThat(paymentLocalTest.getDate()).isEqualTo(paymentFromCfe.getPaymentDate());
+          assertThat(paymentLocalTest.getCurrency()).isEqualTo(paymentFromCfe.getCurrency());
+          assertThat(paymentLocalTest.getAmount())
+              .isEqualTo(((NotionalExchange) paymentFromCfe).getPaymentAmount().getAmount(), TOLERANCE_AMOUNT);
+          loopcfe++;
+        }
+      }
+      SwapPaymentEvent paymentFromCfeNotional = cfe.getPaymentEvents().get(loopcfe);
+      assertThat(paymentFromCfeNotional instanceof NotionalExchange).isTrue();
+      assertThat(BOND_DE[i].getEndDate()).isEqualTo(paymentFromCfeNotional.getPaymentDate());
+      assertThat(BOND_DE[i].getCurrency()).isEqualTo(paymentFromCfeNotional.getCurrency());
+      assertThat(BOND_DE[i].getNotional())
+          .isEqualTo(((NotionalExchange) paymentFromCfeNotional).getPaymentAmount().getAmount(), TOLERANCE_AMOUNT);
+    }
   }
 
 }
