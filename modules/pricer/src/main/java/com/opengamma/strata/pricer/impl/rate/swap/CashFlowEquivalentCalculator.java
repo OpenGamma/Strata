@@ -24,6 +24,8 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.bond.FixedCouponBondPaymentPeriod;
+import com.opengamma.strata.product.bond.ResolvedFixedCouponBond;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.IborRateComputation;
@@ -41,9 +43,38 @@ import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 /**
  * Computes cash flow equivalent of products.
  * <p>
+ * Useful to price optional products in term structure models.
+ * <p>
  * Reference: Henrard, M. The Irony in the derivatives discounting Part II: the crisis. Wilmott Journal, 2010, 2, 301-316.
  */
 public final class CashFlowEquivalentCalculator {
+
+  /**
+   * Computes the cash flow equivalent of a fixed coupon bond.
+   * 
+   * @param bond  the fixed coupon bond
+   * @param settlementDate  the settlement date; only the coupons strictly after that date are generated
+   * @return the cash flow equivalent
+   */
+  public static ResolvedSwapLeg cashFlowEquivalent(ResolvedFixedCouponBond bond, LocalDate settlementDate) {
+    List<NotionalExchange> paymentEvents = new ArrayList<NotionalExchange>();
+    for (FixedCouponBondPaymentPeriod payment : bond.getPeriodicPayments()) {
+      LocalDate detachmentDate = payment.getDetachmentDate();
+      if (detachmentDate.isAfter(settlementDate)) {
+        double amount = payment.getYearFraction() * payment.getFixedRate() * payment.getNotional();
+        NotionalExchange pay = NotionalExchange.of(CurrencyAmount.of(payment.getCurrency(), amount), detachmentDate);
+        paymentEvents.add(pay);
+      }
+    }
+    paymentEvents.add(NotionalExchange
+        .of(CurrencyAmount.of(bond.getCurrency(), bond.getNotional()), bond.getEndDate()));
+    ResolvedSwapLeg leg = ResolvedSwapLeg.builder()
+        .paymentEvents(paymentEvents)
+        .payReceive(PayReceive.RECEIVE)
+        .type(SwapLegType.OTHER)
+        .build();
+    return leg;
+  }
 
   /**
    * Computes cash flow equivalent of swap.
