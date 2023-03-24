@@ -1328,6 +1328,23 @@ public class PeriodicScheduleTest {
         .withMessageMatching(".*duplicate unadjusted dates.*");
   }
 
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_of_schedule_with_combinePeriodsIfNecessary() {
+    LocalDate startDate = LocalDate.of(2022, 12, 1);
+    LocalDate endDate = LocalDate.of(2022, 12, 31);
+    BusinessDayAdjustment BDA = BusinessDayAdjustment.of(FOLLOWING, SAT_SUN);
+    PeriodicSchedule scheduleDefinition = PeriodicSchedule.builder()
+            .startDate(startDate)
+            .endDate(endDate)
+            .frequency(Frequency.P1D)
+            .businessDayAdjustment(BDA)
+            .build();
+    Schedule schedule = scheduleDefinition.createSchedule(REF_DATA, true);
+    assertThat(schedule.size()).isEqualTo(22);
+  }
+
   //-------------------------------------------------------------------------
   @ParameterizedTest
   @MethodSource("data_generation")
