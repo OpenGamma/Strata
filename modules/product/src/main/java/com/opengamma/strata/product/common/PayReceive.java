@@ -8,7 +8,9 @@ package com.opengamma.strata.product.common;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
+import com.opengamma.strata.basics.currency.BigMoney;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.collect.Decimal;
 import com.opengamma.strata.collect.named.EnumNames;
 import com.opengamma.strata.collect.named.NamedEnum;
 
@@ -94,6 +96,21 @@ public enum PayReceive implements NamedEnum {
   }
 
   /**
+   * Normalizes the specified notional amount using this pay/receive rule.
+   * <p>
+   * This returns a negative signed amount if this is 'Pay', and a positive
+   * signed amount if this is 'Receive'. This effectively normalizes the input
+   * notional to the pay/receive sign conventions of this library.
+   *
+   * @param amount  the amount to adjust
+   * @return the adjusted amount
+   */
+  public Decimal normalize(Decimal amount) {
+    Decimal normalized = amount.abs();
+    return isPay() ? normalized.negated() : normalized;
+  }
+
+  /**
    * Normalizes the specified amount using this pay/receive rule.
    * <p>
    * This returns a negative signed amount if this is 'Pay', and a positive
@@ -105,6 +122,20 @@ public enum PayReceive implements NamedEnum {
    * @return the adjusted amount
    */
   public CurrencyAmount normalize(CurrencyAmount amount) {
+    return isPay() ? amount.negative() : amount.positive();
+  }
+
+  /**
+   * Normalizes the specified {@code BigMoney} amount using this pay/receive rule.
+   * <p>
+   * This returns a negative signed amount if this is 'Pay', and a positive
+   * signed amount if this is 'Receive'. This effectively normalizes the input
+   * notional to the pay/receive sign conventions of this library.
+   *
+   * @param amount  the amount to adjust
+   * @return the adjusted amount
+   */
+  public BigMoney normalize(BigMoney amount) {
     return isPay() ? amount.negative() : amount.positive();
   }
 

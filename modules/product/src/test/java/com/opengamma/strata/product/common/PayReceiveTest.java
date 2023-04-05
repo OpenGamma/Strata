@@ -19,7 +19,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.opengamma.strata.basics.currency.BigMoney;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.collect.Decimal;
 
 /**
  * Test {@link PayReceive}.
@@ -52,12 +54,26 @@ public class PayReceiveTest {
   }
 
   @Test
+  public void test_normalize_pay_decimal() {
+    assertThat(PayReceive.PAY.normalize(Decimal.of(1d))).isEqualTo(Decimal.of(-1d));
+    assertThat(PayReceive.PAY.normalize(Decimal.of(-1d))).isEqualTo(Decimal.of(-1d));
+    assertThat(PayReceive.PAY.normalize(Decimal.of(0d))).isEqualTo(Decimal.ZERO);
+    assertThat(PayReceive.PAY.normalize(Decimal.of(-0d))).isEqualTo(Decimal.ZERO);
+  }
+
+  @Test
   public void test_normalize_pay_amount() {
     assertThat(PayReceive.PAY.normalize(CurrencyAmount.of(GBP, 1d))).isEqualTo(CurrencyAmount.of(GBP, -1d));
     assertThat(PayReceive.PAY.normalize(CurrencyAmount.of(GBP, 0d))).isEqualTo(CurrencyAmount.of(GBP, 0d));
     assertThat(PayReceive.PAY.normalize(CurrencyAmount.of(GBP, -1d))).isEqualTo(CurrencyAmount.of(GBP, -1d));
   }
 
+  @Test
+  public void test_normalize_pay_money() {
+    assertThat(PayReceive.PAY.normalize(BigMoney.of(GBP, 1d))).isEqualTo(BigMoney.of(GBP, -1d));
+    assertThat(PayReceive.PAY.normalize(BigMoney.of(GBP, 0d))).isEqualTo(BigMoney.zero(GBP));
+    assertThat(PayReceive.PAY.normalize(BigMoney.of(GBP, -1d))).isEqualTo(BigMoney.of(GBP, -1d));
+  }
   @Test
   public void test_normalize_receive_double() {
     assertThat(PayReceive.RECEIVE.normalize(1d)).isCloseTo(1d, offset(0d));
@@ -67,10 +83,25 @@ public class PayReceiveTest {
   }
 
   @Test
+  public void test_normalize_receive_decimal() {
+    assertThat(PayReceive.RECEIVE.normalize(Decimal.of(1d))).isEqualTo(Decimal.of(1d));
+    assertThat(PayReceive.RECEIVE.normalize(Decimal.of(-1d))).isEqualTo(Decimal.of(1d));
+    assertThat(PayReceive.RECEIVE.normalize(Decimal.of(0d))).isEqualTo(Decimal.ZERO);
+    assertThat(PayReceive.RECEIVE.normalize(Decimal.of(-0d))).isEqualTo(Decimal.ZERO);
+  }
+
+  @Test
   public void test_normalize_receive_amount() {
     assertThat(PayReceive.RECEIVE.normalize(CurrencyAmount.of(GBP, 1d))).isEqualTo(CurrencyAmount.of(GBP, 1d));
     assertThat(PayReceive.RECEIVE.normalize(CurrencyAmount.of(GBP, 0d))).isEqualTo(CurrencyAmount.of(GBP, 0d));
     assertThat(PayReceive.RECEIVE.normalize(CurrencyAmount.of(GBP, -1d))).isEqualTo(CurrencyAmount.of(GBP, 1d));
+  }
+
+  @Test
+  public void test_normalize_receive_money() {
+    assertThat(PayReceive.RECEIVE.normalize(BigMoney.of(GBP, 1d))).isEqualTo(BigMoney.of(GBP, 1d));
+    assertThat(PayReceive.RECEIVE.normalize(BigMoney.of(GBP, 0d))).isEqualTo(BigMoney.zero(GBP));
+    assertThat(PayReceive.RECEIVE.normalize(BigMoney.of(GBP, -1d))).isEqualTo(BigMoney.of(GBP, 1d));
   }
 
   @Test
