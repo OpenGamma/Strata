@@ -8,7 +8,9 @@ package com.opengamma.strata.product.common;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
+import com.opengamma.strata.basics.currency.BigMoney;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.collect.Decimal;
 import com.opengamma.strata.collect.named.EnumNames;
 import com.opengamma.strata.collect.named.NamedEnum;
 
@@ -81,6 +83,21 @@ public enum BuySell implements NamedEnum {
   }
 
   /**
+   * Normalizes the specified {@code Decimal} amount using this buy/sell rule.
+   * <p>
+   * This returns a positive signed amount if this is 'buy', and a negative signed amount
+   * if this is 'sell'. This effectively normalizes the input amount
+   * to the buy/sell sign conventions of this library.
+   *
+   * @param amount  the amount to adjust
+   * @return the adjusted amount
+   */
+  public Decimal normalize(Decimal amount) {
+    Decimal normalized = amount.abs();
+    return isBuy() ? normalized : normalized.negated();
+  }
+
+  /**
    * Normalizes the specified amount using this buy/sell rule.
    * <p>
    * This returns a positive signed amount if this is 'buy', and a negative signed amount 
@@ -92,6 +109,20 @@ public enum BuySell implements NamedEnum {
    * @return the adjusted amount
    */
   public CurrencyAmount normalize(CurrencyAmount amount) {
+    return isBuy() ? amount.positive() : amount.negative();
+  }
+
+  /**
+   * Normalizes the specified {@code BigMoney} amount using this buy/sell rule.
+   * <p>
+   * This returns a positive signed amount if this is 'buy', and a negative signed amount
+   * if this is 'sell'. This effectively normalizes the input notional
+   * to the buy/sell sign conventions of this library.
+   *
+   * @param amount  the amount to adjust
+   * @return the adjusted amount
+   */
+  public BigMoney normalize(BigMoney amount) {
     return isBuy() ? amount.positive() : amount.negative();
   }
 
