@@ -11,12 +11,19 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
+import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
+import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.bond.DiscountingFixedCouponBondTradePricer;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
+import com.opengamma.strata.pricer.bond.RepoCurveDiscountFactors;
+import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
+import com.opengamma.strata.product.bond.ResolvedFixedCouponBond;
 import com.opengamma.strata.product.bond.ResolvedFixedCouponBondTrade;
+import com.opengamma.strata.product.payment.ResolvedBulletPaymentTrade;
 
 /**
  * Multi-scenario measure calculations for fixed coupon bond trades.
@@ -191,6 +198,27 @@ final class FixedCouponBondMeasureCalculations {
       LegalEntityDiscountingProvider discountingProvider) {
 
     return tradePricer.currentCash(trade, discountingProvider.getValuationDate());
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates cashflows for all scenarios
+  ScenarioArray<CashFlows> cashFlows(
+          ResolvedFixedCouponBondTrade trade,
+          LegalEntityDiscountingScenarioMarketData marketData) {
+
+    return ScenarioArray.of(
+            marketData.getScenarioCount(),
+            i -> cashFlows(trade, marketData.scenario(i).discountingProvider()));
+  }
+
+  // cashflows for one scenario
+  CashFlows cashFlows(ResolvedFixedCouponBondTrade trade,
+                       LegalEntityDiscountingProvider ratesProvider) {
+
+    DiscountFactors discountingProvider = ratesProvider
+            .repoCurveDiscountFactors(trade.getProduct().getLegalEntityId(), trade.getProduct().getCurrency())
+            .getDiscountFactors();
+    return tradePricer.cashFlows(trade, discountingProvider);
   }
 
 }

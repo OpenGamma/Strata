@@ -6,6 +6,9 @@
 package com.opengamma.strata.pricer.bond;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
@@ -13,9 +16,12 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.market.amount.CashFlow;
+import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.CompoundedRateType;
+import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 import com.opengamma.strata.product.bond.FixedCouponBondPaymentPeriod;
@@ -447,6 +453,30 @@ public class DiscountingFixedCouponBondTradePricer {
     return trade.getSettlement()
         .map(settle -> settle.getSettlementDate())
         .orElse(valuationDate);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the future cash flow of the bullet payment trade.
+   * <p>
+   * There is only one cash flow on the payment date for the bullet payment trade.
+   *
+   * @param trade  the trade
+   * @param discountFactors  the provider
+   * @return the cash flows
+   */
+  public CashFlows cashFlows(ResolvedFixedCouponBondTrade trade, DiscountFactors discountFactors) {
+    List<CashFlow> listCashFlow = productPricer.cashFlows(trade.getProduct(), discountFactors);
+    double quantity = trade.getQuantity();
+
+    List<CashFlow> newListCashFlow = new ArrayList<>();
+
+    for (CashFlow tempCashflow : listCashFlow) {
+      newListCashFlow.add(CashFlow.ofForecastValue(tempCashflow.getPaymentDate(),
+              tempCashflow.getForecastValue().multipliedBy(quantity), tempCashflow.getDiscountFactor()));
+    }
+
+    return CashFlows.of(newListCashFlow);
   }
 
 }
