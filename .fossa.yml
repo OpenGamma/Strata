@@ -1,0 +1,9 @@
+version: 3
+
+experimental:
+  maven:
+    configurations-only:
+      - runtimeClasspath
+paths:
+  exclude:
+    - ./examples
