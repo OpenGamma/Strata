@@ -19,7 +19,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.opengamma.strata.basics.currency.BigMoney;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.collect.Decimal;
 
 /**
  * Test {@link BuySell}.
@@ -43,10 +45,25 @@ public class BuySellTest {
   }
 
   @Test
+  public void test_normalize_sell_decimal() {
+    assertThat(BuySell.SELL.normalize(Decimal.of(1d))).isEqualTo(Decimal.of(-1d));
+    assertThat(BuySell.SELL.normalize(Decimal.of(-1d))).isEqualTo(Decimal.of(-1d));
+    assertThat(BuySell.SELL.normalize(Decimal.of(0d))).isEqualTo(Decimal.ZERO);
+    assertThat(BuySell.SELL.normalize(Decimal.of(-0d))).isEqualTo(Decimal.ZERO);
+  }
+
+  @Test
   public void test_normalize_sell_amount() {
     assertThat(BuySell.SELL.normalize(CurrencyAmount.of(GBP, 1d))).isEqualTo(CurrencyAmount.of(GBP, -1d));
     assertThat(BuySell.SELL.normalize(CurrencyAmount.of(GBP, 0d))).isEqualTo(CurrencyAmount.of(GBP, 0d));
     assertThat(BuySell.SELL.normalize(CurrencyAmount.of(GBP, -1d))).isEqualTo(CurrencyAmount.of(GBP, -1d));
+  }
+
+  @Test
+  public void test_normalize_sell_money() {
+    assertThat(BuySell.SELL.normalize(BigMoney.of(GBP, 1d))).isEqualTo(BigMoney.of(GBP, -1d));
+    assertThat(BuySell.SELL.normalize(BigMoney.of(GBP, 0d))).isEqualTo(BigMoney.zero(GBP));
+    assertThat(BuySell.SELL.normalize(BigMoney.of(GBP, -1d))).isEqualTo(BigMoney.of(GBP, -1d));
   }
 
   @Test
@@ -58,10 +75,25 @@ public class BuySellTest {
   }
 
   @Test
+  public void test_normalize_buy_decimal() {
+    assertThat(BuySell.BUY.normalize(Decimal.of(1d))).isEqualTo(Decimal.of(1d));
+    assertThat(BuySell.BUY.normalize(Decimal.of(-1d))).isEqualTo(Decimal.of(1d));
+    assertThat(BuySell.BUY.normalize(Decimal.of(0d))).isEqualTo(Decimal.ZERO);
+    assertThat(BuySell.BUY.normalize(Decimal.of(-0d))).isEqualTo(Decimal.ZERO);
+  }
+
+  @Test
   public void test_normalize_buy_amount() {
     assertThat(BuySell.BUY.normalize(CurrencyAmount.of(GBP, 1d))).isEqualTo(CurrencyAmount.of(GBP, 1d));
     assertThat(BuySell.BUY.normalize(CurrencyAmount.of(GBP, 0d))).isEqualTo(CurrencyAmount.of(GBP, 0d));
     assertThat(BuySell.BUY.normalize(CurrencyAmount.of(GBP, -1d))).isEqualTo(CurrencyAmount.of(GBP, 1d));
+  }
+
+  @Test
+  public void test_normalize_buy_money() {
+    assertThat(BuySell.BUY.normalize(BigMoney.of(GBP, 1d))).isEqualTo(BigMoney.of(GBP, 1d));
+    assertThat(BuySell.BUY.normalize(BigMoney.of(GBP, 0d))).isEqualTo(BigMoney.zero(GBP));
+    assertThat(BuySell.BUY.normalize(BigMoney.of(GBP, -1d))).isEqualTo(BigMoney.of(GBP, 1d));
   }
 
   @Test

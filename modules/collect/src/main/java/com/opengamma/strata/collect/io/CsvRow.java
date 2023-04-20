@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.result.ParseFailureException;
 
 /**
  * A row in a CSV file.
@@ -150,12 +151,12 @@ public final class CsvRow {
    * 
    * @param header  the column header
    * @return the field value, trimmed unless surrounded by quotes
-   * @throws IllegalArgumentException if the header is not found
+   * @throws ParseFailureException if the header is not found
    */
   public String getField(String header) {
     Integer index = findIndex(header);
     if (index == null) {
-      throw new IllegalArgumentException("Header not found: '" + header + "'");
+      throw new ParseFailureException("Header not found: '{header}'", header);
     }
     return field(index);
   }
@@ -172,7 +173,7 @@ public final class CsvRow {
    * @param header  the column header
    * @param postProcessor  the post processor
    * @return the post processed field value
-   * @throws IllegalArgumentException if the header is not found
+   * @throws ParseFailureException if the header is not found
    */
   public <T> T getField(String header, Function<String, T> postProcessor) {
     String value = getField(header);
@@ -265,12 +266,12 @@ public final class CsvRow {
    *
    * @param header  the column header
    * @return the field value, trimmed unless surrounded by quotes
-   * @throws IllegalArgumentException if the header is not found or if the value in the field is empty.
+   * @throws ParseFailureException if the header is not found or if the value in the field is empty.
    */
   public String getValue(String header) {
     String value = getField(header);
     if (value.isEmpty()) {
-      throw new IllegalArgumentException("No value was found for field: '" + header + "'");
+      throw new ParseFailureException("No value was found for '{header}'", header);
     }
     return value;
   }
@@ -287,7 +288,7 @@ public final class CsvRow {
    * @param header  the column header
    * @param postProcessor  the post processor
    * @return the post processed field value
-   * @throws IllegalArgumentException if the header is not found or if the value in the field is empty.
+   * @throws ParseFailureException if the header is not found or if the value in the field is empty.
    */
   public <T> T getValue(String header, Function<String, T> postProcessor) {
     String value = getValue(header);
