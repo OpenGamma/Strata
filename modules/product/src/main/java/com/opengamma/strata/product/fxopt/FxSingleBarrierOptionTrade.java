@@ -84,19 +84,13 @@ public final class FxSingleBarrierOptionTrade
   //-------------------------------------------------------------------------
   @Override
   public PortfolioItemSummary summarize() {
-    // Long Barrier Pay USD 1mm Premium USD 100k @ GBP/USD 1.32 : 21Jan18
+    // Long Barrier Down-and-KnockIn @ 1.2 Pay USD 1mm Premium USD 100k @ GBP/USD 1.32 : 21Jan18
     StringBuilder buf = new StringBuilder(96);
     CurrencyAmount base = product.getUnderlyingOption().getUnderlying().getBaseCurrencyAmount();
     CurrencyAmount counter = product.getUnderlyingOption().getUnderlying().getCounterCurrencyAmount();
     buf.append(product.getUnderlyingOption().getLongShort());
     buf.append(" Barrier ");
-    buf.append(product.getBarrier().getBarrierType().toString());
-    buf.append("-and-");
-    buf.append(product.getBarrier().getKnockType().toString());
-    buf.append(" @ ");
-    buf.append(product.getUnderlyingOption().getCurrencyPair());
-    buf.append(" ");
-    buf.append(product.getBarrier().getBarrierLevel(product.getUnderlyingOption().getExpiryDate()));
+    buf.append(SummarizerUtils.barrier(product.getBarrier(), product.getUnderlyingOption().getExpiryDate()));
     buf.append(" ");
     buf.append(SummarizerUtils.fx(base, counter));
     buf.append(" Premium ");

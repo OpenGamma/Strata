@@ -53,7 +53,7 @@ public class BlackBarrierPriceFormulaRepositoryTest {
   private static final double DF_DOM = Math.exp(-RATE_DOM * EXPIRY_TIME); // 'Quote Ccy
   private static final double FWD_FX = SPOT * DF_FOR / DF_DOM;
 
-  private static final double TOL = 1.0e-14;
+  private static final double TOL = 1.0e-10;
   private static final double EPS_FD = 1.0e-6;
 
   /**

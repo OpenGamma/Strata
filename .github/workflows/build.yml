@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'xplain'
+      - 'SXSD-*'
 
 jobs:
   build:
