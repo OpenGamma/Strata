@@ -14,13 +14,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.assertj.core.api.Assertions.withinPercentage;
 import static org.assertj.core.data.Offset.offset;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-
-import org.junit.jupiter.api.Test;
-
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -29,12 +22,18 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
+import com.opengamma.strata.pricer.fx.DiscountFxForwardRates;
 import com.opengamma.strata.pricer.fx.RatesProviderFxDataSets;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.fx.ResolvedFxSingle;
 import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOption;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link BlackFxVanillaOptionProductPricer}.
@@ -44,6 +43,7 @@ public class BlackFxVanillaOptionProductPricerTest {
   private static final ZoneId ZONE = ZoneId.of("Z");
   private static final ZonedDateTime EXPIRY = ZonedDateTime.of(2014, 5, 9, 13, 10, 0, 0, ZONE);
   private static final LocalDate VAL_DATE = RatesProviderDataSets.VAL_DATE_2014_01_22;
+  private static final LocalDate SPOT_DATE = RatesProviderDataSets.SPOT_DATE_2014_01_24;
   private static final ZonedDateTime VAL_DATETIME_AFTER = EXPIRY.plusDays(1);
   private static final LocalDate VAL_DATE_AFTER = VAL_DATETIME_AFTER.toLocalDate();
   private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
@@ -175,10 +175,17 @@ public class BlackFxVanillaOptionProductPricerTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_delta_presentValueDelta() {
-    double deltaCall = PRICER.delta(CALL_OTM, RATES_PROVIDER, VOLS);
+
+    double dfBaseSpot = RATES_PROVIDER.discountFactor(EUR, SPOT_DATE);
+    double dfCounterSpot = RATES_PROVIDER.discountFactor(USD, SPOT_DATE);
+    double adjustedFxSpotScalingFactor = DiscountFxForwardRates.adjustedFxScalingFactor(dfCounterSpot, dfBaseSpot);
+
+    double deltaCall = PRICER.delta(CALL_OTM, RATES_PROVIDER, VOLS) * adjustedFxSpotScalingFactor;
     CurrencyAmount pvDeltaCall = PRICER.presentValueDelta(CALL_OTM, RATES_PROVIDER, VOLS);
-    double deltaPut = PRICER.delta(PUT_ITM, RATES_PROVIDER, VOLS);
+    pvDeltaCall = CurrencyAmount.of(pvDeltaCall.getCurrency(), pvDeltaCall.getAmount() * adjustedFxSpotScalingFactor);
+    double deltaPut = PRICER.delta(PUT_ITM, RATES_PROVIDER, VOLS) / dfCounterSpot * dfBaseSpot;
     CurrencyAmount pvDeltaPut = PRICER.presentValueDelta(PUT_ITM, RATES_PROVIDER, VOLS);
+    pvDeltaPut = CurrencyAmount.of(pvDeltaPut.getCurrency(), pvDeltaPut.getAmount() * adjustedFxSpotScalingFactor);
     double timeToExpiry = VOLS.relativeTime(EXPIRY);
     double dfFor = RATES_PROVIDER.discountFactor(EUR, PAYMENT_DATE);
     double forward = PRICER.getDiscountingFxSingleProductPricer().forwardFxRate(FX_PRODUCT_HIGH, RATES_PROVIDER)
@@ -429,7 +436,7 @@ public class BlackFxVanillaOptionProductPricerTest {
   public void test_forwardFxRate() {
     FxRate fxRate = PRICER.forwardFxRate(CALL_ITM, RATES_PROVIDER);
     assertThat(fxRate.getPair()).isEqualTo(CURRENCY_PAIR);
-    assertThat(fxRate.fxRate(CURRENCY_PAIR)).isCloseTo(1.39904, withinPercentage(PERCENTAGE_TOL));
+    assertThat(fxRate.fxRate(CURRENCY_PAIR)).isCloseTo(1.399078, withinPercentage(PERCENTAGE_TOL));
   }
 
   //-------------------------------------------------------------------------
@@ -460,11 +467,15 @@ public class BlackFxVanillaOptionProductPricerTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_currencyExposure() {
+    double dfCounterSpot = RATES_PROVIDER.discountFactor(USD, SPOT_DATE);
+    double dfBaseSpot = RATES_PROVIDER.discountFactor(EUR, SPOT_DATE);
+    double adjustedFxSpotScalingFactor = DiscountFxForwardRates.adjustedFxScalingFactor(dfCounterSpot, dfBaseSpot);
+
     MultiCurrencyAmount computedPricer = PRICER.currencyExposure(CALL_OTM, RATES_PROVIDER, VOLS);
     CurrencyAmount pv = PRICER.presentValue(CALL_OTM, RATES_PROVIDER, VOLS);
     PointSensitivities point = PRICER.presentValueSensitivityRatesStickyStrike(CALL_OTM, RATES_PROVIDER, VOLS);
     MultiCurrencyAmount computedPoint = RATES_PROVIDER.currencyExposure(point).plus(pv);
-    assertThat(computedPricer.getAmount(EUR).getAmount()).isCloseTo(computedPoint.getAmount(EUR).getAmount(), offset(NOTIONAL * TOL));
+    assertThat(computedPricer.getAmount(EUR).getAmount() * adjustedFxSpotScalingFactor).isCloseTo(computedPoint.getAmount(EUR).getAmount(), offset(NOTIONAL * TOL));
     assertThat(computedPricer.getAmount(USD).getAmount()).isCloseTo(computedPoint.getAmount(USD).getAmount(), offset(NOTIONAL * TOL));
   }
 

@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.swap;
 
+import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
@@ -19,6 +20,8 @@ import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.opengamma.strata.pricer.fx.DiscountFxForwardRates;
+import com.opengamma.strata.product.fx.type.FxSwapConvention;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
@@ -59,6 +62,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 6, 30);
+  private static final LocalDate SPOT_DATE = LocalDate.of(2014, 7, 2);
   private static final double DISCOUNT_FACTOR = 0.98d;
   private static final double FX_RATE = 1.6d;
   private static final double TOLERANCE = 1.0e-10;
@@ -209,21 +213,29 @@ public class DiscountingFxResetNotionalExchangePricerTest {
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .discountCurve(USD, DISCOUNT_CURVE_USD)
         .build();
+
+    LocalDate date = FxSwapConvention.of("GBP/USD").calculateSpotDateFromTradeDate(VAL_DATE, ReferenceData.standard());
+
+    double dfBaseSpot = prov.discountFactor(GBP, SPOT_DATE);
+    double dfCounterSpot = prov.discountFactor(USD, SPOT_DATE);
+    double adjustedFxSpotScalingFactor = DiscountFxForwardRates.adjustedFxScalingFactor(dfCounterSpot, dfBaseSpot);
+    double adjustedFxSpotScalingFactorInv = DiscountFxForwardRates.adjustedFxScalingFactor(dfBaseSpot, dfCounterSpot);
+
     DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
     // USD
     MultiCurrencyAmount computedUSD = test.currencyExposure(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov);
     PointSensitivities pointUSD = test.presentValueSensitivity(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov).build();
-    MultiCurrencyAmount expectedUSD = prov.currencyExposure(pointUSD.convertedTo(USD, prov)).plus(CurrencyAmount.of(
+    MultiCurrencyAmount expectedUSD = prov.currencyExposure(pointUSD.convertedTo(USD, prov)).multipliedBy(adjustedFxSpotScalingFactor).plus(CurrencyAmount.of(
         FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getCurrency(), test.presentValue(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov)));
     assertThat(computedUSD.contains(GBP)).isFalse(); // 0 GBP
     assertThat(computedUSD.getAmount(USD).getAmount()).isCloseTo(expectedUSD.getAmount(USD).getAmount(), offset(eps * NOTIONAL));
     // GBP
     MultiCurrencyAmount computedGBP = test.currencyExposure(FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP, prov);
     PointSensitivities pointGBP = test.presentValueSensitivity(FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP, prov).build();
-    MultiCurrencyAmount expectedGBP = prov.currencyExposure(pointGBP.convertedTo(GBP, prov)).plus(CurrencyAmount.of(
+    MultiCurrencyAmount expectedGBP = prov.currencyExposure(pointGBP.convertedTo(GBP, prov)).multipliedBy(adjustedFxSpotScalingFactorInv).plus(CurrencyAmount.of(
         FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP.getCurrency(), test.presentValue(FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP, prov)));
-    assertThat(computedGBP.contains(USD)).isFalse(); // 0 USD
-    assertThat(computedGBP.getAmount(GBP).getAmount()).isCloseTo(expectedGBP.getAmount(GBP).getAmount(), offset(eps * NOTIONAL));
+   assertThat(computedGBP.contains(USD)).isFalse(); // 0 USD
+   assertThat(computedGBP.getAmount(GBP).getAmount()).isCloseTo(expectedGBP.getAmount(GBP).getAmount(), offset(eps * NOTIONAL));
     // FD approximation
     FxMatrix fxMatrixUp = FxMatrix.of(GBP, USD, FX_RATE + EPS_FD);
     ImmutableRatesProvider provUp = ImmutableRatesProvider.builder(VAL_DATE)
@@ -293,6 +305,8 @@ public class DiscountingFxResetNotionalExchangePricerTest {
     LocalDate valuationDate = date(2014, 6, 27);
     LocalDate paymentDate = date(2014, 7, 1);
     LocalDate fixingDate = date(2014, 6, 27);
+    LocalDate spotDate = date(2014, 7, 1);
+
     FxResetNotionalExchange resetNotionalUSD = FxResetNotionalExchange.of(
         CurrencyAmount.of(USD, NOTIONAL), paymentDate, FxIndexObservation.of(GBP_USD_WM, fixingDate, REF_DATA));
     FxResetNotionalExchange resetNotionalGBP = FxResetNotionalExchange.of(
@@ -302,18 +316,24 @@ public class DiscountingFxResetNotionalExchangePricerTest {
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .discountCurve(USD, DISCOUNT_CURVE_USD)
         .build();
+
+    double dfBaseSpot = prov.discountFactor(GBP, spotDate);
+    double dfCounterSpot = prov.discountFactor(USD, spotDate);
+    double adjustedFxSpotScalingFactor = DiscountFxForwardRates.adjustedFxScalingFactor(dfCounterSpot, dfBaseSpot);
+    double adjustedFxSpotScalingFactorInv = DiscountFxForwardRates.adjustedFxScalingFactor(dfBaseSpot, dfCounterSpot);
+
     DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
     // USD
     MultiCurrencyAmount computedUSD = test.currencyExposure(resetNotionalUSD, prov);
     PointSensitivities pointUSD = test.presentValueSensitivity(resetNotionalUSD, prov).build();
-    MultiCurrencyAmount expectedUSD = prov.currencyExposure(pointUSD.convertedTo(USD, prov)).plus(CurrencyAmount.of(
+    MultiCurrencyAmount expectedUSD = prov.currencyExposure(pointUSD.convertedTo(USD, prov)).multipliedBy(adjustedFxSpotScalingFactor).plus(CurrencyAmount.of(
         resetNotionalUSD.getCurrency(), test.presentValue(resetNotionalUSD, prov)));
     assertThat(computedUSD.contains(GBP)).isFalse(); // 0 GBP
     assertThat(computedUSD.getAmount(USD).getAmount()).isCloseTo(expectedUSD.getAmount(USD).getAmount(), offset(eps * NOTIONAL));
     // GBP
     MultiCurrencyAmount computedGBP = test.currencyExposure(resetNotionalGBP, prov);
     PointSensitivities pointGBP = test.presentValueSensitivity(resetNotionalGBP, prov).build();
-    MultiCurrencyAmount expectedGBP = prov.currencyExposure(pointGBP.convertedTo(GBP, prov)).plus(CurrencyAmount.of(
+    MultiCurrencyAmount expectedGBP = prov.currencyExposure(pointGBP.convertedTo(GBP, prov)).multipliedBy(adjustedFxSpotScalingFactorInv).plus(CurrencyAmount.of(
         resetNotionalGBP.getCurrency(), test.presentValue(resetNotionalGBP, prov)));
     assertThat(computedGBP.contains(USD)).isFalse(); // 0 USD
     assertThat(computedGBP.getAmount(GBP).getAmount()).isCloseTo(expectedGBP.getAmount(GBP).getAmount(), offset(eps * NOTIONAL));

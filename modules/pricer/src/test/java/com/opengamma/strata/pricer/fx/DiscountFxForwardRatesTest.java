@@ -54,6 +54,7 @@ public class DiscountFxForwardRatesTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE_VAL = date(2015, 6, 4);
+  private static final LocalDate DATE_SPOT = date(2015, 6, 8);
   private static final LocalDate DATE_REF = date(2015, 7, 30);
   private static final FxRate FX_RATE = FxRate.of(GBP, USD, 1.5d);
   private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(GBP, USD);
@@ -143,8 +144,8 @@ public class DiscountFxForwardRatesTest {
   @Test
   public void test_rate() {
     DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
-    double dfCcyBaseAtMaturity = DFCURVE_GBP.discountFactor(DATE_REF);
-    double dfCcyCounterAtMaturity = DFCURVE_USD.discountFactor(DATE_REF);
+    double dfCcyBaseAtMaturity = DFCURVE_GBP.discountFactor(DATE_REF) / DFCURVE_GBP.discountFactor(DATE_SPOT);
+    double dfCcyCounterAtMaturity = DFCURVE_USD.discountFactor(DATE_REF) / DFCURVE_USD.discountFactor(DATE_SPOT);
     double expected = FX_RATE.fxRate(GBP, USD) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);
     assertThat(test.rate(GBP, DATE_REF)).isCloseTo(expected, offset(1e-12));
     assertThat(test.rate(USD, DATE_REF)).isCloseTo(1d / expected, offset(1e-12));
@@ -176,8 +177,8 @@ public class DiscountFxForwardRatesTest {
   @Test
   public void test_rateFxSpotSensitivity() {
     DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
-    double dfCcyBaseAtMaturity = DFCURVE_GBP.discountFactor(DATE_REF);
-    double dfCcyCounterAtMaturity = DFCURVE_USD.discountFactor(DATE_REF);
+    double dfCcyBaseAtMaturity = DFCURVE_GBP.discountFactor(DATE_REF) / DFCURVE_GBP.discountFactor(DATE_SPOT);
+    double dfCcyCounterAtMaturity = DFCURVE_USD.discountFactor(DATE_REF) / DFCURVE_USD.discountFactor(DATE_SPOT);
     double expected = dfCcyBaseAtMaturity / dfCcyCounterAtMaturity;
     assertThat(test.rateFxSpotSensitivity(GBP, DATE_REF)).isCloseTo(expected, offset(1e-12));
     assertThat(test.rateFxSpotSensitivity(USD, DATE_REF)).isCloseTo(1d / expected, offset(1e-12));
@@ -219,15 +220,23 @@ public class DiscountFxForwardRatesTest {
         .paymentDate(endDate)
         .dayCount(DayCounts.ONE_ONE)
         .currency(USD).build(); // 1_000_000 GBP paid in USD at maturity
-    PointSensitivityBuilder pts = PERIOD_PRICER.presentValueSensitivity(fixedFx, PROVIDER);
     MultiCurrencyAmount ceComputed = PERIOD_PRICER.currencyExposure(fixedFx, PROVIDER);
-    double dfGbp = PROVIDER.discountFactor(GBP, endDate);
-    double ceGbpExpected = notional * yearFraction * rate * dfGbp;
+    double dfGbpMaturity = PROVIDER.discountFactor(GBP, endDate);
+    double dfGbpSpot = PROVIDER.discountFactor(GBP, DATE_SPOT);
+    double dfUsdSpot = PROVIDER.discountFactor(USD, DATE_SPOT);
+    double fxRateScalingFactor = (1.0d / dfUsdSpot) * dfGbpSpot;
+    
+    double ceGbpExpected = notional * yearFraction * rate * dfGbpMaturity;
+    // passes
     assertThat(ceComputed.getAmount(GBP).getAmount()).isCloseTo(ceGbpExpected, offset(1.0E-6));
+
+    PointSensitivityBuilder pts = PERIOD_PRICER.presentValueSensitivity(fixedFx, PROVIDER);
     MultiCurrencyAmount ceWithoutPvComputed = PROVIDER.currencyExposure(pts.build().convertedTo(GBP, PROVIDER));
     CurrencyAmount pvComputed = CurrencyAmount.of(USD, PERIOD_PRICER.presentValue(fixedFx, PROVIDER));
     MultiCurrencyAmount ceComputed2 = ceWithoutPvComputed.plus(pvComputed);
+    // fails
     assertThat(ceComputed2.getAmount(GBP).getAmount()).isCloseTo(ceGbpExpected, offset(TOLERANCE));
+    // passes
     assertThat(ceComputed2.getAmount(USD).getAmount()).isCloseTo(0.0, offset(TOLERANCE));
   }
   

@@ -150,7 +150,7 @@ public final class CurrencyAmountArray
     if (currency.equals(resultCurrency)) {
       return this;
     }
-    double fxRate = fxRateProvider.fxRate(currency, resultCurrency);
+    double fxRate = fxRateProvider. fxRate(currency, resultCurrency);
     DoubleArray convertedValues = values.multipliedBy(fxRate);
     return new CurrencyAmountArray(resultCurrency, convertedValues);
   }

@@ -6,12 +6,14 @@
 package com.opengamma.strata.pricer.fxopt;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
 
+import com.opengamma.strata.pricer.fx.DiscountFxForwardRates;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -43,6 +45,7 @@ import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOptionTrade;
 public class BlackFxVanillaOptionTradePricerTest {
 
   private static final LocalDate VAL_DATE = RatesProviderDataSets.VAL_DATE_2014_01_22;
+  private static final LocalDate SPOT_DATE = RatesProviderDataSets.SPOT_DATE_2014_01_24;
   private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
   private static final ZoneId ZONE = ZoneId.of("Z");
   private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(ZONE);
@@ -119,13 +122,21 @@ public class BlackFxVanillaOptionTradePricerTest {
 
   @Test
   public void test_currencyExposure() {
+    double dfBaseSpot = RATES_PROVIDER.discountFactor(EUR, SPOT_DATE);
+    double dfCounterSpot = RATES_PROVIDER.discountFactor(USD, SPOT_DATE);
+    double adjustedFxSpotScalingFactorInv = DiscountFxForwardRates.adjustedFxScalingFactor(dfBaseSpot, dfCounterSpot);
+
     MultiCurrencyAmount ceComputed = PRICER_TRADE.currencyExposure(OPTION_TRADE, RATES_PROVIDER, VOLS);
+
     PointSensitivities point = PRICER_TRADE.presentValueSensitivityRatesStickyStrike(OPTION_TRADE, RATES_PROVIDER, VOLS);
     MultiCurrencyAmount pv = PRICER_TRADE.presentValue(OPTION_TRADE, RATES_PROVIDER, VOLS);
-    MultiCurrencyAmount ceExpected = RATES_PROVIDER.currencyExposure(point).plus(pv);
+    MultiCurrencyAmount ceExpected = RATES_PROVIDER.currencyExposure(point);
+    double eurAmount = ceExpected.getAmount(EUR).getAmount() * adjustedFxSpotScalingFactorInv;
+    MultiCurrencyAmount ceExpectedAdj = MultiCurrencyAmount.of(CurrencyAmount.of(EUR, eurAmount), CurrencyAmount.of(USD, ceExpected.getAmount(USD).getAmount())).plus(pv);
+
     assertThat(ceComputed.size()).isEqualTo(2);
-    assertThat(ceComputed.getAmount(EUR).getAmount()).isCloseTo(ceExpected.getAmount(EUR).getAmount(), offset(TOL * NOTIONAL));
-    assertThat(ceComputed.getAmount(USD).getAmount()).isCloseTo(ceExpected.getAmount(USD).getAmount(), offset(TOL * NOTIONAL));
+    assertThat(ceComputed.getAmount(EUR).getAmount()).isCloseTo(ceExpectedAdj.getAmount(EUR).getAmount(), offset(TOL * NOTIONAL));
+    assertThat(ceComputed.getAmount(USD).getAmount()).isCloseTo(ceExpectedAdj.getAmount(USD).getAmount(), offset(TOL * NOTIONAL));
   }
 
   @Test

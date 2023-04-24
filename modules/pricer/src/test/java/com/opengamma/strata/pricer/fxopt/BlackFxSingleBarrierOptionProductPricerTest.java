@@ -50,6 +50,7 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
 
   private static final ZoneId ZONE = ZoneId.of("Z");
   private static final LocalDate VAL_DATE = LocalDate.of(2011, 6, 13);
+  private static final LocalDate SPOT_DATE = LocalDate.of(2011, 6, 15);
   private static final ZonedDateTime VAL_DATETIME = VAL_DATE.atStartOfDay(ZONE);
   private static final LocalDate PAY_DATE = LocalDate.of(2014, 9, 15);
   private static final LocalDate EXPIRY_DATE = LocalDate.of(2014, 9, 15);
@@ -659,8 +660,8 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
   public void test_forwardFxRate() {
     // forward rate is computed by discounting for any RatesProvider input.
     FxRate computed = PRICER.forwardFxRate(CALL_UKI, RATE_PROVIDER);
-    double df1 = RATE_PROVIDER.discountFactor(EUR, PAY_DATE);
-    double df2 = RATE_PROVIDER.discountFactor(USD, PAY_DATE);
+    double df1 = RATE_PROVIDER.discountFactor(EUR, PAY_DATE) / RATE_PROVIDER.discountFactor(EUR, SPOT_DATE);
+    double df2 = RATE_PROVIDER.discountFactor(USD, PAY_DATE) / RATE_PROVIDER.discountFactor(USD, SPOT_DATE);
     double spot = RATE_PROVIDER.fxRate(EUR, USD);
     FxRate expected = FxRate.of(CURRENCY_PAIR, spot * df1 / df2);
     assertThat(computed.getPair()).isEqualTo(expected.getPair());
