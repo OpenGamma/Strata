@@ -45,9 +45,13 @@ commands:
       - run:
           name: Initializing Maven
           command: |
+            mvn --version
             mkdir -p ./.mvn
-            echo "-e -B -DtrimStackTrace=false --settings $( pwd )/.circleci/maven-settings.xml" > ./.mvn/maven.config
-            cat ./.mvn/maven.config
+            echo "-e" >> ./.mvn/maven.config
+            echo "-B" >> ./.mvn/maven.config
+            echo "-DtrimStackTrace=false" >> ./.mvn/maven.config
+            echo "--settings" >> ./.mvn/maven.config
+            echo "$( pwd )/.circleci/maven-settings.xml" >> ./.mvn/maven.config
             mvn --version
 
 #----------------------------------------------------------------------------
