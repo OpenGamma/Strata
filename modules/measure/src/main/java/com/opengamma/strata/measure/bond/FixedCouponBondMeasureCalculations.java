@@ -216,7 +216,7 @@ final class FixedCouponBondMeasureCalculations {
                        LegalEntityDiscountingProvider ratesProvider) {
 
     DiscountFactors discountingProvider = ratesProvider
-            .repoCurveDiscountFactors(trade.getProduct().getLegalEntityId(), trade.getProduct().getCurrency())
+            .issuerCurveDiscountFactors(trade.getProduct().getLegalEntityId(), trade.getProduct().getCurrency())
             .getDiscountFactors();
     return tradePricer.cashFlows(trade, discountingProvider);
   }

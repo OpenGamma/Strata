@@ -1234,14 +1234,17 @@ public class DiscountingFixedCouponBondProductPricer {
     for (int i = 0; i < bondPayments.size(); ++i) {
       FixedCouponBondPaymentPeriod payment = bondPayments.get(i);
       LocalDate date = payment.getPaymentDate();
-      if (date.isAfter(discountFactor.getValuationDate())) {
+      if (date.isAfter(discountFactor.getValuationDate()) || date.isEqual(discountFactor.getValuationDate())) {
         CurrencyAmount amount = CurrencyAmount.of(payment.getCurrency(), payment.getNotional()
                 * payment.getYearFraction() * payment.getFixedRate());
-        listCashFlow.add(CashFlow.ofForecastValue(date, amount, discountFactor.discountFactor(date)));
+        if (amount.getAmount() != 0) {
+          listCashFlow.add(CashFlow.ofForecastValue(date, amount, discountFactor.discountFactor(date)));
+        }
       }
     }
 
-    if (bond.getNominalPayment().getDate().isAfter(discountFactor.getValuationDate())) {
+    if (bond.getNominalPayment().getDate().isAfter(discountFactor.getValuationDate())
+            || bond.getNominalPayment().getDate().isEqual(discountFactor.getValuationDate())) {
       listCashFlow.add(CashFlow.ofForecastValue(bond.getNominalPayment().getDate(),
               CurrencyAmount.of(bond.getNominalPayment().getCurrency(), bond.getNominalPayment().getAmount()),
               discountFactor.discountFactor(bond.getNominalPayment().getDate())));
