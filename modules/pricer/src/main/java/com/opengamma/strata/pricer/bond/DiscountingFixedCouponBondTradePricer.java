@@ -457,9 +457,9 @@ public class DiscountingFixedCouponBondTradePricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the future cash flow of the bullet payment trade.
+   * Calculates the future cash flow of the fixed coupon trade.
    * <p>
-   * There is only one cash flow on the payment date for the bullet payment trade.
+   * There are two cash flows on the final date.
    *
    * @param trade  the trade
    * @param discountFactors  the provider
