@@ -58,6 +58,16 @@ public class DiscountingCapitalIndexedBondTradePricer {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the capital indexed bond product pricer.
+   *
+   * @return the product pricer
+   */
+  public DiscountingCapitalIndexedBondProductPricer getProductPricer() {
+    return productPricer;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the present value of the bond trade.
    * <p>
    * The present value of the trade is the value on the valuation date.
@@ -683,13 +693,23 @@ public class DiscountingCapitalIndexedBondTradePricer {
   }
 
   //-------------------------------------------------------------------------
-  // calculate the settlement date
-  private LocalDate settlementDate(ResolvedCapitalIndexedBondTrade trade, LocalDate valuationDate) {
+
+  /**
+   * Calculates the settlement date.
+   * <p>
+   * The valuation date is returned if the settlement details are not stored.
+   *
+   * @param trade  the trade
+   * @param valuationDate  the valuation date
+   * @return the settlement date
+   */
+  public LocalDate settlementDate(ResolvedCapitalIndexedBondTrade trade, LocalDate valuationDate) {
     return trade.getSettlement()
         .map(settle -> settle.getSettlementDate())
         .orElse(valuationDate);
   }
 
+  //-------------------------------------------------------------------------
   private void validate(RatesProvider ratesProvider, LegalEntityDiscountingProvider discountingProvider) {
     ArgChecker.isTrue(ratesProvider.getValuationDate().isEqual(discountingProvider.getValuationDate()),
         "the rates providers should be for the same date");

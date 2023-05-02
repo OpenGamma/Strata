@@ -202,8 +202,19 @@ public class DiscountingCapitalIndexedBondProductPricer {
         bond, ratesProvider, discountingProvider, ratesProvider.getValuationDate());
   }
 
-  // calculate the present value sensitivity
-  PointSensitivityBuilder presentValueSensitivity(
+  /**
+   * Calculates the present value sensitivity of the bond product for the specified reference date.
+   * <p>
+   * The present value sensitivity of the product is the sensitivity of the present value to
+   * the underlying curves.
+   *
+   * @param bond  the product
+   * @param ratesProvider  the rates provider, used to determine price index values
+   * @param discountingProvider  the discount factors provider
+   * @param referenceDate  the reference date
+   * @return the present value curve sensitivity of the product
+   */
+  public PointSensitivityBuilder presentValueSensitivity(
       ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider discountingProvider,
@@ -392,8 +403,20 @@ public class DiscountingCapitalIndexedBondProductPricer {
     return dirtyNominalPriceFromCurves(bond, ratesProvider, discountingProvider, settlementDate);
   }
 
-  // calculate the dirty price
-  double dirtyNominalPriceFromCurves(
+  /**
+   * Calculates the dirty price of the bond security for the specified settlement date.
+   * <p>
+   * The bond is represented as {@link Security} where standard ID of the bond is stored.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bonds. For example, a price of 99.32% is represented in Strata by 0.9932.
+   *
+   * @param bond  the product
+   * @param ratesProvider  the rates provider, used to determine price index values
+   * @param discountingProvider  the discount factors provider
+   * @param settlementDate  the settlement date
+   * @return the dirty price of the bond security
+   */
+  public double dirtyNominalPriceFromCurves(
       ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider discountingProvider,
@@ -480,8 +503,19 @@ public class DiscountingCapitalIndexedBondProductPricer {
     return dirtyNominalPriceSensitivity(bond, ratesProvider, discountingProvider, settlementDate);
   }
 
-  // calculate the dirty price sensitivity
-  PointSensitivityBuilder dirtyNominalPriceSensitivity(
+  /**
+   * Calculates the dirty price sensitivity of the bond security for the specified settlement date.
+   * <p>
+   * The dirty price sensitivity of the security is the sensitivity of the dirty price value to
+   * the underlying curves.
+   *
+   * @param bond  the product
+   * @param ratesProvider  the rates provider, used to determine price index values
+   * @param discountingProvider  the discount factors provider
+   * @param settlementDate  the settlement date
+   * @return the dirty price curve sensitivity of the security
+   */
+  public PointSensitivityBuilder dirtyNominalPriceSensitivity(
       ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider discountingProvider,

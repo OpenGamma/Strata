@@ -208,8 +208,7 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
   private static final double TOL = 1.0e-12;
   private static final double EPS = 1.0e-6;
   private static final DiscountingCapitalIndexedBondTradePricer PRICER = DiscountingCapitalIndexedBondTradePricer.DEFAULT;
-  private static final DiscountingCapitalIndexedBondProductPricer PRODUCT_PRICER =
-      DiscountingCapitalIndexedBondProductPricer.DEFAULT;
+  private static final DiscountingCapitalIndexedBondProductPricer PRODUCT_PRICER = PRICER.getProductPricer();
   private static final DiscountingCapitalIndexedBondPaymentPeriodPricer PERIOD_PRICER =
       DiscountingCapitalIndexedBondPaymentPeriodPricer.DEFAULT;
   private static final DiscountingPaymentPricer PAYMENT_PRICER = DiscountingPaymentPricer.DEFAULT;
