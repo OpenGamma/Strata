@@ -827,8 +827,6 @@ public class DiscountingSwapLegPricerTest {
   public void test_currencyExposure_fx() {
     double dfBaseSpot = RATES_GBP_USD.discountFactor(GBP, SPOT_DATE);
     double dfCounterSpot = RATES_GBP_USD.discountFactor(USD, SPOT_DATE);
-    double adjustedFxSpotScalingFactor = DiscountFxForwardRates.adjustedFxScalingFactor(dfCounterSpot, dfBaseSpot);
-    double adjustedFxSpotScalingFactorInv = DiscountFxForwardRates.adjustedFxScalingFactor(dfBaseSpot, dfCounterSpot);
 
     ResolvedSwapLeg expSwapLeg = FIXED_FX_RESET_SWAP_LEG_PAY_GBP;
     PointSensitivities point = PRICER_LEG.presentValueSensitivity(expSwapLeg, RATES_GBP_USD).build();

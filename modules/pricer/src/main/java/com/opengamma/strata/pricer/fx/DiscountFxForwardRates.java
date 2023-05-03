@@ -326,21 +326,6 @@ public final class DiscountFxForwardRates
       return MultiCurrencyAmount.of(amountBase, amountCounter);
     }
 
-//    double s = pointSensitivity.getSensitivity();
-//    LocalDate d = pointSensitivity.getReferenceDate();
-//    double f = fxRateProvider.fxRate(pair.getBase(), pair.getCounter());
-//    double pA = baseCurrencyDiscountFactors.discountFactor(d);
-//    double pB = counterCurrencyDiscountFactors.discountFactor(d);
-//    if (ccyRef.equals(pair.getBase())) {
-//      CurrencyAmount amountCounter = CurrencyAmount.of(pair.getBase(), s * f * pA / pB);
-//      CurrencyAmount amountBase = CurrencyAmount.of(pair.getCounter(), -s * f * f * pA / pB);
-//      return MultiCurrencyAmount.of(amountBase, amountCounter);
-//    } else {
-//      CurrencyAmount amountBase = CurrencyAmount.of(pair.getBase(), -s * pB / (pA * f * f));
-//      CurrencyAmount amountCounter = CurrencyAmount.of(pair.getCounter(), s * pB / (pA * f));
-//      return MultiCurrencyAmount.of(amountBase, amountCounter);
-//    }
-
   }
 
   //-------------------------------------------------------------------------
