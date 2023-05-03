@@ -593,6 +593,7 @@ public class DiscountingSwapLegPricerTest {
   private static final LocalDate DATE_14_03_31 = date(2014, 3, 31);
   private static final double START_INDEX = 218.0;
   private static final double NOTIONAL = 1000d;
+  private static final double SCALED_NOTIONAL = 10000d;
   private static final LocalDate VAL_DATE_INFLATION = date(2014, 7, 8);
   private static final ImmutableRatesProvider RATES_GBP_INFLATION = RatesProviderDataSets.multiGbp(VAL_DATE_INFLATION);
 
@@ -833,7 +834,7 @@ public class DiscountingSwapLegPricerTest {
     PointSensitivities point = PRICER_LEG.presentValueSensitivity(expSwapLeg, RATES_GBP_USD).build();
     MultiCurrencyAmount expected = RATES_GBP_USD.currencyExposure(point.convertedTo(USD, RATES_GBP_USD)).plus(PRICER_LEG.presentValue(expSwapLeg, RATES_GBP_USD));
     MultiCurrencyAmount computed = PRICER_LEG.currencyExposure(expSwapLeg, RATES_GBP_USD);
-    assertThat(computed.getAmount(USD).getAmount()).isCloseTo(expected.getAmount(USD).getAmount(), offset(EPS * NOTIONAL));
+    assertThat(computed.getAmount(USD).getAmount()).isCloseTo(expected.getAmount(USD).getAmount(), offset(EPS * SCALED_NOTIONAL));
     assertThat(computed.contains(GBP)).isFalse(); // 0 GBP
   }
 

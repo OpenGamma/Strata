@@ -13,6 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.data.Offset.offset;
 
+import com.opengamma.strata.pricer.fx.DiscountFxForwardRates;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -267,6 +268,7 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
   public void farBarrierOutTest() {
     double smallBarrier = 1.0e-6;
     double largeBarrier = 1.0e6;
+
     SimpleConstantContinuousBarrier dkoSmall =
         SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_OUT, smallBarrier);
     SimpleConstantContinuousBarrier uKoLarge =

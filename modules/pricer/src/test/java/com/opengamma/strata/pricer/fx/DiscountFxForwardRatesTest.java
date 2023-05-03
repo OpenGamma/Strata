@@ -222,9 +222,6 @@ public class DiscountFxForwardRatesTest {
         .currency(USD).build(); // 1_000_000 GBP paid in USD at maturity
     MultiCurrencyAmount ceComputed = PERIOD_PRICER.currencyExposure(fixedFx, PROVIDER);
     double dfGbpMaturity = PROVIDER.discountFactor(GBP, endDate);
-    double dfGbpSpot = PROVIDER.discountFactor(GBP, DATE_SPOT);
-    double dfUsdSpot = PROVIDER.discountFactor(USD, DATE_SPOT);
-    double fxRateScalingFactor = (1.0d / dfUsdSpot) * dfGbpSpot;
     
     double ceGbpExpected = notional * yearFraction * rate * dfGbpMaturity;
     // passes
