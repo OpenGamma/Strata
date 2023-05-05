@@ -753,6 +753,118 @@ public final class ArgChecker {
   }
 
   //-------------------------------------------------------------------------
+
+  /**
+   * Checks that the argument is not positive.
+   * <p>
+   * Given the input argument, this returns only if it is less than or equal to zero.
+   * For example, in a constructor:
+   * <pre>
+   *  this.amount = ArgChecker.notPositive(amount, "amount");
+   * </pre>
+   *
+   * @param argument  the argument to check
+   * @param name  the name of the argument to use in the error message, not null
+   * @return the input {@code argument}
+   * @throws IllegalArgumentException if the input is positive
+   */
+  public static int notPositive(int argument, String name) {
+    if (argument > 0) {
+      throw new IllegalArgumentException(notPositiveMsg(name, argument));
+    }
+    return argument;
+  }
+
+  private static String notPositiveMsg(String name, Object argument) {
+    return "Argument '" + name + "' must not be positive but has value " + argument;
+  }
+
+  /**
+   * Checks that the argument is not positive.
+   * <p>
+   * Given the input argument, this returns only if it is less than or equal to zero.
+   * For example, in a constructor:
+   * <pre>
+   *  this.amount = ArgChecker.notPositive(amount, "amount");
+   * </pre>
+   *
+   * @param argument  the argument to check
+   * @param name  the name of the argument to use in the error message, not null
+   * @return the input {@code argument}
+   * @throws IllegalArgumentException if the input is positive
+   */
+  public static long notPositive(long argument, String name) {
+    if (argument > 0) {
+      throw new IllegalArgumentException(notPositiveMsg(name, argument));
+    }
+    return argument;
+  }
+
+  /**
+   * Checks that the argument is not positive.
+   * <p>
+   * Given the input argument, this returns only if it is less than or equal to zero.
+   * For example, in a constructor:
+   * <pre>
+   *  this.amount = ArgChecker.notPositive(amount, "amount");
+   * </pre>
+   *
+   * @param argument  the argument to check
+   * @param name  the name of the argument to use in the error message, not null
+   * @return the input {@code argument}
+   * @throws IllegalArgumentException if the input is positive
+   */
+  public static double notPositive(double argument, String name) {
+    if (argument > 0) {
+      throw new IllegalArgumentException(notPositiveMsg(name, argument));
+    }
+    return argument;
+  }
+
+  /**
+   * Checks that the argument is not positive.
+   * <p>
+   * Given the input argument, this returns only if it is not null and is less than or equal to zero.
+   * For example, in a constructor:
+   * <pre>
+   *  this.amount = ArgChecker.notPositive(amount, "amount");
+   * </pre>
+   *
+   * @param argument  the argument to check
+   * @param name  the name of the argument to use in the error message, not null
+   * @return the input {@code argument}
+   * @throws IllegalArgumentException if the input is null or positive
+   */
+  public static Decimal notPositive(Decimal argument, String name) {
+    notNull(argument, name);
+    if (argument.unscaledValue() > 0) {
+      throw new IllegalArgumentException(notPositiveMsg(name, argument));
+    }
+    return argument;
+  }
+
+  /**
+   * Checks that the argument is not positive if the arguement is not null.
+   * <p>
+   * Given the input argument, this returns only if it is null or if it is less than or equal to zero.
+   * For example, in a constructor:
+   * <pre>
+   *  this.amount = ArgChecker.notPositiveIfPresent(amount, "amount");
+   * </pre>
+   *
+   * @param argument  the argument to check
+   * @param name  the name of the argument to use in the error message, not null
+   * @return the input {@code argument}
+   * @throws IllegalArgumentException if the input is not null and is positive
+   */
+  public static Decimal notPositiveIfPresent(Decimal argument, String name) {
+    if (argument != null && argument.unscaledValue() > 0) {
+      throw new IllegalArgumentException(notPositiveMsg(name, argument));
+    }
+    return argument;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Checks that the argument is not negative.
    * <p>
