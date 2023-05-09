@@ -57,15 +57,16 @@ public final class EtdIdUtils {
       .toFormatter(Locale.ROOT);
 
   //-------------------------------------------------------------------------
+
   /**
    * Creates an identifier for a contract specification.
    * <p>
    * This will have the format:
    * {@code 'OG-ETD~F-ECAG-FGBS'} or {@code 'OG-ETD~O-ECAG-OGBS'}.
    *
-   * @param type  type of the contract - future or option
-   * @param exchangeId  the MIC code of the exchange where the instruments are traded
-   * @param contractCode  the code supplied by the exchange for use in clearing and margining, such as in SPAN
+   * @param type type of the contract - future or option
+   * @param exchangeId the MIC code of the exchange where the instruments are traded
+   * @param contractCode the code supplied by the exchange for use in clearing and margining, such as in SPAN
    * @return the identifier
    */
   public static EtdContractSpecId contractSpecId(EtdType type, ExchangeId exchangeId, EtdContractCode contractCode) {
@@ -83,6 +84,20 @@ public final class EtdIdUtils {
   }
 
   /**
+   * Creates an identifier for a contract specification.
+   * <p>
+   * This will have the format:
+   * {@code 'OG-ETD~F-ECAG-FGBS'} or {@code 'OG-ETD~O-ECAG-OGBS'}.
+   *
+   * @param securityId the security id
+   * @return the identifier
+   */
+  public static EtdContractSpecId contractSpecId(SecurityId securityId) {
+    SplitEtdId splitEtdId = splitId(securityId);
+    return contractSpecId(splitEtdId.getType(), splitEtdId.getExchangeId(), splitEtdId.getContractCode());
+  }
+
+  /**
    * Creates an identifier for an ETD future instrument.
    * <p>
    * A typical monthly ETD will have the format:
@@ -91,10 +106,10 @@ public final class EtdIdUtils {
    * A more complex flex ETD (12th of the month, Physical settlement) will have the format:
    * {@code 'OG-ETD~F-ECAG-OGBS-20170612E'}.
    *
-   * @param exchangeId  the MIC code of the exchange where the instruments are traded
-   * @param contractCode  the code supplied by the exchange for use in clearing and margining, such as in SPAN
-   * @param expiryMonth  the month of expiry
-   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex'
+   * @param exchangeId the MIC code of the exchange where the instruments are traded
+   * @param contractCode the code supplied by the exchange for use in clearing and margining, such as in SPAN
+   * @param expiryMonth the month of expiry
+   * @param variant the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex'
    * @return the identifier
    */
   public static SecurityId futureId(
@@ -106,7 +121,10 @@ public final class EtdIdUtils {
     ArgChecker.notNull(exchangeId, "exchangeId");
     ArgChecker.notNull(contractCode, "contractCode");
     ArgChecker.notNull(expiryMonth, "expiryMonth");
-    ArgChecker.isTrue(expiryMonth.getYear() >= 1000 && expiryMonth.getYear() <= 9999, "Invalid expiry year: ", expiryMonth);
+    ArgChecker.isTrue(
+        expiryMonth.getYear() >= 1000 && expiryMonth.getYear() <= 9999,
+        "Invalid expiry year: ",
+        expiryMonth);
     ArgChecker.notNull(variant, "variant");
 
     String id = new StringBuilder(40)
@@ -130,13 +148,13 @@ public final class EtdIdUtils {
    * A more complex flex ETD (12th of the month, Cash settlement, European) with version two will have the format:
    * {@code 'OG-ETD~O-ECAG-OGBS-20170612CE-V2-P1.50'}.
    *
-   * @param exchangeId  the MIC code of the exchange where the instruments are traded
-   * @param contractCode  the code supplied by the exchange for use in clearing and margining, such as in SPAN
-   * @param expiryMonth  the month of expiry
-   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex'
-   * @param version  the non-negative version, zero by default
-   * @param putCall  the Put/Call flag
-   * @param strikePrice  the strike price
+   * @param exchangeId the MIC code of the exchange where the instruments are traded
+   * @param contractCode the code supplied by the exchange for use in clearing and margining, such as in SPAN
+   * @param expiryMonth the month of expiry
+   * @param variant the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex'
+   * @param version the non-negative version, zero by default
+   * @param putCall the Put/Call flag
+   * @param strikePrice the strike price
    * @return the identifier
    */
   public static SecurityId optionId(
@@ -159,14 +177,14 @@ public final class EtdIdUtils {
    * Otherwise, the underlying expiry is added after the option expiry. For example:
    * {@code 'OG-ETD~O-ECAG-OGBS-201706-P1.50-U201709'}.
    *
-   * @param exchangeId  the MIC code of the exchange where the instruments are traded
-   * @param contractCode  the code supplied by the exchange for use in clearing and margining, such as in SPAN
-   * @param expiryMonth  the month of expiry
-   * @param variant  the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex'
-   * @param version  the non-negative version, zero by default
-   * @param putCall  the Put/Call flag
-   * @param strikePrice  the strike price
-   * @param underlyingExpiryMonth  the expiry of the underlying instrument, such as a future, may be null
+   * @param exchangeId the MIC code of the exchange where the instruments are traded
+   * @param contractCode the code supplied by the exchange for use in clearing and margining, such as in SPAN
+   * @param expiryMonth the month of expiry
+   * @param variant the variant of the ETD, such as 'Monthly', 'Weekly, 'Daily' or 'Flex'
+   * @param version the non-negative version, zero by default
+   * @param putCall the Put/Call flag
+   * @param strikePrice the strike price
+   * @param underlyingExpiryMonth the expiry of the underlying instrument, such as a future, may be null
    * @return the identifier
    */
   public static SecurityId optionId(
@@ -216,10 +234,11 @@ public final class EtdIdUtils {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Splits an OG-ETD identifier.
    *
-   * @param specId  the contract spec ID
+   * @param specId the contract spec ID
    * @return a split representation of the ID
    * @throws IllegalArgumentException if the ID is not of the right scheme or format
    */
@@ -254,7 +273,7 @@ public final class EtdIdUtils {
   /**
    * Splits an OG-ETD identifier.
    *
-   * @param securityId  the security ID
+   * @param securityId the security ID
    * @return a split representation of the ID
    * @throws IllegalArgumentException if the ID is not of the right scheme or format
    */
