@@ -71,7 +71,7 @@ public class EtdIdUtilsTest {
   }
 
   @Test
-  public void test_contractSpecId_option_from_securitId() {
+  public void test_contractSpecId_option_from_securityId() {
     EtdContractSpecId test = EtdIdUtils.contractSpecId(SecurityId.of(OG_ETD_SCHEME, "O-ECAG-OGBS-202305-P1"));
     assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "O-ECAG-OGBS"));
     assertThat(EtdIdUtils.splitId(test))
