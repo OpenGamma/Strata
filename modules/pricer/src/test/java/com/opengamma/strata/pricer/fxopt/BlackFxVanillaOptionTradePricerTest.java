@@ -6,14 +6,12 @@
 package com.opengamma.strata.pricer.fxopt;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
-import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
 
-import com.opengamma.strata.pricer.fx.DiscountFxForwardRates;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -124,7 +122,7 @@ public class BlackFxVanillaOptionTradePricerTest {
   public void test_currencyExposure() {
     double dfBaseSpot = RATES_PROVIDER.discountFactor(EUR, SPOT_DATE);
     double dfCounterSpot = RATES_PROVIDER.discountFactor(USD, SPOT_DATE);
-    double adjustedFxSpotScalingFactorInv = DiscountFxForwardRates.adjustedFxScalingFactor(dfBaseSpot, dfCounterSpot);
+    double adjustedFxSpotScalingFactorInv = dfCounterSpot / dfBaseSpot;
 
     MultiCurrencyAmount ceComputed = PRICER_TRADE.currencyExposure(OPTION_TRADE, RATES_PROVIDER, VOLS);
 

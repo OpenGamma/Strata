@@ -13,7 +13,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.data.Offset.offset;
 
-import com.opengamma.strata.pricer.fx.DiscountFxForwardRates;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;

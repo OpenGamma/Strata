@@ -14,6 +14,13 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.assertj.core.api.Assertions.withinPercentage;
 import static org.assertj.core.data.Offset.offset;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+import org.junit.jupiter.api.Test;
+
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -22,18 +29,12 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
-import com.opengamma.strata.pricer.fx.DiscountFxForwardRates;
 import com.opengamma.strata.pricer.fx.RatesProviderFxDataSets;
 import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.fx.ResolvedFxSingle;
 import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOption;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link BlackFxVanillaOptionProductPricer}.
@@ -178,7 +179,7 @@ public class BlackFxVanillaOptionProductPricerTest {
 
     double dfBaseSpot = RATES_PROVIDER.discountFactor(EUR, SPOT_DATE);
     double dfCounterSpot = RATES_PROVIDER.discountFactor(USD, SPOT_DATE);
-    double adjustedFxSpotScalingFactor = DiscountFxForwardRates.adjustedFxScalingFactor(dfCounterSpot, dfBaseSpot);
+    double adjustedFxSpotScalingFactor = dfBaseSpot / dfCounterSpot;
 
     double deltaCall = PRICER.delta(CALL_OTM, RATES_PROVIDER, VOLS) * adjustedFxSpotScalingFactor;
     CurrencyAmount pvDeltaCall = PRICER.presentValueDelta(CALL_OTM, RATES_PROVIDER, VOLS);
@@ -209,8 +210,7 @@ public class BlackFxVanillaOptionProductPricerTest {
   public void test_delta_presentValueDelta_atExpiry() {
     double dfBaseSpot = RATES_PROVIDER_EXPIRY.discountFactor(EUR, LocalDate.of(2014, 5, 13));
     double dfCounterSpot = RATES_PROVIDER_EXPIRY.discountFactor(USD, LocalDate.of(2014, 5, 13));
-    double adjustedFxSpotScalingFactor = DiscountFxForwardRates.adjustedFxScalingFactor(dfCounterSpot, dfBaseSpot);
-    double adjustedFxSpotScalingFactorInv = DiscountFxForwardRates.adjustedFxScalingFactor(dfCounterSpot, dfBaseSpot);
+    double adjustedFxSpotScalingFactor = dfBaseSpot / dfCounterSpot;
 
     double dfFor = RATES_PROVIDER_EXPIRY.discountFactor(EUR, PAYMENT_DATE);
     double deltaCallOtm = PRICER.delta(CALL_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
@@ -294,7 +294,7 @@ public class BlackFxVanillaOptionProductPricerTest {
   public void test_gamma_presentValueGamma() {
     double dfBaseSpot = RATES_PROVIDER.discountFactor(EUR, SPOT_DATE);
     double dfCounterSpot = RATES_PROVIDER.discountFactor(USD, SPOT_DATE);
-    double adjustedFxSpotScalingFactor = DiscountFxForwardRates.adjustedFxScalingFactor(dfBaseSpot, dfCounterSpot);
+    double adjustedFxSpotScalingFactor = dfCounterSpot / dfBaseSpot;
 
     double gammaCall = PRICER.gamma(CALL_OTM, RATES_PROVIDER, VOLS);
     CurrencyAmount pvGammaCall = PRICER.presentValueGamma(CALL_OTM, RATES_PROVIDER, VOLS);
@@ -480,7 +480,7 @@ public class BlackFxVanillaOptionProductPricerTest {
   public void test_currencyExposure() {
     double dfCounterSpot = RATES_PROVIDER.discountFactor(USD, SPOT_DATE);
     double dfBaseSpot = RATES_PROVIDER.discountFactor(EUR, SPOT_DATE);
-    double adjustedFxSpotScalingFactor = DiscountFxForwardRates.adjustedFxScalingFactor(dfCounterSpot, dfBaseSpot);
+    double adjustedFxSpotScalingFactor = dfBaseSpot / dfCounterSpot;
 
     MultiCurrencyAmount computedPricer = PRICER.currencyExposure(CALL_OTM, RATES_PROVIDER, VOLS);
     CurrencyAmount pv = PRICER.presentValue(CALL_OTM, RATES_PROVIDER, VOLS);

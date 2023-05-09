@@ -5,6 +5,26 @@
  */
 package com.opengamma.strata.pricer.fx;
 
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.gen.BeanDefinition;
+import org.joda.beans.gen.ImmutableConstructor;
+import org.joda.beans.gen.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
+
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -21,27 +41,7 @@ import com.opengamma.strata.market.param.ParameterizedDataCombiner;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
-import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.fx.type.FxSwapConvention;
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.ImmutableBean;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaBean;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.gen.BeanDefinition;
-import org.joda.beans.gen.ImmutableConstructor;
-import org.joda.beans.gen.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
-
 /**
  * Provides access to discount factors for currencies.
  * <p>
@@ -153,8 +153,7 @@ public final class DiscountFxForwardRates
     try {
       FxSwapConvention fxSwapConvention = FxSwapConvention.of(currencyPair);
       return fxSwapConvention.calculateSpotDateFromTradeDate(valuationDate, ReferenceData.standard());
-    }
-    catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException e) {
       return valuationDate;
     }
   }
@@ -214,8 +213,8 @@ public final class DiscountFxForwardRates
     double dfCcyCounterAtMaturity = counterCurrencyDiscountFactors.discountFactor(referenceDate);
     double dfCcyCounterSpot = counterCurrencyDiscountFactors.discountFactor(spotDate);
 
-    double forwardRate = fxRateProvider.fxRate(currencyPair) *
-    ((dfCcyBaseAtMaturity / dfCcyBaseSpot) / (dfCcyCounterAtMaturity / dfCcyCounterSpot));
+    double forwardRate = fxRateProvider.fxRate(currencyPair) * ((dfCcyBaseAtMaturity / dfCcyBaseSpot)
+        / (dfCcyCounterAtMaturity / dfCcyCounterSpot));
 
     return inverse ? 1d / forwardRate : forwardRate;
   }
@@ -244,11 +243,6 @@ public final class DiscountFxForwardRates
     return inverse ? 1d / forwardRateDelta : forwardRateDelta;
   }
 
-  public static double adjustedFxScalingFactor(double counterCcySpotDiscountFactor, double baseCcySpotDiscountFactor) {
-    // used for rescaling the spot sensitivity (used for tests)
-    return baseCcySpotDiscountFactor / counterCcySpotDiscountFactor;
-  }
-
   //-------------------------------------------------------------------------
   @Override
   public CurrencyParameterSensitivities parameterSensitivity(FxForwardSensitivity pointSensitivity) {
@@ -275,23 +269,26 @@ public final class DiscountFxForwardRates
     // base
     ZeroRateSensitivity dfCcyBaseAtMaturitySensitivity =
         discountFactorsRefBase.zeroRatePointSensitivity(referenceDate, sensitivityCurrency)
-            .multipliedBy(fxRate * (dfCcyCounterAtSpot * dfCcyCounterAtMaturityInv * dfCcyBaseAtSpotInv) * pointSensitivity.getSensitivity());
+            .multipliedBy(fxRate * (dfCcyCounterAtSpot * dfCcyCounterAtMaturityInv *
+                dfCcyBaseAtSpotInv) * pointSensitivity.getSensitivity());
 
     ZeroRateSensitivity dfCcyBaseAtSpotSensitivity =
         discountFactorsRefBase.zeroRatePointSensitivity(spotDate, sensitivityCurrency)
-            .multipliedBy(-fxRate * (dfCcyCounterAtSpot * dfCcyCounterAtMaturityInv * dfCcyBaseAtMaturity) * dfCcyBaseAtSpotInv *
+            .multipliedBy(-fxRate * (dfCcyCounterAtSpot * dfCcyCounterAtMaturityInv *
+                dfCcyBaseAtMaturity) * dfCcyBaseAtSpotInv *
                 dfCcyBaseAtSpotInv * pointSensitivity.getSensitivity());
 
     // counter
     ZeroRateSensitivity dfCcyCounterAtMaturitySensitivity =
         discountFactorsRefCounter.zeroRatePointSensitivity(referenceDate, sensitivityCurrency)
-            .multipliedBy(-fxRate * (dfCcyCounterAtSpot * dfCcyBaseAtMaturity * dfCcyBaseAtSpotInv) * dfCcyCounterAtMaturityInv *
+            .multipliedBy(-fxRate * (dfCcyCounterAtSpot * dfCcyBaseAtMaturity *
+                dfCcyBaseAtSpotInv) * dfCcyCounterAtMaturityInv *
                 dfCcyCounterAtMaturityInv * pointSensitivity.getSensitivity());
 
     ZeroRateSensitivity dfCcyCounterAtSpotSensitivity =
         discountFactorsRefCounter.zeroRatePointSensitivity(spotDate, sensitivityCurrency)
-            .multipliedBy(fxRate * (dfCcyBaseAtMaturity * dfCcyCounterAtMaturityInv * dfCcyBaseAtSpotInv) * pointSensitivity.getSensitivity());
-
+            .multipliedBy(fxRate * (dfCcyBaseAtMaturity * dfCcyCounterAtMaturityInv *
+                dfCcyBaseAtSpotInv) * pointSensitivity.getSensitivity());
 
     // base and counter combined
     return discountFactorsRefBase.parameterSensitivity(dfCcyBaseAtMaturitySensitivity)
@@ -317,12 +314,16 @@ public final class DiscountFxForwardRates
     double counterCcyDfSpot = counterCurrencyDiscountFactors.discountFactor(sp);
 
     if (ccyRef.equals(pair.getBase())) {
-      CurrencyAmount amountCounter = CurrencyAmount.of(pair.getBase(), s * spotRate * baseCcyDfRef / counterCcyDfRef);
-      CurrencyAmount amountBase = CurrencyAmount.of(pair.getCounter(), -1.0d * amountCounter.getAmount() / baseCcyDfSpot * spotRate * counterCcyDfSpot);
+      CurrencyAmount amountCounter = CurrencyAmount.of(pair.getBase(), s * spotRate *
+          baseCcyDfRef / counterCcyDfRef);
+      CurrencyAmount amountBase = CurrencyAmount.of(pair.getCounter(), -1.0d *
+          amountCounter.getAmount() / baseCcyDfSpot * spotRate * counterCcyDfSpot);
       return MultiCurrencyAmount.of(amountBase, amountCounter);
     } else {
-      CurrencyAmount amountCounter = CurrencyAmount.of(pair.getCounter(), s * counterCcyDfRef / (baseCcyDfRef * spotRate));
-      CurrencyAmount amountBase = CurrencyAmount.of(pair.getBase(), -1.0d * amountCounter.getAmount() * baseCcyDfSpot / (spotRate * counterCcyDfSpot));
+      CurrencyAmount amountCounter = CurrencyAmount.of(pair.getCounter(), s * counterCcyDfRef
+          / (baseCcyDfRef * spotRate));
+      CurrencyAmount amountBase = CurrencyAmount.of(pair.getBase(), -1.0d *
+          amountCounter.getAmount() * baseCcyDfSpot / (spotRate * counterCcyDfSpot));
       return MultiCurrencyAmount.of(amountBase, amountCounter);
     }
 

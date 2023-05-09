@@ -245,18 +245,6 @@ public final class PointSensitivities
     return new PointSensitivities(mutable);
   }
 
-  public PointSensitivities convertedTo(Currency resultCurrency, FxRateProvider rateProvider, double additionalScalingFactor) {
-    List<PointSensitivity> mutable = new ArrayList<>();
-    for (PointSensitivity sensi : sensitivities) {
-      if (!sensi.getCurrency().equals(resultCurrency)) {
-        double fxRate = rateProvider.fxRate(sensi.getCurrency(), resultCurrency);
-        insert(mutable, sensi.withCurrency(resultCurrency).withSensitivity(fxRate * additionalScalingFactor * sensi.getSensitivity()));
-      }
-      insert(mutable, sensi.convertedTo(resultCurrency, rateProvider));
-    }
-    return new PointSensitivities(mutable);
-  }
-
   // inserts a sensitivity into the mutable list in the right location
   // merges the entry with an existing entry if the key matches
   private static void insert(List<PointSensitivity> mutable, PointSensitivity addition) {

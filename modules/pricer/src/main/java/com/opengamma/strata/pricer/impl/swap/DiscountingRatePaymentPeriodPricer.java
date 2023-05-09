@@ -7,14 +7,13 @@ package com.opengamma.strata.pricer.impl.swap;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
-import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.currency.CurrencyPair;
-import com.opengamma.strata.product.fx.type.FxSwapConvention;
 import java.time.LocalDate;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
@@ -26,6 +25,7 @@ import com.opengamma.strata.pricer.fx.FxIndexRates;
 import com.opengamma.strata.pricer.rate.RateComputationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.SwapPaymentPeriodPricer;
+import com.opengamma.strata.product.fx.type.FxSwapConvention;
 import com.opengamma.strata.product.rate.RateComputation;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FxReset;
@@ -486,9 +486,11 @@ public class DiscountingRatePaymentPeriodPricer
       double fxRateSpotSensitivity = rates.getFxForwardRates()
           .rateFxSpotSensitivity(fxReset.getReferenceCurrency(), fxReset.getObservation().getMaturityDate());
       return MultiCurrencyAmount.of(fxReset.getReferenceCurrency(),
-          accrualWithNotional(period, period.getNotional() * fxRateSpotSensitivity * (dfCounterMaturity / dfCounterSpot) * dfReferenceSpot, provider));
+          accrualWithNotional(period, period.getNotional() * fxRateSpotSensitivity *
+              (dfCounterMaturity / dfCounterSpot) * dfReferenceSpot, provider));
     }
-    return MultiCurrencyAmount.of(period.getCurrency(), accrualWithNotional(period, period.getNotional() * dfCounterMaturity, provider));
+    return MultiCurrencyAmount.of(period.getCurrency(), accrualWithNotional(period,
+        period.getNotional() * dfCounterMaturity, provider));
   }
 
   @Override

@@ -13,7 +13,6 @@ import static com.opengamma.strata.product.common.LongShort.SHORT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
 
-import com.opengamma.strata.pricer.fx.DiscountFxForwardRates;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -284,8 +283,7 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
 
       double dfBaseSpot = RATES_PROVIDER.discountFactor(EUR, SPOT_DATE);
       double dfCounterSpot = RATES_PROVIDER.discountFactor(USD, SPOT_DATE);
-      double adjustedFxSpotScalingFactor = DiscountFxForwardRates.adjustedFxScalingFactor(dfCounterSpot, dfBaseSpot);
-      double adjustedFxSpotScalingFactorInv = DiscountFxForwardRates.adjustedFxScalingFactor(dfBaseSpot, dfCounterSpot);
+      double adjustedFxSpotScalingFactorInv = dfCounterSpot / dfBaseSpot;
 
       CurrencyAmount pvCall = PRICER.presentValue(CALLS[i], RATES_PROVIDER, VOLS);
       PointSensitivityBuilder pvSensiCall = PRICER.presentValueSensitivityRatesStickyStrike(CALLS[i], RATES_PROVIDER, VOLS);

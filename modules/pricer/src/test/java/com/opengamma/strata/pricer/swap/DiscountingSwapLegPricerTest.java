@@ -48,7 +48,6 @@ import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.opengamma.strata.pricer.fx.DiscountFxForwardRates;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Map;

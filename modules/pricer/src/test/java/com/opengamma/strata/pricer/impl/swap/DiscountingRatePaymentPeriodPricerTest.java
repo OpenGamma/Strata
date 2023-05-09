@@ -21,7 +21,6 @@ import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.opengamma.strata.pricer.fx.DiscountFxForwardRates;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -897,8 +896,8 @@ public class DiscountingRatePaymentPeriodPricerTest {
 
     double dfBaseSpot = provider.discountFactor(GBP, spotDate);
     double dfCounterSpot = provider.discountFactor(USD, spotDate);
-    double adjustedFxSpotScalingFactor = DiscountFxForwardRates.adjustedFxScalingFactor(dfCounterSpot, dfBaseSpot);
-    double adjustedFxSpotScalingFactorInv = DiscountFxForwardRates.adjustedFxScalingFactor(dfBaseSpot, dfCounterSpot);
+    double adjustedFxSpotScalingFactor = dfBaseSpot / dfCounterSpot;
+    double adjustedFxSpotScalingFactorInv = dfCounterSpot / dfBaseSpot;
 
     // USD
     MultiCurrencyAmount computedUSD = pricer.currencyExposure(PAYMENT_PERIOD_FULL_GS_FX_USD, provider).multipliedBy(adjustedFxSpotScalingFactorInv);
@@ -970,8 +969,8 @@ public class DiscountingRatePaymentPeriodPricerTest {
 
     double dfBaseSpot = provider.discountFactor(GBP, SPOT_DATE);
     double dfCounterSpot = provider.discountFactor(USD, SPOT_DATE);
-    double adjustedFxSpotScalingFactor = DiscountFxForwardRates.adjustedFxScalingFactor(dfCounterSpot, dfBaseSpot);
-    double adjustedFxSpotScalingFactorInv = DiscountFxForwardRates.adjustedFxScalingFactor(dfBaseSpot, dfCounterSpot);
+    double adjustedFxSpotScalingFactor = dfBaseSpot / dfCounterSpot;
+    double adjustedFxSpotScalingFactorInv = dfCounterSpot / dfBaseSpot;
 
     // USD
     MultiCurrencyAmount computedUSD = pricer.currencyExposure(PAYMENT_PERIOD_FULL_GS_FX_USD, provider).multipliedBy(adjustedFxSpotScalingFactorInv);

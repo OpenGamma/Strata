@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.pricer.impl.swap;
 
-import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
@@ -20,8 +19,6 @@ import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.opengamma.strata.pricer.fx.DiscountFxForwardRates;
-import com.opengamma.strata.product.fx.type.FxSwapConvention;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
@@ -222,8 +219,6 @@ public class DiscountingFxResetNotionalExchangePricerTest {
         .discountCurve(USD, DISCOUNT_CURVE_USD)
         .build();
 
-    LocalDate date = FxSwapConvention.of("GBP/USD").calculateSpotDateFromTradeDate(VAL_DATE, ReferenceData.standard());
-
     double dfBaseSpot = prov.discountFactor(GBP, SPOT_DATE);
     double dfCounterSpot = prov.discountFactor(USD, SPOT_DATE);
 
@@ -240,8 +235,8 @@ public class DiscountingFxResetNotionalExchangePricerTest {
     PointSensitivities pointGBP = test.presentValueSensitivity(FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP, prov).build();
     MultiCurrencyAmount expectedGBP = prov.currencyExposure(pointGBP.convertedTo(GBP, prov)).plus(CurrencyAmount.of(
         FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP.getCurrency(), test.presentValue(FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP, prov)));
-   assertThat(computedGBP.contains(USD)).isFalse(); // 0 USD
-   assertThat(computedGBP.getAmount(GBP).getAmount()).isCloseTo(expectedGBP.getAmount(GBP).getAmount(), offset(eps * NOTIONAL));
+    assertThat(computedGBP.contains(USD)).isFalse(); // 0 USD
+    assertThat(computedGBP.getAmount(GBP).getAmount()).isCloseTo(expectedGBP.getAmount(GBP).getAmount(), offset(eps * NOTIONAL));
 
     double expectedFdUSD = -(test.presentValue(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, provUp) -
         test.presentValue(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov)) * FX_RATE * FX_RATE / EPS_FD;

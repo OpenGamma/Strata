@@ -5,13 +5,12 @@
  */
 package com.opengamma.strata.pricer.impl.swap;
 
-import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.currency.CurrencyPair;
-import com.opengamma.strata.product.fx.type.FxSwapConvention;
 import java.time.LocalDate;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
@@ -20,6 +19,7 @@ import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.fx.FxIndexRates;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.SwapPaymentEventPricer;
+import com.opengamma.strata.product.fx.type.FxSwapConvention;
 import com.opengamma.strata.product.swap.FxResetNotionalExchange;
 
 /**
@@ -133,7 +133,8 @@ public class DiscountingFxResetNotionalExchangePricer
     double fxRateSpotSensitivity =
         rates.getFxForwardRates().rateFxSpotSensitivity(event.getReferenceCurrency(), maturityDate);
     return MultiCurrencyAmount.of(
-        CurrencyAmount.of(event.getReferenceCurrency(), event.getNotional() * fxRateSpotSensitivity * (dfCounterMaturity / dfCounterSpot) * dfReferenceSpot));
+        CurrencyAmount.of(event.getReferenceCurrency(), event.getNotional() *
+            fxRateSpotSensitivity * (dfCounterMaturity / dfCounterSpot) * dfReferenceSpot));
   }
 
   @Override
