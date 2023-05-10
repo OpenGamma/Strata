@@ -57,6 +57,32 @@ public class EtdIdUtilsTest {
             .build());
   }
 
+  @Test
+  public void test_contractSpecId_future_from_securityId() {
+    EtdContractSpecId test = EtdIdUtils.contractSpecId(SecurityId.of(OG_ETD_SCHEME, "F-ECAG-FGBS-202305"));
+    assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "F-ECAG-FGBS"));
+    assertThat(EtdIdUtils.splitId(test))
+        .isEqualTo(SplitEtdContractSpecId.builder()
+            .specId(test)
+            .type(EtdType.FUTURE)
+            .exchangeId(ExchangeIds.ECAG)
+            .contractCode(FGBS)
+            .build());
+  }
+
+  @Test
+  public void test_contractSpecId_option_from_securityId() {
+    EtdContractSpecId test = EtdIdUtils.contractSpecId(SecurityId.of(OG_ETD_SCHEME, "O-ECAG-OGBS-202305-P1"));
+    assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "O-ECAG-OGBS"));
+    assertThat(EtdIdUtils.splitId(test))
+        .isEqualTo(SplitEtdContractSpecId.builder()
+            .specId(test)
+            .type(EtdType.OPTION)
+            .exchangeId(ExchangeIds.ECAG)
+            .contractCode(OGBS)
+            .build());
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_futureId_monthly() {
