@@ -147,6 +147,9 @@ public final class ExchangeIds {
   /** Zhengzhou Commodity Exchange. */
   public static final ExchangeId XZCE = ExchangeId.of("XZCE");
 
+  /** Nasdaq Commodity Exchange. */
+  public static final ExchangeId NORX = ExchangeId.of("NORX");
+
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
