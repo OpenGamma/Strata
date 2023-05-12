@@ -134,7 +134,10 @@ public final class ValueType
    * Type used when each value is a correlation - 'CORRELATION'.
    */
   public static final ValueType CORRELATION = of("CORRELATION");
-
+  /**
+   * Type used when each value is the market quote e.g. a par rate for bonds = 'MarketQuote'.
+   */
+  public static final ValueType MARKET_QUOTE = of("MarketQuote");
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance from the specified name.
