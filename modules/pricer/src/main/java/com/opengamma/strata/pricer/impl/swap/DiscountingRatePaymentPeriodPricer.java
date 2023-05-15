@@ -10,8 +10,10 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import java.time.LocalDate;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.collect.ArgChecker;
@@ -23,6 +25,7 @@ import com.opengamma.strata.pricer.fx.FxIndexRates;
 import com.opengamma.strata.pricer.rate.RateComputationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.SwapPaymentPeriodPricer;
+import com.opengamma.strata.product.fx.type.FxSwapConvention;
 import com.opengamma.strata.product.rate.RateComputation;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FxReset;
@@ -460,7 +463,7 @@ public class DiscountingRatePaymentPeriodPricer
   //-------------------------------------------------------------------------
   @Override
   public MultiCurrencyAmount currencyExposure(RatePaymentPeriod period, RatesProvider provider) {
-    double df = provider.discountFactor(period.getCurrency(), period.getPaymentDate());
+    double dfCounterMaturity = provider.discountFactor(period.getCurrency(), period.getPaymentDate());
     if (period.getFxReset().isPresent()) {
       FxReset fxReset = period.getFxReset().get();
       LocalDate fixingDate = fxReset.getObservation().getFixingDate();
@@ -469,14 +472,25 @@ public class DiscountingRatePaymentPeriodPricer
           rates.getFixings().get(fixingDate).isPresent()) {
         double fxRate = rates.rate(fxReset.getObservation(), fxReset.getReferenceCurrency());
         return MultiCurrencyAmount.of(period.getCurrency(),
-            accrualWithNotional(period, period.getNotional() * fxRate * df, provider));
+            accrualWithNotional(period, period.getNotional() * fxRate * dfCounterMaturity, provider));
       }
+      Currency baseCurrency = fxReset.getReferenceCurrency();
+      Currency counterCurrency = period.getCurrency();
+      LocalDate valuationDate = provider.getValuationDate();
+      LocalDate spotDate = FxSwapConvention.of(CurrencyPair.of(baseCurrency, counterCurrency)).calculateSpotDateFromTradeDate(valuationDate,
+          ReferenceData.standard());
+
+      double dfCounterSpot = provider.discountFactor(counterCurrency, spotDate);
+      double dfReferenceSpot = provider.discountFactor(baseCurrency, spotDate);
+
       double fxRateSpotSensitivity = rates.getFxForwardRates()
           .rateFxSpotSensitivity(fxReset.getReferenceCurrency(), fxReset.getObservation().getMaturityDate());
       return MultiCurrencyAmount.of(fxReset.getReferenceCurrency(),
-          accrualWithNotional(period, period.getNotional() * fxRateSpotSensitivity * df, provider));
+          accrualWithNotional(period, period.getNotional() * fxRateSpotSensitivity *
+              (dfCounterMaturity / dfCounterSpot) * dfReferenceSpot, provider));
     }
-    return MultiCurrencyAmount.of(period.getCurrency(), accrualWithNotional(period, period.getNotional() * df, provider));
+    return MultiCurrencyAmount.of(period.getCurrency(), accrualWithNotional(period,
+        period.getNotional() * dfCounterMaturity, provider));
   }
 
   @Override

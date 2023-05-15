@@ -52,6 +52,7 @@ public class RatesProviderDataSets {
 
   /** Wednesday. */
   public static final LocalDate VAL_DATE_2014_01_22 = LocalDate.of(2014, 1, 22);
+  public static final LocalDate SPOT_DATE_2014_01_24 = LocalDate.of(2014, 1, 24);
   public static final LocalDate VAL_DATE_END_OF_MONTH = LocalDate.of(2014, 1, 31);
 
   public static final DoubleArray TIMES_1 = DoubleArray.of(

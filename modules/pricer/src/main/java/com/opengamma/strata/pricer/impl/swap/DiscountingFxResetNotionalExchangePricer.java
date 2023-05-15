@@ -7,8 +7,10 @@ package com.opengamma.strata.pricer.impl.swap;
 
 import java.time.LocalDate;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
@@ -17,6 +19,7 @@ import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.fx.FxIndexRates;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.SwapPaymentEventPricer;
+import com.opengamma.strata.product.fx.type.FxSwapConvention;
 import com.opengamma.strata.product.swap.FxResetNotionalExchange;
 
 /**
@@ -108,19 +111,30 @@ public class DiscountingFxResetNotionalExchangePricer
   //-------------------------------------------------------------------------
   @Override
   public MultiCurrencyAmount currencyExposure(FxResetNotionalExchange event, RatesProvider provider) {
+    double dfCounterMaturity = provider.discountFactor(event.getCurrency(), event.getPaymentDate());
     LocalDate fixingDate = event.getObservation().getFixingDate();
     FxIndexRates rates = provider.fxIndexRates(event.getObservation().getIndex());
-    double df = provider.discountFactor(event.getCurrency(), event.getPaymentDate());
     if (!fixingDate.isAfter(provider.getValuationDate()) &&
         rates.getFixings().get(fixingDate).isPresent()) {
       double fxRate = rates.rate(event.getObservation(), event.getReferenceCurrency());
-      return MultiCurrencyAmount.of(CurrencyAmount.of(event.getCurrency(), event.getNotional() * df * fxRate));
+      return MultiCurrencyAmount.of(CurrencyAmount.of(event.getCurrency(), event.getNotional() * dfCounterMaturity * fxRate));
     }
+
+    Currency baseCurrency = event.getReferenceCurrency();
+    Currency counterCurrency = event.getCurrency();
+    LocalDate valuationDate = provider.getValuationDate();
+    LocalDate spotDate = FxSwapConvention.of(CurrencyPair.of(baseCurrency, counterCurrency)).calculateSpotDateFromTradeDate(valuationDate,
+        ReferenceData.standard());
+
+    double dfCounterSpot = provider.discountFactor(counterCurrency, spotDate);
+    double dfReferenceSpot = provider.discountFactor(baseCurrency, spotDate);
+
     LocalDate maturityDate = event.getObservation().getMaturityDate();
     double fxRateSpotSensitivity =
         rates.getFxForwardRates().rateFxSpotSensitivity(event.getReferenceCurrency(), maturityDate);
     return MultiCurrencyAmount.of(
-        CurrencyAmount.of(event.getReferenceCurrency(), event.getNotional() * df * fxRateSpotSensitivity));
+        CurrencyAmount.of(event.getReferenceCurrency(), event.getNotional() *
+            fxRateSpotSensitivity * (dfCounterMaturity / dfCounterSpot) * dfReferenceSpot));
   }
 
   @Override

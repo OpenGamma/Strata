@@ -252,26 +252,26 @@ public class SwapCrossCurrencyEnd2EndTest {
     MultiCurrencyAmount pv = pricer.presentValue(trade, provider());
 
     //Coupons are always included, so base is the total coupon pvs
-    double pvUsdExpected = 1447799.5318;
+    double pvUsdExpected = 1447799.6323;
     double pvEurExpected = -1020648.6461;
     int usdExpectedPaymentEvents = 0;
     int eurExpectedPaymentEvents = 0;
 
     //Add PV amounts of included exchanges to arrive at total expected pv
     if (initialExchange) {
-      pvUsdExpected += -143998710.0091;
+      pvUsdExpected += -143998720.0085;
       pvEurExpected += 99999104.1730;
       ++usdExpectedPaymentEvents;
       ++eurExpectedPaymentEvents;
     }
 
     if (intermediateExchange) {
-      pvUsdExpected += -344525.1458;
+      pvUsdExpected += -344525.1698;
       usdExpectedPaymentEvents += 14;
     }
 
     if (finalExchange) {
-      pvUsdExpected += 143414059.1395;
+      pvUsdExpected += 143414069.0983;
       pvEurExpected += -99709476.7047;
       ++usdExpectedPaymentEvents;
       ++eurExpectedPaymentEvents;

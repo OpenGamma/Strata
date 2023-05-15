@@ -45,6 +45,7 @@ public class ForwardFxIndexRatesTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE_VAL = date(2015, 6, 4);
+  private static final LocalDate DATE_SPOT = date(2015, 6, 8);
   private static final LocalDate DATE_BEFORE = date(2015, 6, 3);
   private static final LocalDate DATE_AFTER = date(2015, 7, 30);
 
@@ -153,8 +154,8 @@ public class ForwardFxIndexRatesTest {
   public void test_rate_onValuation_noFixing() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES_EMPTY);
     LocalDate maturityDate = GBP_USD_WM.calculateMaturityFromFixing(DATE_VAL, REF_DATA);
-    double dfCcyBaseAtMaturity = DFCURVE_GBP.discountFactor(maturityDate);
-    double dfCcyCounterAtMaturity = DFCURVE_USD.discountFactor(maturityDate);
+    double dfCcyBaseAtMaturity = DFCURVE_GBP.discountFactor(maturityDate) / DFCURVE_GBP.discountFactor(DATE_SPOT);
+    double dfCcyCounterAtMaturity = DFCURVE_USD.discountFactor(maturityDate) / DFCURVE_USD.discountFactor(DATE_SPOT);
     double expected = FX_RATE.fxRate(GBP, USD) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);
     assertThat(test.rate(OBS_VAL, GBP)).isCloseTo(expected, offset(1e-8));
     assertThat(test.rate(OBS_VAL, USD)).isCloseTo(1d / expected, offset(1e-8));
@@ -164,8 +165,8 @@ public class ForwardFxIndexRatesTest {
   public void test_rate_afterValuation() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES);
     LocalDate maturityDate = GBP_USD_WM.calculateMaturityFromFixing(DATE_AFTER, REF_DATA);
-    double dfCcyBaseAtMaturity = DFCURVE_GBP.discountFactor(maturityDate);
-    double dfCcyCounterAtMaturity = DFCURVE_USD.discountFactor(maturityDate);
+    double dfCcyBaseAtMaturity = DFCURVE_GBP.discountFactor(maturityDate) / DFCURVE_GBP.discountFactor(DATE_SPOT);
+    double dfCcyCounterAtMaturity = DFCURVE_USD.discountFactor(maturityDate) / DFCURVE_USD.discountFactor(DATE_SPOT);
     double expected = FX_RATE.fxRate(GBP, USD) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);
     assertThat(test.rate(OBS_AFTER, GBP)).isCloseTo(expected, offset(1e-8));
     assertThat(test.rate(OBS_AFTER, USD)).isCloseTo(1d / expected, offset(1e-8));

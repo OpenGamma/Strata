@@ -59,6 +59,7 @@ public class DiscountingFxResetNotionalExchangePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = LocalDate.of(2014, 6, 30);
+  private static final LocalDate SPOT_DATE = LocalDate.of(2014, 7, 2);
   private static final double DISCOUNT_FACTOR = 0.98d;
   private static final double FX_RATE = 1.6d;
   private static final double TOLERANCE = 1.0e-10;
@@ -209,6 +210,18 @@ public class DiscountingFxResetNotionalExchangePricerTest {
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .discountCurve(USD, DISCOUNT_CURVE_USD)
         .build();
+
+    // FD approximation
+    FxMatrix fxMatrixUp = FxMatrix.of(GBP, USD, FX_RATE + EPS_FD);
+    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder(VAL_DATE)
+        .fxRateProvider(fxMatrixUp)
+        .discountCurve(GBP, DISCOUNT_CURVE_GBP)
+        .discountCurve(USD, DISCOUNT_CURVE_USD)
+        .build();
+
+    double dfBaseSpot = prov.discountFactor(GBP, SPOT_DATE);
+    double dfCounterSpot = prov.discountFactor(USD, SPOT_DATE);
+
     DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
     // USD
     MultiCurrencyAmount computedUSD = test.currencyExposure(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov);
@@ -224,18 +237,14 @@ public class DiscountingFxResetNotionalExchangePricerTest {
         FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP.getCurrency(), test.presentValue(FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP, prov)));
     assertThat(computedGBP.contains(USD)).isFalse(); // 0 USD
     assertThat(computedGBP.getAmount(GBP).getAmount()).isCloseTo(expectedGBP.getAmount(GBP).getAmount(), offset(eps * NOTIONAL));
-    // FD approximation
-    FxMatrix fxMatrixUp = FxMatrix.of(GBP, USD, FX_RATE + EPS_FD);
-    ImmutableRatesProvider provUp = ImmutableRatesProvider.builder(VAL_DATE)
-        .fxRateProvider(fxMatrixUp)
-        .discountCurve(GBP, DISCOUNT_CURVE_GBP)
-        .discountCurve(USD, DISCOUNT_CURVE_USD)
-        .build();
+
     double expectedFdUSD = -(test.presentValue(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, provUp) -
         test.presentValue(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov)) * FX_RATE * FX_RATE / EPS_FD;
+    expectedFdUSD = (expectedFdUSD / dfBaseSpot) * dfCounterSpot;
     assertThat(computedUSD.getAmount(USD).getAmount()).isCloseTo(expectedFdUSD, offset(EPS_FD * NOTIONAL));
     double expectedFdGBP = (test.presentValue(FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP, provUp) -
         test.presentValue(FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP, prov)) / EPS_FD;
+    expectedFdGBP = (expectedFdGBP / dfCounterSpot) * dfBaseSpot;
     assertThat(computedGBP.getAmount(GBP).getAmount()).isCloseTo(expectedFdGBP, offset(EPS_FD * NOTIONAL));
   }
 
@@ -293,6 +302,8 @@ public class DiscountingFxResetNotionalExchangePricerTest {
     LocalDate valuationDate = date(2014, 6, 27);
     LocalDate paymentDate = date(2014, 7, 1);
     LocalDate fixingDate = date(2014, 6, 27);
+    LocalDate spotDate = date(2014, 7, 1);
+
     FxResetNotionalExchange resetNotionalUSD = FxResetNotionalExchange.of(
         CurrencyAmount.of(USD, NOTIONAL), paymentDate, FxIndexObservation.of(GBP_USD_WM, fixingDate, REF_DATA));
     FxResetNotionalExchange resetNotionalGBP = FxResetNotionalExchange.of(
@@ -302,6 +313,10 @@ public class DiscountingFxResetNotionalExchangePricerTest {
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .discountCurve(USD, DISCOUNT_CURVE_USD)
         .build();
+
+    double dfBaseSpot = prov.discountFactor(GBP, spotDate);
+    double dfCounterSpot = prov.discountFactor(USD, spotDate);
+
     DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
     // USD
     MultiCurrencyAmount computedUSD = test.currencyExposure(resetNotionalUSD, prov);
@@ -326,9 +341,11 @@ public class DiscountingFxResetNotionalExchangePricerTest {
         .build();
     double expectedFdUSD = -(test.presentValue(resetNotionalUSD, provUp) -
         test.presentValue(resetNotionalUSD, prov)) * FX_RATE * FX_RATE / EPS_FD;
+    expectedFdUSD = (expectedFdUSD / dfBaseSpot) * dfCounterSpot;
     assertThat(computedUSD.getAmount(USD).getAmount()).isCloseTo(expectedFdUSD, offset(EPS_FD * NOTIONAL));
     double expectedFdGBP = (test.presentValue(resetNotionalGBP, provUp) -
         test.presentValue(resetNotionalGBP, prov)) / EPS_FD;
+    expectedFdGBP = (expectedFdGBP / dfCounterSpot) * dfBaseSpot;
     assertThat(computedGBP.getAmount(GBP).getAmount()).isCloseTo(expectedFdGBP, offset(EPS_FD * NOTIONAL));
   }
 
