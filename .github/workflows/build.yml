@@ -1,0 +1,36 @@
+name: Solum Xplain OpenGamma Strata Library CI
+# Based on .circleci/config.yml
+on:
+  push:
+    branches:
+      - 'xplain'
+      - 'SXSD-*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: 11.0.15
+      - name: Initialising Maven
+        run: mvn --version
+
+      - name: Maven install (no tests)
+        run: mvn install -T 4 -DskipTests -Dstrict
+
+      - name: Maven run tests
+        run: mvn test -T 3 -Dcheckstyle.skip=true
+
+      - name: Publish to GitHub Packages
+        if: ${{ github.ref == 'refs/heads/xplain' }} #Deploy only on XPLAIN branch
+        run: mvn deploy -DaltDeploymentRepository="github::https://maven.pkg.github.com/SolumXplain/solum-xplain-opengamma-strata" -DskipTests -Dcheckstyle.skip=true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Test Report
+        if: ${{ always() }}
+        uses: scacap/action-surefire-report@v1
