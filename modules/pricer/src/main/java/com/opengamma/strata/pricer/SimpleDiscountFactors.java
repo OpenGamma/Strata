@@ -56,7 +56,7 @@ public final class SimpleDiscountFactors
   /**
    * Year fraction used as an effective zero.
    */
-  static final double EFFECTIVE_ZERO = 1e-10;
+  private static final double EFFECTIVE_ZERO = 1e-8;
 
   /**
    * The currency that the discount factors are for.
@@ -171,24 +171,18 @@ public final class SimpleDiscountFactors
 
   @Override
   public double discountFactor(double yearFraction) {
-    if (yearFraction <= EFFECTIVE_ZERO) {
-      return 1d;
-    }
-    // read discount factor directly off curve
     return curve.yValue(yearFraction);
   }
 
   @Override
   public double discountFactorTimeDerivative(double yearFraction) {
-    if (yearFraction <= EFFECTIVE_ZERO) {
-      return 0d;
-    }
     return curve.firstDerivative(yearFraction);
   }
 
   @Override
   public double zeroRate(double yearFraction) {
-    double yearFractionMod = Math.max(EFFECTIVE_ZERO, yearFraction);
+    // zero rate is undefined in general for tiny year fractions.
+    double yearFractionMod = modifyYearFraction(yearFraction);
     double discountFactor = discountFactor(yearFractionMod);
     return -Math.log(discountFactor) / yearFractionMod;
   }
@@ -196,24 +190,22 @@ public final class SimpleDiscountFactors
   //-------------------------------------------------------------------------
   @Override
   public ZeroRateSensitivity zeroRatePointSensitivity(double yearFraction, Currency sensitivityCurrency) {
-    double discountFactor = discountFactor(yearFraction);
-    if (yearFraction <= EFFECTIVE_ZERO) {
-      return ZeroRateSensitivity.of(currency, yearFraction, sensitivityCurrency, 0d);
-    }
-    return ZeroRateSensitivity.of(currency, yearFraction, sensitivityCurrency, -discountFactor * yearFraction);
+    // zero rate sensitivity is undefined in general for tiny year fractions.
+    double yearFractionMod = modifyYearFraction(yearFraction);
+    double discountFactor = discountFactor(yearFractionMod);
+    return ZeroRateSensitivity.of(currency, yearFraction, sensitivityCurrency, -discountFactor * yearFractionMod);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public CurrencyParameterSensitivities parameterSensitivity(ZeroRateSensitivity pointSens) {
-    double yearFraction = pointSens.getYearFraction();
-    if (yearFraction <= EFFECTIVE_ZERO) {
-      return CurrencyParameterSensitivities.empty();
-    }
-    double discountFactor = discountFactor(yearFraction);
-    UnitParameterSensitivity unitSens = curve.yValueParameterSensitivity(yearFraction);
+    // zero rate sensitivity is undefined in general for tiny year fractions,
+    // thus parameter sensitivities will be inaccurate.
+    double yearFractionMod = modifyYearFraction(pointSens.getYearFraction());
+    double discountFactor = discountFactor(yearFractionMod);
+    UnitParameterSensitivity unitSens = curve.yValueParameterSensitivity(yearFractionMod);
     CurrencyParameterSensitivity curSens = unitSens
-        .multipliedBy(-1d / (yearFraction * discountFactor))
+        .multipliedBy(-1d / (yearFractionMod * discountFactor))
         .multipliedBy(pointSens.getCurrency(), pointSens.getSensitivity());
     return CurrencyParameterSensitivities.of(curSens);
   }
@@ -221,6 +213,55 @@ public final class SimpleDiscountFactors
   @Override
   public CurrencyParameterSensitivities createParameterSensitivity(Currency currency, DoubleArray sensitivities) {
     return CurrencyParameterSensitivities.of(curve.createParameterSensitivity(currency, sensitivities));
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public double discountFactorWithSpread(
+      double yearFraction,
+      double zSpread,
+      CompoundedRateType compoundedRateType,
+      int periodsPerYear) {
+
+    double df = discountFactor(yearFraction);
+    if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
+      ArgChecker.notNegativeOrZero(periodsPerYear, "periodPerYear");
+      double yearFractionMod = modifyYearFraction(yearFraction);
+      double ratePeriodicAnnualPlusOne =
+          Math.pow(df, -1.0 / periodsPerYear / yearFractionMod) + zSpread / periodsPerYear;
+      return Math.pow(ratePeriodicAnnualPlusOne, -periodsPerYear * yearFractionMod);
+    } else {
+      return df * Math.exp(-zSpread * yearFraction);
+    }
+  }
+
+  @Override
+  public ZeroRateSensitivity zeroRatePointSensitivityWithSpread(
+      double yearFraction,
+      Currency sensitivityCurrency,
+      double zSpread,
+      CompoundedRateType compoundedRateType,
+      int periodsPerYear) {
+
+    ZeroRateSensitivity sensi = zeroRatePointSensitivity(yearFraction, sensitivityCurrency);
+    double factor;
+    if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
+      double yearFractionMod = modifyYearFraction(yearFraction);
+      double df = discountFactor(yearFraction);
+      double dfRoot = Math.pow(df, -1d / periodsPerYear / yearFractionMod);
+      factor = dfRoot / df / Math.pow(dfRoot + zSpread / periodsPerYear, periodsPerYear * yearFractionMod + 1d);
+    } else {
+      factor = Math.exp(-zSpread * yearFraction);
+    }
+    return sensi.multipliedBy(factor);
+  }
+
+  //-------------------------------------------------------------------------
+  private double modifyYearFraction(double yearFraction) {
+    if (Math.abs(yearFraction) < EFFECTIVE_ZERO) {
+      return yearFraction < 0d ? -EFFECTIVE_ZERO : EFFECTIVE_ZERO;
+    }
+    return yearFraction;
   }
 
   //-------------------------------------------------------------------------
