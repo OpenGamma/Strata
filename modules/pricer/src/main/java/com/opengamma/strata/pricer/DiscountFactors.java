@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer;
 
+import static com.opengamma.strata.pricer.ZeroRatePeriodicDiscountFactors.EFFECTIVE_ZERO;
+
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -184,6 +186,9 @@ public interface DiscountFactors
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
+    if (yearFraction < EFFECTIVE_ZERO) {
+      return 1d;
+    }
     double df = discountFactor(yearFraction);
     if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
       ArgChecker.notNegativeOrZero(periodsPerYear, "periodPerYear");
@@ -414,6 +419,9 @@ public interface DiscountFactors
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
+    if (yearFraction <= EFFECTIVE_ZERO) {
+      return ZeroRateSensitivity.of(getCurrency(), yearFraction, sensitivityCurrency, 0d);
+    }
     ZeroRateSensitivity sensi = zeroRatePointSensitivity(yearFraction, sensitivityCurrency);
     double factor;
     if (compoundedRateType.equals(CompoundedRateType.PERIODIC)) {
