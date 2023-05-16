@@ -27,27 +27,52 @@ public enum CapitalIndexedBondYieldConvention implements NamedEnum {
   /**
    * The US real yield convention. Used for TIPS (see Federal Register Vol. 69, N0. 170, p 53623).
    */
-  US_IL_REAL("US-I/L-Real"),
+  US_IL_REAL("US-I/L-Real") {
+    @Override
+    public boolean isRealPrice() {
+      return true;
+    }
+  },
 
   /**
    * The UK real yield convention. Used for inflation linked GILTS.
    */
-  GB_IL_FLOAT("GB-I/L-Float"),
+  GB_IL_FLOAT("GB-I/L-Float") {
+    @Override
+    public boolean isRealPrice() {
+      return false;
+    }
+  },
 
   /**
    * The UK real yield convention. Used for UK inflation linked corporate bond.
    */
-  GB_IL_BOND("GB-I/L-Bond"),
+  GB_IL_BOND("GB-I/L-Bond") {
+    @Override
+    public boolean isRealPrice() {
+      return false;
+    }
+  },
 
   /**
    * The Japan simple yield convention for inflation index bond.
    */
-  JP_IL_SIMPLE("JP-I/L-Simple"),
+  JP_IL_SIMPLE("JP-I/L-Simple") {
+    @Override
+    public boolean isRealPrice() {
+      return true;
+    }
+  },
 
   /**
    * The Japan compound yield convention for inflation index bond.
    */
-  JP_IL_COMPOUND("JP-I/L-Compound");
+  JP_IL_COMPOUND("JP-I/L-Compound") {
+    @Override
+    public boolean isRealPrice() {
+      return true;
+    }
+  };
 
   // helper for name conversions
   private static final EnumNames<CapitalIndexedBondYieldConvention> NAMES =
@@ -88,5 +113,12 @@ public enum CapitalIndexedBondYieldConvention implements NamedEnum {
   public String toString() {
     return name;
   }
+
+  /**
+   * Returns true if the price calculated by the yield convention is a real price.
+   *
+   * @return true if the price is real
+   */
+  public abstract boolean isRealPrice();
 
 }
