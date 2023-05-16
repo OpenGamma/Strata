@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.pricer;
 
-import static com.opengamma.strata.pricer.SimpleDiscountFactors.EFFECTIVE_ZERO;
+import static com.opengamma.strata.pricer.ZeroRatePeriodicDiscountFactors.EFFECTIVE_ZERO;
 
 import java.time.LocalDate;
 import java.util.Optional;

@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.pricer;
 
-import static com.opengamma.strata.pricer.SimpleDiscountFactors.EFFECTIVE_ZERO;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
@@ -55,6 +53,11 @@ import com.opengamma.strata.market.param.UnitParameterSensitivity;
 @BeanDefinition(builderScope = "private")
 public final class ZeroRateDiscountFactors
     implements DiscountFactors, ImmutableBean, Serializable {
+
+  /**
+   * Year fraction used as an effective zero.
+   */
+  private static final double EFFECTIVE_ZERO = 1e-10;
 
   /**
    * The currency that the discount factors are for.
