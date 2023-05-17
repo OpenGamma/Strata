@@ -18,11 +18,11 @@ import org.joda.convert.ToString;
  * <ul>
  * <li>decimal form - the form needed for mathematical calculations, as used by most parts of Strata
  * <li>percentage - where 1.2% is the same as the decimal 0.012
- * <li>basis points - where 120bps is the same as the decimal 0.012
+ * <li>basis points - where 125bps is the same as the decimal 0.0125
  * </ul>
  * This class allows the use of percentage form to be explicit.
  */
-public final class Percentage {
+public final class Percentage implements Comparable<Percentage> {
 
   /** A percentage of zero. */
   public static final Percentage ZERO = new Percentage(Decimal.ZERO);
@@ -183,6 +183,17 @@ public final class Percentage {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Compares this instance to another.
+   * 
+   * @param other the other instance
+   * @return the comparison result
+   */
+  @Override
+  public int compareTo(Percentage other) {
+    return amount.compareTo(other.amount);
+  }
+
   /**
    * Checks if this instance equals another.
    * 
