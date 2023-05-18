@@ -56,7 +56,7 @@ public final class ZeroRatePeriodicDiscountFactors
   /**
    * Year fraction used as an effective zero.
    */
-  private static final double EFFECTIVE_ZERO = 1e-10;
+  static final double EFFECTIVE_ZERO = 1e-10;
 
   /**
    * The currency that the discount factors are for.

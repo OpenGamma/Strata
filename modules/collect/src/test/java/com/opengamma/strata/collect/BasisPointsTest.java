@@ -41,6 +41,8 @@ class BasisPointsTest {
     assertThat(BasisPoints.parse(str + "bps")).isEqualTo(test);
     assertThat(BasisPoints.parse(str + " bps")).isEqualTo(test);
     assertThat(BasisPoints.parse(str)).isEqualTo(test);
+    assertThat(BasisPoints.parse(str)).isLessThan(BasisPoints.parse("1000bps"));
+    assertThat(BasisPoints.parse(str)).isGreaterThan(BasisPoints.parse("-1000bps"));
 
     assertThat(test.plus(BasisPoints.ZERO)).isEqualTo(test);
     assertThat(test.minus(BasisPoints.ZERO)).isEqualTo(test);

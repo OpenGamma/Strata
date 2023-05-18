@@ -83,6 +83,20 @@ public final class EtdIdUtils {
   }
 
   /**
+   * Creates an identifier for a contract specification.
+   * <p>
+   * This will have the format:
+   * {@code 'OG-ETD~F-ECAG-FGBS'} or {@code 'OG-ETD~O-ECAG-OGBS'}.
+   *
+   * @param securityId  the security id
+   * @return the identifier
+   */
+  public static EtdContractSpecId contractSpecId(SecurityId securityId) {
+    SplitEtdId splitEtdId = splitId(securityId);
+    return contractSpecId(splitEtdId.getType(), splitEtdId.getExchangeId(), splitEtdId.getContractCode());
+  }
+
+  /**
    * Creates an identifier for an ETD future instrument.
    * <p>
    * A typical monthly ETD will have the format:

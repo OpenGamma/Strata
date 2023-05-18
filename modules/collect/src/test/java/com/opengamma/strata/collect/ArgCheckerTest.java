@@ -538,6 +538,74 @@ public class ArgCheckerTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_notPositive_int_ok() {
+    assertThat(ArgChecker.notPositive(0, "name")).isEqualTo(0);
+    assertThat(ArgChecker.notPositive(-1, "name")).isEqualTo(-1);
+  }
+
+  @Test
+  public void test_notPositve_int_positive() {
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notPositive(1, "name"))
+        .withMessageMatching(".*'name'.*positive.*");
+
+  }
+
+  @Test
+  public void test_notPositive_long_ok() {
+    assertThat(ArgChecker.notPositive(0L, "name")).isEqualTo(0L);
+    assertThat(ArgChecker.notPositive(-1L, "name")).isEqualTo(-1L);
+  }
+
+  @Test
+  public void test_notPositive_long_positive() {
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notPositive(1L, "name"))
+        .withMessageMatching(".*'name'.*positive.*");
+  }
+
+  @Test
+  public void test_notPositive_double_ok() {
+    assertThat(ArgChecker.notPositive(0d, "name")).isEqualTo(0d);
+    assertThat(ArgChecker.notPositive(-1d, "name")).isEqualTo(-1d);
+  }
+
+  @Test
+  public void test_notPositive_double_positive() {
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notPositive(1d, "name"))
+        .withMessageMatching(".*'name'.*positive.*");
+  }
+
+  @Test
+  public void test_notPositive_Decimal_ok() {
+    assertThat(ArgChecker.notPositive(Decimal.of(0), "name")).isEqualTo(Decimal.of(0));
+    assertThat(ArgChecker.notPositive(Decimal.of(-1), "name")).isEqualTo(Decimal.of(-1));
+  }
+
+  @Test
+  public void test_notPositive_Decimal_positive() {
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notPositive(Decimal.of(1), "name"))
+        .withMessageMatching(".*'name'.*positive.*");
+  }
+
+  @Test
+  public void test_notPositiveIfPresent_Decimal_ok() {
+    assertThat(ArgChecker.notPositiveIfPresent(null, "name")).isNull();
+    assertThat(ArgChecker.notPositiveIfPresent(Decimal.of(0), "name")).isEqualTo(Decimal.of(0));
+    assertThat(ArgChecker.notPositiveIfPresent(Decimal.of(-1), "name")).isEqualTo(Decimal.of(-1));
+  }
+
+  @Test
+  public void test_notPositiveIfPresent_Decimal_positive() {
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notPositiveIfPresent(Decimal.of(1), "name"))
+        .withMessageMatching(".*'name'.*positive.*");
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_notNegative_int_ok() {
     assertThat(ArgChecker.notNegative(0, "name")).isEqualTo(0);
     assertThat(ArgChecker.notNegative(1, "name")).isEqualTo(1);
