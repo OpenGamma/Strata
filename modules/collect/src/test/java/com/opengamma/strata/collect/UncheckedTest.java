@@ -14,6 +14,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
@@ -378,6 +380,20 @@ public class UncheckedTest {
     } catch (RuntimeException ex) {
       assertThat(ex.getClass()).isEqualTo(RuntimeException.class);
       assertThat(ex.getCause()).isSameAs(namingEx);
+    }
+    try {
+      Unchecked.propagate(new CompletionException(ioEx));
+      fail("Expected UncheckedIOException");
+    } catch (UncheckedIOException ex) {
+      assertThat(ex.getClass()).isEqualTo(UncheckedIOException.class);
+      assertThat(ex.getCause()).isSameAs(ioEx);
+    }
+    try {
+      Unchecked.propagate(new ExecutionException(ioEx));
+      fail("Expected UncheckedIOException");
+    } catch (UncheckedIOException ex) {
+      assertThat(ex.getClass()).isEqualTo(UncheckedIOException.class);
+      assertThat(ex.getCause()).isSameAs(ioEx);
     }
   }
 
