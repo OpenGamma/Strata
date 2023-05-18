@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
@@ -334,6 +336,8 @@ public final class Unchecked {
    * Propagates {@code throwable} as-is if possible, or by wrapping in a {@code RuntimeException} if not.
    * <ul>
    *   <li>If {@code throwable} is an {@code InvocationTargetException} the cause is extracted and processed recursively.</li>
+   *   <li>If {@code throwable} is an {@code CompletionException} the cause is extracted and processed recursively.</li>
+   *   <li>If {@code throwable} is an {@code ExecutionException} the cause is extracted and processed recursively.</li>
    *   <li>If {@code throwable} is an {@code Error} or {@code RuntimeException} it is propagated as-is.</li>
    *   <li>If {@code throwable} is an {@code IOException} it is wrapped in {@code UncheckedIOException} and thrown.</li>
    *   <li>If {@code throwable} is an {@code ReflectiveOperationException} it is wrapped in
@@ -353,11 +357,15 @@ public final class Unchecked {
    * </pre>
    *
    * @param throwable the {@code Throwable} to propagate
-   * @return nothing; this method always throws an exception
+   * @return never returns as an exception is always thrown
    */
   public static RuntimeException propagate(Throwable throwable) {
     if (throwable instanceof InvocationTargetException) {
       throw propagate(((InvocationTargetException) throwable).getCause());
+    } else if (throwable instanceof CompletionException) {
+      throw propagate(((CompletionException) throwable).getCause());
+    } else if (throwable instanceof ExecutionException) {
+      throw propagate(((ExecutionException) throwable).getCause());
     } else if (throwable instanceof IOException) {
       throw new UncheckedIOException((IOException) throwable);
     } else if (throwable instanceof ReflectiveOperationException) {
