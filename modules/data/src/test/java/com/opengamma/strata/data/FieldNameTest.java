@@ -22,6 +22,14 @@ public class FieldNameTest {
     assertThat(yieldToMaturity).isEqualTo(FieldName.YIELD_TO_MATURITY);
     FieldName parYield = FieldName.of("ParYield");
     assertThat(parYield).isEqualTo(FieldName.PAR_YIELD);
+    FieldName cleanRealPrice = FieldName.of("CleanRealPrice");
+    assertThat(cleanRealPrice).isEqualTo(FieldName.CLEAN_REAL_PRICE);
+    FieldName cleanNominalPrice = FieldName.of("CleanNominalPrice");
+    assertThat(cleanNominalPrice).isEqualTo(FieldName.CLEAN_NOMINAL_PRICE);
+    FieldName realYield = FieldName.of("RealYield");
+    assertThat(realYield).isEqualTo(FieldName.REAL_YIELD);
+    FieldName nominalYield = FieldName.of("NominalYield");
+    assertThat(nominalYield).isEqualTo(FieldName.NOMINAL_YIELD);
   }
 
   //-----------------------------------------------------------------------

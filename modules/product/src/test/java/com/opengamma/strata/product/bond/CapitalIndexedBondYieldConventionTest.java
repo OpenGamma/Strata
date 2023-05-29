@@ -63,6 +63,15 @@ public class CapitalIndexedBondYieldConventionTest {
   }
 
   @Test
+  public void test_isRealYield() {
+    assertThat(CapitalIndexedBondYieldConvention.US_IL_REAL.isRealPrice()).isTrue();
+    assertThat(CapitalIndexedBondYieldConvention.GB_IL_BOND.isRealPrice()).isFalse();
+    assertThat(CapitalIndexedBondYieldConvention.GB_IL_FLOAT.isRealPrice()).isFalse();
+    assertThat(CapitalIndexedBondYieldConvention.JP_IL_COMPOUND.isRealPrice()).isTrue();
+    assertThat(CapitalIndexedBondYieldConvention.JP_IL_SIMPLE.isRealPrice()).isTrue();
+  }
+
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CapitalIndexedBondYieldConvention.of("Rubbish"));

@@ -65,18 +65,6 @@ public final class FieldName
    * The dirty price includes the accrued interest.
    */
   public static final FieldName DIRTY_PRICE = of("DirtyPrice");
-  ///** TODO do we need these?
-  // * The field name for the dirty real price of a capital indexed bond.
-  // * <p>
-  // * The dirty real price includes the accrued interest.
-  // */
-  //public static final FieldName DIRTY_REAL_PRICE = of("DirtyRealPrice");
-  ///**
-  // * The field name for the dirty nominal price of a capital indexed bond.
-  // * <p>
-  // * The dirty nominal price includes the accrued interest.
-  // */
-  //public static final FieldName DIRTY_NOMINAL_PRICE = of("DirtyNominalPrice");
   /**
    * The field name for the volatility of an asset.
    */
