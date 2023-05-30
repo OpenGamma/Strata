@@ -26,10 +26,10 @@ public class FieldNameTest {
     assertThat(cleanRealPrice).isEqualTo(FieldName.CLEAN_REAL_PRICE);
     FieldName cleanNominalPrice = FieldName.of("CleanNominalPrice");
     assertThat(cleanNominalPrice).isEqualTo(FieldName.CLEAN_NOMINAL_PRICE);
-    FieldName realYield = FieldName.of("RealYield");
-    assertThat(realYield).isEqualTo(FieldName.REAL_YIELD);
-    FieldName nominalYield = FieldName.of("NominalYield");
-    assertThat(nominalYield).isEqualTo(FieldName.NOMINAL_YIELD);
+    FieldName realYieldToMaturity = FieldName.of("RealYieldToMaturity");
+    assertThat(realYieldToMaturity).isEqualTo(FieldName.REAL_YIELD_TO_MATURITY);
+    FieldName nominalYieldToMaturity = FieldName.of("NominalYieldToMaturity");
+    assertThat(nominalYieldToMaturity).isEqualTo(FieldName.NOMINAL_YIELD_TO_MATURITY);
   }
 
   //-----------------------------------------------------------------------

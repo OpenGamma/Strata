@@ -874,9 +874,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
       double yield) {
 
     double dirtyPrice = dirtyPriceFromRealYield(bond, ratesProvider, settlementDate, yield);
-    if (bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT)) {
-      return cleanNominalPriceFromDirtyNominalPrice(bond, ratesProvider, settlementDate, dirtyPrice);
-    }
     return cleanRealPriceFromDirtyRealPrice(bond, settlementDate, dirtyPrice);
   }
 
@@ -962,15 +959,10 @@ public class DiscountingCapitalIndexedBondProductPricer {
 
     validate(ratesProvider, discountingProvider);
     LocalDate settlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
-    double dirtyPrice;
-    if (bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT)) {
-      dirtyPrice = dirtyNominalPriceFromCurves(bond, ratesProvider, discountingProvider, settlementDate);
-    } else {
-      double dirtyNominalPrice =
-          dirtyNominalPriceFromCurves(bond, ratesProvider, discountingProvider, settlementDate);
-      dirtyPrice = realPriceFromNominalPrice(bond, ratesProvider, settlementDate, dirtyNominalPrice);
-    }
-    return realYieldFromDirtyPrice(bond, ratesProvider, settlementDate, dirtyPrice);
+    double dirtyNominalPrice =
+        dirtyNominalPriceFromCurves(bond, ratesProvider, discountingProvider, settlementDate);
+    double dirtyRealPrice = realPriceFromNominalPrice(bond, ratesProvider, settlementDate, dirtyNominalPrice);
+    return realYieldFromDirtyPrice(bond, ratesProvider, settlementDate, dirtyRealPrice);
   }
 
   /**
@@ -1334,9 +1326,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
             z,
             compoundedRateType,
             periodsPerYear);
-        if (bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT)) {
-          return cleanNominalPriceFromDirtyNominalPrice(bond, ratesProvider, settlementDate, dirtyPrice) - cleanPrice;
-        }
         double dirtyRealPrice = realPriceFromNominalPrice(bond, ratesProvider, settlementDate, dirtyPrice);
         return cleanRealPriceFromDirtyRealPrice(bond, settlementDate, dirtyRealPrice) - cleanPrice;
       }

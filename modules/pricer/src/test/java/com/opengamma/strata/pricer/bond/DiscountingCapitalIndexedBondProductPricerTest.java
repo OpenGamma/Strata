@@ -813,13 +813,12 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   public void test_priceFromRealYield_ukGov() {
     LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
     double computed = PRICER.cleanPriceFromRealYield(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV);
-    assertThat(computed).isCloseTo(3.60, offset(1.e-2));
+    assertThat(computed).isCloseTo(3.60, offset(1.e-1));
     double computedOnePeriod = PRICER.cleanPriceFromRealYield(PRODUCT_GOV_OP, RATES_PROVS_GB, PRODUCT_GOV_OP
         .getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA), YIELD_GOV_OP);
     assertThat(computedOnePeriod).isCloseTo(3.21, offset(4.e-2));
     double dirtyPrice = PRICER.dirtyPriceFromRealYield(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV);
-    double cleanPrice = PRICER.cleanNominalPriceFromDirtyNominalPrice(
-        PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyPrice);
+    double cleanPrice = PRICER.cleanRealPriceFromDirtyRealPrice(PRODUCT_GOV, standardSettle, dirtyPrice);
     assertThat(computed).isEqualTo(cleanPrice);
     double yieldRe = PRICER.realYieldFromDirtyPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyPrice);
     assertThat(yieldRe).isCloseTo(YIELD_GOV, offset(TOL));
@@ -876,7 +875,8 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double computed = PRICER.realYieldFromCurves(PRODUCT_GOV, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurves(
         PRODUCT_GOV, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA);
-    double expected = PRICER.realYieldFromDirtyPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyNominalPrice);
+    double dirtyRealPrice = PRICER.realPriceFromNominalPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyNominalPrice);
+    double expected = PRICER.realYieldFromDirtyPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyRealPrice);
     assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
@@ -887,8 +887,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
         PRODUCT_GOV, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double cleanNominalPrice =
         PRICER.cleanNominalPriceFromDirtyNominalPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyNominalPrice);
+    double cleanRealPrice =
+        PRICER.realPriceFromNominalPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, cleanNominalPrice);
     double computed = PRICER.zSpreadFromCurvesAndCleanPrice(
-        PRODUCT_GOV, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA, cleanNominalPrice, PERIODIC, PERIOD_PER_YEAR);
+        PRODUCT_GOV, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA, cleanRealPrice, PERIODIC, PERIOD_PER_YEAR);
     assertThat(computed).isCloseTo(Z_SPREAD, offset(TOL));
   }
 

@@ -80,13 +80,13 @@ public final class FieldName
    * <p>
    * This is used to refer to the real yield of a capital indexed bond.
    */
-  public static final FieldName REAL_YIELD = of("RealYield");
+  public static final FieldName REAL_YIELD_TO_MATURITY = of("RealYieldToMaturity");
   /**
    * The field name for the nominal yield.
    * <p>
    * This is used to refer to the yield of a coupon bond or bill.
    */
-  public static final FieldName NOMINAL_YIELD = of("NominalYield");
+  public static final FieldName NOMINAL_YIELD_TO_MATURITY = of("NominalYieldToMaturity");
   /**
    * The field name for the par yield.
    * <p>
