@@ -48,6 +48,18 @@ public final class FieldName
    */
   public static final FieldName CLEAN_PRICE = of("CleanPrice");
   /**
+   * The field name for the clean real price of a capital indexed bond.
+   * <p>
+   * The clean real price does not include the accrued interest.
+   */
+  public static final FieldName CLEAN_REAL_PRICE = of("CleanRealPrice");
+  /**
+   * The field name for the clean nominal price of a capital indexed bond.
+   * <p>
+   * The clean nominal price does not include the accrued interest.
+   */
+  public static final FieldName CLEAN_NOMINAL_PRICE = of("CleanNominalPrice");
+  /**
    * The field name for the dirty price of a coupon bond.
    * <p>
    * The dirty price includes the accrued interest.
@@ -63,6 +75,18 @@ public final class FieldName
    * This is used to refer to the yield of a coupon bond or bill.
    */
   public static final FieldName YIELD_TO_MATURITY = of("YieldToMaturity");
+  /**
+   * The field name for the real yield.
+   * <p>
+   * This is used to refer to the real yield of a capital indexed bond.
+   */
+  public static final FieldName REAL_YIELD_TO_MATURITY = of("RealYieldToMaturity");
+  /**
+   * The field name for the nominal yield.
+   * <p>
+   * This is used to refer to the yield of a coupon bond or bill.
+   */
+  public static final FieldName NOMINAL_YIELD_TO_MATURITY = of("NominalYieldToMaturity");
   /**
    * The field name for the par yield.
    * <p>
