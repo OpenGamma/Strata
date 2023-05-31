@@ -12,7 +12,7 @@ import com.opengamma.strata.collect.named.EnumNames;
 import com.opengamma.strata.collect.named.NamedEnum;
 
 /**
- * The option expiry type, 'American' or 'European'.
+ * The option expiry type, 'American', 'European' or 'Asian'.
  */
 public enum EtdOptionType implements NamedEnum {
 
@@ -25,7 +25,13 @@ public enum EtdOptionType implements NamedEnum {
    * European option.
    * Can be exercised only on a single date.
    */
-  EUROPEAN("E");
+  EUROPEAN("E"),
+  /**
+   * Asian option.
+   * Payoff depends on the average price over a certain period of time.
+   * Sometimes referred as a Traded Average Price Option (TAPO).
+   */
+  ASIAN("T");
 
   // helper for name conversions
   private static final EnumNames<EtdOptionType> NAMES = EnumNames.of(EtdOptionType.class);
@@ -68,6 +74,8 @@ public enum EtdOptionType implements NamedEnum {
         return AMERICAN;
       case "E":
         return EUROPEAN;
+      case "T":
+        return ASIAN;
       default:
         throw new IllegalArgumentException("Unknown EtdOptionType code: " + code);
     }
