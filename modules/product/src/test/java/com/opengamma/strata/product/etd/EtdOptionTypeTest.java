@@ -25,6 +25,7 @@ public class EtdOptionTypeTest {
     return new Object[][] {
         {EtdOptionType.AMERICAN, "American", "A"},
         {EtdOptionType.EUROPEAN, "European", "E"},
+        {EtdOptionType.ASIAN, "Asian", "T"},
     };
   }
 
