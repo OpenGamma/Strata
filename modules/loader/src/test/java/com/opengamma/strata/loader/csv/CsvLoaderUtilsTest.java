@@ -53,6 +53,9 @@ public class CsvLoaderUtilsTest {
     assertThat(CsvLoaderUtils.parseEtdOptionType("E")).isEqualTo(EtdOptionType.EUROPEAN);
     assertThat(CsvLoaderUtils.parseEtdOptionType("EUROPEAN")).isEqualTo(EtdOptionType.EUROPEAN);
     assertThat(CsvLoaderUtils.parseEtdOptionType("e")).isEqualTo(EtdOptionType.EUROPEAN);
+    assertThat(CsvLoaderUtils.parseEtdOptionType("T")).isEqualTo(EtdOptionType.ASIAN);
+    assertThat(CsvLoaderUtils.parseEtdOptionType("ASIAN")).isEqualTo(EtdOptionType.ASIAN);
+    assertThat(CsvLoaderUtils.parseEtdOptionType("t")).isEqualTo(EtdOptionType.ASIAN);
     assertThatExceptionOfType(ParseFailureException.class).isThrownBy(() -> CsvLoaderUtils.parseEtdOptionType(""));
   }
 

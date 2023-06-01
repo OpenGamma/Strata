@@ -40,12 +40,12 @@ public enum CapitalIndexedBondYieldConvention implements NamedEnum {
   GB_IL_BOND("GB-I/L-Bond"),
 
   /**
-   * The Japan simple yield convention for inflation index bond.
+   * The Japan simple real yield convention for inflation index bond.
    */
   JP_IL_SIMPLE("JP-I/L-Simple"),
 
   /**
-   * The Japan compound yield convention for inflation index bond.
+   * The Japan compound real yield convention for inflation index bond.
    */
   JP_IL_COMPOUND("JP-I/L-Compound");
 
