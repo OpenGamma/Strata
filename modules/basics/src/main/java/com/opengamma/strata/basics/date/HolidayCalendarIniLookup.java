@@ -218,11 +218,4 @@ final class HolidayCalendarIniLookup
     }
     return ImmutableMap.copyOf(map);
   }
-
-  public static void main(String[] args) {
-    ReferenceData standard = ReferenceData.standard();
-    boolean dateIsHoliday = standard.getValue(HolidayCalendarId.of("THBA")).isHoliday(LocalDate.of(2023, 5, 5));
-    System.out.println("dfgs");
-  }
-
 }
