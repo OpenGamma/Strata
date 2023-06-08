@@ -10,7 +10,7 @@
   </parent>  
   <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-examples</artifactId>
-  <version>2.12.27-SNAPSHOT</version>
+  <version>2.12.27</version>
   <packaging>jar</packaging>
   <name>Strata-Examples</name>
   <description>Example code to demonstrate use of Strata</description>
@@ -272,4 +272,8 @@
     <windowtitle>OpenGamma Strata Examples</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata Examples</h1>]]></doctitle>
   </properties>
+
+  <scm>
+    <tag>v2.12.27</tag>
+  </scm>
 </project>
