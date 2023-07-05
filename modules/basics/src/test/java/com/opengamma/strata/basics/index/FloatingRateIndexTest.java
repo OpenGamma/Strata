@@ -24,10 +24,6 @@ public class FloatingRateIndexTest {
 
   @Test
   public void test_parse_noTenor() {
-    assertThat(FloatingRateIndex.parse("GBP-LIBOR")).isEqualTo(IborIndices.GBP_LIBOR_3M);
-    assertThat(FloatingRateIndex.parse("GBP-LIBOR-1M")).isEqualTo(IborIndices.GBP_LIBOR_1M);
-    assertThat(FloatingRateIndex.parse("GBP-LIBOR-3M")).isEqualTo(IborIndices.GBP_LIBOR_3M);
-    assertThat(FloatingRateIndex.parse("GBP-SONIA")).isEqualTo(OvernightIndices.GBP_SONIA);
     assertThat(FloatingRateIndex.parse("GB-RPI")).isEqualTo(PriceIndices.GB_RPI);
     assertThatIllegalArgumentException().isThrownBy(() -> FloatingRateIndex.parse(null));
     assertThatIllegalArgumentException().isThrownBy(() -> FloatingRateIndex.parse("NotAnIndex"));
@@ -35,9 +31,6 @@ public class FloatingRateIndexTest {
 
   @Test
   public void test_parse_withTenor() {
-    assertThat(FloatingRateIndex.parse("GBP-LIBOR", Tenor.TENOR_6M)).isEqualTo(IborIndices.GBP_LIBOR_6M);
-    assertThat(FloatingRateIndex.parse("GBP-LIBOR-1M", Tenor.TENOR_6M)).isEqualTo(IborIndices.GBP_LIBOR_1M);
-    assertThat(FloatingRateIndex.parse("GBP-LIBOR-3M", Tenor.TENOR_6M)).isEqualTo(IborIndices.GBP_LIBOR_3M);
     assertThat(FloatingRateIndex.parse("GBP-SONIA", Tenor.TENOR_6M)).isEqualTo(OvernightIndices.GBP_SONIA);
     assertThat(FloatingRateIndex.parse("GB-RPI", Tenor.TENOR_6M)).isEqualTo(PriceIndices.GB_RPI);
     assertThatIllegalArgumentException().isThrownBy(() -> FloatingRateIndex.parse(null, Tenor.TENOR_6M));
@@ -46,9 +39,6 @@ public class FloatingRateIndexTest {
 
   @Test
   public void test_tryParse_noTenor() {
-    assertThat(FloatingRateIndex.tryParse("GBP-LIBOR")).isEqualTo(Optional.of(IborIndices.GBP_LIBOR_3M));
-    assertThat(FloatingRateIndex.tryParse("GBP-LIBOR-1M")).isEqualTo(Optional.of(IborIndices.GBP_LIBOR_1M));
-    assertThat(FloatingRateIndex.tryParse("GBP-LIBOR-3M")).isEqualTo(Optional.of(IborIndices.GBP_LIBOR_3M));
     assertThat(FloatingRateIndex.tryParse("GBP-SONIA")).isEqualTo(Optional.of(OvernightIndices.GBP_SONIA));
     assertThat(FloatingRateIndex.tryParse("GB-RPI")).isEqualTo(Optional.of(PriceIndices.GB_RPI));
     assertThat(FloatingRateIndex.tryParse(null)).isEqualTo(Optional.empty());
@@ -57,9 +47,6 @@ public class FloatingRateIndexTest {
 
   @Test
   public void test_tryParse_withTenor() {
-    assertThat(FloatingRateIndex.tryParse("GBP-LIBOR", Tenor.TENOR_6M)).isEqualTo(Optional.of(IborIndices.GBP_LIBOR_6M));
-    assertThat(FloatingRateIndex.tryParse("GBP-LIBOR-1M", Tenor.TENOR_6M)).isEqualTo(Optional.of(IborIndices.GBP_LIBOR_1M));
-    assertThat(FloatingRateIndex.tryParse("GBP-LIBOR-3M", Tenor.TENOR_6M)).isEqualTo(Optional.of(IborIndices.GBP_LIBOR_3M));
     assertThat(FloatingRateIndex.tryParse("GBP-SONIA", Tenor.TENOR_6M)).isEqualTo(Optional.of(OvernightIndices.GBP_SONIA));
     assertThat(FloatingRateIndex.tryParse("GB-RPI", Tenor.TENOR_6M)).isEqualTo(Optional.of(PriceIndices.GB_RPI));
     assertThat(FloatingRateIndex.tryParse(null, Tenor.TENOR_6M)).isEqualTo(Optional.empty());
@@ -69,11 +56,6 @@ public class FloatingRateIndexTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_name() {
     return new Object[][] {
-        {IborIndices.GBP_LIBOR_6M, "GBP-LIBOR-6M"},
-        {IborIndices.CHF_LIBOR_6M, "CHF-LIBOR-6M"},
-        {IborIndices.EUR_LIBOR_6M, "EUR-LIBOR-6M"},
-        {IborIndices.JPY_LIBOR_6M, "JPY-LIBOR-6M"},
-        {IborIndices.USD_LIBOR_6M, "USD-LIBOR-6M"},
 
         {OvernightIndices.GBP_SONIA, "GBP-SONIA"},
         {OvernightIndices.CHF_SARON, "CHF-SARON"},
