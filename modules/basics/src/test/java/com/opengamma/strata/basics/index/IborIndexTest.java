@@ -84,7 +84,6 @@ public class IborIndexTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final HolidayCalendarId NZBD = HolidayCalendarId.of("NZBD");  // no constant for this
 
-
   @Test
   public void test_getFloatingRateName() {
     for (IborIndex index : IborIndex.extendedEnum().lookupAll().values()) {
@@ -211,7 +210,6 @@ public class IborIndexTest {
     assertThat(test.calculateFixingDateTime(date(2014, 10, 13)))
         .isEqualTo(date(2014, 10, 13).atTime(LocalTime.of(13, 0)).atZone(ZoneId.of("Asia/Tokyo")));
   }
-
 
   @Test
   public void test_usdAmeriborTerm() {
