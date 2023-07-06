@@ -42,6 +42,16 @@ public class FloatingRateNamesTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_name_type() {
     return new Object[][] {
+        {"GBP-LIBOR", "GBP-LIBOR-", FloatingRateType.IBOR},
+        {"GBP-LIBOR-BBA", "GBP-LIBOR-", FloatingRateType.IBOR},
+        {"CHF-LIBOR", "CHF-LIBOR-", FloatingRateType.IBOR},
+        {"CHF-LIBOR-BBA", "CHF-LIBOR-", FloatingRateType.IBOR},
+        {"EUR-LIBOR", "EUR-LIBOR-", FloatingRateType.IBOR},
+        {"EUR-LIBOR-BBA", "EUR-LIBOR-", FloatingRateType.IBOR},
+        {"JPY-LIBOR", "JPY-LIBOR-", FloatingRateType.IBOR},
+        {"JPY-LIBOR-BBA", "JPY-LIBOR-", FloatingRateType.IBOR},
+        {"USD-LIBOR", "USD-LIBOR-", FloatingRateType.IBOR},
+        {"USD-LIBOR-BBA", "USD-LIBOR-", FloatingRateType.IBOR},
         {"EUR-EURIBOR", "EUR-EURIBOR-", FloatingRateType.IBOR},
         {"EUR-EURIBOR-Reuters", "EUR-EURIBOR-", FloatingRateType.IBOR},
         {"JPY-TIBOR-JAPAN", "JPY-TIBOR-JAPAN-", FloatingRateType.IBOR},
@@ -208,8 +218,18 @@ public class FloatingRateNamesTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_iborIndex_tenor() {
+    assertThat(FloatingRateName.of("GBP-LIBOR-BBA").getDefaultTenor()).isEqualTo(Tenor.TENOR_3M);
+    assertThat(FloatingRateName.of("GBP-LIBOR-BBA").toFloatingRateIndex()).isEqualTo(IborIndices.GBP_LIBOR_3M);
+    assertThat(FloatingRateName.of("GBP-LIBOR-BBA").toFloatingRateIndex(Tenor.TENOR_1M)).isEqualTo(IborIndices.GBP_LIBOR_1M);
+    assertThat(FloatingRateName.of("GBP-LIBOR-BBA").toIborIndex(Tenor.TENOR_6M)).isEqualTo(IborIndices.GBP_LIBOR_6M);
+    assertThat(FloatingRateName.of("GBP-LIBOR-BBA").toIborIndex(Tenor.TENOR_12M)).isEqualTo(IborIndices.GBP_LIBOR_12M);
+    assertThat(FloatingRateName.of("GBP-LIBOR-BBA").toIborIndex(Tenor.TENOR_1Y)).isEqualTo(IborIndices.GBP_LIBOR_12M);
     assertThatIllegalStateException()
         .isThrownBy(() -> FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").toIborIndex(Tenor.TENOR_6M));
+    assertThat(ImmutableList.copyOf(FloatingRateName.of("GBP-LIBOR-BBA").getTenors()))
+        .containsExactly(Tenor.TENOR_1W, Tenor.TENOR_1M, Tenor.TENOR_2M, Tenor.TENOR_3M, Tenor.TENOR_6M, Tenor.TENOR_12M);
+    assertThat(FloatingRateName.of("GBP-LIBOR-BBA").toIborIndexFixingOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, GBLO)));
   }
 
   @Test
