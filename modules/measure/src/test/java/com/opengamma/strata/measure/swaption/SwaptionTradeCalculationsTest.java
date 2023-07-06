@@ -33,7 +33,7 @@ public class SwaptionTradeCalculationsTest {
   private static final RatesMarketDataLookup RATES_LOOKUP = SwaptionTradeCalculationFunctionTest.RATES_LOOKUP;
   private static final SwaptionMarketDataLookup SWAPTION_LOOKUP = SwaptionTradeCalculationFunctionTest.SWAPTION_LOOKUP;
   private static final SwaptionVolatilities VOLS =
-      SwaptionTradeCalculationFunctionTest.NORMAL_VOL_SWAPTION_PROVIDER_USD;
+      SwaptionTradeCalculationFunctionTest.NORMAL_VOL_SWAPTION_PROVIDER_EUR;
 
   //-------------------------------------------------------------------------
   @Test

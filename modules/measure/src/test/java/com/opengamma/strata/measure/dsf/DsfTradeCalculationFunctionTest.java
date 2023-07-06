@@ -70,10 +70,10 @@ public class DsfTradeCalculationFunctionTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SAT_SUN);
   private static final SwapLeg FIXED_LEG =
-      FixedRateSwapLegConvention.of(Currency.GBP, DayCounts.ACT_360, Frequency.P6M, BDA_MF)
+      FixedRateSwapLegConvention.of(Currency.EUR, DayCounts.ACT_360, Frequency.P6M, BDA_MF)
           .toLeg(LocalDate.of(2013, 6, 30), LocalDate.of(2016, 6, 30), PayReceive.RECEIVE, 1, 0.001);
   private static final SwapLeg IBOR_LEG =
-      IborRateSwapLegConvention.of(IborIndices.GBP_LIBOR_6M)
+      IborRateSwapLegConvention.of(IborIndices.EUR_EURIBOR_6M)
           .toLeg(LocalDate.of(2013, 6, 30), LocalDate.of(2016, 6, 30), PayReceive.PAY, 1);
   private static final Swap SWAP = Swap.of(FIXED_LEG, IBOR_LEG);
   private static final LocalDate LAST_TRADE = LocalDate.of(2013, 6, 17);

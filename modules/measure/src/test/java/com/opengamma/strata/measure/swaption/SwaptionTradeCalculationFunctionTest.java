@@ -67,7 +67,7 @@ public class SwaptionTradeCalculationFunctionTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double FIXED_RATE = 0.015;
   private static final double NOTIONAL = 100000000d;
-  private static final Swap SWAP = FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M
+  private static final Swap SWAP = FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M
       .createTrade(LocalDate.of(2014, 6, 12), Tenor.TENOR_10Y, BuySell.BUY, NOTIONAL, FIXED_RATE, REF_DATA).getProduct();
   private static final BusinessDayAdjustment ADJUSTMENT =
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, GBLO.combinedWith(USNY));
@@ -85,23 +85,23 @@ public class SwaptionTradeCalculationFunctionTest {
       .underlying(SWAP)
       .build();
   private static final AdjustablePayment PREMIUM =
-      AdjustablePayment.of(CurrencyAmount.of(Currency.USD, -3150000d), LocalDate.of(2014, 3, 17));
+      AdjustablePayment.of(CurrencyAmount.of(Currency.EUR, -3150000d), LocalDate.of(2014, 3, 17));
   public static final SwaptionTrade TRADE = SwaptionTrade.builder().premium(PREMIUM).product(SWAPTION).build();
   public static final ResolvedSwaptionTrade RTRADE = TRADE.resolve(REF_DATA);
-  private static final Currency CURRENCY = Currency.USD;
-  private static final IborIndex INDEX = IborIndices.USD_LIBOR_3M;
+  private static final Currency CURRENCY = Currency.EUR;
+  private static final IborIndex INDEX = IborIndices.EUR_EURIBOR_6M;
 
-  public static final NormalSwaptionExpiryTenorVolatilities NORMAL_VOL_SWAPTION_PROVIDER_USD =
-      SwaptionNormalVolatilityDataSets.NORMAL_SWAPTION_VOLS_USD_STD;
+  public static final NormalSwaptionExpiryTenorVolatilities NORMAL_VOL_SWAPTION_PROVIDER_EUR =
+      SwaptionNormalVolatilityDataSets.NORMAL_SWAPTION_VOLS_EUR_STD;
   private static final CurveId DISCOUNT_CURVE_ID = CurveId.of("Default", "Discount");
   private static final CurveId FORWARD_CURVE_ID = CurveId.of("Default", "Forward");
-  private static final SwaptionVolatilitiesId VOL_ID = SwaptionVolatilitiesId.of("SwaptionVols.Normal.USD");
+  private static final SwaptionVolatilitiesId VOL_ID = SwaptionVolatilitiesId.of("SwaptionVols.Normal.EUR");
   static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
       ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
       ImmutableMap.of(INDEX, FORWARD_CURVE_ID));
   static final SwaptionMarketDataLookup SWAPTION_LOOKUP = SwaptionMarketDataLookup.of(INDEX, VOL_ID);
   private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP, SWAPTION_LOOKUP);
-  private static final LocalDate VAL_DATE = NORMAL_VOL_SWAPTION_PROVIDER_USD.getValuationDate();
+  private static final LocalDate VAL_DATE = NORMAL_VOL_SWAPTION_PROVIDER_EUR.getValuationDate();
 
   //-------------------------------------------------------------------------
   @Test
@@ -123,7 +123,7 @@ public class SwaptionTradeCalculationFunctionTest {
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
     NormalSwaptionTradePricer pricer = NormalSwaptionTradePricer.DEFAULT;
     ResolvedSwaptionTrade resolved = TRADE.resolve(REF_DATA);
-    CurrencyAmount expectedPv = pricer.presentValue(resolved, provider, NORMAL_VOL_SWAPTION_PROVIDER_USD);
+    CurrencyAmount expectedPv = pricer.presentValue(resolved, provider, NORMAL_VOL_SWAPTION_PROVIDER_EUR);
 
     Set<Measure> measures = ImmutableSet.of(Measures.PRESENT_VALUE, Measures.RESOLVED_TARGET);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
@@ -141,7 +141,7 @@ public class SwaptionTradeCalculationFunctionTest {
         ImmutableMap.of(
             DISCOUNT_CURVE_ID, curve,
             FORWARD_CURVE_ID, curve,
-            VOL_ID, NORMAL_VOL_SWAPTION_PROVIDER_USD),
+            VOL_ID, NORMAL_VOL_SWAPTION_PROVIDER_EUR),
         ImmutableMap.of());
     return md;
   }

@@ -226,8 +226,7 @@ public class FloatingRateNamesTest {
     assertThat(FloatingRateName.of("GBP-LIBOR-BBA").toIborIndex(Tenor.TENOR_1Y)).isEqualTo(IborIndices.GBP_LIBOR_12M);
     assertThatIllegalStateException()
         .isThrownBy(() -> FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").toIborIndex(Tenor.TENOR_6M));
-    assertThat(ImmutableList.copyOf(FloatingRateName.of("GBP-LIBOR-BBA").getTenors()))
-        .containsExactly(Tenor.TENOR_1W, Tenor.TENOR_1M, Tenor.TENOR_2M, Tenor.TENOR_3M, Tenor.TENOR_6M, Tenor.TENOR_12M);
+    assertThat(ImmutableList.copyOf(FloatingRateName.of("GBP-LIBOR-BBA").getTenors())).isEmpty();
     assertThat(FloatingRateName.of("GBP-LIBOR-BBA").toIborIndexFixingOffset())
         .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, GBLO)));
   }

@@ -12,6 +12,7 @@ import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
+import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.EUR_FIXED_1Y_LIBOR_6M;
 import static java.util.stream.Collectors.toList;
 
 import java.time.LocalDate;
@@ -84,6 +85,9 @@ public class SwaptionNormalVolatilityDataSets {
   private static final ZonedDateTime VAL_DATE_TIME_STD = VAL_DATE_STD.atTime(VAL_TIME_STD).atZone(VAL_ZONE_STD);
   public static final NormalSwaptionExpiryTenorVolatilities NORMAL_SWAPTION_VOLS_USD_STD =
       NormalSwaptionExpiryTenorVolatilities.of(USD_1Y_LIBOR3M, VAL_DATE_TIME_STD, SURFACE_STD);
+
+  public static final NormalSwaptionExpiryTenorVolatilities NORMAL_SWAPTION_VOLS_EUR_STD =
+          NormalSwaptionExpiryTenorVolatilities.of(EUR_FIXED_1Y_LIBOR_6M, VAL_DATE_TIME_STD, SURFACE_STD);
 
   /**
    * Returns the swaption normal volatility surface shifted by a given amount. The shift is parallel.

@@ -54,7 +54,7 @@ public class IborFutureTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double MARKET_PRICE = 99.42;
-  public static final IborFutureTrade TRADE = IborFutureContractSpecs.USD_LIBOR_3M_IMM_CME.createTrade(
+  public static final IborFutureTrade TRADE = IborFutureContractSpecs.EUR_EURIBOR_3M_IMM_ICE.createTrade(
       LocalDate.of(2014, 9, 12), SecurityId.of("test", "test"), SequenceDate.base(Period.ofMonths(1), 2), 5, 0.9998, REF_DATA);
   public static final ResolvedIborFutureTrade RTRADE = TRADE.resolve(REF_DATA);
 

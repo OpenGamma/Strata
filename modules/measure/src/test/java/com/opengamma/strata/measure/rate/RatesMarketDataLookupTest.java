@@ -10,10 +10,12 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_2M;
+import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
+import static com.opengamma.strata.basics.index.OvernightIndices.USD_SOFR;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -78,7 +80,7 @@ public class RatesMarketDataLookupTest {
   private static final IborIndex INACTIVE_IBOR_INDEX = IborIndex.of("GBP-LIBOR-10M");
   private static final OvernightIndex INACTIVE_ON_INDEX = OvernightIndex.of("CHF-TOIS");
   private static final CurveId CURVE_ID_DSC = CurveId.of("Group", "USD-DSC");
-  private static final CurveId CURVE_ID_FWD = CurveId.of("Group", "USD-L3M");
+  private static final CurveId CURVE_ID_FWD = CurveId.of("Group", "USD-SOFR");
   private static final ObservableSource OBS_SOURCE = ObservableSource.of("Vendor");
   private static final MarketData MOCK_MARKET_DATA = mock(MarketData.class);
   private static final ScenarioMarketData MOCK_CALC_MARKET_DATA = mock(ScenarioMarketData.class);
@@ -88,13 +90,13 @@ public class RatesMarketDataLookupTest {
   @SuppressWarnings("deprecation")
   public void test_of_map() {
     ImmutableMap<Currency, CurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
-    ImmutableMap<Index, CurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
+    ImmutableMap<Index, CurveId> forwards = ImmutableMap.of(USD_SOFR, CURVE_ID_FWD);
     RatesMarketDataLookup test = RatesMarketDataLookup.of(discounts, forwards);
     assertThat(test.queryType()).isEqualTo(RatesMarketDataLookup.class);
     assertThat(test.getDiscountCurrencies()).containsOnly(USD);
     assertThat(test.getDiscountMarketDataIds(USD)).containsOnly(CURVE_ID_DSC);
-    assertThat(test.getForwardIndices()).containsOnly(USD_LIBOR_3M);
-    assertThat(test.getForwardMarketDataIds(USD_LIBOR_3M)).containsOnly(CURVE_ID_FWD);
+    assertThat(test.getForwardIndices()).containsOnly(USD_SOFR);
+    assertThat(test.getForwardMarketDataIds(USD_SOFR)).containsOnly(CURVE_ID_FWD);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.getDiscountMarketDataIds(GBP));
     assertThatIllegalArgumentException()
@@ -104,20 +106,20 @@ public class RatesMarketDataLookupTest {
 
     assertThat(test.requirements(USD))
         .isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_DSC).outputCurrencies(USD).build());
-    assertThat(test.requirements(USD, USD_LIBOR_3M, EUR_EURIBOR_2M))
+    assertThat(test.requirements(USD, USD_SOFR, EUR_EURIBOR_2M))
         .isEqualTo(FunctionRequirements.builder()
             .valueRequirements(CURVE_ID_DSC, CURVE_ID_FWD)
-            .timeSeriesRequirements(IndexQuoteId.of(USD_LIBOR_3M), IndexQuoteId.of(EUR_EURIBOR_2M))
+            .timeSeriesRequirements(IndexQuoteId.of(USD_SOFR), IndexQuoteId.of(EUR_EURIBOR_2M))
             .outputCurrencies(USD)
             .build());
-    assertThat(test.requirements(ImmutableSet.of(USD), ImmutableSet.of(USD_LIBOR_3M)))
+    assertThat(test.requirements(ImmutableSet.of(USD), ImmutableSet.of(USD_SOFR)))
         .isEqualTo(FunctionRequirements.builder()
             .valueRequirements(CURVE_ID_DSC, CURVE_ID_FWD)
-            .timeSeriesRequirements(IndexQuoteId.of(USD_LIBOR_3M))
+            .timeSeriesRequirements(IndexQuoteId.of(USD_SOFR))
             .outputCurrencies(USD)
             .build());
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> test.requirements(ImmutableSet.of(USD), ImmutableSet.of(GBP_LIBOR_3M)));
+        .isThrownBy(() -> test.requirements(ImmutableSet.of(USD), ImmutableSet.of(EUR_EURIBOR_3M)));
 
     assertThat(test.ratesProvider(MOCK_MARKET_DATA))
         .isEqualTo(DefaultLookupRatesProvider.of((DefaultRatesMarketDataLookup) test, MOCK_MARKET_DATA));

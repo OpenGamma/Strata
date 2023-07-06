@@ -55,7 +55,7 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 public class SwapTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  public static final SwapTrade TRADE = FixedIborSwapConventions.GBP_FIXED_6M_LIBOR_6M
+  public static final SwapTrade TRADE = FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M
       .createTrade(date(2016, 6, 30), Tenor.TENOR_10Y, BuySell.BUY, 1_000_000, 0.01, REF_DATA);
   public static final ResolvedSwapTrade RTRADE = TRADE.resolve(REF_DATA);
 

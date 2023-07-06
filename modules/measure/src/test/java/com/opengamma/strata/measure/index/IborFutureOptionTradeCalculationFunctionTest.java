@@ -5,9 +5,11 @@
  */
 package com.opengamma.strata.measure.index;
 
+import static com.opengamma.strata.basics.StandardSchemes.OG_SECURITY_SCHEME;
+import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_2M;
+import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,6 +29,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
@@ -49,15 +52,18 @@ import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
-import com.opengamma.strata.pricer.index.IborFutureDummyData;
 import com.opengamma.strata.pricer.index.IborFutureOptionVolatilitiesId;
 import com.opengamma.strata.pricer.index.NormalIborFutureOptionExpirySimpleMoneynessVolatilities;
 import com.opengamma.strata.pricer.index.NormalIborFutureOptionMarginedTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.PutCall;
+import com.opengamma.strata.product.index.IborFuture;
 import com.opengamma.strata.product.index.IborFutureOption;
 import com.opengamma.strata.product.index.IborFutureOptionTrade;
 import com.opengamma.strata.product.index.ResolvedIborFutureOptionTrade;
+import com.opengamma.strata.product.option.FutureOptionPremiumStyle;
 
 /**
  * Test {@link IborFutureOptionTradeCalculationFunction}.
@@ -86,9 +92,28 @@ public class IborFutureOptionTradeCalculationFunctionTest {
   private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE);
 
   private static final NormalIborFutureOptionExpirySimpleMoneynessVolatilities VOL_SIMPLE_MONEY_PRICE =
-      NormalIborFutureOptionExpirySimpleMoneynessVolatilities.of(GBP_LIBOR_2M, VAL_DATE_TIME, PARAMETERS_PRICE);
+      NormalIborFutureOptionExpirySimpleMoneynessVolatilities.of(EUR_EURIBOR_3M, VAL_DATE_TIME, PARAMETERS_PRICE);
 
-  private static final IborFutureOption OPTION = IborFutureDummyData.IBOR_FUTURE_OPTION_2;
+  private static final IborFuture IBOR_FUTURE = IborFuture.builder()
+          .securityId(SecurityId.of(OG_SECURITY_SCHEME, "Future"))
+          .currency(EUR)
+          .notional(1_000_000)
+          .lastTradeDate(LocalDate.of(2015, 3, 17))
+          .index(EUR_EURIBOR_3M)
+          .accrualFactor(0.25)
+          .rounding(Rounding.ofDecimalPlaces(2))
+          .build();
+
+  private static final IborFutureOption OPTION = IborFutureOption.builder()
+          .securityId(SecurityId.of(OG_SECURITY_SCHEME, "Option"))
+          .putCall(PutCall.CALL)
+          .strikePrice(0.99)
+          .expiryDate(LocalDate.of(2015, 3, 16))
+          .expiryTime(LocalTime.of(11, 0))
+          .expiryZone(ZoneId.of("Europe/London"))
+          .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
+          .underlyingFuture(IBOR_FUTURE)
+          .build();
   private static final LocalDate TRADE_DATE = date(2015, 2, 16);
   private static final long OPTION_QUANTITY = 12345;
   private static final double TRADE_PRICE = 0.0100;
@@ -102,13 +127,13 @@ public class IborFutureOptionTradeCalculationFunctionTest {
       .price(TRADE_PRICE)
       .build();
 
-  private static final Currency CURRENCY = Currency.GBP;
-  private static final IborIndex INDEX = GBP_LIBOR_2M;
+  private static final Currency CURRENCY = EUR;
+  private static final IborIndex INDEX = EUR_EURIBOR_3M;
 
   private static final CurveId DISCOUNT_CURVE_ID = CurveId.of("Default", "Discount");
   private static final CurveId FORWARD_CURVE_ID = CurveId.of("Default", "Forward");
   private static final IborFutureOptionVolatilitiesId VOL_ID =
-      IborFutureOptionVolatilitiesId.of("IborFutureOptionVols.Normal.USD");
+      IborFutureOptionVolatilitiesId.of("IborFutureOptionVols.Normal.EUR");
   private static final QuoteId QUOTE_ID_OPTION =
       QuoteId.of(TRADE.getSecurityId().getStandardId(), FieldName.SETTLEMENT_PRICE);
   static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
@@ -150,7 +175,7 @@ public class IborFutureOptionTradeCalculationFunctionTest {
   //-------------------------------------------------------------------------
   static ScenarioMarketData marketData() {
     Curve curve = ConstantCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
-    TestMarketDataMap md = new TestMarketDataMap(
+    return new TestMarketDataMap(
         VAL_DATE,
         ImmutableMap.of(
             DISCOUNT_CURVE_ID, curve,
@@ -158,7 +183,6 @@ public class IborFutureOptionTradeCalculationFunctionTest {
             VOL_ID, VOL_SIMPLE_MONEY_PRICE,
             QUOTE_ID_OPTION, SETTLEMENT_PRICE),
         ImmutableMap.of());
-    return md;
   }
 
 }

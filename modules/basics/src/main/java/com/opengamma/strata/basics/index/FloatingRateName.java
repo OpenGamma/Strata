@@ -197,6 +197,10 @@ public interface FloatingRateName
         if (tenors.contains(Tenor.TENOR_13W)) {
           return Tenor.TENOR_13W;
         }
+        if (tenors.isEmpty()) {
+          // maintain backward parsing compatibility for FRNs which are discontinued and have no active tenors (e.g. LIBOR)
+          return Tenor.TENOR_3M;
+        }
         return tenors.iterator().next();
       }
       case OVERNIGHT_AVERAGED:
