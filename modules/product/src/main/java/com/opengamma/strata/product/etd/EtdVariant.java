@@ -55,7 +55,7 @@ public final class EtdVariant
   /**
    * The optional date code, populated for Weekly and Daily.
    * <p>
-   * This will be the week number for Weekly and the day-of-week for Daily.
+   * This will be the week number for Weekly and the day-of-month for Daily.
    */
   @PropertyDefinition(get = "optional")
   private final Integer dateCode;
@@ -270,7 +270,7 @@ public final class EtdVariant
   /**
    * Gets the optional date code, populated for Weekly and Daily.
    * <p>
-   * This will be the week number for Weekly and the day-of-week for Daily.
+   * This will be the week number for Weekly and the day-of-month for Daily.
    * @return the optional value of the property, not null
    */
   public OptionalInt getDateCode() {
