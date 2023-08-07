@@ -765,7 +765,7 @@
     <asm.version>9.5</asm.version>
     <assertj.version>3.24.2</assertj.version>
     <bridger.version>1.6.Final</bridger.version>
-    <guava.version>31.1-jre</guava.version><!-- didn't want to go beyond v27 but forced to by security https://github.com/google/guava/issues/3320 -->
+    <guava.version>32.1.2-jre</guava.version><!-- didn't want to go beyond v27 but forced to by security https://github.com/google/guava/issues/3320 -->
     <guava-docs.version>26.0-jre</guava-docs.version>
     <jcommander.version>1.78</jcommander.version>
     <joda-convert.version>2.2.3</joda-convert.version>
