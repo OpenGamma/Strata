@@ -6,6 +6,9 @@
 package com.opengamma.strata.measure.fra;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
+import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.product.common.BuySell.BUY;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -44,8 +47,9 @@ import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.pricer.fra.DiscountingFraTradePricer;
-import com.opengamma.strata.pricer.fra.FraDummyData;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.ResolvedFra;
 import com.opengamma.strata.product.fra.ResolvedFraTrade;
@@ -56,7 +60,18 @@ import com.opengamma.strata.product.fra.ResolvedFraTrade;
 public class FraTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  public static final FraTrade TRADE = FraDummyData.FRA_TRADE;
+
+  private static final Fra FRA = Fra.builder()
+          .buySell(BUY)
+          .notional(10_000_000)
+          .startDate(date(2014, 9, 12))
+          .endDate(date(2014, 12, 12))
+          .index(EUR_EURIBOR_3M)
+          .fixedRate(0.0125)
+          .currency(Currency.EUR)
+          .build();
+
+  public static final FraTrade TRADE = FraTrade.of(TradeInfo.empty(), FRA);
   public static final ResolvedFraTrade RTRADE = TRADE.resolve(REF_DATA);
 
   private static final IborIndex INDEX = TRADE.getProduct().getIndex();
