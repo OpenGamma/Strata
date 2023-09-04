@@ -89,6 +89,28 @@ public enum ShiftType implements NamedEnum {
     public double computeShift(double baseValue, double shiftedValue) {
       return shiftedValue / baseValue;
     }
+  },
+
+  /**
+   * A fixed shift where the value becomes the shift amount.
+   * <p>
+   * {@code shiftedValue = shiftAmount}
+   */
+  FIXED {
+    @Override
+    public double applyShift(double value, double shiftAmount) {
+      return shiftAmount;
+    }
+
+    @Override
+    public ValueAdjustment toValueAdjustment(double shiftAmount) {
+      return ValueAdjustment.ofReplace(shiftAmount);
+    }
+
+    @Override
+    public double computeShift(double baseValue, double shiftedValue) {
+      return shiftedValue;
+    }
   };
 
   // helper for name conversions
