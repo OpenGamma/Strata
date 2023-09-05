@@ -271,7 +271,7 @@ public final class CsvRow {
   public String getValue(String header) {
     String value = getField(header);
     if (value.isEmpty()) {
-      throw new ParseFailureException("No value was found for '{header}'", header);
+      throw new ParseFailureException("No value was found in column '{header}'", header);
     }
     return value;
   }
