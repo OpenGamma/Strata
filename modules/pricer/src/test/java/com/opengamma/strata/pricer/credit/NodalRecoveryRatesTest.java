@@ -65,8 +65,8 @@ public class NodalRecoveryRatesTest {
     assertThat(test).isEqualTo(test2);
   }
 
-
   //-------------------------------------------------------------------------
+  
   @Test
   public void coverage() {
     NodalRecoveryRates test1 = NodalRecoveryRates.of(LEGAL_ENTITY, VALUATION_DATE, CURVE);
