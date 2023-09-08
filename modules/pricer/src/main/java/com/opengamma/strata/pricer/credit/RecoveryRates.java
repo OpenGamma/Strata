@@ -12,6 +12,7 @@ import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.ParameterizedData;
 
@@ -26,7 +27,8 @@ public interface RecoveryRates
   /**
    * Obtains an instance from a curve.
    * <p>
-   * If the curve is {@code ConstantCurve}, {@code ConstantRecoveryRates} is always instantiated. 
+   * If the curve is {@code ConstantCurve}, {@code ConstantRecoveryRates} is always instantiated.
+   * If the curve is {@code NodalCurve}, {@code NodalRecoveryRates} is always instantiated.
    * 
    * @param legalEntityId  the legal entity identifier
    * @param valuationDate  the valuation date for which the curve is valid
@@ -35,8 +37,14 @@ public interface RecoveryRates
    */
   public static RecoveryRates of(StandardId legalEntityId, LocalDate valuationDate, Curve curve) {
     if (curve.getMetadata().getYValueType().equals(ValueType.RECOVERY_RATE)) {
-      ConstantCurve constantCurve = (ConstantCurve) curve;
-      return ConstantRecoveryRates.of(legalEntityId, valuationDate, constantCurve.getYValue());
+      if (curve instanceof ConstantCurve) {
+        ConstantCurve constantCurve = (ConstantCurve) curve;
+        return ConstantRecoveryRates.of(legalEntityId, valuationDate, constantCurve.getYValue());
+      }
+      if (curve instanceof NodalCurve) {
+        NodalCurve nodalCurve = (NodalCurve) curve;
+        return NodalRecoveryRates.of(legalEntityId, valuationDate, nodalCurve);
+      }
     }
     throw new IllegalArgumentException("Unknown curve type");
   }
