@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import com.opengamma.strata.basics.ReferenceDataHolder;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
@@ -231,7 +232,9 @@ public final class CalculationTask implements ImmutableBean {
       Set<Measure> measures = Sets.intersection(requestedMeasures, supportedMeasures);
       Map<Measure, Result<?>> map = ImmutableMap.of();
       if (!measures.isEmpty()) {
-        map = function.calculate(target, measures, parameters, marketData, refData);
+        // TODO: everything should ideally be resolved in the CalculationFunction, not relying on ReferenceDataHolder lower down.
+        map = ReferenceDataHolder.withReferenceData(refData,
+            () -> function.calculate(target, measures, parameters, marketData, refData));
       }
       // check if result does not contain all requested measures
       if (!map.keySet().containsAll(requestedMeasures)) {
