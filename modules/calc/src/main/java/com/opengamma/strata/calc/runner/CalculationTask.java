@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import com.opengamma.strata.basics.ReferenceDataHolder;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
@@ -30,6 +29,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataHolder;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
