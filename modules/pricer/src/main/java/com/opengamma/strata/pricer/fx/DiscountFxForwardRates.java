@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataHolder;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -152,7 +153,8 @@ public final class DiscountFxForwardRates
   private LocalDate spotDate() {
     try {
       FxSwapConvention fxSwapConvention = FxSwapConvention.of(currencyPair);
-      return fxSwapConvention.calculateSpotDateFromTradeDate(valuationDate, ReferenceData.standard());
+      ReferenceData refData = ReferenceDataHolder.getReferenceDataWithFallback(ReferenceData.standard());
+      return fxSwapConvention.calculateSpotDateFromTradeDate(valuationDate, refData);
     } catch (IllegalArgumentException e) {
       return valuationDate;
     }
