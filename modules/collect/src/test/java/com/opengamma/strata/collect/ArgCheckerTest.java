@@ -291,7 +291,7 @@ public class ArgCheckerTest {
   @Test
   public void test_notEmpty_Matrix_empty() {
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> ArgChecker.notEmpty("", "name"))
+        .isThrownBy(() -> ArgChecker.notEmpty(DoubleArray.of(), "name"))
         .withMessageMatching(".*'name'.*empty.*");
   }
 
