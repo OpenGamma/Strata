@@ -116,7 +116,6 @@ import com.opengamma.strata.basics.index.FloatingRateType;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
@@ -170,12 +169,11 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
   public static final FullSwapTradeCsvPlugin INSTANCE = new FullSwapTradeCsvPlugin();
 
   //-------------------------------------------------------------------------
-
   /**
    * Parses from the CSV row.
    *
-   * @param row the CSV row
-   * @param info the trade info
+   * @param row  the CSV row
+   * @param info  the trade info
    * @return the parsed trade
    */
   static SwapTrade parse(CsvRow row, TradeInfo info) {
@@ -487,7 +485,7 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
       return parseInflationRateCalculation(row, leg, (PriceIndex) index, currency);
 
     } else {
-      return parseFixedRateCalculation(row, leg, currency, defaultFixedLegDayCount, index);
+      return parseFixedRateCalculation(row, leg, currency, defaultFixedLegDayCount);
     }
   }
 
@@ -497,8 +495,7 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
       CsvRow row,
       String leg,
       Currency currency,
-      DayCount defaultFixedLegDayCount,
-      FloatingRateIndex index) {
+      DayCount defaultFixedLegDayCount) {
 
     FixedRateCalculation.Builder builder = FixedRateCalculation.builder();
     // basics
@@ -518,9 +515,9 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
 
     if (fvn.isPresent()) {
       builder.futureValueNotional(FutureValueNotional.of(fvn.get()));
-    } else if (OvernightIndices.BRL_CDI.equals(index)) {
+    } else if (Currency.BRL.equals(currency)) {
       // the future value notional flag is used to trigger compounded rate computation in FixedOvernightCompoundedAnnualRateComputation
-      // the fixed leg for BRL CDI swaps is always overnight compounded
+      // the fixed leg for BRL swaps is always overnight compounded
       builder.futureValueNotional(FutureValueNotional.autoCalculate());
     }
 
@@ -882,7 +879,7 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
           variable |= !rcLeg.getNotionalSchedule().getAmount().getSteps().isEmpty();
           if (rcLeg.getCalculation() instanceof FixedRateCalculation) {
             FixedRateCalculation calc = (FixedRateCalculation) rcLeg.getCalculation();
-            fvNotional |= calc.getFutureValueNotional().isPresent();
+            fvNotional |= calc.getFutureValueNotional().map(fvn -> fvn.getValue().isPresent()).orElse(false);
             variable |= !calc.getRate().getSteps().isEmpty();
           }
           if (rcLeg.getCalculation() instanceof IborRateCalculation) {
