@@ -170,19 +170,7 @@ public final class FixedCouponBond
    */
   @Override
   public ResolvedFixedCouponBond resolve(ReferenceData refData) {
-    return resolve(refData, false);
-  }
-
-  /**
-   * Resolves fixed coupon bond using specified reference data.
-   * @param refData  the reference data to use when resolving
-   * @param combinePeriodsIfNecessary flag to indicate that duplicate periods can be combined
-   * @return the resolved instance
-   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
-   * @throws RuntimeException if unable to resolve due to an invalid definition
-   */
-  public ResolvedFixedCouponBond resolve(ReferenceData refData, boolean combinePeriodsIfNecessary) {
-    Schedule adjustedSchedule = accrualSchedule.createSchedule(refData, combinePeriodsIfNecessary);
+    Schedule adjustedSchedule = accrualSchedule.createSchedule(refData, true);
     Schedule unadjustedSchedule = adjustedSchedule.toUnadjusted();
     DateAdjuster exCouponPeriodAdjuster = exCouponPeriod.resolve(refData);
 
