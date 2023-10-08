@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.math.DoubleMath;
+import com.opengamma.strata.collect.array.Matrix;
 
 /**
  * Contains utility methods for checking inputs to methods.
@@ -433,6 +434,30 @@ public final class ArgChecker {
   public static <T> T[] notEmpty(T[] argument, String name) {
     notNull(argument, name);
     if (argument.length == 0) {
+      throw new IllegalArgumentException(notEmptyArrayMsg(name));
+    }
+    return argument;
+  }
+
+  /**
+   * Checks that the specified argument is non-null and not empty.
+   * <p>
+   * Given the input argument, this returns only if it is non-null and contains
+   * at least one element. The element is not validated and may be null.
+   * For example, in a constructor:
+   * <pre>
+   *  this.names = ArgChecker.notEmpty(names, "names");
+   * </pre>
+   *
+   * @param <T> the type of the argument reflected in the result
+   * @param argument the argument to check, null or empty throws an exception
+   * @param name the name of the argument to use in the error message, not null
+   * @return the input {@code argument}, not null
+   * @throws IllegalArgumentException if the input is null or empty
+   */
+  public static <T extends Matrix> T notEmpty(T argument, String name) {
+    notNull(argument, name);
+    if (argument.size() == 0) {
       throw new IllegalArgumentException(notEmptyArrayMsg(name));
     }
     return argument;
