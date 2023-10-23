@@ -87,7 +87,7 @@ final class DefaultFxOptionMarketDataLookup
   public ImmutableSet<MarketDataId<?>> getVolatilityIds(CurrencyPair currencyPair) {
     FxOptionVolatilitiesId id = volatilityIds.get(currencyPair);
     if (id == null) {
-      throw new IllegalArgumentException(msgPairNotFound(currencyPair));
+      return ImmutableSet.of();
     }
     return ImmutableSet.of(id);
   }
