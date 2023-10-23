@@ -56,7 +56,8 @@ public class FxOptionMarketDataLookupTest {
     assertThat(test.queryType()).isEqualTo(FxOptionMarketDataLookup.class);
     assertThat(test.getVolatilityCurrencyPairs()).containsOnly(EUR_USD);
     assertThat(test.getVolatilityIds(EUR_USD)).containsOnly(VOL_ID1);
-    assertThat(test.getVolatilityIds(GBP_USD)).isEmpty();
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getVolatilityIds(GBP_USD));
 
     assertThat(test.requirements(EUR_USD)).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
     assertThat(test.requirements(ImmutableSet.of(EUR_USD)))
@@ -72,7 +73,8 @@ public class FxOptionMarketDataLookupTest {
     assertThat(test.queryType()).isEqualTo(FxOptionMarketDataLookup.class);
     assertThat(test.getVolatilityCurrencyPairs()).containsOnly(EUR_USD, GBP_USD);
     assertThat(test.getVolatilityIds(EUR_USD)).containsOnly(VOL_ID1);
-    assertThat(test.getVolatilityIds(EUR_GBP)).isEmpty();
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getVolatilityIds(EUR_GBP));
 
     assertThat(test.requirements(EUR_USD)).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
     assertThat(test.requirements(ImmutableSet.of(EUR_USD)))
