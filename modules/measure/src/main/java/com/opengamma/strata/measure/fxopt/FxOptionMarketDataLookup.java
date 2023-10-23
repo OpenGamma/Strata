@@ -87,7 +87,7 @@ public interface FxOptionMarketDataLookup extends CalculationParameter {
    * Gets the identifiers used to obtain the volatilities for the specified currency pair.
    * <p>
    * The result will typically refer to a surface or cube.
-   * If the currency pair is not found, an empty list is returned.
+   * If the currency pair is not found, an empty set is returned.
    *
    * @param currencyPair  the currency pair for which identifiers are required
    * @return the set of market data identifiers, that can be empty
