@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableSortedMap;
+import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.Matrix;
 
 /**
  * Test ArgChecker.
@@ -267,7 +269,29 @@ public class ArgCheckerTest {
   @Test
   public void test_notEmpty_String_empty() {
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> ArgChecker.notEmpty("", "name"))
+        .isThrownBy(() -> ArgChecker.notEmpty(DoubleArray.of(), "name"))
+        .withMessageMatching(".*'name'.*empty.*");
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_notEmpty_Matrix_ok() {
+    DoubleArray expected = DoubleArray.of(1);
+    DoubleArray result = ArgChecker.notEmpty(expected, "name");
+    assertThat(result).isEqualTo(expected);
+  }
+
+  @Test
+  public void test_notEmpty_Matrix_null() {
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty((Matrix) null, "name"))
+        .withMessageMatching(".*'name'.*null.*");
+  }
+
+  @Test
+  public void test_notEmpty_Matrix_empty() {
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty(DoubleArray.of(), "name"))
         .withMessageMatching(".*'name'.*empty.*");
   }
 
