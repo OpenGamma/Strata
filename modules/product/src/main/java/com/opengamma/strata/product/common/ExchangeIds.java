@@ -150,6 +150,9 @@ public final class ExchangeIds {
   /** Nasdaq Commodity Exchange. */
   public static final ExchangeId NORX = ExchangeId.of("NORX");
 
+  /** OMIClear Exchange. */
+  public static final ExchangeId OMIC = ExchangeId.of("OMIC");
+
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
