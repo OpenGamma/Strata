@@ -46,7 +46,7 @@ public class EtdIdUtilsTest {
   }
 
   @Test
-  void test_contractSpecIdWithHyphen_future() {
+  void test_contractSpecIdWithExtraHyphen_future() {
     EtdContractSpecId test = EtdIdUtils.contractSpecId(EtdType.FUTURE, ExchangeId.of("XNSE"), EtdContractCode.of("BAJAJ-AUTO"));
     assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "F-XNSE-BAJAJ-AUTO"));
     assertThat(EtdIdUtils.splitId(test))
@@ -72,7 +72,7 @@ public class EtdIdUtilsTest {
   }
 
   @Test
-  void test_contractSpecIdWithHyphen_option() {
+  void test_contractSpecIdWithExtraHyphen_option() {
     EtdContractSpecId test = EtdIdUtils.contractSpecId(EtdType.OPTION, ExchangeId.of("XNSE"), EtdContractCode.of("BAJAJ-AUTO"));
     assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "O-XNSE-BAJAJ-AUTO"));
     assertThat(EtdIdUtils.splitId(test))
@@ -120,6 +120,20 @@ public class EtdIdUtilsTest {
             .securityId(test)
             .exchangeId(ExchangeIds.ECAG)
             .contractCode(FGBS)
+            .expiry(EXPIRY)
+            .variant(MONTHLY)
+            .build());
+  }
+
+  @Test
+  public void test_futureIdWithExtraHyphen_monthly() {
+    SecurityId test = EtdIdUtils.futureId(ExchangeId.of("XNSE"), EtdContractCode.of("BAJAJ-AUTO"), EXPIRY, MONTHLY);
+    assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "F-XNSE-BAJAJ-AUTO-201706"));
+    assertThat(EtdIdUtils.splitId(test))
+        .isEqualTo(SplitEtdId.builder()
+            .securityId(test)
+            .exchangeId(ExchangeId.of("XNSE"))
+            .contractCode(EtdContractCode.of("BAJAJ-AUTO"))
             .expiry(EXPIRY)
             .variant(MONTHLY)
             .build());
@@ -340,7 +354,7 @@ public class EtdIdUtilsTest {
         .isThrownBy(() -> EtdIdUtils.splitId(SecurityId.of("A", "B")));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> EtdIdUtils.splitId(SecurityId.of(OG_ETD_SCHEME, "B")));
-    assertThatExceptionOfType(DateTimeParseException.class)
+    assertThatIllegalArgumentException()
         .isThrownBy(() -> EtdIdUtils.splitId(SecurityId.of(OG_ETD_SCHEME, "F-ECAG-AB-ABCDEF")));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> EtdIdUtils.splitId(SecurityId.of(OG_ETD_SCHEME, "F-ECAG-AB-20206")));
