@@ -9,17 +9,14 @@ import static com.opengamma.strata.basics.StandardSchemes.OG_ETD_SCHEME;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.product.etd.EtdVariant.MONTHLY;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.YearMonth;
-import java.time.format.DateTimeParseException;
 
 import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.common.ExchangeId;
 import com.opengamma.strata.product.common.ExchangeIds;
 import com.opengamma.strata.product.common.PutCall;
 
@@ -31,6 +28,7 @@ public class EtdIdUtilsTest {
   private static final YearMonth EXPIRY = YearMonth.of(2017, 6);
   private static final EtdContractCode OGBS = EtdContractCode.of("OGBS");
   private static final EtdContractCode FGBS = EtdContractCode.of("FGBS");
+  private static final EtdContractCode BAJAJ_AUTO = EtdContractCode.of("BAJAJ-AUTO");
 
   @Test
   public void test_contractSpecId_future() {
@@ -47,14 +45,14 @@ public class EtdIdUtilsTest {
 
   @Test
   void test_contractSpecIdWithExtraHyphen_future() {
-    EtdContractSpecId test = EtdIdUtils.contractSpecId(EtdType.FUTURE, ExchangeId.of("XNSE"), EtdContractCode.of("BAJAJ-AUTO"));
+    EtdContractSpecId test = EtdIdUtils.contractSpecId(EtdType.FUTURE, ExchangeIds.XNSE, BAJAJ_AUTO);
     assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "F-XNSE-BAJAJ-AUTO"));
     assertThat(EtdIdUtils.splitId(test))
         .isEqualTo(SplitEtdContractSpecId.builder()
             .specId(test)
             .type(EtdType.FUTURE)
-            .exchangeId(ExchangeId.of("XNSE"))
-            .contractCode(EtdContractCode.of("BAJAJ-AUTO"))
+            .exchangeId(ExchangeIds.XNSE)
+            .contractCode(BAJAJ_AUTO)
             .build());
   }
 
@@ -73,14 +71,14 @@ public class EtdIdUtilsTest {
 
   @Test
   void test_contractSpecIdWithExtraHyphen_option() {
-    EtdContractSpecId test = EtdIdUtils.contractSpecId(EtdType.OPTION, ExchangeId.of("XNSE"), EtdContractCode.of("BAJAJ-AUTO"));
+    EtdContractSpecId test = EtdIdUtils.contractSpecId(EtdType.OPTION, ExchangeIds.XNSE, BAJAJ_AUTO);
     assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "O-XNSE-BAJAJ-AUTO"));
     assertThat(EtdIdUtils.splitId(test))
         .isEqualTo(SplitEtdContractSpecId.builder()
             .specId(test)
             .type(EtdType.OPTION)
-            .exchangeId(ExchangeId.of("XNSE"))
-            .contractCode(EtdContractCode.of("BAJAJ-AUTO"))
+            .exchangeId(ExchangeIds.XNSE)
+            .contractCode(BAJAJ_AUTO)
             .build());
   }
 
@@ -127,13 +125,13 @@ public class EtdIdUtilsTest {
 
   @Test
   public void test_futureIdWithExtraHyphen_monthly() {
-    SecurityId test = EtdIdUtils.futureId(ExchangeId.of("XNSE"), EtdContractCode.of("BAJAJ-AUTO"), EXPIRY, MONTHLY);
+    SecurityId test = EtdIdUtils.futureId(ExchangeIds.XNSE, BAJAJ_AUTO, EXPIRY, MONTHLY);
     assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "F-XNSE-BAJAJ-AUTO-201706"));
     assertThat(EtdIdUtils.splitId(test))
         .isEqualTo(SplitEtdId.builder()
             .securityId(test)
-            .exchangeId(ExchangeId.of("XNSE"))
-            .contractCode(EtdContractCode.of("BAJAJ-AUTO"))
+            .exchangeId(ExchangeIds.XNSE)
+            .contractCode(BAJAJ_AUTO)
             .expiry(EXPIRY)
             .variant(MONTHLY)
             .build());
@@ -263,6 +261,23 @@ public class EtdIdUtilsTest {
             .securityId(test)
             .exchangeId(ExchangeIds.ECAG)
             .contractCode(FGBS)
+            .expiry(EXPIRY)
+            .variant(MONTHLY)
+            .option(SplitEtdOption.of(0, PutCall.PUT, 12.34, underlyingMonth))
+            .build());
+  }
+
+  @Test
+  public void test_optionIdUnderlyingWithHyphen_monthly() {
+    YearMonth underlyingMonth = YearMonth.of(2017, 9);
+    SecurityId test = EtdIdUtils.optionId(
+        ExchangeIds.XNSE, BAJAJ_AUTO, EXPIRY, MONTHLY, 0, PutCall.PUT, 12.34, underlyingMonth);
+    assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "O-XNSE-BAJAJ-AUTO-201706-P12.34-U201709"));
+    assertThat(EtdIdUtils.splitId(test))
+        .isEqualTo(SplitEtdId.builder()
+            .securityId(test)
+            .exchangeId(ExchangeIds.XNSE)
+            .contractCode(BAJAJ_AUTO)
             .expiry(EXPIRY)
             .variant(MONTHLY)
             .option(SplitEtdOption.of(0, PutCall.PUT, 12.34, underlyingMonth))
