@@ -38,8 +38,9 @@ public final class EtdIdUtils {
 
   /**
    * Separator that is always present between the contract details and expiry + option details.
+   * Only applies to identifiers with {@link StandardSchemes#OG_ETD_SCHEME}.
    * <p>
-   * Example separator "-202304" in "F-IFEN-ABC-202304" or "O-IFEN-AB-CD-202304-PM12.34-U202309"
+   * Example separator "-202304" in "F-IFEN-ABC-202304" or "O-IFEN-ABC-202304-PM12.34-U202309"
    */
   private static final String GROUPS_SEPARATOR = "-(?=\\d{6})";
   private static final String CONTRACT_DETAILS_REGEX_GROUP_NAME = "contractDetails";
