@@ -242,8 +242,9 @@ public final class EtdIdUtils {
     if (!specId.getStandardId().getScheme().equals(ETD_SCHEME)) {
       throw new IllegalArgumentException("ETD ID cannot be parsed: " + specId);
     }
-    List<String> split = Splitter.on('-').splitToList(specId.getStandardId().getValue());
-    if (split.size() != 3) {
+    String value = specId.getStandardId().getValue();
+    List<String> split = Splitter.on('-').limit(3).splitToList(value);
+    if (split.size() < 3) {
       throw new IllegalArgumentException("ETD ID cannot be parsed: " + specId);
     }
     EtdType type = null;

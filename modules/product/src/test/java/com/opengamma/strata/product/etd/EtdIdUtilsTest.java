@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.product.SecurityId;
+import com.opengamma.strata.product.common.ExchangeId;
 import com.opengamma.strata.product.common.ExchangeIds;
 import com.opengamma.strata.product.common.PutCall;
 
@@ -45,6 +46,19 @@ public class EtdIdUtilsTest {
   }
 
   @Test
+  void test_contractSpecIdWithHyphen_future() {
+    EtdContractSpecId test = EtdIdUtils.contractSpecId(EtdType.FUTURE, ExchangeId.of("XNSE"), EtdContractCode.of("BAJAJ-AUTO"));
+    assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "F-XNSE-BAJAJ-AUTO"));
+    assertThat(EtdIdUtils.splitId(test))
+        .isEqualTo(SplitEtdContractSpecId.builder()
+            .specId(test)
+            .type(EtdType.FUTURE)
+            .exchangeId(ExchangeId.of("XNSE"))
+            .contractCode(EtdContractCode.of("BAJAJ-AUTO"))
+            .build());
+  }
+
+  @Test
   public void test_contractSpecId_option() {
     EtdContractSpecId test = EtdIdUtils.contractSpecId(EtdType.OPTION, ExchangeIds.ECAG, OGBS);
     assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "O-ECAG-OGBS"));
@@ -54,6 +68,19 @@ public class EtdIdUtilsTest {
             .type(EtdType.OPTION)
             .exchangeId(ExchangeIds.ECAG)
             .contractCode(OGBS)
+            .build());
+  }
+
+  @Test
+  void test_contractSpecIdWithHyphen_option() {
+    EtdContractSpecId test = EtdIdUtils.contractSpecId(EtdType.OPTION, ExchangeId.of("XNSE"), EtdContractCode.of("BAJAJ-AUTO"));
+    assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "O-XNSE-BAJAJ-AUTO"));
+    assertThat(EtdIdUtils.splitId(test))
+        .isEqualTo(SplitEtdContractSpecId.builder()
+            .specId(test)
+            .type(EtdType.OPTION)
+            .exchangeId(ExchangeId.of("XNSE"))
+            .contractCode(EtdContractCode.of("BAJAJ-AUTO"))
             .build());
   }
 
@@ -305,8 +332,6 @@ public class EtdIdUtilsTest {
         .isThrownBy(() -> EtdIdUtils.splitId(EtdContractSpecId.of("A", "B")));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> EtdIdUtils.splitId(EtdContractSpecId.of(OG_ETD_SCHEME, "B")));
-    assertThatIllegalArgumentException()
-        .isThrownBy(() -> EtdIdUtils.splitId(EtdContractSpecId.of(OG_ETD_SCHEME, "F-ECAG-AB-ABCDEF")));
   }
 
   @Test
