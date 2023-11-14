@@ -14,10 +14,14 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.common.base.Splitter;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.common.ExchangeId;
 import com.opengamma.strata.product.common.PutCall;
@@ -31,6 +35,21 @@ import com.opengamma.strata.product.common.PutCall;
  * We do not recommend parsing the combined identifier to retrieve individual fields.
  */
 public final class EtdIdUtils {
+
+  /**
+   * Separator that is always present between the contract details and expiry + option details.
+   * Only applies to identifiers with {@link StandardSchemes#OG_ETD_SCHEME}.
+   * <p>
+   * Example separator "-202304" in "F-IFEN-ABC-202304" or "O-IFEN-ABC-202304-PM12.34-U202309"
+   */
+  private static final String GROUPS_SEPARATOR = "-(?=\\d{6})";
+  private static final String CONTRACT_DETAILS_REGEX_GROUP_NAME = "contractDetails";
+  private static final String EXPIRY_AND_OPTION_DETAILS_GROUP_NAME = "expiryAndOptionDetails";
+  private static final Pattern SECURITY_ID_PATTERN = Pattern.compile(Messages.format(
+      "^(?<{}>.*){}(?<{}>.*)$",
+      CONTRACT_DETAILS_REGEX_GROUP_NAME,
+      GROUPS_SEPARATOR,
+      EXPIRY_AND_OPTION_DETAILS_GROUP_NAME));
 
   /**
    * Scheme used for ETDs.
@@ -242,8 +261,13 @@ public final class EtdIdUtils {
     if (!specId.getStandardId().getScheme().equals(ETD_SCHEME)) {
       throw new IllegalArgumentException("ETD ID cannot be parsed: " + specId);
     }
-    List<String> split = Splitter.on('-').splitToList(specId.getStandardId().getValue());
-    if (split.size() != 3) {
+    String value = specId.getStandardId().getValue();
+    List<String> split = Splitter.on('-')
+        // sometimes a contract code can have "-" in the name, like F-IFEN-BAJAJ-AUTO, so we need
+        // limit the split to 3: type, exchangeId, and contract code
+        .limit(3)
+        .splitToList(value);
+    if (split.size() < 3) {
       throw new IllegalArgumentException("ETD ID cannot be parsed: " + specId);
     }
     EtdType type = null;
@@ -274,17 +298,31 @@ public final class EtdIdUtils {
    */
   public static SplitEtdId splitId(SecurityId securityId) {
     ArgChecker.notNull(securityId, "securityId");
-    if (!securityId.getStandardId().getScheme().equals(ETD_SCHEME)) {
+    StandardId standardId = securityId.getStandardId();
+    if (!standardId.getScheme().equals(ETD_SCHEME)) {
       throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
     }
-    List<String> split = Splitter.on('-').splitToList(securityId.getStandardId().getValue());
-    if (split.size() < 4) {
+
+    Matcher matcher = SECURITY_ID_PATTERN.matcher(standardId.getValue());
+    if (!matcher.matches()) {
       throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
     }
+
+    // Example: F-IFEN-ABC or F-IFEN-ABC-XYZ
+    String contractDetailsSubstring = matcher.group(CONTRACT_DETAILS_REGEX_GROUP_NAME);
+    List<String> contractDetailsSplit = Splitter.on('-').limit(3).splitToList(contractDetailsSubstring);
+    if (contractDetailsSplit.size() != 3) {
+      throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
+    }
+
     // common fields
-    ExchangeId exchangeId = ExchangeId.of(split.get(1));
-    EtdContractCode contractCode = EtdContractCode.of(split.get(2));
-    String dateStr = split.get(3);
+    ExchangeId exchangeId = ExchangeId.of(contractDetailsSplit.get(1));
+    EtdContractCode contractCode = EtdContractCode.of(contractDetailsSplit.get(2));
+
+    // Example: 20230412 for futures or 202304-V3-PM12.43-U202304 for options
+    String expiryAndOptionDetailsSubstring = matcher.group(EXPIRY_AND_OPTION_DETAILS_GROUP_NAME);
+    List<String> expiryAndOptionDetailsSplit = Splitter.on("-").splitToList(expiryAndOptionDetailsSubstring);
+    String dateStr = expiryAndOptionDetailsSplit.get(0);
     if (dateStr.length() < 6) {
       throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
     }
@@ -296,11 +334,13 @@ public final class EtdIdUtils {
         .contractCode(contractCode)
         .expiry(month)
         .variant(variant);
+
     // future vs option
-    if (securityId.getStandardId().getValue().startsWith(FUT_PREFIX) && split.size() == 4) {
+    if (standardId.getValue().startsWith(FUT_PREFIX) && expiryAndOptionDetailsSplit.size() == 1) {
       return parsed.build();
-    } else if (securityId.getStandardId().getValue().startsWith(OPT_PREFIX) && split.size() > 4) {
-      SplitEtdOption parsedOption = parseEtdOptionId(split, securityId);
+    } else if (standardId.getValue().startsWith(OPT_PREFIX) && expiryAndOptionDetailsSplit.size() > 1) {
+      List<String> optionDetailsSplit = expiryAndOptionDetailsSplit.subList(1, expiryAndOptionDetailsSplit.size());
+      SplitEtdOption parsedOption = parseEtdOptionId(optionDetailsSplit, securityId);
       return parsed.option(parsedOption).build();
     } else {
       throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
@@ -308,10 +348,10 @@ public final class EtdIdUtils {
   }
 
   // parses an option
-  private static SplitEtdOption parseEtdOptionId(List<String> split, SecurityId securityId) {
-    String versionStr = split.get(4);
-    String putCallStrikeStr = split.size() > 5 ? split.get(5) : "";
-    String underlyingMonthStr = split.size() > 6 ? split.get(6) : "";
+  private static SplitEtdOption parseEtdOptionId(List<String> optionDetailsSplit, SecurityId securityId) {
+    String versionStr = optionDetailsSplit.get(0);
+    String putCallStrikeStr = optionDetailsSplit.size() > 1 ? optionDetailsSplit.get(1) : "";
+    String underlyingMonthStr = optionDetailsSplit.size() > 2 ? optionDetailsSplit.get(2) : "";
     int version = 0;
     if (versionStr.startsWith("V")) {
       version = Integer.parseInt(versionStr.substring(1));
