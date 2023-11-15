@@ -8,18 +8,25 @@ package com.opengamma.strata.pricer.fxopt;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
+import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 import com.opengamma.strata.pricer.impl.option.BlackBarrierPriceFormulaRepository;
+import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.BlackOneTouchAssetPriceFormulaRepository;
 import com.opengamma.strata.pricer.impl.option.BlackOneTouchCashPriceFormulaRepository;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -33,7 +40,7 @@ import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
  * <p>
  * This function provides the ability to price an {@link ResolvedFxSingleBarrierOption}.
  * <p>
- * All of the computation is be based on the counter currency of the underlying FX transaction.
+ * All the computation is based on the counter currency of the underlying FX transaction.
  * For example, price, PV and risk measures of the product will be expressed in USD for an option on EUR/USD.
  */
 public class BlackFxSingleBarrierOptionProductPricer {
@@ -57,6 +64,11 @@ public class BlackFxSingleBarrierOptionProductPricer {
    */
   private static final BlackOneTouchCashPriceFormulaRepository CASH_REBATE_PRICER =
       new BlackOneTouchCashPriceFormulaRepository();
+  /**
+   * Pricer for underlying vanilla option.
+   */
+  private static final BlackFxVanillaOptionProductPricer VANILLA_OPTION_PRICER =
+      BlackFxVanillaOptionProductPricer.DEFAULT;
 
   /**
    * Creates an instance.
@@ -110,26 +122,38 @@ public class BlackFxSingleBarrierOptionProductPricer {
     validate(option, ratesProvider, volatilities);
     SimpleConstantContinuousBarrier barrier = (SimpleConstantContinuousBarrier) option.getBarrier();
     ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
-    if (volatilities.relativeTime(underlyingOption.getExpiry()) < 0d) {
+    double timeToExpiry = volatilities.relativeTime(underlyingOption.getExpiry());
+    if (timeToExpiry < 0d) {
       return 0d;
     }
     ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
+    CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
+    double todayFx = ratesProvider.fxRate(currencyPair);
     Currency ccyBase = underlyingFx.getBaseCurrencyPayment().getCurrency();
     Currency ccyCounter = underlyingFx.getCounterCurrencyPayment().getCurrency();
-    CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
+    if (alreadyTouched(todayFx, barrier)) {
+      if (barrier.getKnockType().isKnockIn()) {
+        return VANILLA_OPTION_PRICER.price(underlyingOption, ratesProvider, volatilities);
+      } else if (option.getRebate().isPresent()) {
+        CurrencyAmount rebate = option.getRebate().get();
+        DaysAdjustment spotLag = spotAdjustment(currencyPair);
+        LocalDate paymentDate = spotLag.adjust(ratesProvider.getValuationDate(), ReferenceData.standard());
+        double rebatePrice = rebate.getAmount() * ratesProvider.discountFactor(rebate.getCurrency(), paymentDate) /
+            Math.abs(underlyingFx.getBaseCurrencyPayment().getAmount());
+        return rebate.getCurrency().equals(ccyCounter) ? rebatePrice : todayFx * rebatePrice;
+      }
+      return 0d;
+    }
     DiscountFactors baseDiscountFactors = ratesProvider.discountFactors(ccyBase);
     DiscountFactors counterDiscountFactors = ratesProvider.discountFactors(ccyCounter);
-
     double rateBase = baseDiscountFactors.zeroRate(underlyingFx.getPaymentDate());
     double rateCounter = counterDiscountFactors.zeroRate(underlyingFx.getPaymentDate());
     double costOfCarry = rateCounter - rateBase;
     double dfBase = baseDiscountFactors.discountFactor(underlyingFx.getPaymentDate());
     double dfCounter = counterDiscountFactors.discountFactor(underlyingFx.getPaymentDate());
-    double todayFx = ratesProvider.fxRate(currencyPair);
     double strike = underlyingOption.getStrike();
     double forward = todayFx * dfBase / dfCounter;
     double volatility = volatilities.volatility(currencyPair, underlyingOption.getExpiry(), strike, forward);
-    double timeToExpiry = volatilities.relativeTime(underlyingOption.getExpiry());
     double price = BARRIER_PRICER.price(
         todayFx, strike, timeToExpiry, costOfCarry, rateCounter, volatility, underlyingOption.getPutCall().isCall(), barrier);
     if (option.getRebate().isPresent()) {
@@ -162,12 +186,33 @@ public class BlackFxSingleBarrierOptionProductPricer {
       BlackFxOptionVolatilities volatilities) {
 
     ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
-    if (volatilities.relativeTime(underlyingOption.getExpiry()) <= 0d) {
+    double timeToExpiry = volatilities.relativeTime(underlyingOption.getExpiry());
+    if (timeToExpiry <= 0d) {
+      return PointSensitivityBuilder.none();
+    }
+    SimpleConstantContinuousBarrier barrier = (SimpleConstantContinuousBarrier) option.getBarrier();
+    ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
+    CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
+    double todayFx = ratesProvider.fxRate(currencyPair);
+    if (alreadyTouched(todayFx, barrier)) {
+      if (barrier.getKnockType().isKnockIn()) {
+        PointSensitivities underlyingOptionSensitivity = VANILLA_OPTION_PRICER.presentValueSensitivityRatesStickyStrike(
+            option.getUnderlyingOption(), ratesProvider, volatilities);
+        return PointSensitivityBuilder.of(underlyingOptionSensitivity.getSensitivities());
+      } else if (option.getRebate().isPresent()) {
+        CurrencyAmount rebate = option.getRebate().get();
+        DaysAdjustment spotLag = spotAdjustment(currencyPair);
+        LocalDate paymentDate = spotLag.adjust(ratesProvider.getValuationDate(), ReferenceData.standard());
+        ZeroRateSensitivity rebaseSensitivity = ratesProvider.discountFactors(rebate.getCurrency())
+            .zeroRatePointSensitivity(paymentDate);
+        Currency ccyCounter = underlyingFx.getCounterCurrencyPayment().getCurrency();
+        return rebate.getCurrency().equals(ccyCounter) ?
+            rebaseSensitivity.multipliedBy(rebate.getAmount()) :
+            rebaseSensitivity.multipliedBy(rebate.getAmount() * todayFx).withCurrency(ccyCounter);
+      }
       return PointSensitivityBuilder.none();
     }
     ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilities);
-    ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
-    CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
     double signedNotional = signedNotional(underlyingOption);
     double counterYearFraction =
         ratesProvider.discountFactors(currencyPair.getCounter()).relativeYearFraction(underlyingFx.getPaymentDate());
@@ -221,7 +266,27 @@ public class BlackFxSingleBarrierOptionProductPricer {
       RatesProvider ratesProvider,
       BlackFxOptionVolatilities volatilities) {
 
-    if (volatilities.relativeTime(option.getUnderlyingOption().getExpiry()) < 0d) {
+    ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
+    if (volatilities.relativeTime(underlyingOption.getExpiry()) < 0d) {
+      return 0d;
+    }
+    SimpleConstantContinuousBarrier barrier = (SimpleConstantContinuousBarrier) option.getBarrier();
+    ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
+    CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
+    double todayFx = ratesProvider.fxRate(currencyPair);
+    if (alreadyTouched(todayFx, barrier)) {
+      if (barrier.getKnockType().isKnockIn()) {
+        return VANILLA_OPTION_PRICER.delta(underlyingOption, ratesProvider, volatilities);
+      } else if (option.getRebate().isPresent()) {
+        Currency ccyCounter = underlyingFx.getCounterCurrencyPayment().getCurrency();
+        CurrencyAmount rebate = option.getRebate().get();
+        if (!rebate.getCurrency().equals(ccyCounter)) {
+          DaysAdjustment spotLag = spotAdjustment(currencyPair);
+          LocalDate paymentDate = spotLag.adjust(ratesProvider.getValuationDate(), ReferenceData.standard());
+          return rebate.getAmount() * ratesProvider.discountFactor(rebate.getCurrency(), paymentDate) /
+              Math.abs(underlyingFx.getBaseCurrencyPayment().getAmount());
+        }
+      }
       return 0d;
     }
     ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilities);
@@ -264,6 +329,20 @@ public class BlackFxSingleBarrierOptionProductPricer {
       RatesProvider ratesProvider,
       BlackFxOptionVolatilities volatilities) {
 
+    ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
+    if (volatilities.relativeTime(underlyingOption.getExpiry()) <= 0d) {
+      return 0d;
+    }
+    SimpleConstantContinuousBarrier barrier = (SimpleConstantContinuousBarrier) option.getBarrier();
+    ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
+    CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
+    double todayFx = ratesProvider.fxRate(currencyPair);
+    if (alreadyTouched(todayFx, barrier)) {
+      if (barrier.getKnockType().isKnockIn()) {
+        return VANILLA_OPTION_PRICER.gamma(underlyingOption, ratesProvider, volatilities);
+      }
+      return 0d;
+    }
     ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilities);
     return priceDerivatives.getDerivative(6);
   }
@@ -285,22 +364,31 @@ public class BlackFxSingleBarrierOptionProductPricer {
       BlackFxOptionVolatilities volatilities) {
 
     ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
-    if (volatilities.relativeTime(underlyingOption.getExpiry()) <= 0d) {
+    double timeToExpiry = volatilities.relativeTime(underlyingOption.getExpiry());
+    if (timeToExpiry <= 0d) {
+      return PointSensitivityBuilder.none();
+    }
+    SimpleConstantContinuousBarrier barrier = (SimpleConstantContinuousBarrier) option.getBarrier();
+    ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
+    CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
+    double todayFx = ratesProvider.fxRate(currencyPair);
+    if (alreadyTouched(todayFx, barrier)) {
+      if (barrier.getKnockType().isKnockIn()) {
+        return VANILLA_OPTION_PRICER.presentValueSensitivityModelParamsVolatility(
+            option.getUnderlyingOption(), ratesProvider, volatilities);
+      }
       return PointSensitivityBuilder.none();
     }
     ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilities);
-    ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
-    CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
     Currency ccyBase = currencyPair.getBase();
     Currency ccyCounter = currencyPair.getCounter();
     double dfBase = ratesProvider.discountFactor(ccyBase, underlyingFx.getPaymentDate());
     double dfCounter = ratesProvider.discountFactor(ccyCounter, underlyingFx.getPaymentDate());
-    double todayFx = ratesProvider.fxRate(currencyPair);
     double forward = todayFx * dfBase / dfCounter;
     return FxOptionSensitivity.of(
         volatilities.getName(),
         currencyPair,
-        volatilities.relativeTime(underlyingOption.getExpiry()),
+        timeToExpiry,
         underlyingOption.getStrike(),
         forward,
         ccyCounter,
@@ -322,6 +410,20 @@ public class BlackFxSingleBarrierOptionProductPricer {
       RatesProvider ratesProvider,
       BlackFxOptionVolatilities volatilities) {
 
+    ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
+    if (volatilities.relativeTime(underlyingOption.getExpiry()) <= 0d) {
+      return 0d;
+    }
+    SimpleConstantContinuousBarrier barrier = (SimpleConstantContinuousBarrier) option.getBarrier();
+    ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
+    CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
+    double todayFx = ratesProvider.fxRate(currencyPair);
+    if (alreadyTouched(todayFx, barrier)) {
+      if (barrier.getKnockType().isKnockIn()) {
+        return VANILLA_OPTION_PRICER.vega(underlyingOption, ratesProvider, volatilities);
+      }
+      return 0d;
+    }
     ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilities);
     return priceDerivatives.getDerivative(4);
   }
@@ -362,6 +464,46 @@ public class BlackFxSingleBarrierOptionProductPricer {
       RatesProvider ratesProvider,
       BlackFxOptionVolatilities volatilities) {
 
+    ResolvedFxVanillaOption underlyingOption = option.getUnderlyingOption();
+    double timeToExpiry = volatilities.relativeTime(underlyingOption.getExpiry());
+    if (timeToExpiry <= 0d) {
+      return 0d;
+    }
+    SimpleConstantContinuousBarrier barrier = (SimpleConstantContinuousBarrier) option.getBarrier();
+    ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
+    CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
+    double todayFx = ratesProvider.fxRate(currencyPair);
+    if (alreadyTouched(todayFx, barrier)) {
+      if (barrier.getKnockType().isKnockIn()) {
+        Currency ccyBase = underlyingFx.getBaseCurrencyPayment().getCurrency();
+        Currency ccyCounter = underlyingFx.getCounterCurrencyPayment().getCurrency();
+        DiscountFactors baseDiscountFactors = ratesProvider.discountFactors(ccyBase);
+        DiscountFactors counterDiscountFactors = ratesProvider.discountFactors(ccyCounter);
+        double rateBase = baseDiscountFactors.zeroRate(underlyingFx.getPaymentDate());
+        double rateCounter = counterDiscountFactors.zeroRate(underlyingFx.getPaymentDate());
+        double costOfCarry = rateCounter - rateBase;
+        double dfBase = baseDiscountFactors.discountFactor(underlyingFx.getPaymentDate());
+        double dfCounter = counterDiscountFactors.discountFactor(underlyingFx.getPaymentDate());
+        double strike = underlyingOption.getStrike();
+        double forward = todayFx * dfBase / dfCounter;
+        double volatility = volatilities.volatility(currencyPair, timeToExpiry, strike, forward);
+        boolean isCall = underlyingOption.getPutCall().isCall();
+        double fwdPrice = BlackFormulaRepository.price(forward, strike, timeToExpiry, volatility, isCall);
+        double fwdTheta = BlackFormulaRepository.driftlessTheta(forward, strike, timeToExpiry, volatility);
+        double fwdDelta = BlackFormulaRepository.delta(forward, strike, timeToExpiry, volatility, isCall);
+        return dfCounter * (fwdTheta + rateCounter * fwdPrice - costOfCarry * forward * fwdDelta);
+      } else if (option.getRebate().isPresent()) {
+        CurrencyAmount rebate = option.getRebate().get();
+        Currency ccyCounter = underlyingFx.getCounterCurrencyPayment().getCurrency();
+        DaysAdjustment spotLag = spotAdjustment(currencyPair);
+        LocalDate paymentDate = spotLag.adjust(ratesProvider.getValuationDate(), ReferenceData.standard());
+        DiscountFactors discountFactors = ratesProvider.discountFactors(rebate.getCurrency());
+        double rebateTheta = discountFactors.zeroRate(paymentDate) * rebate.getAmount() *
+            discountFactors.discountFactor(paymentDate) / Math.abs(underlyingFx.getBaseCurrencyPayment().getAmount());
+        return rebate.getCurrency().equals(ccyCounter) ? rebateTheta : todayFx * rebateTheta;
+      }
+      return 0d;
+    }
     ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilities);
     return -priceDerivatives.getDerivative(5);
   }
@@ -425,11 +567,28 @@ public class BlackFxSingleBarrierOptionProductPricer {
     if (volatilities.relativeTime(underlyingOption.getExpiry()) < 0d) {
       return MultiCurrencyAmount.empty();
     }
+    SimpleConstantContinuousBarrier barrier = (SimpleConstantContinuousBarrier) option.getBarrier();
+    ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
+    CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
+    double todayFx = ratesProvider.fxRate(currencyPair);
+    if (alreadyTouched(todayFx, barrier)) {
+      if (barrier.getKnockType().isKnockIn()) {
+        return VANILLA_OPTION_PRICER.currencyExposure(underlyingOption, ratesProvider, volatilities);
+      } else if (option.getRebate().isPresent()) {
+        CurrencyAmount rebate = option.getRebate().get();
+        DaysAdjustment spotLag = spotAdjustment(currencyPair);
+        LocalDate paymentDate = spotLag.adjust(ratesProvider.getValuationDate(), ReferenceData.standard());
+        double pv = (option.getUnderlyingOption().getLongShort().isLong() ? 1d : -1d) * rebate.getAmount() *
+            ratesProvider.discountFactor(rebate.getCurrency(), paymentDate);
+        Currency ccyCounter = underlyingFx.getCounterCurrencyPayment().getCurrency();
+        double ceAmount = rebate.getCurrency().equals(ccyCounter) ? pv : todayFx * pv;
+        return MultiCurrencyAmount.of(ccyCounter, ceAmount);
+      }
+      return MultiCurrencyAmount.empty();
+    }
     ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilities);
     double price = priceDerivatives.getValue();
     double delta = priceDerivatives.getDerivative(0);
-    CurrencyPair currencyPair = underlyingOption.getUnderlying().getCurrencyPair();
-    double todayFx = ratesProvider.fxRate(currencyPair);
     double signedNotional = signedNotional(underlyingOption);
     CurrencyAmount domestic = CurrencyAmount.of(currencyPair.getCounter(), (price - delta * todayFx) * signedNotional);
     CurrencyAmount foreign = CurrencyAmount.of(currencyPair.getBase(), delta * signedNotional);
@@ -487,6 +646,31 @@ public class BlackFxSingleBarrierOptionProductPricer {
   }
 
   //-------------------------------------------------------------------------
+  // calculate spot lag for rebate
+  private DaysAdjustment spotAdjustment(CurrencyPair currencyPair) {
+    return FxIndex.extendedEnum().lookupAll().values().stream()
+        .filter(index -> index.getCurrencyPair().equals(currencyPair))
+        .findFirst()
+        .map(FxIndex::getFixingDateOffset)
+        .map(adjustment -> adjustment.toBuilder().days(-adjustment.getDays()).build())
+        .orElseGet(() -> DaysAdjustment.ofBusinessDays(2, calendarForPair(currencyPair)));
+  }
+
+  private HolidayCalendarId calendarForPair(CurrencyPair pair) {
+    return pair.toSet().stream()
+        .map(currency -> defaultByCurrencyOrNoHolidays(currency))
+        .reduce(HolidayCalendarIds.NO_HOLIDAYS, HolidayCalendarId::combinedWith);
+  }
+
+  private HolidayCalendarId defaultByCurrencyOrNoHolidays(Currency currency) {
+    try {
+      return HolidayCalendarId.defaultByCurrency(currency);
+    } catch (IllegalArgumentException e) {
+      return HolidayCalendarIds.NO_HOLIDAYS;
+    }
+  }
+
+  //-------------------------------------------------------------------------
   private void validate(ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,
       BlackFxOptionVolatilities volatilities) {
@@ -501,6 +685,13 @@ public class BlackFxSingleBarrierOptionProductPricer {
   private double signedNotional(ResolvedFxVanillaOption option) {
     return (option.getLongShort().isLong() ? 1d : -1d) *
         Math.abs(option.getUnderlying().getBaseCurrencyPayment().getAmount());
+  }
+
+  private boolean alreadyTouched(double fxRate, SimpleConstantContinuousBarrier barrier) {
+    if (barrier.getBarrierType().isDown()) {
+      return fxRate <= barrier.getBarrierLevel();
+    }
+    return fxRate >= barrier.getBarrierLevel();
   }
 
 }
