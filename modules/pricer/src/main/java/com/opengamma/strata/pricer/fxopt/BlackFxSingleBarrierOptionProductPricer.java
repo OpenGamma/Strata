@@ -64,7 +64,9 @@ public class BlackFxSingleBarrierOptionProductPricer {
    */
   private static final BlackOneTouchCashPriceFormulaRepository CASH_REBATE_PRICER =
       new BlackOneTouchCashPriceFormulaRepository();
-
+  /**
+   * Pricer for underlying vanilla option.
+   */
   private static final BlackFxVanillaOptionProductPricer VANILLA_OPTION_PRICER =
       BlackFxVanillaOptionProductPricer.DEFAULT;
 
@@ -194,7 +196,8 @@ public class BlackFxSingleBarrierOptionProductPricer {
     double todayFx = ratesProvider.fxRate(currencyPair);
     if (alreadyTouched(todayFx, barrier)) {
       if (barrier.getKnockType().isKnockIn()) {
-        PointSensitivities underlyingOptionSensitivity = VANILLA_OPTION_PRICER.presentValueSensitivityRatesStickyStrike(option.getUnderlyingOption(), ratesProvider, volatilities);
+        PointSensitivities underlyingOptionSensitivity = VANILLA_OPTION_PRICER.presentValueSensitivityRatesStickyStrike(
+            option.getUnderlyingOption(), ratesProvider, volatilities);
         return PointSensitivityBuilder.of(underlyingOptionSensitivity.getSensitivities());
       } else if (option.getRebate().isPresent()) {
         CurrencyAmount rebate = option.getRebate().get();
@@ -564,7 +567,6 @@ public class BlackFxSingleBarrierOptionProductPricer {
     if (volatilities.relativeTime(underlyingOption.getExpiry()) < 0d) {
       return MultiCurrencyAmount.empty();
     }
-
     SimpleConstantContinuousBarrier barrier = (SimpleConstantContinuousBarrier) option.getBarrier();
     ResolvedFxSingle underlyingFx = underlyingOption.getUnderlying();
     CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
