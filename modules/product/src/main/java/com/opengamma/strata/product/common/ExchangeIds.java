@@ -153,6 +153,9 @@ public final class ExchangeIds {
   /** OMIClear Exchange. */
   public static final ExchangeId OMIC = ExchangeId.of("OMIC");
 
+  /** National Stock Exchange Of India. */
+  public static final ExchangeId XNSE = ExchangeId.of("XNSE");
+
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
