@@ -454,7 +454,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
         adj = new ArrayList<>(adj);
         unadj = new ArrayList<>(unadj);
         for (int i = 0; i < adj.size() - 1; i++) {
-          if (adj.get(i).equals(adj.get(i + 1))) {
+          while (i < adj.size() - 1 && adj.get(i).equals(adj.get(i + 1))) {
             adj.remove(i);
             unadj.remove(i);
           }

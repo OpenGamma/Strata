@@ -13,6 +13,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.NO_HOLIDAYS;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.basics.schedule.Frequency.P12M;
+import static com.opengamma.strata.basics.schedule.Frequency.P1D;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P1W;
 import static com.opengamma.strata.basics.schedule.Frequency.P2M;
@@ -73,6 +74,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.HolidayCalendar;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 
 /**
@@ -1206,6 +1208,49 @@ public class PeriodicScheduleTest {
     assertThat(schedule.getPeriods()).hasSize(12);
     assertThat(schedule.getPeriod(1).getStartDate()).isEqualTo(date(2020, 9, 25));
     assertThat(schedule.getPeriod(2).getStartDate()).isEqualTo(date(2020, 10, 9));
+  }
+
+  @Test
+  public void test_combinePeriodsWhenNecessary_1d_createSchedule_duplicate_exception() {
+    HolidayCalendarId id = SAT_SUN;
+    HolidayCalendar calendar = HolidayCalendars.SAT_SUN;
+
+    ReferenceData referenceData = ImmutableReferenceData.of(id, calendar);
+    BusinessDayAdjustment businessDayAdjustment = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, id);
+    PeriodicSchedule defn = PeriodicSchedule.builder()
+            .startDate(date(2020, 9, 18))
+            .endDate(date(2020, 12, 18))
+            .frequency(P1D)
+            .businessDayAdjustment(businessDayAdjustment)
+            .stubConvention(SHORT_FINAL)
+            .rollConvention(null)
+            .build();
+
+    Schedule schedule = defn.createSchedule(referenceData, true);
+    assertThat(schedule.getPeriods()).hasSize(65);
+    assertThat(schedule.getPeriod(0).getStartDate()).isEqualTo(date(2020, 9, 18));
+    assertThat(schedule.getPeriod(0).getEndDate()).isEqualTo(date(2020, 9, 21));
+  }
+
+  @Test
+  public void test_combinePeriodsWhenNecessary_1d_createSchedule() {
+    HolidayCalendarId id = SAT_SUN;
+    HolidayCalendar calendar = HolidayCalendars.SAT_SUN;
+
+    ReferenceData referenceData = ImmutableReferenceData.of(id, calendar);
+    BusinessDayAdjustment businessDayAdjustment = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, id);
+    PeriodicSchedule defn = PeriodicSchedule.builder()
+            .startDate(date(2020, 9, 18))
+            .endDate(date(2020, 12, 18))
+            .frequency(P1D)
+            .businessDayAdjustment(businessDayAdjustment)
+            .stubConvention(SHORT_FINAL)
+            .rollConvention(null)
+            .build();
+
+    assertThatExceptionOfType(ScheduleException.class)
+            .isThrownBy(() -> defn.createSchedule(referenceData, false))
+            .withMessageMatching(".*duplicate adjusted dates.*");
   }
 
   @Test
