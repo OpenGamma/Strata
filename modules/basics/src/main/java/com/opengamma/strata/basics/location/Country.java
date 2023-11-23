@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
@@ -19,6 +20,7 @@ import com.google.common.base.CharMatcher;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.MapStream;
@@ -52,7 +54,7 @@ public final class Country
   /**
    * A cache of instances.
    */
-  private static final ConcurrentMap<String, Country> CACHE = new ConcurrentHashMap<>();
+  private static final ConcurrentMap<String, Country> CACHE = new ConcurrentSkipListMap<>();
   /**
    * The matcher for the code.
    */
@@ -263,7 +265,8 @@ public final class Country
    * @return an immutable set containing all registered countries
    */
   public static Set<Country> getAvailableCountries() {
-    return Guavate.concatToSet(COUNTRY_CODES.get().values(), CACHE.values());
+    COUNTRY_CODES.get();
+    return ImmutableSortedSet.copyOf(CACHE.values());
   }
 
   //-------------------------------------------------------------------------
@@ -319,7 +322,7 @@ public final class Country
    * @throws IllegalArgumentException if the country code is invalid
    */
   public static Country of3Char(String countryCode) {
-    ArgChecker.matches(CODE_MATCHER, 3, 3, countryCode, "countryCode", "[A-Z][A-Z]");
+    ArgChecker.matches(CODE_MATCHER, 3, 3, countryCode, "countryCode", "[A-Z][A-Z][A-Z]");
     return Optional.ofNullable(COUNTRY_CODES.get().get(countryCode))
         .orElseThrow(() -> new IllegalArgumentException("Unknown country code: " + countryCode));
   }
