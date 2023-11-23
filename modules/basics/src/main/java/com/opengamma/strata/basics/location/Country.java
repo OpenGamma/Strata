@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
@@ -22,7 +21,6 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.io.PropertiesFile;
 import com.opengamma.strata.collect.io.ResourceLocator;
