@@ -161,10 +161,16 @@ public final class FixedCouponBond
         "The ex-coupon period is measured from the payment date, thus the days must be non-positive");
   }
 
-  //-------------------------------------------------------------------------
+  /**
+   * Resolves fixed coupon bond using specified reference data.
+   * @param refData  the reference data to use when resolving
+   * @return the resolved instance
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   * @throws RuntimeException if unable to resolve due to an invalid definition
+   */
   @Override
   public ResolvedFixedCouponBond resolve(ReferenceData refData) {
-    Schedule adjustedSchedule = accrualSchedule.createSchedule(refData);
+    Schedule adjustedSchedule = accrualSchedule.createSchedule(refData, true);
     Schedule unadjustedSchedule = adjustedSchedule.toUnadjusted();
     DateAdjuster exCouponPeriodAdjuster = exCouponPeriod.resolve(refData);
 

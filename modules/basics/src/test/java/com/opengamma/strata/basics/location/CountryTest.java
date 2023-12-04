@@ -87,6 +87,15 @@ public class CountryTest {
     assertThat(available.contains(Country.CA)).isTrue();
   }
 
+  @Test
+  public void test_new_Country_included_in_getAvailable() {
+    Set<Country> available = Country.getAvailableCountries();
+    assertThat(available.size()).isGreaterThan(0);
+    Country.of("XZ");
+    Set<Country> updatedAvailable = Country.getAvailableCountries();
+    assertThat(updatedAvailable.size() - available.size()).isEqualTo(1);
+  }
+
   //-----------------------------------------------------------------------
   @Test
   public void test_of_String() {
