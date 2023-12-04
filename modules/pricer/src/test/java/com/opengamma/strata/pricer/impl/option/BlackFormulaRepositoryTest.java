@@ -8313,6 +8313,22 @@ public class BlackFormulaRepositoryTest {
     }
   }
 
+  /* Implied vol computation with limit cases option price near intrinsic price */
+  @Test
+  public void impliedVol_near_intrinsic() {
+    double optionPrice = 19.98d;
+    double forward = 79.98d;
+    double strike = 60.00d;
+    double timeToExpiry = 0.0d;
+    double iv = BlackFormulaRepository.impliedVolatility(optionPrice, forward, strike, timeToExpiry, true);
+    assertThat(iv).isCloseTo(0.0, offset(1e-12));
+    ValueDerivatives ivAdj = BlackFormulaRepository
+        .impliedVolatilityAdjoint(optionPrice, forward, strike, timeToExpiry, true);
+    assertThat(ivAdj.getValue()).isCloseTo(0.0, offset(1e-12));
+    assertThat(ivAdj.getDerivatives().size()).isEqualTo(1);
+    assertThat(ivAdj.getDerivative(0)).isCloseTo(0.0, offset(1e-12));
+  }
+
   @Test
   public void implied_volatility_adjoint() {
     double vol = 0.4342; // Deliberately picked an arbitrary vol
