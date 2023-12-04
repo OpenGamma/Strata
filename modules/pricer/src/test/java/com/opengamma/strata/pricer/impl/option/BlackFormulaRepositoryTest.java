@@ -8315,7 +8315,7 @@ public class BlackFormulaRepositoryTest {
 
   /* Implied vol computation with limit cases option price near intrinsic price */
   @Test
-  public void impliedVol_nearintrinsic() {
+  public void impliedVol_near_intrinsic() {
     double optionPrice = 19.98d;
     double forward = 79.98d;
     double strike = 60.00d;
