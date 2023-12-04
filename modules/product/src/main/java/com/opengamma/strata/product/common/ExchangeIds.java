@@ -156,6 +156,9 @@ public final class ExchangeIds {
   /** National Stock Exchange Of India. */
   public static final ExchangeId XNSE = ExchangeId.of("XNSE");
 
+  /** NSE International Exchange. */
+  public static final ExchangeId INSE = ExchangeId.of("INSE");
+
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
