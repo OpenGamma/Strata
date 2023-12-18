@@ -498,7 +498,7 @@ public final class IborRateSwapLegConvention
             .businessDayAdjustment(getAccrualBusinessDayAdjustment())
             .startDateBusinessDayAdjustment(startDateBusinessDayAdjustment)
             .endDateBusinessDayAdjustment(endDateBusinessDayAdjustment)
-            .stubConvention(stubConvention)
+            .stubConvention(getStubConvention())
             .rollConvention(rollConvention)
             .build())
         .paymentSchedule(PaymentSchedule.builder()
