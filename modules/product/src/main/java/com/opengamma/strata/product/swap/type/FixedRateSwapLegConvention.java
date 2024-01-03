@@ -344,7 +344,7 @@ public final class FixedRateSwapLegConvention
             .businessDayAdjustment(accrualBusinessDayAdjustment)
             .startDateBusinessDayAdjustment(startDateBusinessDayAdjustment)
             .endDateBusinessDayAdjustment(endDateBusinessDayAdjustment)
-            .stubConvention(stubConvention)
+            .stubConvention(getStubConvention())
             .rollConvention(rollConvention)
             .build())
         .paymentSchedule(PaymentSchedule.builder()
