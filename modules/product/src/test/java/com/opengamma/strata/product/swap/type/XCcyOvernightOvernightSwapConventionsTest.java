@@ -6,10 +6,11 @@
 package com.opengamma.strata.product.swap.type;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.CHZU;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
-import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USGS;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,17 +32,19 @@ import com.opengamma.strata.basics.schedule.Frequency;
  */
 public class XCcyOvernightOvernightSwapConventionsTest {
 
-  private static final HolidayCalendarId EUTA_USNY = EUTA.combinedWith(USNY);
-  private static final HolidayCalendarId GBLO_USNY = GBLO.combinedWith(USNY);
+  private static final HolidayCalendarId EUTA_USGS = EUTA.combinedWith(USGS);
+  private static final HolidayCalendarId GBLO_USGS = GBLO.combinedWith(USGS);
   private static final HolidayCalendarId GBLO_EUTA = GBLO.combinedWith(EUTA);
-  private static final HolidayCalendarId JPTO_USNY = JPTO.combinedWith(USNY);
+  private static final HolidayCalendarId JPTO_USGS = JPTO.combinedWith(USGS);
+  private static final HolidayCalendarId CHZU_USGS = CHZU.combinedWith(USGS);
 
   public static Object[][] data_spot_lag() {
     return new Object[][] {
         {XCcyOvernightOvernightSwapConventions.EUR_ESTR_3M_USD_SOFR_3M, 2},
         {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_USD_SOFR_3M, 2},
         {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_EUR_ESTR_3M, 2},
-        {XCcyOvernightOvernightSwapConventions.JPY_TONA_3M_USD_SOFR_3M, 2}
+        {XCcyOvernightOvernightSwapConventions.JPY_TONA_3M_USD_SOFR_3M, 2},
+        {XCcyOvernightOvernightSwapConventions.CHF_SARON_3M_USD_SOFR_3M, 2}
     };
   }
 
@@ -57,7 +60,8 @@ public class XCcyOvernightOvernightSwapConventionsTest {
         {XCcyOvernightOvernightSwapConventions.EUR_ESTR_3M_USD_SOFR_3M, Frequency.P3M},
         {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_USD_SOFR_3M, Frequency.P3M},
         {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_EUR_ESTR_3M, Frequency.P3M},
-        {XCcyOvernightOvernightSwapConventions.JPY_TONA_3M_USD_SOFR_3M, Frequency.P3M}
+        {XCcyOvernightOvernightSwapConventions.JPY_TONA_3M_USD_SOFR_3M, Frequency.P3M},
+        {XCcyOvernightOvernightSwapConventions.CHF_SARON_3M_USD_SOFR_3M, Frequency.P3M}
     };
   }
 
@@ -73,7 +77,8 @@ public class XCcyOvernightOvernightSwapConventionsTest {
         {XCcyOvernightOvernightSwapConventions.EUR_ESTR_3M_USD_SOFR_3M, OvernightIndices.EUR_ESTR},
         {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_USD_SOFR_3M, OvernightIndices.GBP_SONIA},
         {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_EUR_ESTR_3M, OvernightIndices.GBP_SONIA},
-        {XCcyOvernightOvernightSwapConventions.JPY_TONA_3M_USD_SOFR_3M, OvernightIndices.JPY_TONAR}
+        {XCcyOvernightOvernightSwapConventions.JPY_TONA_3M_USD_SOFR_3M, OvernightIndices.JPY_TONAR},
+        {XCcyOvernightOvernightSwapConventions.CHF_SARON_3M_USD_SOFR_3M, OvernightIndices.CHF_SARON}
     };
   }
 
@@ -86,10 +91,11 @@ public class XCcyOvernightOvernightSwapConventionsTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_spread_leg_bda() {
     return new Object[][] {
-        {XCcyOvernightOvernightSwapConventions.EUR_ESTR_3M_USD_SOFR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA_USNY)},
-        {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_USD_SOFR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USNY)},
+        {XCcyOvernightOvernightSwapConventions.EUR_ESTR_3M_USD_SOFR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA_USGS)},
+        {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_USD_SOFR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USGS)},
         {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_EUR_ESTR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_EUTA)},
-        {XCcyOvernightOvernightSwapConventions.JPY_TONA_3M_USD_SOFR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO_USNY)}
+        {XCcyOvernightOvernightSwapConventions.JPY_TONA_3M_USD_SOFR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO_USGS)},
+        {XCcyOvernightOvernightSwapConventions.CHF_SARON_3M_USD_SOFR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CHZU_USGS)}
     };
   }
 
@@ -105,7 +111,8 @@ public class XCcyOvernightOvernightSwapConventionsTest {
         {XCcyOvernightOvernightSwapConventions.EUR_ESTR_3M_USD_SOFR_3M, OvernightIndices.USD_SOFR},
         {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_USD_SOFR_3M, OvernightIndices.USD_SOFR},
         {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_EUR_ESTR_3M, OvernightIndices.EUR_ESTR},
-        {XCcyOvernightOvernightSwapConventions.JPY_TONA_3M_USD_SOFR_3M, OvernightIndices.USD_SOFR}
+        {XCcyOvernightOvernightSwapConventions.JPY_TONA_3M_USD_SOFR_3M, OvernightIndices.USD_SOFR},
+        {XCcyOvernightOvernightSwapConventions.CHF_SARON_3M_USD_SOFR_3M, OvernightIndices.USD_SOFR}
     };
   }
 
@@ -118,10 +125,11 @@ public class XCcyOvernightOvernightSwapConventionsTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_flat_leg_bda() {
     return new Object[][] {
-        {XCcyOvernightOvernightSwapConventions.EUR_ESTR_3M_USD_SOFR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA_USNY)},
-        {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_USD_SOFR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USNY)},
+        {XCcyOvernightOvernightSwapConventions.EUR_ESTR_3M_USD_SOFR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA_USGS)},
+        {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_USD_SOFR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USGS)},
         {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_EUR_ESTR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_EUTA)},
-        {XCcyOvernightOvernightSwapConventions.JPY_TONA_3M_USD_SOFR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO_USNY)}
+        {XCcyOvernightOvernightSwapConventions.JPY_TONA_3M_USD_SOFR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO_USGS)},
+        {XCcyOvernightOvernightSwapConventions.CHF_SARON_3M_USD_SOFR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CHZU_USGS)}
     };
   }
 
@@ -137,7 +145,8 @@ public class XCcyOvernightOvernightSwapConventionsTest {
         {XCcyOvernightOvernightSwapConventions.EUR_ESTR_3M_USD_SOFR_3M, BusinessDayConventions.MODIFIED_FOLLOWING},
         {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_USD_SOFR_3M, BusinessDayConventions.MODIFIED_FOLLOWING},
         {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_EUR_ESTR_3M, BusinessDayConventions.MODIFIED_FOLLOWING},
-        {XCcyOvernightOvernightSwapConventions.JPY_TONA_3M_USD_SOFR_3M, BusinessDayConventions.MODIFIED_FOLLOWING}
+        {XCcyOvernightOvernightSwapConventions.JPY_TONA_3M_USD_SOFR_3M, BusinessDayConventions.MODIFIED_FOLLOWING},
+        {XCcyOvernightOvernightSwapConventions.CHF_SARON_3M_USD_SOFR_3M, BusinessDayConventions.MODIFIED_FOLLOWING}
     };
   }
 
@@ -150,10 +159,11 @@ public class XCcyOvernightOvernightSwapConventionsTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_paymentlag() {
     return new Object[][] {
-        {XCcyOvernightOvernightSwapConventions.EUR_ESTR_3M_USD_SOFR_3M, DaysAdjustment.ofBusinessDays(2, EUTA_USNY)},
-        {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_USD_SOFR_3M, DaysAdjustment.ofBusinessDays(2, GBLO_USNY)},
+        {XCcyOvernightOvernightSwapConventions.EUR_ESTR_3M_USD_SOFR_3M, DaysAdjustment.ofBusinessDays(2, EUTA_USGS)},
+        {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_USD_SOFR_3M, DaysAdjustment.ofBusinessDays(2, GBLO_USGS)},
         {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_EUR_ESTR_3M, DaysAdjustment.ofBusinessDays(2, GBLO_EUTA)},
-        {XCcyOvernightOvernightSwapConventions.JPY_TONA_3M_USD_SOFR_3M, DaysAdjustment.ofBusinessDays(2, JPTO_USNY)}
+        {XCcyOvernightOvernightSwapConventions.JPY_TONA_3M_USD_SOFR_3M, DaysAdjustment.ofBusinessDays(2, JPTO_USGS)},
+        {XCcyOvernightOvernightSwapConventions.CHF_SARON_3M_USD_SOFR_3M, DaysAdjustment.ofBusinessDays(2, CHZU_USGS)}
     };
   }
 
@@ -170,7 +180,8 @@ public class XCcyOvernightOvernightSwapConventionsTest {
         {XCcyOvernightOvernightSwapConventions.EUR_ESTR_3M_USD_SOFR_3M, true},
         {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_USD_SOFR_3M, true},
         {XCcyOvernightOvernightSwapConventions.GBP_SONIA_3M_EUR_ESTR_3M, true},
-        {XCcyOvernightOvernightSwapConventions.JPY_TONA_3M_USD_SOFR_3M, true}
+        {XCcyOvernightOvernightSwapConventions.JPY_TONA_3M_USD_SOFR_3M, true},
+        {XCcyOvernightOvernightSwapConventions.CHF_SARON_3M_USD_SOFR_3M, true}
     };
   }
 

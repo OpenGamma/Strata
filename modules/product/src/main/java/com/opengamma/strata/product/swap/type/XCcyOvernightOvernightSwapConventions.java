@@ -55,6 +55,15 @@ public final class XCcyOvernightOvernightSwapConventions {
   public static final XCcyOvernightOvernightSwapConvention JPY_TONA_3M_USD_SOFR_3M =
       XCcyOvernightOvernightSwapConvention.of(StandardXCcyOvernightOvernightSwapConventions.JPY_TONA_3M_USD_SOFR_3M.getName());
 
+  /**
+   * The 'CHF-SARON-3M-USD-SOFR-3M' swap convention.
+   * <p>
+   * CHF SARON 3M v USD SOFR 3M.
+   * The spread is on the JPY leg.
+   */
+  public static final XCcyOvernightOvernightSwapConvention CHF_SARON_3M_USD_SOFR_3M =
+      XCcyOvernightOvernightSwapConvention.of(StandardXCcyOvernightOvernightSwapConventions.CHF_SARON_3M_USD_SOFR_3M.getName());
+
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
