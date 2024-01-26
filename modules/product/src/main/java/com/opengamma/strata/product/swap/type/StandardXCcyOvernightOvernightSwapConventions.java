@@ -9,7 +9,7 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_F
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
-import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USGS;
 
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -29,10 +29,10 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 final class StandardXCcyOvernightOvernightSwapConventions {
 
   // Join calendar with the main currencies
-  private static final HolidayCalendarId EUTA_USNY = EUTA.combinedWith(USNY);
-  private static final HolidayCalendarId GBLO_USNY = GBLO.combinedWith(USNY);
+  private static final HolidayCalendarId EUTA_USGS = EUTA.combinedWith(USGS);
+  private static final HolidayCalendarId GBLO_USGS = GBLO.combinedWith(USGS);
   private static final HolidayCalendarId GBLO_EUTA = GBLO.combinedWith(EUTA);
-  private static final HolidayCalendarId JPTO_USNY = JPTO.combinedWith(USNY);
+  private static final HolidayCalendarId JPTO_USGS = JPTO.combinedWith(USGS);
 
   /**
    * EUR ESTR 3M v USD SOFR 3M.
@@ -45,20 +45,20 @@ final class StandardXCcyOvernightOvernightSwapConventions {
               .index(OvernightIndices.EUR_ESTR)
               .paymentFrequency(Frequency.P3M)
               .accrualFrequency(Frequency.P3M)
-              .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, EUTA_USNY))
+              .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, EUTA_USGS))
               .stubConvention(StubConvention.SMART_INITIAL)
-              .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA_USNY))
+              .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA_USGS))
               .notionalExchange(true)
               .build())
           .flatLeg(OvernightRateSwapLegConvention.builder()
               .index(OvernightIndices.USD_SOFR)
               .paymentFrequency(Frequency.P3M)
               .accrualFrequency(Frequency.P3M)
-              .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, EUTA_USNY))
-              .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA_USNY))
+              .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, EUTA_USGS))
+              .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA_USGS))
               .notionalExchange(true)
               .build())
-          .spotDateOffset(DaysAdjustment.ofBusinessDays(2, EUTA_USNY))
+          .spotDateOffset(DaysAdjustment.ofBusinessDays(2, EUTA_USGS))
           .build();
 
   /**
@@ -72,20 +72,20 @@ final class StandardXCcyOvernightOvernightSwapConventions {
               .index(OvernightIndices.GBP_SONIA)
               .paymentFrequency(Frequency.P3M)
               .accrualFrequency(Frequency.P3M)
-              .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO_USNY))
+              .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO_USGS))
               .stubConvention(StubConvention.SMART_INITIAL)
-              .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USNY))
+              .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USGS))
               .notionalExchange(true)
               .build())
           .flatLeg(OvernightRateSwapLegConvention.builder()
               .index(OvernightIndices.USD_SOFR)
               .paymentFrequency(Frequency.P3M)
               .accrualFrequency(Frequency.P3M)
-              .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO_USNY))
-              .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USNY))
+              .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO_USGS))
+              .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USGS))
               .notionalExchange(true)
               .build())
-          .spotDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO_USNY))
+          .spotDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO_USGS))
           .build();
 
   /**
@@ -126,20 +126,20 @@ final class StandardXCcyOvernightOvernightSwapConventions {
               .index(OvernightIndices.JPY_TONAR)
               .paymentFrequency(Frequency.P3M)
               .accrualFrequency(Frequency.P3M)
-              .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, JPTO_USNY))
+              .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, JPTO_USGS))
               .stubConvention(StubConvention.SMART_INITIAL)
-              .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO_USNY))
+              .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO_USGS))
               .notionalExchange(true)
               .build())
           .flatLeg(OvernightRateSwapLegConvention.builder()
               .index(OvernightIndices.USD_SOFR)
               .paymentFrequency(Frequency.P3M)
               .accrualFrequency(Frequency.P3M)
-              .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, JPTO_USNY))
-              .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO_USNY))
+              .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, JPTO_USGS))
+              .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO_USGS))
               .notionalExchange(true)
               .build())
-          .spotDateOffset(DaysAdjustment.ofBusinessDays(2, JPTO_USNY))
+          .spotDateOffset(DaysAdjustment.ofBusinessDays(2, JPTO_USGS))
           .build();
 
   //-------------------------------------------------------------------------
