@@ -32,6 +32,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
@@ -190,6 +192,26 @@ public final class MultiCurrencyAmount
     return Collectors.collectingAndThen(
         Guavate.toImmutableSortedSet(),
         MultiCurrencyAmount::new);
+  }
+
+  /**
+   * Parses the string to produce a {@code MultiCurrencyAmount}.
+   * <p>
+   * This parses the {@code toString} format of {@code MultiCurrencyAmount}.
+   *
+   * @param multiCurrencyAmountStr the multi currency amount string
+   * @return an instance
+   * @throws IllegalArgumentException if an amount/amounts cannot be parsed
+   */
+  @FromString
+  public static MultiCurrencyAmount parse(String multiCurrencyAmountStr) {
+    if ("[]".equals(multiCurrencyAmountStr)) {
+      return MultiCurrencyAmount.empty();
+    }
+    String strWithoutBrackets = multiCurrencyAmountStr.substring(1, multiCurrencyAmountStr.length() - 1);
+    return Arrays.stream(strWithoutBrackets.split(","))
+        .map(amountStr -> CurrencyAmount.parse(amountStr.trim()))
+        .collect(toMultiCurrencyAmount());
   }
 
   //-------------------------------------------------------------------------
@@ -507,6 +529,7 @@ public final class MultiCurrencyAmount
    * @return the currency amount
    */
   @Override
+  @ToString
   public String toString() {
     return amounts.toString();
   }

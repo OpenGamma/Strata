@@ -6,6 +6,7 @@
 package com.opengamma.strata.basics.currency;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
+import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.currency.MultiCurrencyAmount.toMultiCurrencyAmount;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -463,6 +464,31 @@ public class MultiCurrencyAmountTest {
     };
     MultiCurrencyAmount test = MultiCurrencyAmount.of(CA1, CA2);
     assertThat(test.convertedTo(CCY2, provider)).isEqualTo(CA2.plus(CurrencyAmount.of(CCY2, AMT1 * 2.5d)));
+  }
+
+  //-----------------------------------------------------------------------
+
+  @Test
+  public void test_parse_empty() {
+    assertThat(MultiCurrencyAmount.parse("[]")).isEqualTo(MultiCurrencyAmount.empty());
+  }
+
+  @Test
+  public void test_parse_singleCurrencyAmount() {
+    MultiCurrencyAmount expected = MultiCurrencyAmount.of(CurrencyAmount.of(USD, 100));
+    assertThat(MultiCurrencyAmount.parse(expected.toString())).isEqualTo(expected);
+  }
+
+  @Test
+  public void test_parse_multipleCurrencyAmounts() {
+    MultiCurrencyAmount expected = MultiCurrencyAmount.of(CurrencyAmount.of(USD, 100), CurrencyAmount.of(GBP, 200));
+    assertThat(MultiCurrencyAmount.parse(expected.toString())).isEqualTo(expected);
+  }
+
+  @Test
+  public void test_parse_malformedCurrencyAmount() {
+    assertThatIllegalArgumentException().isThrownBy(() -> MultiCurrencyAmount.parse("[100 USD]"))
+        .withMessage("Unable to parse amount: 100 USD");
   }
 
   //-----------------------------------------------------------------------
