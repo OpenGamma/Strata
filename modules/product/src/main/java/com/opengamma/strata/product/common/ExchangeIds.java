@@ -24,6 +24,9 @@ public final class ExchangeIds {
   /** Chicago Board Options Exchange. */
   public static final ExchangeId XCBO = ExchangeId.of("XCBO");
 
+  /** Cboe Clear Digital. */
+  public static final ExchangeId XCBD = ExchangeId.of("XCBD");
+
   /** New York Mercantile Exchange (NYMEX). */
   public static final ExchangeId XNYM = ExchangeId.of("XNYM");
 
@@ -80,6 +83,9 @@ public final class ExchangeIds {
 
   /** Mercado Español de Futuros Financiero (MEFF). */
   public static final ExchangeId XMRV = ExchangeId.of("XMRV");
+
+  /** Meff Power Derivatives Exchange. */
+  public static final ExchangeId XMPW = ExchangeId.of("XMPW");
 
   /** Bursa Malaysia. */
   public static final ExchangeId XKLS = ExchangeId.of("XKLS");
