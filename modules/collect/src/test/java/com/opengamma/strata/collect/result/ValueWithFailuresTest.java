@@ -13,14 +13,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.Guavate;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 
 /**
@@ -257,6 +260,49 @@ public class ValueWithFailuresTest {
     assertThat(failures).hasSize(1);
     assertThat(failures.get(0).getReason()).isEqualTo(FailureReason.ERROR);
     assertThat(failures.get(0).getMessage()).isEqualTo("Uh oh");
+  }
+
+  @Test
+  public void test_toCombinedResultAsMap() {
+    Map<String, Result<String>> resultsMap = ImmutableMap.of(
+        "key 1", Result.success("success 1"),
+        "key 2", Result.failure(FAILURE1),
+        "key 3", Result.success("success 2"));
+
+    ValueWithFailures<Map<String, String>> valuesWithFailures = MapStream.of(resultsMap)
+        .collect(ValueWithFailures.toCombinedResultsAsMap());
+
+    Map<String, String> expectedResult = ImmutableMap.of(
+        "key 1", "success 1",
+        "key 3", "success 2");
+
+    assertThat(valuesWithFailures.getValue()).isEqualTo(expectedResult);
+
+    assertThat(valuesWithFailures.getFailures())
+        .singleElement()
+        .isEqualTo(FAILURE1);
+  }
+
+  @Test
+  public void test_toCombinedValuesAsMap() {
+    Map<String, ValueWithFailures<String>> resultsMap = ImmutableMap.of(
+        "key 1", ValueWithFailures.of("success 1", FAILURE1),
+        "key 2", ValueWithFailures.of("success 2", FAILURE2),
+        "key 3", ValueWithFailures.of("success 3"));
+
+    ValueWithFailures<Map<String, String>> valuesWithFailures = MapStream.of(resultsMap)
+        .collect(ValueWithFailures.toCombinedValuesAsMap());
+
+    Map<String, String> expectedResult = ImmutableMap.of(
+        "key 1", "success 1",
+        "key 2", "success 2",
+        "key 3", "success 3");
+
+    assertThat(valuesWithFailures.getValue()).isEqualTo(expectedResult);
+
+    assertThat(valuesWithFailures.getFailures())
+        .hasSize(2)
+        .containsExactly(FAILURE1, FAILURE2);
   }
 
   @Test

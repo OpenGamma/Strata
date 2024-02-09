@@ -37,6 +37,7 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
 
@@ -233,6 +234,44 @@ public final class ValueWithFailures<T>
   }
 
   /**
+   * Returns a collector that can be used to create a combined {@code ValueWithFailure}
+   * from a stream of entries where the values contain {@code Result} instances.
+   * <p>
+   * This collects a {@code Stream<Map.Entry<K, Result<V>>>} to a {@code ValueWithFailures<Map<K, V>>}.
+   *
+   * @param <K> the type of the map key
+   * @param <V> the type of the success map values
+   * @throws IllegalArgumentException if duplicate keys are collected
+   * @return a {@link Collector}
+   */
+  public static <K, V> Collector<? super Map.Entry<K, Result<V>>, ? , ValueWithFailures<Map<K, V>>> toCombinedResultsAsMap() {
+    return Collector.of(
+        () -> new MapStreamBuilder<>(ImmutableMap.<K, V>builder()),
+        MapStreamBuilder::addResult,
+        MapStreamBuilder::combine,
+        MapStreamBuilder::build);
+  }
+
+  /**
+   * Returns a collector that creates a combined {@code ValueWithFailure} from a stream
+   * of entries where the values contain {@code ValueWithFailure} instances.
+   * <p>
+   * This collects a {@code Stream<Map.Entry<K, ValueWithFailures<V>>} to a {@code ValueWithFailures<Map<K, V>>}.
+   *
+   * @param <K> the type of the map key
+   * @param <V> the type of the entry success values in the {@link ValueWithFailures}
+   * @throws IllegalArgumentException if duplicate keys are collected
+   * @return a {@link Collector}
+   */
+  public static <K, V> Collector<? super Map.Entry<K, ValueWithFailures<V>>, ? , ValueWithFailures<Map<K, V>>> toCombinedValuesAsMap() {
+    return Collector.of(
+        () -> new MapStreamBuilder<>(ImmutableMap.<K, V>builder()),
+        MapStreamBuilder::add,
+        MapStreamBuilder::combine,
+        MapStreamBuilder::build);
+  }
+
+  /**
    * Combines separate instances of {@code ValueWithFailure} into a single instance,
    * using a list to collect the values.
    * <p>
@@ -312,6 +351,39 @@ public final class ValueWithFailures<T>
     @SuppressWarnings("unchecked")
     private <C extends Collection<T>> ValueWithFailures<C> build() {
       return (ValueWithFailures<C>) ValueWithFailures.of(values.build(), failures.build());
+    }
+  }
+
+  private static final class MapStreamBuilder<K, V, B extends ImmutableMap.Builder<K, V>> {
+
+    private final B values;
+    private final ImmutableList.Builder<FailureItem> failures = ImmutableList.builder();
+
+    private MapStreamBuilder(B values) {
+      this.values = values;
+    }
+
+    private void add(Map.Entry<K, ValueWithFailures<V>> item) {
+      values.put(item.getKey(), item.getValue().getValue());
+      failures.addAll(item.getValue().getFailures());
+    }
+
+    private void addResult(Map.Entry<K, Result<V>> item) {
+      Result<V> itemValue = item.getValue();
+      itemValue.ifSuccess(value -> values.put(item.getKey(), value));
+      itemValue.ifFailure(failure -> failures.addAll(failure.getItems()));
+    }
+
+    private MapStreamBuilder<K, V, B> combine(MapStreamBuilder<K, V, B> builder) {
+      values.putAll(builder.values.build());
+      failures.addAll(builder.failures.build());
+      return this;
+    }
+
+    // cast to the right collection type, can assume the methods in this class are using the correct types
+    @SuppressWarnings("unchecked")
+    private <C extends Map<K, V>> ValueWithFailures<C> build() {
+      return (ValueWithFailures<C>) ValueWithFailures.of(values.buildOrThrow(), failures.build());
     }
   }
 
