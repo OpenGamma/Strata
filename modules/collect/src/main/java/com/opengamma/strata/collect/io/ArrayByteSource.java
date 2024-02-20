@@ -8,6 +8,7 @@ package com.opengamma.strata.collect.io;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -50,6 +51,7 @@ import com.google.common.io.CharSource;
 import com.google.common.primitives.Bytes;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Unchecked;
+import com.opengamma.strata.collect.function.CheckedConsumer;
 import com.opengamma.strata.collect.function.CheckedSupplier;
 
 /**
@@ -293,6 +295,27 @@ public final class ArrayByteSource extends BeanByteSource implements ImmutableBe
     result[main.length] = (byte) firstExcess;
     System.arraycopy(excess, 0, result, main.length + 1, excess.length);
     return new ArrayByteSource(result);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance that captures the contents of an output stream.
+   * <p>
+   * This method provides an output stream.
+   * When bytes are written to the output stream, they are captured in the resulting byte source.
+   * The caller is not responsible for closing the stream.
+   * 
+   * @param handler  the handler that writes to the output stream
+   * @return the byte source
+   * @throws UncheckedIOException if an IO error occurs
+   */
+  public static ArrayByteSource fromOutput(CheckedConsumer<OutputStream> handler) {
+    return Unchecked.wrap(() -> {
+      try (ByteArrayOutputStream baos = new ByteArrayOutputStream(1024)) {
+        handler.accept(baos);
+        return new ArrayByteSource(baos.toByteArray());
+      }
+    });
   }
 
   //-------------------------------------------------------------------------

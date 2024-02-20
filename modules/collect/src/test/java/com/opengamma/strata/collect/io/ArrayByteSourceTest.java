@@ -13,6 +13,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
@@ -29,6 +30,7 @@ import com.google.common.io.ByteSource;
 import com.google.common.io.Files;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.Resources;
+import com.opengamma.strata.collect.function.CheckedConsumer;
 import com.opengamma.strata.collect.function.CheckedSupplier;
 
 /**
@@ -240,6 +242,26 @@ public class ArrayByteSourceTest {
     assertThat(test.size()).isEqualTo(5);
     assertThat(test.getFileName()).isEmpty();
     assertThat(test.read()).containsExactly(1, 2, 3, 4, 5);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_fromOutput_Consumer() {
+    byte[] bytes = new byte[] {1, 2, 3};
+    ArrayByteSource test = ArrayByteSource.fromOutput(outputStream -> outputStream.write(bytes));
+    assertThat(test.size()).isEqualTo(3);
+    assertThat(test.getFileName()).isEmpty();
+    assertThat(test.read()[0]).isEqualTo((byte) 1);
+    assertThat(test.read()[1]).isEqualTo((byte) 2);
+    assertThat(test.read()[2]).isEqualTo((byte) 3);
+  }
+
+  @Test
+  public void test_fromOutput_ConsumerExceptionOnWrite() {
+    CheckedConsumer<OutputStream> consumer = out -> {
+      throw new IOException();
+    };
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> ArrayByteSource.fromOutput(consumer));
   }
 
   //-------------------------------------------------------------------------
