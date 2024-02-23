@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -36,6 +37,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -161,6 +163,18 @@ public class GuavateTest {
     assertThat(Guavate.tryCatchToOptional(() -> LocalDate.parse("2020-06-01"))).hasValue(LocalDate.of(2020, 6, 1));
     assertThat(Guavate.tryCatchToOptional(() -> null)).isEmpty();
     assertThat(Guavate.tryCatchToOptional(() -> LocalDate.parse("XXX"))).isEmpty();
+  }
+
+  @Test
+  public void test_tryCatchToOptional_observed() {
+    List<RuntimeException> extracted = new ArrayList<>();
+    Consumer<RuntimeException> handler = ex -> extracted.add(ex);
+    assertThat(Guavate.tryCatchToOptional(() -> LocalDate.parse("2020-06-01"), handler)).hasValue(LocalDate.of(2020, 6, 1));
+    assertThat(extracted).isEmpty();
+    assertThat(Guavate.tryCatchToOptional(() -> null, handler)).isEmpty();
+    assertThat(extracted).isEmpty();
+    assertThat(Guavate.tryCatchToOptional(() -> LocalDate.parse("XXX"), handler)).isEmpty();
+    assertThat(extracted).singleElement().isInstanceOf(DateTimeParseException.class);
   }
 
   //-------------------------------------------------------------------------
@@ -303,6 +317,34 @@ public class GuavateTest {
   public void test_inNullable_null() {
     List<String> extracted = new ArrayList<>();
     for (String str : Guavate.inNullable((String) null)) {
+      extracted.add(str);
+    }
+    assertThat(extracted).isEmpty();
+  }
+
+  @Test
+  public void test_inTryCatchIgnore_present() {
+    List<String> extracted = new ArrayList<>();
+    for (String str : Guavate.inTryCatchIgnore(() -> "a")) {
+      extracted.add(str);
+    }
+    assertThat(extracted).containsExactly("a");
+  }
+
+  @Test
+  public void test_inTryCatchIgnore_null() {
+    List<String> extracted = new ArrayList<>();
+    Supplier<String> supplier = () -> null;
+    for (String str : Guavate.inTryCatchIgnore(supplier)) {
+      extracted.add(str);
+    }
+    assertThat(extracted).isEmpty();
+  }
+
+  @Test
+  public void test_inTryCatchIgnore_exception() {
+    List<LocalDate> extracted = new ArrayList<>();
+    for (LocalDate str : Guavate.inTryCatchIgnore(() -> LocalDate.parse("XXX"))) {
       extracted.add(str);
     }
     assertThat(extracted).isEmpty();
