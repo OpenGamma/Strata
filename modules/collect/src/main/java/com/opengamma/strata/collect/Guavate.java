@@ -51,6 +51,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MoreCollectors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.opengamma.strata.collect.function.CheckedSupplier;
 import com.opengamma.strata.collect.tuple.ObjIntPair;
 import com.opengamma.strata.collect.tuple.Pair;
 
@@ -201,17 +202,43 @@ public final class Guavate {
   /**
    * Wraps a try-catch block around an expression, avoiding exceptions.
    * <p>
-   * This converts an exception throwing method into an optional returning one by discarding the exception.
-   * In most cases it is better to add a `findXxx()` method to the code you want to call.
+   * This converts an exception throwing method into a method that returns an optional by discarding the exception.
+   * In most cases it is better to write a `findXxx()` or 'tryXxx()' method to the code you want to call.
+   * <p>
+   * To handle checked exceptions, use {@link Unchecked#supplier(CheckedSupplier)}.
    * 
    * @param <T>  the type of the result in the optional
-   * @param supplier  the supplier that might throw an exception
+   * @param resultSupplier  the supplier that might throw an exception
    * @return the value wrapped in an optional, empty if the method returns null or an exception is thrown
    */
-  public static <T> Optional<T> tryCatchToOptional(Supplier<T> supplier) {
+  public static <T> Optional<T> tryCatchToOptional(Supplier<T> resultSupplier) {
     try {
-      return Optional.ofNullable(supplier.get());
+      return Optional.ofNullable(resultSupplier.get());
     } catch (RuntimeException ex) {
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * Wraps a try-catch block around an expression, avoiding exceptions.
+   * <p>
+   * This variant allows the exception to be observed, such as for logging.
+   * <p>
+   * This converts an exception throwing method into a method that returns an optional by discarding the exception.
+   * In most cases it is better to write a `findXxx()` or 'tryXxx()' method to the code you want to call.
+   * <p>
+   * To handle checked exceptions, use {@link Unchecked#supplier(CheckedSupplier)}.
+   * 
+   * @param <T>  the type of the result in the optional
+   * @param resultSupplier  the supplier that might throw an exception
+   * @param exceptionHandler  the exception handler
+   * @return the value wrapped in an optional, empty if the method returns null or an exception is thrown
+   */
+  public static <T> Optional<T> tryCatchToOptional(Supplier<T> resultSupplier, Consumer<RuntimeException> exceptionHandler) {
+    try {
+      return Optional.ofNullable(resultSupplier.get());
+    } catch (RuntimeException ex) {
+      exceptionHandler.accept(ex);
       return Optional.empty();
     }
   }
@@ -480,6 +507,37 @@ public final class Guavate {
     if (nullable != null) {
       return ImmutableList.of(nullable);
     } else {
+      return ImmutableList.of();
+    }
+  }
+
+  /**
+   * Converts an expression for use in the for-each statement wrapping it with a try-catch block to avoid exceptions.
+   * <p>
+   * This allows a method that throws an exception to be used with the for-each statement.
+   * In most cases it is better to write a `findXxx()` or 'tryXxx()' method to the code you want to call.
+   * The typical use case is for parsing, where the parser throws an exception if invalid.
+   * <p>
+   * This method is intended for use with the for-each statement:
+   * <p>
+   * <pre>
+   *  for (Item item : inTryCatchIgnore(() -> parse(str))) {
+   *    // use the value, code not called if parse(str) threw an exception
+   *  }
+   * </pre>
+   * <p>
+   * NOTE: This method is intended only for use with the for-each statement.
+   * It does in fact return a general purpose {@code Iterable}, but the method name
+   * is focussed on the for-each use case.
+   * 
+   * @param <T>  the type of the result in the optional
+   * @param supplier  the supplier that might throw an exception
+   * @return the value wrapped in an optional, empty if the method returns null or an exception is thrown
+   */
+  public static <T> Iterable<T> inTryCatchIgnore(Supplier<T> supplier) {
+    try {
+      return inNullable(supplier.get());
+    } catch (RuntimeException ex) {
       return ImmutableList.of();
     }
   }
