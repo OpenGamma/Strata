@@ -314,7 +314,6 @@ public final class CurrencyAmount
    * @return an amount based on this with the amount negated
    */
   public CurrencyAmount negated() {
-    // Zero is treated as a special case to avoid creating -0.0 which produces surprising equality behaviour
     return new CurrencyAmount(currency, -amount);
   }
 
