@@ -224,9 +224,17 @@ public class GuavateTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_first() {
-    assertThat(Guavate.first(ImmutableSet.of())).isEqualTo(Optional.empty());
+    assertThat(Guavate.first(ImmutableSet.of())).isEmpty();
     assertThat(Guavate.first(ImmutableSet.of("a"))).hasValue("a");
     assertThat(Guavate.first(ImmutableSet.of("a", "b"))).hasValue("a");
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_only() {
+    assertThat(Guavate.only(ImmutableSet.of())).isEmpty();
+    assertThat(Guavate.only(ImmutableSet.of("a"))).hasValue("a");
+    assertThat(Guavate.only(ImmutableSet.of("a", "b"))).isEmpty();
   }
 
   //-------------------------------------------------------------------------
@@ -454,6 +462,16 @@ public class GuavateTest {
         .isEqualTo(Optional.empty());
     assertThatIllegalArgumentException().isThrownBy(() -> list.stream().collect(Guavate.toOptional()));
     assertThatNullPointerException().isThrownBy(() -> Stream.of((String[]) null).collect(Guavate.toOptional()));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_toOnly() {
+    List<String> list = Arrays.asList("a", "ab");
+    assertThat(list.stream().filter(s -> s.length() == 1).collect(Guavate.toOnly())).hasValue("a");
+    assertThat(list.stream().filter(s -> s.length() == 0).collect(Guavate.toOnly())).isEmpty();
+    assertThat(list.stream().collect(Guavate.toOnly())).isEmpty();
+    assertThatNullPointerException().isThrownBy(() -> Stream.of((String[]) null).collect(Guavate.toOnly()));
   }
 
   //-------------------------------------------------------------------------

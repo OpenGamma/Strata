@@ -121,6 +121,7 @@ public class EtdIdUtilsTest {
             .expiry(EXPIRY)
             .variant(MONTHLY)
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   @Test
@@ -135,6 +136,7 @@ public class EtdIdUtilsTest {
             .expiry(EXPIRY)
             .variant(MONTHLY)
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.XNSE);
   }
 
   @Test
@@ -150,6 +152,7 @@ public class EtdIdUtilsTest {
             .expiry(EXPIRY)
             .variant(variant)
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   @Test
@@ -165,6 +168,7 @@ public class EtdIdUtilsTest {
             .expiry(EXPIRY)
             .variant(variant)
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   @Test
@@ -180,6 +184,7 @@ public class EtdIdUtilsTest {
             .expiry(EXPIRY)
             .variant(variant)
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   //-------------------------------------------------------------------------
@@ -196,6 +201,7 @@ public class EtdIdUtilsTest {
             .variant(MONTHLY)
             .option(SplitEtdOption.of(0, PutCall.PUT, 12.34))
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   @Test
@@ -213,6 +219,7 @@ public class EtdIdUtilsTest {
             .variant(variant)
             .option(SplitEtdOption.of(0, PutCall.CALL, -1.45))
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   @Test
@@ -230,6 +237,7 @@ public class EtdIdUtilsTest {
             .variant(variant)
             .option(SplitEtdOption.of(3, PutCall.PUT, 12.34))
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   @Test
@@ -247,6 +255,7 @@ public class EtdIdUtilsTest {
             .variant(variant)
             .option(SplitEtdOption.of(11, PutCall.PUT, 12.34))
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   //-------------------------------------------------------------------------
@@ -265,6 +274,7 @@ public class EtdIdUtilsTest {
             .variant(MONTHLY)
             .option(SplitEtdOption.of(0, PutCall.PUT, 12.34, underlyingMonth))
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   @Test
@@ -282,6 +292,7 @@ public class EtdIdUtilsTest {
             .variant(MONTHLY)
             .option(SplitEtdOption.of(0, PutCall.PUT, 12.34, underlyingMonth))
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.XNSE);
   }
 
   @Test
@@ -298,6 +309,7 @@ public class EtdIdUtilsTest {
             .variant(MONTHLY)
             .option(SplitEtdOption.of(0, PutCall.PUT, 12.34))
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   @Test
@@ -316,6 +328,7 @@ public class EtdIdUtilsTest {
             .variant(variant)
             .option(SplitEtdOption.of(0, PutCall.CALL, -1.45, underlyingMonth))
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   @Test
@@ -334,6 +347,7 @@ public class EtdIdUtilsTest {
             .variant(variant)
             .option(SplitEtdOption.of(3, PutCall.PUT, 12.34, underlyingMonth))
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   @Test
@@ -352,6 +366,7 @@ public class EtdIdUtilsTest {
             .variant(variant)
             .option(SplitEtdOption.of(11, PutCall.PUT, 12.34, underlyingMonth))
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   //-------------------------------------------------------------------------
