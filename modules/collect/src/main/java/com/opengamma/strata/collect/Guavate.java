@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.TreeMap;
@@ -27,6 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
@@ -303,6 +305,18 @@ public final class Guavate {
   public static <T> Optional<T> first(Iterable<T> iterable) {
     Iterator<T> it = iterable.iterator();
     return it.hasNext() ? Optional.of(it.next()) : Optional.empty();
+  }
+
+  /**
+   * Gets the only element from the collection, returning empty if the collection is empty or has more than one element.
+   * 
+   * @param <T>  the type of element in the optional
+   * @param iterable  the iterable to query
+   * @return the first value, empty if empty or more than one element
+   */
+  public static <T> Optional<T> only(Iterable<T> iterable) {
+    Iterator<T> it = iterable.iterator();
+    return it.hasNext() ? Optional.of(it.next()).filter(element -> !it.hasNext()) : Optional.empty();
   }
 
   //-------------------------------------------------------------------------
@@ -762,10 +776,60 @@ public final class Guavate {
    * The collector throws {@code NullPointerException} if the stream consists of a null element.
    *
    * @param <T>  the type of element in the list
-   * @return the immutable list collector
+   * @return the optional collector
    */
   public static <T> Collector<T, ?, Optional<T>> toOptional() {
     return MoreCollectors.toOptional();
+  }
+
+  /**
+   * Collector used at the end of a stream to extract one element.
+   * <p>
+   * A collector is used to gather data at the end of a stream operation.
+   * This method returns a collector allowing streams to be gathered into an {@link Optional}.
+   * The collector throws {@code NullPointerException} if the stream consists of a null element.
+   * The collector returns empty if the stream consists of zero, two or more elements.
+   *
+   * @param <T>  the type of element in the list
+   * @return the collector
+   */
+  public static <T> Collector<T, ?, Optional<T>> toOnly() {
+    return new OnlyCollector<T>();
+  }
+
+  static class OnlyCollector<T> implements Collector<T, OnlyCollector<T>, Optional<T>> {
+    private T value;
+    private int count;
+
+    @Override
+    public Supplier<OnlyCollector<T>> supplier() {
+      return () -> this;
+    }
+
+    @Override
+    public BiConsumer<OnlyCollector<T>, T> accumulator() {
+      return (state, value) -> {
+        state.value = value;
+        state.count++;
+      };
+    }
+
+    @Override
+    public BinaryOperator<OnlyCollector<T>> combiner() {
+      return (a, b) -> {
+        throw new UnsupportedOperationException("OnlyCollector does not support parallel processing");
+      };
+    }
+
+    @Override
+    public Function<OnlyCollector<T>, Optional<T>> finisher() {
+      return state -> state.count == 1 ? Optional.of(state.value) : Optional.empty();
+    }
+
+    @Override
+    public Set<Characteristics> characteristics() {
+      return ImmutableSet.of();
+    }
   }
 
   /**
