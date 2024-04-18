@@ -54,7 +54,7 @@ public class InterpolatedNodalCubeTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_of_SurfaceMetadata() {
+  public void test_of_CubeMetadata() {
     InterpolatedNodalCube test = InterpolatedNodalCube.of(METADATA_ENTRIES, XVALUES, YVALUES, ZVALUES, WVALUES, INTERPOLATOR);
     assertThat(test.getName()).isEqualTo(CUBE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);

@@ -72,13 +72,14 @@ public interface CubeMetadata {
   public abstract ValueType getWValueType();
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets cube information of a specific type.
    * <p>
    * If the information is not found, an exception is thrown.
    *
    * @param <T>  the type of the info
-   * @param type  the type to find
+   * @param type the type to find
    * @return the cube information
    * @throws IllegalArgumentException if the information is not found
    */
@@ -93,7 +94,7 @@ public interface CubeMetadata {
    * If the info is not found, optional empty is returned.
    *
    * @param <T>  the type of the info
-   * @param type  the type to find
+   * @param type the type to find
    * @return the cube information
    */
   public abstract <T> Optional<T> findInfo(CubeInfoType<T> type);
@@ -103,7 +104,7 @@ public interface CubeMetadata {
    * <p>
    * If there is no specific parameter metadata, an empty instance will be returned.
    *
-   * @param parameterIndex  the zero-based index of the parameter to get
+   * @param parameterIndex the zero-based index of the parameter to get
    * @return the metadata of the parameter
    * @throws IndexOutOfBoundsException if the index is invalid
    */
@@ -125,7 +126,7 @@ public interface CubeMetadata {
    * <p>
    * If the parameter metadata is not matched, an empty optional will be returned.
    *
-   * @param metadata  the parameter metadata to find the index of
+   * @param metadata the parameter metadata to find the index of
    * @return the index of the parameter
    */
   public default OptionalInt findParameterIndex(ParameterMetadata metadata) {
@@ -142,15 +143,16 @@ public interface CubeMetadata {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Returns an instance where the specified additional information has been added.
    * <p>
    * The additional information is stored in the result using {@code Map.put} semantics,
    * removing the key if the instance is null.
    *
-   * @param <T>  the type of the info
+   * @param <T>   the type of the info
    * @param type  the type to store under
-   * @param value  the value to store, may be null
+   * @param value the value to store, may be null
    * @return the new cube metadata
    */
   public abstract <T> DefaultCubeMetadata withInfo(CubeInfoType<T> type, T value);
@@ -161,7 +163,7 @@ public interface CubeMetadata {
    * The result will contain the specified parameter metadata.
    * A null value is accepted and causes the result to have no parameter metadata.
    *
-   * @param parameterMetadata  the new parameter metadata, may be null
+   * @param parameterMetadata the new parameter metadata, may be null
    * @return the new cube metadata
    */
   public abstract CubeMetadata withParameterMetadata(List<? extends ParameterMetadata> parameterMetadata);

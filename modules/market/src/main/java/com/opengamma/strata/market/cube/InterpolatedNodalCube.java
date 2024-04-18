@@ -48,7 +48,7 @@ import com.opengamma.strata.market.param.UnitParameterSensitivity;
  * <p>
  * This class defines a cube in terms of a fixed number of nodes, referred to as <i>parameters</i>.
  * <p>
- * Each node has x-value, y-value, z-value.
+ * Each node has x-value, y-value, z-value, w-value.
  * The interface is focused on finding the w-value for a given x-value, y-value, z-value.
  * An interpolator is used to find w-values for x-values, y-values, z-values between nodes.
  */
@@ -117,7 +117,7 @@ public final class InterpolatedNodalCube
    * @param metadata     the cube metadata
    * @param xValues      the x-values, must be sorted from low to high
    * @param yValues      the y-values, must be sorted from low to high within x
-   * @param zValues      the z-values, must be sorted from low to high within x
+   * @param zValues      the z-values, must be sorted from low to high within x, y
    * @param wValues      the w-values
    * @param interpolator the interpolator
    * @return the cube

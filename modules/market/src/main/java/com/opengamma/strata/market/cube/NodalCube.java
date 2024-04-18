@@ -16,7 +16,8 @@ import com.opengamma.strata.market.param.ParameterPerturbation;
  * {@code double} y-value, {@code double} z-value to a {@code double} w-value.
  * <p>
  * The parameters of an x-y-z cube are the x-y-z values.
- * The values themselves are returned by {@link #getXValues()}, {@link #getYValues()}, {@link #getZValues()}.
+ * The values themselves are returned by {@link #getXValues()}, {@link #getYValues()},
+ * {@link #getZValues()}, {@link #getWValues()}.
  * The metadata is returned by {@link #getMetadata()}.
  *
  * @see InterpolatedNodalCube

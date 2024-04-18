@@ -34,7 +34,7 @@ public class CubeName
    * Cube names may contain any character, but must not be empty.
    *
    * @param name  the name of the cube
-   * @return a cube with the specified name
+   * @return a cube name instance with the specified name
    */
   @FromString
   public static CubeName of(String name) {
