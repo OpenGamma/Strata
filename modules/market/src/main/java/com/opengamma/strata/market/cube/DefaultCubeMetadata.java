@@ -134,7 +134,7 @@ public final class DefaultCubeMetadata
 
   //-------------------------------------------------------------------------
   @ImmutableDefaults
-  private static void applyDefaults(DefaultCubeMetadata.Builder builder) {
+  private static void applyDefaults(Builder builder) {
     builder.xValueType = ValueType.UNKNOWN;
     builder.yValueType = ValueType.UNKNOWN;
     builder.zValueType = ValueType.UNKNOWN;
