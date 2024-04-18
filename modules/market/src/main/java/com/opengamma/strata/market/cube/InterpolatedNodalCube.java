@@ -173,11 +173,11 @@ public final class InterpolatedNodalCube
       if (xValues.get(i) < xValues.get(i - 1)) {
         throw new IllegalArgumentException("Array of x-values must be sorted");
       }
-      if (xValues.get(i) == xValues.get(i - 1) && yValues.get(i) <= yValues.get(i - 1)) {
-        throw new IllegalArgumentException("Array of y-values must be sorted and unique within x-values");
+      if (xValues.get(i) == xValues.get(i - 1) && yValues.get(i) < yValues.get(i - 1)) {
+        throw new IllegalArgumentException("Array of y-values must be sorted");
       }
-      if (xValues.get(i) == xValues.get(i - 1) && yValues.get(i) == yValues.get(i - 1) && zValues.get(i) <= zValues.get(i - 1)) {
-        throw new IllegalArgumentException("Array of z-values must be sorted and unique within x-values, y-values");
+      if (xValues.get(i) == xValues.get(i - 1) && yValues.get(i) == yValues.get(i - 1) && zValues.get(i) < zValues.get(i - 1)) {
+        throw new IllegalArgumentException("Array of z-values must be sorted");
       }
     }
     this.metadata = metadata;

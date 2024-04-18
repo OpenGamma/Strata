@@ -109,7 +109,6 @@ public interface Cube  extends ParameterizedData {
    */
   public abstract UnitParameterSensitivity wValueParameterSensitivity(double x, double y, double z);
 
-
   /**
    * Computes the partial derivatives of the cube.
    * <p>

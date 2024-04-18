@@ -185,8 +185,8 @@ public final class GridCubeInterpolator
         tempY[countSameX] = yValues.get(i);
         tempZ[countSameX] = zValues.get(i);
         tempW[countSameX] = wValues.get(i);
-        if (countSameX > 0 && tempY[countSameX - 1] >= tempY[countSameX]) {
-          throw new IllegalArgumentException("Array of y-values must be sorted and unique within x-values");
+        if (countSameX > 0 && tempY[countSameX - 1] > tempY[countSameX]) {
+          throw new IllegalArgumentException("Array of y-values must be sorted");
         }
         countSameX++;
         i++;
@@ -280,10 +280,8 @@ public final class GridCubeInterpolator
     public ValueDerivatives firstPartialDerivatives(double x, double y, double z) {
       int uniqueX = yzInterpolators.length;
       DoubleArray wValuesEffective = DoubleArray.of(uniqueX, i -> yzInterpolators[i].interpolate(y, z));
-      yzInterpolators[0].interpolate(y, z);
       double xDerivative =
           xInterpolator.bind(xValuesUnique, wValuesEffective, xExtrapolatorLeft, xExtrapolatorRight).firstDerivative(x);
-      // TODO more effectively
       DoubleArray yDerivatives = DoubleArray.of(uniqueX, i -> yzInterpolators[i].firstPartialDerivatives(y, z).getDerivative(0));
       DoubleArray zDerivatives = DoubleArray.of(uniqueX, i -> yzInterpolators[i].firstPartialDerivatives(y, z).getDerivative(1));
       double yDerivative =

@@ -197,6 +197,7 @@ public class NormalSwaptionPhysicalProductPricerTest {
   void implied_volatility_round_trip() { // Compute pv and then implied vol from PV and compare with direct implied vol
     CurrencyAmount pvLongRec =
         PRICER_SWAPTION_NORMAL.presentValue(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOLS_USD_STD);
+    System.out.println(pvLongRec);
     double impliedLongRecComputed = PRICER_SWAPTION_NORMAL.impliedVolatilityFromPresentValue(
         SWAPTION_LONG_REC, MULTI_USD, ACT_365F, pvLongRec.getAmount());
     double impliedLongRecInterpolated =
