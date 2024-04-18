@@ -95,28 +95,32 @@ public final class GridCubeInterpolator
   private final CurveExtrapolator zExtrapolatorRight;
 
   //-------------------------------------------------------------------------
+
   /**
    * Obtains an instance from the specified interpolators, using flat extrapolation.
    *
-   * @param xInterpolator  the x-value interpolator
-   * @param yInterpolator  the y-value interpolator
-   * @param zInterpolator  the z-value interpolator
+   * @param xInterpolator the x-value interpolator
+   * @param yInterpolator the y-value interpolator
+   * @param zInterpolator the z-value interpolator
    * @return the index
    * @throws IllegalArgumentException if the name is not known
    */
-  public static GridCubeInterpolator of(CurveInterpolator xInterpolator, CurveInterpolator yInterpolator, CurveInterpolator zInterpolator) {
+  public static GridCubeInterpolator of(
+      CurveInterpolator xInterpolator,
+      CurveInterpolator yInterpolator,
+      CurveInterpolator zInterpolator) {
     return new GridCubeInterpolator(xInterpolator, FLAT, FLAT, yInterpolator, FLAT, FLAT, zInterpolator, FLAT, FLAT);
   }
 
   /**
    * Obtains an instance from the specified interpolators and extrapolators.
    *
-   * @param xInterpolator  the x-value interpolator
-   * @param xExtrapolator  the x-value extrapolator
-   * @param yInterpolator  the y-value interpolator
-   * @param yExtrapolator  the y-value extrapolator
-   * @param zInterpolator  the z-value interpolator
-   * @param zExtrapolator  the z-value extrapolator
+   * @param xInterpolator the x-value interpolator
+   * @param xExtrapolator the x-value extrapolator
+   * @param yInterpolator the y-value interpolator
+   * @param yExtrapolator the y-value extrapolator
+   * @param zInterpolator the z-value interpolator
+   * @param zExtrapolator the z-value extrapolator
    * @return the index
    * @throws IllegalArgumentException if the name is not known
    */
@@ -129,21 +133,29 @@ public final class GridCubeInterpolator
       CurveExtrapolator zExtrapolator) {
 
     return new GridCubeInterpolator(
-        xInterpolator, xExtrapolator, xExtrapolator, yInterpolator, yExtrapolator, yExtrapolator, zInterpolator, zExtrapolator, zExtrapolator);
+        xInterpolator,
+        xExtrapolator,
+        xExtrapolator,
+        yInterpolator,
+        yExtrapolator,
+        yExtrapolator,
+        zInterpolator,
+        zExtrapolator,
+        zExtrapolator);
   }
 
   /**
    * Obtains an instance from the specified interpolators and extrapolators.
    *
-   * @param xInterpolator  the x-value interpolator
+   * @param xInterpolator      the x-value interpolator
    * @param xExtrapolatorLeft  the x-value left extrapolator
-   * @param xExtrapolatorRight  the x-value right extrapolator
-   * @param yInterpolator  the y-value interpolator
+   * @param xExtrapolatorRight the x-value right extrapolator
+   * @param yInterpolator      the y-value interpolator
    * @param yExtrapolatorLeft  the y-value left extrapolator
-   * @param yExtrapolatorRight  the y-value right extrapolator
-   * @param zInterpolator  the z-value interpolator
+   * @param yExtrapolatorRight the y-value right extrapolator
+   * @param zInterpolator      the z-value interpolator
    * @param zExtrapolatorLeft  the z-value left extrapolator
-   * @param zExtrapolatorRight  the z-value right extrapolator
+   * @param zExtrapolatorRight the z-value right extrapolator
    * @return the index
    * @throws IllegalArgumentException if the name is not known
    */
@@ -159,12 +171,24 @@ public final class GridCubeInterpolator
       CurveExtrapolator zExtrapolatorRight) {
 
     return new GridCubeInterpolator(
-        xInterpolator, xExtrapolatorLeft, xExtrapolatorRight, yInterpolator, yExtrapolatorLeft, yExtrapolatorRight, zInterpolator, zExtrapolatorLeft, zExtrapolatorRight);
+        xInterpolator,
+        xExtrapolatorLeft,
+        xExtrapolatorRight,
+        yInterpolator,
+        yExtrapolatorLeft,
+        yExtrapolatorRight,
+        zInterpolator,
+        zExtrapolatorLeft,
+        zExtrapolatorRight);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public BoundCubeInterpolator bind(DoubleArray xValues, DoubleArray yValues, DoubleArray zValues, DoubleArray wValues) {
+  public BoundCubeInterpolator bind(
+      DoubleArray xValues,
+      DoubleArray yValues,
+      DoubleArray zValues,
+      DoubleArray wValues) {
     // single loop around all parameters, collecting data
     int size = xValues.size();
     int countUniqueX = 0;
@@ -217,14 +241,22 @@ public final class GridCubeInterpolator
     }
     DoubleArray uniqueXArray = DoubleArray.ofUnsafe(Arrays.copyOf(uniqueX, countUniqueX));
     BoundSurfaceInterpolator[] yzInterps = yzInterpBuilder.build().toArray(new BoundSurfaceInterpolator[0]);
-    return new GridCubeInterpolator.Bound(xInterpolator, xExtrapolatorLeft, xExtrapolatorRight, size, uniqueXArray, yzInterps);
+    return new GridCubeInterpolator.Bound(
+        xInterpolator,
+        xExtrapolatorLeft,
+        xExtrapolatorRight,
+        size,
+        uniqueXArray,
+        yzInterps);
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Bound interpolator.
    */
   static class Bound implements BoundCubeInterpolator {
+
     private final CurveInterpolator xInterpolator;
     private final CurveExtrapolator xExtrapolatorLeft;
     private final CurveExtrapolator xExtrapolatorRight;
@@ -282,8 +314,10 @@ public final class GridCubeInterpolator
       DoubleArray wValuesEffective = DoubleArray.of(uniqueX, i -> yzInterpolators[i].interpolate(y, z));
       double xDerivative =
           xInterpolator.bind(xValuesUnique, wValuesEffective, xExtrapolatorLeft, xExtrapolatorRight).firstDerivative(x);
-      DoubleArray yDerivatives = DoubleArray.of(uniqueX, i -> yzInterpolators[i].firstPartialDerivatives(y, z).getDerivative(0));
-      DoubleArray zDerivatives = DoubleArray.of(uniqueX, i -> yzInterpolators[i].firstPartialDerivatives(y, z).getDerivative(1));
+      DoubleArray yDerivatives =
+          DoubleArray.of(uniqueX, i -> yzInterpolators[i].firstPartialDerivatives(y, z).getDerivative(0));
+      DoubleArray zDerivatives =
+          DoubleArray.of(uniqueX, i -> yzInterpolators[i].firstPartialDerivatives(y, z).getDerivative(1));
       double yDerivative =
           xInterpolator.bind(xValuesUnique, yDerivatives, xExtrapolatorLeft, xExtrapolatorRight).interpolate(x);
       double zDerivative =
@@ -308,10 +342,12 @@ public final class GridCubeInterpolator
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * An interpolator that returns the single known value.
    */
   static class ConstantSurfaceInterpolator implements BoundSurfaceInterpolator {
+
     private final double value;
 
     public ConstantSurfaceInterpolator(double value) {

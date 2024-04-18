@@ -21,12 +21,12 @@ public final class Cubes {
 
   //-------------------------------------------------------------------------
   /**
-   * Creates metadata for a cube providing Normal expiry-tenor-strike volatility.
+   * Creates metadata for a cube providing normal expiry-tenor-strike volatility.
    * <p>
    * The x-values represent time to expiry year fractions as defined by the specified day count.
    * The y-values represent tenor year fractions.
    * The z-values represent strike.
-   * The z-values represent Normal volatility.
+   * The z-values represent normal volatility.
    *
    * @param name  the cube name
    * @param dayCount  the day count
@@ -42,7 +42,7 @@ public final class Cubes {
    * The x-values represent time to expiry year fractions as defined by the specified day count.
    * The y-values represent tenor year fractions.
    * The z-values represent strike.
-   * The w-values represent Normal volatility.
+   * The w-values represent normal volatility.
    *
    * @param name  the cube name
    * @param dayCount  the day count
@@ -58,6 +58,5 @@ public final class Cubes {
         .dayCount(dayCount)
         .build();
   }
-
 
 }

@@ -30,7 +30,7 @@ public interface NodalCube
    * This allows the metadata of the cube to be changed while retaining all other information.
    * If parameter metadata is present, the size of the list must match the number of parameters of this cube.
    *
-   * @param metadata  the new metadata for the cube
+   * @param metadata the new metadata for the cube
    * @return the new cube
    */
   @Override
@@ -41,7 +41,7 @@ public interface NodalCube
    * <p>
    * If there is no specific parameter metadata, {@link SimpleCubeParameterMetadata} will be created.
    *
-   * @param parameterIndex  the zero-based index of the parameter to get
+   * @param parameterIndex the zero-based index of the parameter to get
    * @return the metadata of the parameter
    * @throws IndexOutOfBoundsException if the index is invalid
    */
@@ -103,7 +103,7 @@ public interface NodalCube
    * This allows the w-values of the cube to be changed while retaining the
    * same x-values, y-values, z-values.
    *
-   * @param values  the new w-values for the cube
+   * @param values the new w-values for the cube
    * @return the new cube
    */
   public abstract NodalCube withWValues(DoubleArray values);
@@ -116,6 +116,5 @@ public interface NodalCube
   public default NodalCube withPerturbation(ParameterPerturbation perturbation) {
     return (NodalCube) Cube.super.withPerturbation(perturbation);
   }
-
 
 }
