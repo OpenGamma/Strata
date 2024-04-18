@@ -56,7 +56,7 @@ public class GridCubeInterpolatorTest {
   private static final DoubleArray Z_TEST = DoubleArray.of(-1.2, 1.3, 6.5, 11.0);
 
   private static final DoubleArray W_TEST = DoubleArray.of(
-      ((3.0 + (2.0 - 3.0) * 0.2) * (1.0 + 1.2)  / (1.0 + 3.0)
+      ((3.0 + (2.0 - 3.0) * 0.2) * (1.0 + 1.2) / (1.0 + 3.0)
           + (5.0 + (4.0 - 5.0) * 0.2) * (-1.2 + 3.0) / (1.0 + 3.0)) * (4.0 - 3.4)
           + ((4.0 + (2.1 - 4.0) * 0.2) * (1.0 + 1.2) / (1.0 + 3.0)
           + (3.5 + (5.0 - 3.5) * 0.2) * (-1.2 + 3.0) / (1.0 + 3.0)) * (3.4 - 3.0),
@@ -191,9 +191,9 @@ public class GridCubeInterpolatorTest {
     BoundCubeInterpolator bci = test.bind(X_DATA, Y_DATA, Z_DATA, W_DATA);
     double eps = 1e-8;
     for (int i = 0; i < X_TEST.size(); i++) {
-     DoubleArray computed = bci.parameterSensitivity(X_TEST.get(i), Y_TEST.get(i), Z_TEST.get(i));
-     assertThat(computed.size()).isEqualTo(X_DATA.size());
-      for (int j=0; j< X_DATA.size(); j++) {
+      DoubleArray computed = bci.parameterSensitivity(X_TEST.get(i), Y_TEST.get(i), Z_TEST.get(i));
+      assertThat(computed.size()).isEqualTo(X_DATA.size());
+      for (int j = 0; j < X_DATA.size(); j++) {
         BoundCubeInterpolator bciUp = test.bind(X_DATA, Y_DATA, Z_DATA, W_DATA.with(j, W_DATA.get(j) + eps));
         double up = bciUp.interpolate(X_TEST.get(i), Y_TEST.get(i), Z_TEST.get(i));
         BoundCubeInterpolator bciDw = test.bind(X_DATA, Y_DATA, Z_DATA, W_DATA.with(j, W_DATA.get(j) - eps));

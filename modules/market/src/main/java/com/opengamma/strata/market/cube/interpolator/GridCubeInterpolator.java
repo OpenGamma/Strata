@@ -190,7 +190,7 @@ public final class GridCubeInterpolator
       DoubleArray yValues,
       DoubleArray zValues,
       DoubleArray wValues) {
-    
+
     // single loop around all parameters, collecting data
     int size = xValues.size();
     int countUniqueX = 0;
