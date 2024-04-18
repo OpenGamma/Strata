@@ -109,6 +109,7 @@ public final class GridCubeInterpolator
       CurveInterpolator xInterpolator,
       CurveInterpolator yInterpolator,
       CurveInterpolator zInterpolator) {
+
     return new GridCubeInterpolator(xInterpolator, FLAT, FLAT, yInterpolator, FLAT, FLAT, zInterpolator, FLAT, FLAT);
   }
 
@@ -189,6 +190,7 @@ public final class GridCubeInterpolator
       DoubleArray yValues,
       DoubleArray zValues,
       DoubleArray wValues) {
+    
     // single loop around all parameters, collecting data
     int size = xValues.size();
     int countUniqueX = 0;
