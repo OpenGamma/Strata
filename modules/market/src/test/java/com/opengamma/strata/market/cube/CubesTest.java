@@ -34,7 +34,6 @@ public class CubesTest {
     assertThat(test).isEqualTo(expected);
   }
 
-
   @Test
   public void test_normalVolatilityByExpiryTenorStrike_cubeName() {
     CubeMetadata test = Cubes.normalVolatilityByExpiryTenorStrike(CUBE_NAME, ACT_360);
