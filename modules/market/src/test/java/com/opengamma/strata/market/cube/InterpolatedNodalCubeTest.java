@@ -55,7 +55,13 @@ public class InterpolatedNodalCubeTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_of_CubeMetadata() {
-    InterpolatedNodalCube test = InterpolatedNodalCube.of(METADATA_ENTRIES, XVALUES, YVALUES, ZVALUES, WVALUES, INTERPOLATOR);
+    InterpolatedNodalCube test = InterpolatedNodalCube.of(
+        METADATA_ENTRIES,
+        XVALUES,
+        YVALUES,
+        ZVALUES,
+        WVALUES,
+        INTERPOLATOR);
     assertThat(test.getName()).isEqualTo(CUBE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
     assertThat(test.getParameter(0)).isEqualTo(ZVALUES.get(0));
@@ -95,19 +101,39 @@ public class InterpolatedNodalCubeTest {
     // parameter metadata size != node size
     assertThatIllegalArgumentException()
         .isThrownBy(() -> InterpolatedNodalCube.of(
-            METADATA_ENTRIES, DoubleArray.of(1d, 3d), DoubleArray.of(1d, 3d), DoubleArray.of(1d, 3d), DoubleArray.of(1d, 3d), INTERPOLATOR));
+            METADATA_ENTRIES,
+            DoubleArray.of(1d, 3d),
+            DoubleArray.of(1d, 3d),
+            DoubleArray.of(1d, 3d),
+            DoubleArray.of(1d, 3d),
+            INTERPOLATOR));
     // x not in order
     assertThatIllegalArgumentException()
         .isThrownBy(() -> InterpolatedNodalCube.of(
-            METADATA, DoubleArray.of(2d, 1d), DoubleArray.of(1d, 1d), DoubleArray.of(2d, 3d), DoubleArray.of(2d, 3d), INTERPOLATOR));
+            METADATA,
+            DoubleArray.of(2d, 1d),
+            DoubleArray.of(1d, 1d),
+            DoubleArray.of(2d, 3d),
+            DoubleArray.of(2d, 3d),
+            INTERPOLATOR));
     // y not in order
     assertThatIllegalArgumentException()
         .isThrownBy(() -> InterpolatedNodalCube.of(
-            METADATA, DoubleArray.of(1d, 1d), DoubleArray.of(2d, 1d), DoubleArray.of(2d, 3d), DoubleArray.of(2d, 3d), INTERPOLATOR));
+            METADATA,
+            DoubleArray.of(1d, 1d),
+            DoubleArray.of(2d, 1d),
+            DoubleArray.of(2d, 3d),
+            DoubleArray.of(2d, 3d),
+            INTERPOLATOR));
     // z not in order
     assertThatIllegalArgumentException()
         .isThrownBy(() -> InterpolatedNodalCube.of(
-            METADATA, DoubleArray.of(1d, 1d), DoubleArray.of(1d, 1d), DoubleArray.of(4d, 3d), DoubleArray.of(2d, 3d), INTERPOLATOR));
+            METADATA,
+            DoubleArray.of(1d, 1d),
+            DoubleArray.of(1d, 1d),
+            DoubleArray.of(4d, 3d),
+            DoubleArray.of(2d, 3d),
+            INTERPOLATOR));
   }
 
   //-------------------------------------------------------------------------

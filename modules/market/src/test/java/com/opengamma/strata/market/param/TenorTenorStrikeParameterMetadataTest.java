@@ -38,7 +38,11 @@ public class TenorTenorStrikeParameterMetadataTest {
 
   @Test
   public void test_of_label() {
-    TenorTenorStrikeParameterMetadata test = TenorTenorStrikeParameterMetadata.of(TENOR_10Y, TENOR_20Y, 0.011, "10Y to 20Y on 0.011");
+    TenorTenorStrikeParameterMetadata test = TenorTenorStrikeParameterMetadata.of(
+        TENOR_10Y,
+        TENOR_20Y,
+        0.011,
+        "10Y to 20Y on 0.011");
     assertThat(test.getExpiryTenor()).isEqualTo(TENOR_10Y);
     assertThat(test.getUnderlyingTenor()).isEqualTo(TENOR_20Y);
     assertThat(test.getStrike()).isEqualTo(0.011);

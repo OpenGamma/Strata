@@ -24,6 +24,10 @@ public interface CubeInterpolator {
    * @param wValues  the w-values of the cube
    * @return the bound interpolator
    */
-  public abstract BoundCubeInterpolator bind(DoubleArray xValues, DoubleArray yValues, DoubleArray zValues, DoubleArray wValues);
+  public abstract BoundCubeInterpolator bind(
+      DoubleArray xValues,
+      DoubleArray yValues,
+      DoubleArray zValues,
+      DoubleArray wValues);
 
 }

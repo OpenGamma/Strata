@@ -9,7 +9,6 @@ import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -33,7 +32,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.collect.tuple.ObjDoublePair;
 import com.opengamma.strata.collect.tuple.Triple;
 import com.opengamma.strata.market.cube.interpolator.BoundCubeInterpolator;
@@ -114,11 +112,11 @@ public final class InterpolatedNodalCube
    * The value arrays must be sorted, by x-values then y-values, z-values.
    * An exception is thrown if they are not sorted.
    *
-   * @param metadata     the cube metadata
-   * @param xValues      the x-values, must be sorted from low to high
-   * @param yValues      the y-values, must be sorted from low to high within x
-   * @param zValues      the z-values, must be sorted from low to high within x, y
-   * @param wValues      the w-values
+   * @param metadata the cube metadata
+   * @param xValues the x-values, must be sorted from low to high
+   * @param yValues the y-values, must be sorted from low to high within x
+   * @param zValues the z-values, must be sorted from low to high within x, y
+   * @param wValues the w-values
    * @param interpolator the interpolator
    * @return the cube
    */
@@ -139,11 +137,11 @@ public final class InterpolatedNodalCube
    * The value arrays will be sorted, by x-values then y-values, z-values.
    * Both the w-values and parameter metadata will be sorted along with the x, y, z values.
    *
-   * @param metadata     the cube metadata
-   * @param xValues      the x-values
-   * @param yValues      the y-values
-   * @param zValues      the z-values
-   * @param wValues      the w-values
+   * @param metadata the cube metadata
+   * @param xValues the x-values
+   * @param yValues the y-values
+   * @param zValues the z-values
+   * @param wValues the w-values
    * @param interpolator the interpolator
    * @return the cube
    */
@@ -231,10 +229,6 @@ public final class InterpolatedNodalCube
     this.yValues = DoubleArray.ofUnsafe(sortedY);
     this.zValues = DoubleArray.ofUnsafe(sortedZ);
     this.wValues = DoubleArray.ofUnsafe(sortedW);
-    Map<DoublesPair, Double> pairs = new HashMap<>();
-    for (int i = 0; i < xValues.size(); i++) {
-      pairs.put(DoublesPair.of(xValues.get(i), yValues.get(i)), zValues.get(i));
-    }
     this.interpolator = interpolator;
     this.boundInterpolator = interpolator.bind(this.xValues, this.yValues, this.zValues, this.wValues);
     this.parameterMetadata = IntStream.range(0, getParameterCount())

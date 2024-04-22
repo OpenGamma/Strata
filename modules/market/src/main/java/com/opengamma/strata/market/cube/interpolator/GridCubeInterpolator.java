@@ -148,14 +148,14 @@ public final class GridCubeInterpolator
   /**
    * Obtains an instance from the specified interpolators and extrapolators.
    *
-   * @param xInterpolator      the x-value interpolator
-   * @param xExtrapolatorLeft  the x-value left extrapolator
+   * @param xInterpolator the x-value interpolator
+   * @param xExtrapolatorLeft the x-value left extrapolator
    * @param xExtrapolatorRight the x-value right extrapolator
-   * @param yInterpolator      the y-value interpolator
-   * @param yExtrapolatorLeft  the y-value left extrapolator
+   * @param yInterpolator the y-value interpolator
+   * @param yExtrapolatorLeft the y-value left extrapolator
    * @param yExtrapolatorRight the y-value right extrapolator
-   * @param zInterpolator      the z-value interpolator
-   * @param zExtrapolatorLeft  the z-value left extrapolator
+   * @param zInterpolator the z-value interpolator
+   * @param zExtrapolatorLeft the z-value left extrapolator
    * @param zExtrapolatorRight the z-value right extrapolator
    * @return the index
    * @throws IllegalArgumentException if the name is not known
@@ -219,7 +219,7 @@ public final class GridCubeInterpolator
       }
       // create a curve for the same x-value
       if (countSameX == 1) {
-        // when there is only one point, there is not enough data for a curve
+        // when there is only one point, there is not enough data for a surface
         // so the value must be returned without using the configured interpolator or extrapolator
         yzInterpBuilder.add(new GridCubeInterpolator.ConstantSurfaceInterpolator(tempZ[0]));
       } else {
@@ -239,7 +239,7 @@ public final class GridCubeInterpolator
       countUniqueX++;
     }
     if (countUniqueX == 1) {
-      throw new IllegalArgumentException("Surface interpolator requires at least two different x-values");
+      throw new IllegalArgumentException("Cube interpolator requires at least two different x-values");
     }
     DoubleArray uniqueXArray = DoubleArray.ofUnsafe(Arrays.copyOf(uniqueX, countUniqueX));
     BoundSurfaceInterpolator[] yzInterps = yzInterpBuilder.build().toArray(new BoundSurfaceInterpolator[0]);
@@ -285,9 +285,9 @@ public final class GridCubeInterpolator
     //-------------------------------------------------------------------------
     @Override
     public double interpolate(double x, double y, double z) {
-      // use each y-interpolator to find the z-value for each unique x
+      // use each yz-interpolator to find the w-value for each unique x
       DoubleArray wValuesEffective = DoubleArray.of(yzInterpolators.length, i -> yzInterpolators[i].interpolate(y, z));
-      // interpolate unique x-values against derived z-values
+      // interpolate unique x-values against derived w-values
       return xInterpolator.bind(xValuesUnique, wValuesEffective, xExtrapolatorLeft, xExtrapolatorRight).interpolate(x);
     }
 
@@ -295,13 +295,13 @@ public final class GridCubeInterpolator
     public DoubleArray parameterSensitivity(double x, double y, double z) {
       int uniqueX = yzInterpolators.length;
       final DoubleArray[] yzSens = new DoubleArray[uniqueX];
-      // use each y-interpolator to find the z-value sensitivity for each unique x
+      // use each yz-interpolator to find the w-value sensitivity for each unique x
       for (int i = 0; i < uniqueX; i++) {
         yzSens[i] = yzInterpolators[i].parameterSensitivity(y, z);
       }
-      // use each y-interpolator to find the z-value for each unique x
+      // use each yz-interpolator to find the w-value for each unique x
       DoubleArray wValuesEffective = DoubleArray.of(uniqueX, i -> yzInterpolators[i].interpolate(y, z));
-      // find the sensitivity of the unique x-values against derived z-values
+      // find the sensitivity of the unique x-values against derived w-values
       DoubleArray xSens = xInterpolator
           .bind(xValuesUnique, wValuesEffective, xExtrapolatorLeft, xExtrapolatorRight)
           .parameterSensitivity(x);

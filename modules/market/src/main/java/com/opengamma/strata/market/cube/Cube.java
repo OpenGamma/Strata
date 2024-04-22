@@ -32,7 +32,7 @@ import com.opengamma.strata.market.param.UnitParameterSensitivity;
  *
  * @see InterpolatedNodalCube
  */
-public interface Cube  extends ParameterizedData {
+public interface Cube extends ParameterizedData {
 
   /**
    * Gets the cube metadata.

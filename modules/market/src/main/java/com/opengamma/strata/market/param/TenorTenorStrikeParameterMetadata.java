@@ -78,7 +78,12 @@ public final class TenorTenorStrikeParameterMetadata
    * @param label the label
    * @return the metadata
    */
-  public static TenorTenorStrikeParameterMetadata of(Tenor expiryTenor, Tenor underlyingTenor, double strike, String label) {
+  public static TenorTenorStrikeParameterMetadata of(
+      Tenor expiryTenor,
+      Tenor underlyingTenor,
+      double strike,
+      String label) {
+
     return new TenorTenorStrikeParameterMetadata(expiryTenor, underlyingTenor, strike, label);
   }
 

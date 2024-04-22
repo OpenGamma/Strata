@@ -98,9 +98,9 @@ public final class NormalSwaptionExpiryTenorStrikeVolatilities
    * Suitable cube metadata can be created using
    * {@link Cubes#normalVolatilityByExpiryTenorStrike(String, DayCount)}.
    *
-   * @param convention        the swap convention that the volatilities are to be used for
+   * @param convention the swap convention that the volatilities are to be used for
    * @param valuationDateTime the valuation date-time
-   * @param cube              the implied volatility cube
+   * @param cube the implied volatility cube
    * @return the volatilities
    */
   public static NormalSwaptionExpiryTenorStrikeVolatilities of(
@@ -230,6 +230,7 @@ public final class NormalSwaptionExpiryTenorStrikeVolatilities
       double strike,
       double forward,
       double volatility) {
+
     return NormalFormulaRepository.delta(forward, strike, expiry, volatility, putCall);
   }
 
@@ -241,6 +242,7 @@ public final class NormalSwaptionExpiryTenorStrikeVolatilities
       double strike,
       double forward,
       double volatility) {
+
     return NormalFormulaRepository.gamma(forward, strike, expiry, volatility, putCall);
   }
 
@@ -252,6 +254,7 @@ public final class NormalSwaptionExpiryTenorStrikeVolatilities
       double strike,
       double forward,
       double volatility) {
+
     return NormalFormulaRepository.theta(forward, strike, expiry, volatility, putCall);
   }
 
@@ -263,6 +266,7 @@ public final class NormalSwaptionExpiryTenorStrikeVolatilities
       double strike,
       double forward,
       double volatility) {
+
     return NormalFormulaRepository.vega(forward, strike, expiry, volatility, putCall);
   }
 
