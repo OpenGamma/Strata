@@ -217,13 +217,13 @@ public final class GridCubeInterpolator
         countSameX++;
         i++;
       }
-      // create a curve for the same x-value
+      // create a surface for the same x-value
       if (countSameX == 1) {
         // when there is only one point, there is not enough data for a surface
         // so the value must be returned without using the configured interpolator or extrapolator
         yzInterpBuilder.add(new GridCubeInterpolator.ConstantSurfaceInterpolator(tempZ[0]));
       } else {
-        // normal case, where the curve is created
+        // normal case, where the surface is created
         DoubleArray yValuesSameX = DoubleArray.ofUnsafe(Arrays.copyOf(tempY, countSameX));
         DoubleArray zValuesSameX = DoubleArray.ofUnsafe(Arrays.copyOf(tempZ, countSameX));
         DoubleArray wValuesSameX = DoubleArray.ofUnsafe(Arrays.copyOf(tempW, countSameX));
