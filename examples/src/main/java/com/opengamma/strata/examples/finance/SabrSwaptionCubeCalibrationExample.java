@@ -108,7 +108,7 @@ public class SabrSwaptionCubeCalibrationExample {
     // select data
     TenorRawOptionData data = DATA_FULL;
     if (args.length > 0) {
-      if (args[0].equals("-s")) {
+      if ("-s".equals(args[0])) {
         data = DATA_SPARSE;
       }
     }

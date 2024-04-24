@@ -125,7 +125,7 @@ public class CalibrationXCcyOisCheckExample {
 
     // optionally test performance
     if (args.length > 0) {
-      if (args[0].equals("-p")) {
+      if ("-p".equals(args[0])) {
         performanceCalibrationPricing();
       }
     }
