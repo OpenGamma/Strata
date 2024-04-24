@@ -9,10 +9,16 @@ import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.shadow.com.univocity.parsers.common.ResultIterator;
+
+import com.opengamma.strata.collect.result.FailureItem;
+import com.opengamma.strata.collect.result.FailureReason;
+import com.opengamma.strata.collect.result.Result;
 
 /**
  * Test {@link CurrencyAmount}.
@@ -237,6 +243,19 @@ public class CurrencyAmountTest {
     FxRateProvider provider = (ccy1, ccy2) -> 2.5d;
     assertThat(CCY_AMOUNT.convertedTo(CCY2, provider)).isEqualTo(CurrencyAmount.of(CCY2, AMT1 * 2.5d));
     assertThat(CCY_AMOUNT.convertedTo(CCY1, provider)).isEqualTo(CCY_AMOUNT);
+  }
+
+  @Test
+  public void test_convertedToResult_failure() {
+    FxRateProvider provider = FxRateProvider.noConversion();
+    Result<CurrencyAmount> conversionResult = CCY_AMOUNT.convertedToResult(CCY2, provider);
+
+    Result<Double> expectedFailure = Result.of(() -> provider.convert(10, CCY1, CCY2));
+
+    assertThat(conversionResult.isFailure()).isTrue();
+    assertThat(conversionResult.getFailure().getItems())
+        .usingRecursiveFieldByFieldElementComparatorIgnoringFields("stackTrace")
+        .containsAll(expectedFailure.getFailure().getItems());
   }
 
   //-------------------------------------------------------------------------

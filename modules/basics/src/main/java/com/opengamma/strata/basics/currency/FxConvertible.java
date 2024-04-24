@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.basics.currency;
 
+import com.opengamma.strata.collect.result.Result;
+
 /**
  * Defines a standard mechanism for converting an object representing one or more
  * monetary amounts to a single currency.
@@ -34,5 +36,21 @@ public interface FxConvertible<R> {
    * @throws RuntimeException if no FX rate could be found
    */
   public abstract R convertedTo(Currency resultCurrency, FxRateProvider rateProvider);
+
+  /**
+   * Converts this instance to an equivalent amount in the specified currency.
+   * <p>
+   * The result, which may be of a different type, will be expressed in terms of the given currency.
+   * Any FX conversion that is required will use rates from the provider.
+   * <p>
+   * If no FX rate is found the returned result will be a failure.
+   *
+   * @param resultCurrency  the currency of the result
+   * @param rateProvider  the provider of FX rates
+   * @return the result of the converted instance, which should be expressed in the specified currency
+   */
+  public default Result<R> convertedToResult(Currency resultCurrency, FxRateProvider rateProvider) {
+    return Result.of(() -> convertedTo(resultCurrency, rateProvider));
+  }
 
 }
