@@ -347,6 +347,36 @@ public final class EtdIdUtils {
     }
   }
 
+  /**
+   * Splits an OG-ETD identifier to obtain the exchange ID.
+   *
+   * @param securityId  the security ID
+   * @return the exchange ID
+   * @throws IllegalArgumentException if the ID is not of the right scheme or format
+   */
+  public static ExchangeId splitIdToExchangeId(SecurityId securityId) {
+    ArgChecker.notNull(securityId, "securityId");
+    StandardId standardId = securityId.getStandardId();
+    if (!standardId.getScheme().equals(ETD_SCHEME)) {
+      throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
+    }
+
+    Matcher matcher = SECURITY_ID_PATTERN.matcher(standardId.getValue());
+    if (!matcher.matches()) {
+      throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
+    }
+
+    // Example: F-IFEN-ABC or F-IFEN-ABC-XYZ
+    String contractDetailsSubstring = matcher.group(CONTRACT_DETAILS_REGEX_GROUP_NAME);
+    List<String> contractDetailsSplit = Splitter.on('-').limit(3).splitToList(contractDetailsSubstring);
+    if (contractDetailsSplit.size() != 3) {
+      throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
+    }
+
+    // common fields
+    return ExchangeId.of(contractDetailsSplit.get(1));
+  }
+
   // parses an option
   private static SplitEtdOption parseEtdOptionId(List<String> optionDetailsSplit, SecurityId securityId) {
     String versionStr = optionDetailsSplit.get(0);

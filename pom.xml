@@ -10,7 +10,7 @@
   </parent>  
   <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-root</artifactId>
-  <version>2.12.36-SNAPSHOT</version>
+  <version>2.12.39-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Strata-Root</name>
   <description>OpenGamma Strata root</description>
@@ -100,7 +100,7 @@
           <plugin>
             <groupId>com.ragedunicorn.tools.maven</groupId>
             <artifactId>github-release-maven-plugin</artifactId>
-            <version>1.0.6</version>
+            <version>1.0.7</version>
             <configuration>
               <owner>OpenGamma</owner>
               <repository>Strata</repository>
