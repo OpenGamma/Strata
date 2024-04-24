@@ -246,6 +246,14 @@ public class CurrencyAmountTest {
   }
 
   @Test
+  public void test_convertedToResult() {
+    FxRateProvider provider = (ccy1, ccy2) -> 2.5d;
+    Result<CurrencyAmount> expectedResult = Result.success(CurrencyAmount.of(CCY2, AMT1 * 2.5d));
+    assertThat(CCY_AMOUNT.convertedToResult(CCY2, provider)).isEqualTo(expectedResult);
+    assertThat(CCY_AMOUNT.convertedToResult(CCY1, provider)).isEqualTo(Result.success(CCY_AMOUNT));
+  }
+
+  @Test
   public void test_convertedToResult_failure() {
     FxRateProvider provider = FxRateProvider.noConversion();
     Result<CurrencyAmount> conversionResult = CCY_AMOUNT.convertedToResult(CCY2, provider);
