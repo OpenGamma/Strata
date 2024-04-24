@@ -682,11 +682,37 @@ public final class Guavate {
    *
    * @param <T>  the type of element in the stream
    * @return the operator
+   * @throws IllegalArgumentException if more than one element is present
    */
   public static <T> BinaryOperator<T> ensureOnlyOne() {
     return (a, b) -> {
       throw new IllegalArgumentException(Messages.format(
           "Multiple values found where only one was expected: {} and {}", a, b));
+    };
+  }
+
+  /**
+   * Reducer used in a stream to ensure there is no more than one matching element.
+   * <p>
+   * This method returns an operator that can be used with {@link Stream#reduce(BinaryOperator)}
+   * that returns either zero or one elements from the stream. Unlike {@link Stream#findFirst()}
+   * or {@link Stream#findAny()}, this approach ensures an exception is thrown if there
+   * is more than one element in the stream.
+   * <p>
+   * This would be used as follows (with a static import):
+   * <pre>
+   *   stream.filter(...).reduce(ensureOnlyOne()).get();
+   * </pre>
+   *
+   * @param <T>  the type of element in the stream
+   * @param message the message template for the {@link IllegalArgumentException} with "{}" placeholders
+   * @param args the arguments for the message
+   * @return the operator
+   * @throws IllegalArgumentException if more than one element is present
+   */
+  public static <T> BinaryOperator<T> ensureOnlyOne(String message, Object... args) {
+    return (a, b) -> {
+      throw new IllegalArgumentException(Messages.format(message, args));
     };
   }
 
