@@ -461,7 +461,7 @@ public final class Result<T>
   }
 
   /**
-   * Returns a success result containing the value is present, else returns a failure result
+   * Returns a success result containing the value if present, else returns a failure result
    * with the specified reason and message.
    * <p>
    * The message is produced using a template that contains zero to many "{}" placeholders.
@@ -490,16 +490,14 @@ public final class Result<T>
   }
 
   /**
-   * Returns a success result containing the value is present, else returns a failure result
+   * Returns a success result containing the value if present, else returns a failure result
    * with a reason of {@link FailureReason#MISSING_DATA} and message to say an unexpected empty value was found.
    *
    * @param <R> the expected type of the result
    * @param value  the potentially null value
    * @return a success result if the value is non-null, else a failure result
    */
-  public static <R> Result<R> ofOptional(
-      Optional<R> value) {
-
+  public static <R> Result<R> ofOptional(Optional<R> value) {
     return ofOptional(value, FailureReason.MISSING_DATA, "Found empty where a value was expected");
   }
 
