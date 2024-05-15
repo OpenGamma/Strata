@@ -53,6 +53,15 @@ public class IsdaHomogenousCdsIndexProductPricer {
     this.underlyingPricer = new IsdaCdsProductPricer(formula);
   }
 
+  /**
+   * The constructor with the product pricer specified.
+   *
+   * @param underlyingPricer the underlying CDS pricer
+   */
+  public IsdaHomogenousCdsIndexProductPricer(IsdaCdsProductPricer underlyingPricer) {
+    this.underlyingPricer = underlyingPricer;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the accrual-on-default formula used in this pricer. 
