@@ -120,17 +120,18 @@ public final class ValueStepSequence
   List<ValueStep> resolve(List<ValueStep> existingSteps, RollConvention rollConv) {
     ImmutableList.Builder<ValueStep> steps = ImmutableList.builder();
     steps.addAll(existingSteps);
-    LocalDate prev = firstStepDate;
-    LocalDate date = firstStepDate;
-    while (!date.isAfter(lastStepDate)) {
+    LocalDate prev = rollConv.adjust(firstStepDate);
+    LocalDate date = rollConv.adjust(firstStepDate);
+    LocalDate adjustedLastStepDate = rollConv.adjust(lastStepDate);
+    while (!date.isAfter(adjustedLastStepDate)) {
       steps.add(ValueStep.of(date, adjustment));
       prev = date;
       date = rollConv.next(date, frequency);
     }
-    if (!prev.equals(lastStepDate)) {
+    if (!prev.equals(adjustedLastStepDate)) {
       throw new IllegalArgumentException(Messages.format(
           "ValueStepSequence lastStepDate did not match frequency '{}' using roll convention '{}', {} != {}",
-          frequency, rollConv, lastStepDate, prev));
+          frequency, rollConv, adjustedLastStepDate, prev));
     }
     return steps.build();
   }
