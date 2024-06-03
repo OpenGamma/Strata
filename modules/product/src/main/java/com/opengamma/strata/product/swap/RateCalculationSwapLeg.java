@@ -200,13 +200,20 @@ public final class RateCalculationSwapLeg
 
   private boolean validPaymentAndAccrualFrequencyCombination() {
     try {
-      if (paymentSchedule.getPaymentFrequency().isTerm()) {
-        return true;
-      }
       paymentSchedule.getPaymentFrequency().exactDivide(accrualSchedule.getFrequency());
       return true;
     } catch (IllegalArgumentException ex) {
-      return false;
+      boolean isTermPayFrequency = paymentSchedule.getPaymentFrequency().isTerm();
+      boolean isWeekBased = accrualSchedule.getFrequency().isWeekBased();
+
+      // short-circuit if accrual frequency is week-based, since payment frequency driven approach
+      // should be used, even when payment freq == TERM
+      if (isWeekBased) {
+        return false;
+      }
+
+      // return false, unless payment frequency is TERM (where stubs can be used)
+      return isTermPayFrequency;
     }
   }
 

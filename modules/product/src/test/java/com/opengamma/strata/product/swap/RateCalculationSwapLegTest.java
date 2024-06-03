@@ -22,6 +22,7 @@ import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P1W;
 import static com.opengamma.strata.basics.schedule.Frequency.P2M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
+import static com.opengamma.strata.basics.schedule.Frequency.TERM;
 import static com.opengamma.strata.basics.schedule.StubConvention.SMART_FINAL;
 import static com.opengamma.strata.basics.schedule.StubConvention.SMART_INITIAL;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -866,6 +867,84 @@ public class RateCalculationSwapLegTest {
         .build();
     ResolvedSwapLeg testExpand = test.resolve(REF_DATA);
     assertThat(testExpand).isEqualTo(expected);
+  }
+
+  @Test
+  public void test_resolve_weeklyAccruals_termPayments_fixedRate() {
+    // test case
+    RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(DATE_01_05)
+            .endDate(DATE_02_07)
+            .frequency(P1W)
+            .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+            .stubConvention(SMART_FINAL)
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(TERM)
+            .paymentDateOffset(PLUS_TWO_DAYS)
+            .build())
+        .notionalSchedule(NotionalSchedule.of(GBP, 1000d))
+        .calculation(FixedRateCalculation.builder()
+            .dayCount(ACT_365F)
+            .rate(ValueSchedule.of(0.025d))
+            .build())
+        .build();
+    // expected
+    RatePaymentPeriod rpp1 = RatePaymentPeriod.builder()
+        .paymentDate(DATE_02_11)
+        .accrualPeriods(
+            RateAccrualPeriod.builder()
+                .startDate(DATE_01_06)
+                .endDate(DATE_01_13)
+                .unadjustedStartDate(DATE_01_06)
+                .unadjustedEndDate(DATE_01_13)
+                .yearFraction(ACT_365F.yearFraction(DATE_01_06, DATE_01_13))
+                .rateComputation(FixedRateComputation.of(0.025d))
+                .build(),
+          RateAccrualPeriod.builder()
+              .startDate(DATE_01_13)
+              .endDate(DATE_01_20)
+              .unadjustedStartDate(DATE_01_13)
+              .unadjustedEndDate(DATE_01_20)
+              .yearFraction(ACT_365F.yearFraction(DATE_01_13, DATE_01_20))
+              .rateComputation(FixedRateComputation.of(0.025d))
+              .build(),
+          RateAccrualPeriod.builder()
+              .startDate(DATE_01_20)
+              .endDate(DATE_01_27)
+              .unadjustedStartDate(DATE_01_20)
+              .unadjustedEndDate(DATE_01_27)
+              .yearFraction(ACT_365F.yearFraction(DATE_01_20, DATE_01_27))
+              .rateComputation(FixedRateComputation.of(0.025d))
+              .build(),
+          RateAccrualPeriod.builder()
+              .startDate(DATE_01_27)
+              .endDate(DATE_02_03)
+              .unadjustedStartDate(DATE_01_27)
+              .unadjustedEndDate(DATE_02_03)
+              .yearFraction(ACT_365F.yearFraction(DATE_01_27, DATE_02_03))
+              .rateComputation(FixedRateComputation.of(0.025d))
+              .build(),
+          RateAccrualPeriod.builder()
+              .startDate(DATE_02_03)
+              .endDate(DATE_02_07)
+              .unadjustedStartDate(DATE_02_03)
+              .unadjustedEndDate(DATE_02_07)
+              .yearFraction(ACT_365F.yearFraction(DATE_02_03, DATE_02_07))
+              .rateComputation(FixedRateComputation.of(0.025d))
+              .build())
+        .dayCount(ACT_365F)
+        .currency(GBP)
+        .notional(-1000d)
+        .build();
+    // assertion
+    assertThat(test.resolve(REF_DATA)).isEqualTo(ResolvedSwapLeg.builder()
+        .type(FIXED)
+        .payReceive(PAY)
+        .paymentPeriods(rpp1)
+        .build());
   }
 
   @Test
