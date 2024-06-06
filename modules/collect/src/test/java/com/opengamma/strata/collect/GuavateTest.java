@@ -424,6 +424,17 @@ public class GuavateTest {
     assertThatIllegalArgumentException().isThrownBy(() -> Stream.of("a", "b").reduce(Guavate.ensureOnlyOne()));
   }
 
+  @Test
+  public void test_ensureOnlyOne_withCustomMessage() {
+    String message = "Expected one letter but found multiple for date {}";
+    LocalDate arg = LocalDate.of(2024, 4, 24);
+    assertThat(Stream.empty().reduce(Guavate.ensureOnlyOne(message, arg))).isEqualTo(Optional.empty());
+    assertThat(Stream.of("a").reduce(Guavate.ensureOnlyOne(message, arg))).isEqualTo(Optional.of("a"));
+    assertThatIllegalArgumentException().isThrownBy(() -> Stream.of("a", "b")
+            .reduce(Guavate.ensureOnlyOne(message, arg)))
+        .withMessage(Messages.format(message, arg));
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_casting() {
