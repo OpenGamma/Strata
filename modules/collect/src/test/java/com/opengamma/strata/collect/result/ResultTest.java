@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.fail;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -424,6 +425,29 @@ public class ResultTest {
   }
 
   //-------------------------------------------------------------------------
+
+  @Test
+  public void ofOptional_nonEmpty() {
+    Result<Integer> test = Result.ofOptional(Optional.of(6));
+    assertThat(test.isFailure()).isFalse();
+    assertThat(test.getValue().intValue()).isEqualTo(6);
+  }
+
+  @Test
+  public void ofOptional_empty() {
+    Result<Integer> test = Result.ofOptional(Optional.empty());
+    assertThat(test.isFailure()).isTrue();
+    assertThat(test.getFailure().getMessage()).isEqualTo("Found empty where a value was expected");
+    assertThat(test.getFailure().getItems().size()).isEqualTo(1);
+    FailureItem item = test.getFailure().getItems().iterator().next();
+    assertThat(item.getReason()).isEqualTo(MISSING_DATA);
+    assertThat(item.getMessage()).isEqualTo("Found empty where a value was expected");
+    assertThat(item.getCauseType().isPresent()).isEqualTo(false);
+    assertThat(item.getStackTrace()).isNotNull();
+  }
+
+  //-------------------------------------------------------------------------
+
   @Test
   public void of_with_success() {
 
