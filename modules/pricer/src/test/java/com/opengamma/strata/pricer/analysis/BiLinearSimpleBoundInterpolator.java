@@ -17,7 +17,7 @@ public class BiLinearSimpleBoundInterpolator
     implements BoundSurfaceInterpolator{
 
   /** Negative zero. */
-  private static long NEGATIVE_ZERO_BITS = Double.doubleToRawLongBits(-0d);
+  private static final long NEGATIVE_ZERO_BITS = Double.doubleToRawLongBits(-0d);
   
   /** the X-values */
   private final double[] xValues;
@@ -84,26 +84,26 @@ public class BiLinearSimpleBoundInterpolator
    * <p>
    * The x-values must not be NaN.
    *
-   * @param xValue  a value which is less than the last element in {@code xValues}
-   * @param xValues  an array of values sorted in ascending order
+   * @param value  a value which is less than the last element in {@code xValues}
+   * @param arrayValues  an array of values sorted in ascending order
    * @return the index of the last value in {@code xValues} which is lower than {@code xValue}
    */
-  protected static int lowerBoundIndex(double xValue, double[] xValues) {
+  protected static int lowerBoundIndex(double value, double[] arrayValues) {
     // handle -zero, ensure same result as +zero
-    if (Double.doubleToRawLongBits(xValue) == NEGATIVE_ZERO_BITS) {
-      return lowerBoundIndex(0d, xValues);
+    if (Double.doubleToRawLongBits(value) == NEGATIVE_ZERO_BITS) {
+      return lowerBoundIndex(0d, arrayValues);
     }
     // manual inline of binary search to avoid NaN checks and negation
     int lo = 1;
-    int hi = xValues.length - 1;
+    int hi = arrayValues.length - 1;
     while (lo <= hi) {
       // find the middle
       int mid = (lo + hi) >>> 1;
-      double midVal = xValues[mid];
+      double midVal = arrayValues[mid];
       // decide where to search next
-      if (midVal < xValue) {
+      if (midVal < value) {
         lo = mid + 1;  // search top half
-      } else if (midVal > xValue) {
+      } else if (midVal > value) {
         hi = mid - 1;  // search bottom half
       } else {
         return mid;  // found

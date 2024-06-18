@@ -38,7 +38,7 @@ public class BiLinearSimpleBoundInterpolatorTest {
     for (int i = 0; i < xValuesTest.length; i++) {
       zComputed[i] = interpolator.interpolate(xValuesTest[i], yValuesTest[i]);
       assertThat(zComputed[i]).isCloseTo(zExpected[i], offset(TOLERANCE));
-      System.out.println(zComputed[i]);
+      //System.out.println(zComputed[i]);
     }
   }
 
