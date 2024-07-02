@@ -640,8 +640,11 @@ public class DiscountingFixedCouponBondProductPricer {
           first = false;
           factor = 1;
         } else {
-          double delta = yearFraction * eventsPerYear;
-          factor *= Math.pow(factorOnPeriod, delta);
+          if (period.isIsRegular()) {
+            factor *= factorOnPeriod;
+          } else {
+            factor *= Math.pow(factorOnPeriod, yearFraction * eventsPerYear);
+          }
         }
         pvAtFirstCoupon += yearFraction / factor;
       }
