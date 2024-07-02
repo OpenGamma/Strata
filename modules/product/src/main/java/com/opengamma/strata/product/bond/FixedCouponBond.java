@@ -189,6 +189,7 @@ public final class FixedCouponBond
           .currency(currency)
           .fixedRate(fixedRate)
           .yearFraction(unadjustedPeriod.yearFraction(dayCount, unadjustedSchedule))
+          .isRegular(period.isRegular(accrualSchedule.getFrequency(), accrualSchedule.calculatedRollConvention()))
           .build());
     }
     ImmutableList<FixedCouponBondPaymentPeriod> periodicPayments = accrualPeriods.build();
