@@ -144,7 +144,7 @@ public final class RateCalculationSwapLeg
    * Returns an instance based on this leg with the start date replaced.
    * <p>
    * This uses {@link PeriodicSchedule#replaceStartDate(LocalDate)}.
-   * 
+   *
    * @throws IllegalArgumentException if the start date cannot be replaced with the proposed start date
    */
   @Override
@@ -157,7 +157,7 @@ public final class RateCalculationSwapLeg
    * <p>
    * An {@link ResolvedSwapLeg} represents the same data as this leg, but with
    * a complete schedule of dates defined using {@link RatePaymentPeriod}.
-   * 
+   *
    * @return the equivalent resolved swap leg
    * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    * @throws RuntimeException if unable to resolve due to an invalid swap schedule or definition
@@ -165,7 +165,7 @@ public final class RateCalculationSwapLeg
   @Override
   public ResolvedSwapLeg resolve(ReferenceData refData) {
     DayCount dayCount = calculation.getDayCount();
-    Schedule resolvedAccruals = accrualSchedule.createSchedule(refData);
+    Schedule resolvedAccruals = accrualSchedule.createSchedule(refData, true);
     Schedule resolvedPayments = paymentSchedule.createSchedule(resolvedAccruals, refData);
     List<RateAccrualPeriod> accrualPeriods = calculation.createAccrualPeriods(resolvedAccruals, resolvedPayments, refData);
     List<NotionalPaymentPeriod> payPeriods = paymentSchedule.createPaymentPeriods(
