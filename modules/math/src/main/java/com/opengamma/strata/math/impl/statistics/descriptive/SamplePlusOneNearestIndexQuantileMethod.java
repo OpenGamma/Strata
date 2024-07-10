@@ -21,12 +21,12 @@ public final class SamplePlusOneNearestIndexQuantileMethod
   public static final SamplePlusOneNearestIndexQuantileMethod DEFAULT = new SamplePlusOneNearestIndexQuantileMethod();
 
   @Override
-  int index(double quantileSize) {
+  protected int index(double quantileSize) {
     return (int) Math.round(quantileSize);
   }
 
   @Override
-  int sampleCorrection(int sampleSize) {
+  protected int sampleCorrection(int sampleSize) {
     return sampleSize + 1;
   }
 
