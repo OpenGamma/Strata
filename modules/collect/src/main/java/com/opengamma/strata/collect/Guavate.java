@@ -829,7 +829,7 @@ public final class Guavate {
 
     @Override
     public Supplier<OnlyCollector<T>> supplier() {
-      return () -> this;
+      return OnlyCollector::new;
     }
 
     @Override
