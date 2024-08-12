@@ -6,6 +6,7 @@ updates:
     interval: weekly
     time: "02:30"
   open-pull-requests-limit: 20
+  rebase-strategy: "disabled"
   reviewers:
   - jodastephen
   assignees:
