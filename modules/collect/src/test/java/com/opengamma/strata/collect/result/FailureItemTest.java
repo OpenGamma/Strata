@@ -48,6 +48,52 @@ public class FailureItemTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_of_stackTraceErrorMessageWithNamedAttributes() {
+    FailureItem testItem = FailureItem.ofAutoStackTrace(
+        1,
+        FailureReason.UNSUPPORTED,
+        "This {value} is unsupported for {name}",
+        "someValue",
+        "someName");
+    assertThat(testItem.getMessageTemplate()).isEqualTo("This {value} is unsupported for {name}");
+    assertThat(testItem.getAttributes())
+        .containsEntry("value", "someValue")
+        .containsEntry("name", "someName");
+    assertThat(testItem.getMessage()).isEqualTo("This someValue is unsupported for someName");
+    assertThat(testItem.getStackTrace())
+        .startsWith("com.opengamma.strata.collect.result.FailureItem: This someValue is unsupported for someName");
+  }
+
+  @Test
+  public void test_of_stackTraceErrorMessageWithUnnamedAttributes() {
+    FailureItem testItem = FailureItem.ofAutoStackTrace(
+        1,
+        FailureReason.UNSUPPORTED,
+        "This {} is unsupported for {}",
+        "someValue",
+        "someName");
+    assertThat(testItem.getMessageTemplate()).isEqualTo("This someValue is unsupported for someName");
+    assertThat(testItem.getMessage()).isEqualTo("This someValue is unsupported for someName");
+    assertThat(testItem.getAttributes()).isEmpty();
+    assertThat(testItem.getStackTrace())
+        .startsWith("com.opengamma.strata.collect.result.FailureItem: This someValue is unsupported for someName");
+  }
+
+  @Test
+  public void test_of_stackTraceErrorMessageWithoutAttributes() {
+    FailureItem testItem = FailureItem.ofAutoStackTrace(
+        1,
+        FailureReason.UNSUPPORTED,
+        "This value is unsupported for name");
+    assertThat(testItem.getMessageTemplate()).isEqualTo("This value is unsupported for name");
+    assertThat(testItem.getMessage()).isEqualTo("This value is unsupported for name");
+    assertThat(testItem.getAttributes()).isEmpty();
+    assertThat(testItem.getStackTrace())
+        .startsWith("com.opengamma.strata.collect.result.FailureItem: This value is unsupported for name");
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_of_reasonException() {
     IllegalArgumentException ex = new IllegalArgumentException("exmsg");
     FailureItem test = FailureItem.of(FailureReason.INVALID, ex);
