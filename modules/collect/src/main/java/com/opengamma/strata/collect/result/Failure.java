@@ -83,8 +83,7 @@ public final class Failure
    * @return the failure
    */
   public static Failure of(FailureReason reason, String message, Object... messageArgs) {
-    String msg = Messages.format(message, messageArgs);
-    return Failure.of(FailureItem.ofAutoStackTrace(reason, msg, 1));
+    return Failure.of(FailureItem.ofAutoStackTrace(1, reason, message, messageArgs));
   }
 
   /**

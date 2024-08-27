@@ -113,8 +113,7 @@ public final class Result<T>
    * @return a failure result
    */
   public static <R> Result<R> failure(FailureReason reason, String message, Object... messageArgs) {
-    String msg = Messages.format(message, messageArgs);
-    return new Result<>(Failure.of(FailureItem.ofAutoStackTrace(reason, msg, 1)));
+    return new Result<>(Failure.of(FailureItem.ofAutoStackTrace(1, reason, message, messageArgs)));
   }
 
   /**
