@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import com.opengamma.strata.product.swap.*;
 import org.joda.beans.Bean;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -38,6 +37,13 @@ import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.product.common.PayReceive;
+import com.opengamma.strata.product.swap.CompoundingMethod;
+import com.opengamma.strata.product.swap.FixingRelativeTo;
+import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.NotionalSchedule;
+import com.opengamma.strata.product.swap.PaymentSchedule;
+import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.ResetSchedule;
 
 /**
  * A market convention for the floating leg of rate swap trades based on an Ibor index.
