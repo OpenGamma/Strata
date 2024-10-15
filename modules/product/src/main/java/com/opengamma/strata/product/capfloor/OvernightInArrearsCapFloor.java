@@ -102,21 +102,19 @@ public final class OvernightInArrearsCapFloor
   public ImmutableSet<Currency> allPaymentCurrencies() {
     if (payLeg == null) {
       return ImmutableSet.of(capFloorLeg.getCurrency());
-    } else {
-      return ImmutableSet.of(capFloorLeg.getCurrency(), payLeg.getCurrency());
     }
+    return ImmutableSet.of(capFloorLeg.getCurrency(), payLeg.getCurrency());
   }
 
   @Override
   public ImmutableSet<Currency> allCurrencies() {
     if (payLeg == null) {
       return ImmutableSet.of(capFloorLeg.getCurrency());
-    } else {
-      ImmutableSet.Builder<Currency> builder = ImmutableSet.builder();
-      builder.add(capFloorLeg.getCurrency());
-      builder.addAll(payLeg.allCurrencies());
-      return builder.build();
     }
+    ImmutableSet.Builder<Currency> builder = ImmutableSet.builder();
+    builder.add(capFloorLeg.getCurrency());
+    builder.addAll(payLeg.allCurrencies());
+    return builder.build();
   }
 
   /**

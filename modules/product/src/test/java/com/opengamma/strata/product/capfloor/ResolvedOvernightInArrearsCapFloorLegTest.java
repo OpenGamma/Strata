@@ -137,7 +137,7 @@ public class ResolvedOvernightInArrearsCapFloorLegTest {
             .payReceive(RECEIVE)
             .build());
     // two indices
-    OvernightInArrearsCapletFloorletPeriod periodLibor = OvernightInArrearsCapletFloorletPeriod.builder()
+    OvernightInArrearsCapletFloorletPeriod period = OvernightInArrearsCapletFloorletPeriod.builder()
         .caplet(STRIKE)
         .notional(NOTIONAL)
         .currency(EUR)
@@ -154,7 +154,7 @@ public class ResolvedOvernightInArrearsCapFloorLegTest {
         .build();
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedOvernightInArrearsCapFloorLeg.builder()
-            .capletFloorletPeriods(PERIOD_1, periodLibor)
+            .capletFloorletPeriods(PERIOD_1, period)
             .payReceive(RECEIVE)
             .build());
   }
