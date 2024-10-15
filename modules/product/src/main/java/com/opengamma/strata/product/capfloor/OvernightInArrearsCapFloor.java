@@ -69,7 +69,7 @@ public final class OvernightInArrearsCapFloor
    * <p>
    * The pay leg is absent in the resulting cap/floor.
    *
-   * @param capFloorLeg  the cap/floor leg
+   * @param capFloorLeg the cap/floor leg
    * @return the cap/floor
    */
   public static OvernightInArrearsCapFloor of(OvernightInArrearsCapFloorLeg capFloorLeg) {
@@ -79,8 +79,8 @@ public final class OvernightInArrearsCapFloor
   /**
    * Obtains an instance from a cap/floor leg and a pay leg.
    *
-   * @param capFloorLeg  the cap/floor leg
-   * @param payLeg  the pay leg
+   * @param capFloorLeg the cap/floor leg
+   * @param payLeg the pay leg
    * @return the cap/floor
    */
   public static OvernightInArrearsCapFloor of(OvernightInArrearsCapFloorLeg capFloorLeg, SwapLeg payLeg) {
