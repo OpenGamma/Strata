@@ -25,12 +25,24 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.ResolvedProduct;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 
+/**
+ * An overnight rate in arrears cap/floor, resolved for pricing.
+ * <p>
+ * This is the resolved form of {@link OvernightInArrearsCapFloor} and is an input to the pricers.
+ * Applications will typically create a {@code ResolvedOvernightInArrearsCapFloor}
+ * from a {@code OvernightInArrearsCapFloor} using {@link OvernightInArrearsCapFloor#resolve(ReferenceData)}.
+ * <p>
+ * A {@code ResolvedOvernightInArrearsCapFloor} is bound to data that changes over time, such as holiday calendars.
+ * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
+ * Care must be taken when placing the resolved form in a cache or persistence layer.
+ */
 @BeanDefinition(builderScope = "private")
 public final class ResolvedOvernightInArrearsCapFloor
     implements ResolvedProduct, ImmutableBean, Serializable {
