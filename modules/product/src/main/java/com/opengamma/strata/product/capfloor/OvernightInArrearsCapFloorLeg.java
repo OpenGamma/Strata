@@ -106,9 +106,10 @@ public final class OvernightInArrearsCapFloorLeg
    * The interest rate accrual calculation.
    * <p>
    * The interest rate accrual is based on overnight index.
+   * The overnight rate accrual method should be compounded.
    */
   @PropertyDefinition(validate = "notNull")
-  private final OvernightRateCalculation calculation; // TODO need check
+  private final OvernightRateCalculation calculation;
   /**
    * The cap schedule, optional.
    * <p>
@@ -160,8 +161,6 @@ public final class OvernightInArrearsCapFloorLeg
         this.getPaymentSchedule().getStubConvention().get().equals(StubConvention.NONE), "Stub period is not allowed");
     ArgChecker.isFalse(this.getCapSchedule().isPresent() == this.getFloorSchedule().isPresent(),
         "One of cap schedule and floor schedule should be empty");
-    ArgChecker.isTrue(this.getCalculation().getIndex().getTenor().getPeriod().equals(this.getPaymentSchedule()
-        .getFrequency().getPeriod()), "Payment frequency period should be the same as index tenor period");
     ArgChecker.isTrue(this.getCalculation().getAccrualMethod().equals(OvernightAccrualMethod.COMPOUNDED),
         "Overnight accrual method should be compounded");
   }
@@ -331,6 +330,7 @@ public final class OvernightInArrearsCapFloorLeg
    * Gets the interest rate accrual calculation.
    * <p>
    * The interest rate accrual is based on overnight index.
+   * The overnight rate accrual method should be compounded.
    * @return the value of the property, not null
    */
   public OvernightRateCalculation getCalculation() {
@@ -822,6 +822,7 @@ public final class OvernightInArrearsCapFloorLeg
      * Sets the interest rate accrual calculation.
      * <p>
      * The interest rate accrual is based on overnight index.
+     * The overnight rate accrual method should be compounded.
      * @param calculation  the new value, not null
      * @return this, for chaining, not null
      */
