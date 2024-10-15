@@ -149,6 +149,7 @@ public final class OvernightInArrearsCapFloorLeg
       OvernightRateCalculation calculation,
       ValueSchedule capSchedule,
       ValueSchedule floorSchedule) {
+
     this.payReceive = ArgChecker.notNull(payReceive, "payReceive");
     this.paymentSchedule = ArgChecker.notNull(paymentSchedule, "paymentSchedule");
     this.paymentDateOffset = ArgChecker.notNull(paymentDateOffset, "paymentDateOffset");
