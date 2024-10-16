@@ -35,7 +35,7 @@ import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.rate.OvernightCompoundedRateComputation;
 
 /**
- * A period over which an caplet/floorlet on overnight composition in-arrears is paid. 
+ * A period over which a caplet/floorlet on overnight composition in-arrears is paid.
  * <p>
  * The payoff depend on the level of the compounded rate over the period. The option is 
  * of Asian type with the averaging mechanism given by the composition.
