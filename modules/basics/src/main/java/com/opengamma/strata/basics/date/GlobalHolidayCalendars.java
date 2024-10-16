@@ -1188,8 +1188,8 @@ final class GlobalHolidayCalendars {
       // independence
       holidays.add(date(year, 9, 16));
       // inaguration day - occurring once in every 6 years (2024, 2030, etc).
-      if (year >= 2024 && (year + 4) % 6 == 0 ) {
-        holidays.add(date(year,10,1));
+      if (year >= 2024 && (year + 4) % 6 == 0) {
+        holidays.add(date(year, 10, 1));
       }
       // dead
       holidays.add(date(year, 11, 2));
