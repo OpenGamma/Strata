@@ -149,8 +149,8 @@ public class OvernightInArrearsCapFloorTradeCsvPlugin
    * @return the parsed trade
    */
   static OvernightInArrearsCapFloorTrade parseCapFloor(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
-    OvernightInArrearsCapFloorTrade iborCapFloorTrade = parseRow(row, info);
-    return resolver.completeTrade(row, iborCapFloorTrade);
+    OvernightInArrearsCapFloorTrade overnightCapFloorTrade = parseRow(row, info);
+    return resolver.completeTrade(row, overnightCapFloorTrade);
   }
 
   //-------------------------------------------------------------------------
@@ -176,14 +176,14 @@ public class OvernightInArrearsCapFloorTradeCsvPlugin
     Currency currency = row.getValue(CURRENCY_FIELD, LoaderUtils::parseCurrency);
     ValueSchedule strike = ValueSchedule.of(row.getValue(STRIKE_FIELD, LoaderUtils::parseDoublePercent));
     double notional = row.getValue(NOTIONAL_FIELD, LoaderUtils::parseDouble);
-    OvernightIndex iborIndex = parseOvernightIndex(row);
+    OvernightIndex overnightIndex = parseOvernightIndex(row);
     PeriodicSchedule paymentSchedule = parseSchedule(row, currency);
     OvernightInArrearsCapFloorLeg.Builder capFloorLegBuilder = OvernightInArrearsCapFloorLeg.builder()
         .payReceive(payReceive)
         .paymentSchedule(paymentSchedule)
         .currency(currency)
         .notional(ValueSchedule.of(notional))
-        .calculation(OvernightRateCalculation.of(iborIndex));
+        .calculation(OvernightRateCalculation.of(overnightIndex));
     CapFloor capFloorType = LoaderUtils.parseCapFloor(row.getValue(CAP_FLOOR_FIELD));
     if (capFloorType.isCap()) {
       capFloorLegBuilder.capSchedule(strike);
