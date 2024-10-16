@@ -21,6 +21,7 @@ import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.TradeInfoBuilder;
 import com.opengamma.strata.product.capfloor.IborCapFloorTrade;
+import com.opengamma.strata.product.capfloor.OvernightInArrearsCapFloorTrade;
 import com.opengamma.strata.product.common.CcpId;
 import com.opengamma.strata.product.credit.CdsIndexTrade;
 import com.opengamma.strata.product.credit.CdsTrade;
@@ -338,6 +339,23 @@ public interface TradeCsvInfoResolver {
     return completeTradeCommon(row, trade);
   }
 
+  /**
+   * Completes the CapFloor trade, potentially parsing additional columns.
+   * <p>
+   * This is called after the trade has been parsed and after
+   * {@link #parseTradeInfo(CsvRow, TradeInfoBuilder)}.
+   * <p>
+   * By default this calls {@link #completeTradeCommon(CsvRow, Trade)}.
+   *
+   * @param row  the CSV row to parse
+   * @param trade  the parsed trade
+   * @return the updated trade
+   */
+  public default OvernightInArrearsCapFloorTrade completeTrade(CsvRow row, OvernightInArrearsCapFloorTrade trade) {
+    //do nothing
+    return completeTradeCommon(row, trade);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Parses a FRA trade from CSV.
@@ -486,15 +504,27 @@ public interface TradeCsvInfoResolver {
   }
 
   /**
-   * Parses a CapFloor trade from CSV.
+   * Parses an IBOR CapFloor trade from CSV.
    *
    * @param row the CSV row to parse
    * @param info the trade info
-   * @return the CapFloor trade
+   * @return the IBOR CapFloor trade
    * @throws RuntimeException if the row contains invalid data
    */
-  public default IborCapFloorTrade parseCapFloorTrade(CsvRow row, TradeInfo info) {
+  public default IborCapFloorTrade parseIborCapFloorTrade(CsvRow row, TradeInfo info) {
     return IborCapFloorTradeCsvPlugin.parseCapFloor(row, info, this);
+  }
+
+  /**
+   * Parses an overnight CapFloor trade from CSV.
+   *
+   * @param row the CSV row to parse
+   * @param info the trade info
+   * @return the overnight CapFloor trade
+   * @throws RuntimeException if the row contains invalid data
+   */
+  public default OvernightInArrearsCapFloorTrade parseOvernightCapFloorTrade(CsvRow row, TradeInfo info) {
+    return OvernightInArrearsCapFloorTradeCsvPlugin.parseCapFloor(row, info, this);
   }
 
   //-------------------------------------------------------------------------

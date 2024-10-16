@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2024 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -48,34 +48,36 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
-import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
-import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
+import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.capfloor.IborCapFloor;
-import com.opengamma.strata.product.capfloor.IborCapFloorLeg;
-import com.opengamma.strata.product.capfloor.IborCapFloorTrade;
+import com.opengamma.strata.product.capfloor.OvernightInArrearsCapFloor;
+import com.opengamma.strata.product.capfloor.OvernightInArrearsCapFloorLeg;
+import com.opengamma.strata.product.capfloor.OvernightInArrearsCapFloorTrade;
 import com.opengamma.strata.product.common.CapFloor;
 import com.opengamma.strata.product.common.PayReceive;
-import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.OvernightRateCalculation;
 
 /**
- * Handles the CSV file format for IBOR cap/floor trades.
+ * Handles the CSV file format for Overnight in arrears cap/floor trades.
  */
-public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin<IborCapFloorTrade> {
+public class OvernightInArrearsCapFloorTradeCsvPlugin
+    implements TradeCsvParserPlugin, TradeCsvWriterPlugin<OvernightInArrearsCapFloorTrade> {
 
   /**
    * The singleton instance of the plugin.
    */
-  public static final IborCapFloorTradeCsvPlugin INSTANCE = new IborCapFloorTradeCsvPlugin();
+  public static final OvernightInArrearsCapFloorTradeCsvPlugin INSTANCE =
+      new OvernightInArrearsCapFloorTradeCsvPlugin();
 
   private static final ImmutableSet<String> HEADERS = ImmutableSet.of(
       CAP_FLOOR_FIELD,
@@ -110,7 +112,7 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
   //-------------------------------------------------------------------------
   @Override
   public Set<String> tradeTypeNames() {
-    return ImmutableSet.of("IBORCAPFLOOR", "CAPFLOOR", "IBOR CAPFLOOR");
+    return ImmutableSet.of("OVERNIGHTCAPFLOOR", "OVERNIGHT CAPFLOOR");
   }
 
   @Override
@@ -121,20 +123,20 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
       TradeInfo info,
       TradeCsvInfoResolver resolver) {
 
-    if (requiredJavaType.isAssignableFrom(IborCapFloorTrade.class)) {
-      return Optional.of(resolver.parseIborCapFloorTrade(baseRow, info));
+    if (requiredJavaType.isAssignableFrom(OvernightInArrearsCapFloorTrade.class)) {
+      return Optional.of(resolver.parseOvernightCapFloorTrade(baseRow, info));
     }
     return Optional.empty();
   }
 
   @Override
   public String getName() {
-    return IborCapFloorTrade.class.getSimpleName();
+    return OvernightInArrearsCapFloorTrade.class.getSimpleName();
   }
 
   @Override
   public Set<Class<?>> supportedTradeTypes() {
-    return ImmutableSet.of(IborCapFloorTrade.class);
+    return ImmutableSet.of(OvernightInArrearsCapFloorTrade.class);
   }
 
   //-------------------------------------------------------------------------
@@ -146,59 +148,59 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
    * @param resolver the resolver used to parse additional information
    * @return the parsed trade
    */
-  static IborCapFloorTrade parseCapFloor(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
-    IborCapFloorTrade iborCapFloorTrade = parseRow(row, info);
-    return resolver.completeTrade(row, iborCapFloorTrade);
+  static OvernightInArrearsCapFloorTrade parseCapFloor(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
+    OvernightInArrearsCapFloorTrade overnightCapFloorTrade = parseRow(row, info);
+    return resolver.completeTrade(row, overnightCapFloorTrade);
   }
 
   //-------------------------------------------------------------------------
   // parses the row to a trade
-  private static IborCapFloorTrade parseRow(CsvRow row, TradeInfo info) {
-    IborCapFloor iborCapFloor = parseIborCapFloor(row);
+  private static OvernightInArrearsCapFloorTrade parseRow(CsvRow row, TradeInfo info) {
+    OvernightInArrearsCapFloor overnightInArrearsCapFloor = parseOvernightInArrearsCapFloor(row);
     Optional<AdjustablePayment> paymentOpt = parsePremium(row);
     return paymentOpt.map(adjustablePayment ->
-        IborCapFloorTrade.builder()
+            OvernightInArrearsCapFloorTrade.builder()
+                .info(info)
+                .product(overnightInArrearsCapFloor)
+                .premium(adjustablePayment)
+                .build())
+        .orElseGet(() -> OvernightInArrearsCapFloorTrade.builder()
             .info(info)
-            .product(iborCapFloor)
-            .premium(adjustablePayment)
-            .build())
-        .orElseGet(() -> IborCapFloorTrade.builder()
-            .info(info)
-            .product(iborCapFloor)
+            .product(overnightInArrearsCapFloor)
             .build());
   }
 
-  // parse an IborCapFloor
-  private static IborCapFloor parseIborCapFloor(CsvRow row) {
+  // parse an OvernightInArrearsCapFloor
+  private static OvernightInArrearsCapFloor parseOvernightInArrearsCapFloor(CsvRow row) {
     PayReceive payReceive = row.getValue(DIRECTION_FIELD, LoaderUtils::parsePayReceive);
     Currency currency = row.getValue(CURRENCY_FIELD, LoaderUtils::parseCurrency);
     ValueSchedule strike = ValueSchedule.of(row.getValue(STRIKE_FIELD, LoaderUtils::parseDoublePercent));
     double notional = row.getValue(NOTIONAL_FIELD, LoaderUtils::parseDouble);
-    IborIndex iborIndex = parseIborIndex(row);
+    OvernightIndex overnightIndex = parseOvernightIndex(row);
     PeriodicSchedule paymentSchedule = parseSchedule(row, currency);
-    IborCapFloorLeg.Builder capFloorLegBuilder = IborCapFloorLeg.builder()
+    OvernightInArrearsCapFloorLeg.Builder capFloorLegBuilder = OvernightInArrearsCapFloorLeg.builder()
         .payReceive(payReceive)
         .paymentSchedule(paymentSchedule)
         .currency(currency)
         .notional(ValueSchedule.of(notional))
-        .calculation(IborRateCalculation.of(iborIndex));
+        .calculation(OvernightRateCalculation.of(overnightIndex));
     CapFloor capFloorType = LoaderUtils.parseCapFloor(row.getValue(CAP_FLOOR_FIELD));
     if (capFloorType.isCap()) {
       capFloorLegBuilder.capSchedule(strike);
     } else {
       capFloorLegBuilder.floorSchedule(strike);
     }
-    IborCapFloorLeg iborCapFloorLeg = capFloorLegBuilder.build();
-    return IborCapFloor.of(iborCapFloorLeg);
+    OvernightInArrearsCapFloorLeg capFloorLeg = capFloorLegBuilder.build();
+    return OvernightInArrearsCapFloor.of(capFloorLeg);
   }
 
-  // parse the IBOR index
-  private static IborIndex parseIborIndex(CsvRow row) {
+  // parse the overnight index
+  private static OvernightIndex parseOvernightIndex(CsvRow row) {
     Index index = row.getValue(INDEX_FIELD, LoaderUtils::findIndex);
-    if (index instanceof IborIndex) {
-      return (IborIndex) index;
+    if (index instanceof OvernightIndex) {
+      return (OvernightIndex) index;
     } else {
-      throw new ParseFailureException("Index '{value}' is not an IBOR index", index.getName());
+      throw new ParseFailureException("Index '{value}' is not an overnight index", index.getName());
     }
   }
 
@@ -261,14 +263,14 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<String> headers(List<IborCapFloorTrade> trades) {
+  public Set<String> headers(List<OvernightInArrearsCapFloorTrade> trades) {
     return HEADERS;
   }
 
   @Override
-  public void writeCsv(CsvRowOutputWithHeaders csv, IborCapFloorTrade trade) {
-    IborCapFloorLeg capFloorLeg = trade.getProduct().getCapFloorLeg();
-    csv.writeCell(TRADE_TYPE_FIELD, "CapFloor");
+  public void writeCsv(CsvOutput.CsvRowOutputWithHeaders csv, OvernightInArrearsCapFloorTrade trade) {
+    OvernightInArrearsCapFloorLeg capFloorLeg = trade.getProduct().getCapFloorLeg();
+    csv.writeCell(TRADE_TYPE_FIELD, "OvernightCapFloor");
     String capFloorType;
     double strike;
     if (capFloorLeg.getCapSchedule().isPresent()) {
@@ -291,7 +293,7 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
     csv.writeNewLine();
   }
 
-  private void writePeriodicSchedule(CsvRowOutputWithHeaders csv, PeriodicSchedule paymentSchedule) {
+  private void writePeriodicSchedule(CsvOutput.CsvRowOutputWithHeaders csv, PeriodicSchedule paymentSchedule) {
     csv.writeCell(START_DATE_FIELD, paymentSchedule.getStartDate());
     csv.writeCell(END_DATE_FIELD, paymentSchedule.getEndDate());
     csv.writeCell(PAYMENT_FREQUENCY_FIELD, paymentSchedule.getFrequency());
@@ -322,7 +324,7 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
 
   //-------------------------------------------------------------------------
   // Restricted constructor.
-  private IborCapFloorTradeCsvPlugin() {
+  private OvernightInArrearsCapFloorTradeCsvPlugin() {
   }
 
 }
