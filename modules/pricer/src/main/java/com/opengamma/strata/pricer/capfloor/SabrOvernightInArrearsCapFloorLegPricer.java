@@ -14,12 +14,11 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.capfloor.IborCapletFloorletPeriod;
 import com.opengamma.strata.product.capfloor.OvernightInArrearsCapletFloorletPeriod;
 import com.opengamma.strata.product.capfloor.ResolvedOvernightInArrearsCapFloorLeg;
 
 /**
- * Pricer for cap/floor legs in SABR model.
+ * Pricer for overnight rate in arrears cap/floor legs in SABR model.
  */
 public class SabrOvernightInArrearsCapFloorLegPricer {
 
@@ -37,10 +36,10 @@ public class SabrOvernightInArrearsCapFloorLegPricer {
   /**
    * Creates an instance.
    *
-   * @param periodPricer  the pricer for {@link IborCapletFloorletPeriod}.
+   * @param periodPricer the pricer for {@link OvernightInArrearsCapletFloorletPeriod}.
    */
   public SabrOvernightInArrearsCapFloorLegPricer(SabrOvernightInArrearsCapletFloorletPeriodPricer periodPricer) {
-    this.periodPricer = periodPricer;
+    this.periodPricer = ArgChecker.notNull(periodPricer, "periodPricer");
   }
 
   //-------------------------------------------------------------------------
@@ -55,14 +54,14 @@ public class SabrOvernightInArrearsCapFloorLegPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value of the Ibor cap/floor leg.
+   * Calculates the present value of the overnight rate in arrears cap/floor leg.
    * <p>
    * The present value of the leg is the value on the valuation date.
    * The result is returned using the payment currency of the leg.
    *
-   * @param capFloorLeg  the Ibor cap/floor leg
-   * @param ratesProvider  the rates provider
-   * @param volatilities  the volatilities
+   * @param capFloorLeg the cap/floor leg
+   * @param ratesProvider the rates provider
+   * @param volatilities the volatilities
    * @return the present value
    */
   public CurrencyAmount presentValue(
@@ -74,20 +73,20 @@ public class SabrOvernightInArrearsCapFloorLegPricer {
     return capFloorLeg.getCapletFloorletPeriods()
         .stream()
         .map(period -> periodPricer.presentValue(period, ratesProvider, volatilities))
-        .reduce((c1, c2) -> c1.plus(c2))
-        .get();
+        .reduce(CurrencyAmount::plus)
+        .orElse(CurrencyAmount.zero(capFloorLeg.getCurrency()));
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value for each caplet/floorlet of the Ibor cap/floor leg.
+   * Calculates the present value for each caplet/floorlet of the overnight rate in arrears cap/floor leg.
    * <p>
    * The present value of each caplet/floorlet is the value on the valuation date.
    * The result is returned using the payment currency of the leg.
    *
-   * @param capFloorLeg  the Ibor cap/floor leg
-   * @param ratesProvider  the rates provider
-   * @param volatilities  the volatilities
+   * @param capFloorLeg the cap/floor leg
+   * @param ratesProvider the rates provider
+   * @param volatilities the volatilities
    * @return the present values
    */
   public OvernightInArrearsCapletFloorletPeriodCurrencyAmounts presentValueCapletFloorletPeriods(
@@ -105,36 +104,11 @@ public class SabrOvernightInArrearsCapFloorLegPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the present value rates sensitivity of the Ibor cap/floor leg.
-   * <p>
-   * The present value rates sensitivity of the leg is the sensitivity
-   * of the present value to the underlying curves.
+   * Calculates the current cash of the overnight in arrears cap/floor leg.
    *
-   * @param capFloorLeg  the Ibor cap/floor leg
-   * @param ratesProvider  the rates provider
-   * @param volatilities  the volatilities
-   * @return the present value curve sensitivity
-   */
-  public PointSensitivityBuilder presentValueSensitivityRates(
-      ResolvedOvernightInArrearsCapFloorLeg capFloorLeg,
-      RatesProvider ratesProvider,
-      SabrParametersIborCapletFloorletVolatilities volatilities) {
-
-    validate(ratesProvider, volatilities);
-    return capFloorLeg.getCapletFloorletPeriods()
-        .stream()
-        .map(period -> periodPricer.presentValueSensitivityRates(period, ratesProvider, volatilities))
-        .reduce((p1, p2) -> p1.combinedWith(p2))
-        .get();
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Calculates the current cash of the Ibor cap/floor leg.
-   *
-   * @param capFloorLeg  the Ibor cap/floor leg
-   * @param ratesProvider  the rates provider
-   * @param volatilities  the volatilities
+   * @param capFloorLeg the cap/floor leg
+   * @param ratesProvider the rates provider
+   * @param volatilities the volatilities
    * @return the current cash
    */
   public CurrencyAmount currentCash(
@@ -147,16 +121,16 @@ public class SabrOvernightInArrearsCapFloorLegPricer {
         .stream()
         .filter(period -> period.getPaymentDate().equals(ratesProvider.getValuationDate()))
         .map(period -> periodPricer.presentValue(period, ratesProvider, volatilities))
-        .reduce((c1, c2) -> c1.plus(c2))
+        .reduce(CurrencyAmount::plus)
         .orElse(CurrencyAmount.zero(capFloorLeg.getCurrency()));
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the forward rates for each caplet/floorlet of the Ibor cap/floor leg.
+   * Calculates the forward rates for each caplet/floorlet of the overnight rate in arrears cap/floor leg.
    *
-   * @param capFloorLeg  the Ibor cap/floor leg
-   * @param ratesProvider  the rates provider
+   * @param capFloorLeg the cap/floor leg
+   * @param ratesProvider the rates provider
    * @return the forward rates
    */
   public OvernightInArrearsCapletFloorletPeriodAmounts forwardRates(
@@ -173,10 +147,10 @@ public class SabrOvernightInArrearsCapFloorLegPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Calculates the implied volatilities for each caplet/floorlet of the Ibor cap/floor leg.
+   * Calculates the implied volatilities for each caplet/floorlet of the overnight rate in arrears cap/floor leg.
    *
-   * @param capFloorLeg  the Ibor cap/floor leg
-   * @param ratesProvider  the rates provider
+   * @param capFloorLeg the cap/floor leg
+   * @param ratesProvider the rates provider
    * @param volatilities the volatilities
    * @return the implied volatilities
    */
@@ -202,9 +176,9 @@ public class SabrOvernightInArrearsCapFloorLegPricer {
    * curve nodes with the SABR model parameters unchanged. This sensitivity does not include a potential
    * re-calibration of the model parameters to the raw market data.
    *
-   * @param capFloorLeg  the cap/floor leg
-   * @param ratesProvider  the rates provider
-   * @param volatilities  the volatilities
+   * @param capFloorLeg the cap/floor leg
+   * @param ratesProvider the rates provider
+   * @param volatilities the volatilities
    * @return the point sensitivity to the rate curves
    */
   public PointSensitivityBuilder presentValueSensitivityRatesStickyModel(
@@ -216,8 +190,8 @@ public class SabrOvernightInArrearsCapFloorLegPricer {
     return capFloorLeg.getCapletFloorletPeriods()
         .stream()
         .map(period -> periodPricer.presentValueSensitivityRatesStickyModel(period, ratesProvider, volatilities))
-        .reduce((c1, c2) -> c1.combinedWith(c2))
-        .get();
+        .reduce(PointSensitivityBuilder::combinedWith)
+        .orElse(PointSensitivityBuilder.none());
   }
 
   /**
@@ -225,8 +199,8 @@ public class SabrOvernightInArrearsCapFloorLegPricer {
    * <p>
    * The sensitivity of the present value to the SABR model parameters, alpha, beta, rho and nu.
    *
-   * @param capFloorLeg  the cap/floor
-   * @param ratesProvider  the rates provider
+   * @param capFloorLeg the cap/floor leg
+   * @param ratesProvider the rates provider
    * @param volatilities the volatilities
    * @return the point sensitivity to the SABR model parameters
    */
@@ -239,8 +213,8 @@ public class SabrOvernightInArrearsCapFloorLegPricer {
     return capFloorLeg.getCapletFloorletPeriods()
         .stream()
         .map(period -> periodPricer.presentValueSensitivityModelParamsSabr(period, ratesProvider, volatilities))
-        .reduce((c1, c2) -> c1.combinedWith(c2))
-        .get();
+        .reduce(PointSensitivityBuilder::combinedWith)
+        .orElse(PointSensitivityBuilder.none());
   }
 
   //-------------------------------------------------------------------------

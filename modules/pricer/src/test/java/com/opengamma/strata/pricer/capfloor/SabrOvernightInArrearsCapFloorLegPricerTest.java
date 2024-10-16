@@ -95,7 +95,6 @@ public class SabrOvernightInArrearsCapFloorLegPricerTest {
     System.out.println(LEG_PRICER.presentValueSensitivityRatesStickyModel(CAP_LEG.resolve(REF_DATA), RATES, VOLS));
     System.out.println(LEG_PRICER.impliedVolatilities(CAP_LEG.resolve(REF_DATA), RATES, VOLS));
     System.out.println(LEG_PRICER.forwardRates(CAP_LEG.resolve(REF_DATA), RATES));
-    System.out.println(LEG_PRICER.presentValueSensitivityRates(CAP_LEG.resolve(REF_DATA), RATES, VOLS));
 
   }
 

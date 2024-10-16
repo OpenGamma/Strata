@@ -17,6 +17,7 @@ import java.util.List;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.value.ValueDerivatives;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
@@ -239,75 +240,6 @@ public class SabrOvernightInArrearsCapletFloorletPeriodPricer {
         IborCapletFloorletSabrSensitivity.of(name, startTime, NU, currency, paramHat.get(3)));
   }
 
-  /**
-   * Computes the present value sensitivity to the rate.
-   * <p>
-   * The computed sensitivities include the rate sensitivities via volatility parameters.
-   * Use {@code presentValueSensitivityRatesStickyModel} for the present value sensitivity with sticky volatility
-   * parameters.
-   *
-   * @param period the caplet/floorlet period
-   * @param ratesProvider the rates provider
-   * @param sabrVolatilities the SABR volatilities
-   * @return the present value curve sensitivity
-   */
-  public PointSensitivityBuilder presentValueSensitivityRates(
-      OvernightInArrearsCapletFloorletPeriod period,
-      RatesProvider ratesProvider,
-      SabrParametersIborCapletFloorletVolatilities sabrVolatilities) {
-
-    Currency currency = period.getCurrency();
-    if (!ratesProvider.getValuationDate().isBefore(period.getEndDate())) {
-      return PointSensitivityBuilder.none();
-    }
-    OvernightCompoundedRateComputation onComputation = period.getOvernightRate();
-    LocalDate startDate = onComputation.getStartDate();
-    LocalDate endDate = onComputation.getEndDate();
-    double startTime = sabrVolatilities.relativeTime(startDate.atStartOfDay(ZoneOffset.UTC));
-    double endTime = sabrVolatilities.relativeTime(endDate.atStartOfDay(ZoneOffset.UTC));
-    double df = ratesProvider.discountFactor(currency, period.getPaymentDate());
-    PutCall putCall = period.getPutCall();
-    double strike = period.getStrike();
-    double forward = ON_FUNCT
-        .rate(onComputation, onComputation.getStartDate(), onComputation.getEndDate(), ratesProvider);
-    double alpha = sabrVolatilities.alpha(startTime);
-    double beta = sabrVolatilities.beta(startTime);
-    double rho = sabrVolatilities.rho(startTime);
-    double nu = sabrVolatilities.nu(startTime);
-    double shift = sabrVolatilities.shift(startTime);
-    SabrFormulaData sabr = SabrFormulaData.of(alpha, beta, rho, nu);
-    List<ValueDerivatives> sabrAdjusted = sabrInArrearsFunction.effectiveSabrAd(sabr, startTime, endTime);
-    ValueDerivatives volDerivatives = sabrVolatilities.getParameters().getSabrVolatilityFormula().volatilityAdjoint(
-        forward + shift,
-        strike + shift,
-        endTime,
-        sabrAdjusted.get(0).getValue(), sabrAdjusted.get(1).getValue(),
-        sabrAdjusted.get(2).getValue(), sabrAdjusted.get(3).getValue());
-    ValueDerivatives priceDerivatives = BlackFormulaRepository.priceAdjoint(
-        forward + shift,
-        strike + shift,
-        endTime,
-        volDerivatives.getValue(),
-        putCall.isCall());
-
-    // sensitivities to discount curve
-    double factor = period.getYearFraction() * period.getNotional();
-    double fwdPv = priceDerivatives.getValue() * factor;
-    PointSensitivityBuilder dfSensi =
-        ratesProvider.discountFactors(currency).zeroRatePointSensitivity(period.getPaymentDate());
-    // sensitivities to forward curve
-    double fwdDelta = priceDerivatives.getDerivative(0) * factor;
-    double fwdVega = priceDerivatives.getDerivative(3) * factor * volDerivatives.getDerivative(0);
-    double pvSensiFwd = df * (fwdDelta + fwdVega  * volDerivatives.getDerivative(0));
-    PointSensitivityBuilder indexRateSensiSensi = ON_FUNCT.rateSensitivity(
-        onComputation,
-        onComputation.getStartDate(),
-        onComputation.getEndDate(),
-        ratesProvider);
-
-    return dfSensi.multipliedBy(fwdPv).combinedWith(indexRateSensiSensi.multipliedBy(pvSensiFwd));
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Computes the implied volatility of the caplet/floorlet.
@@ -327,6 +259,7 @@ public class SabrOvernightInArrearsCapletFloorletPeriodPricer {
     LocalDate endDate = onComputation.getEndDate();
     double startTime = sabrVolatilities.relativeTime(startDate.atStartOfDay(ZoneOffset.UTC)); // ON rates don't have an exact fixing time
     double endTime = sabrVolatilities.relativeTime(endDate.atStartOfDay(ZoneOffset.UTC));
+    ArgChecker.isTrue(endTime >= 0d, "Option must be before expiry to compute an implied volatility");
     double strike = period.getStrike();
     double forward = ON_FUNCT.rate(onComputation, onComputation.getStartDate(), onComputation.getEndDate(), ratesProvider);
     double alpha = sabrVolatilities.alpha(startTime); // parameters at start of composition period, for coherence with term rate caplets
