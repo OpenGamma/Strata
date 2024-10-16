@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2024 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
