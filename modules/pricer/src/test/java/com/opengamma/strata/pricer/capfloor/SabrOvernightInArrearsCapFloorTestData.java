@@ -163,7 +163,7 @@ public class SabrOvernightInArrearsCapFloorTestData {
   static final SabrParametersIborCapletFloorletVolatilities VOLS_PAY =
       IborCapletFloorletSabrRateVolatilityDataSet.getVolatilities(VALUATION_PAY, EUR_ESTRTERM_3M);
 
-  private SabrOvernightInArrearsCapFloorTestData(){
+  private SabrOvernightInArrearsCapFloorTestData() {
   }
 
 }

@@ -599,8 +599,7 @@ public class SabrOvernightInArrearsCapletFloorletPeriodPricerTest {
     assertThat(ptsCapletLongComputed).isEqualTo(PointSensitivities.empty());
     assertThat(ptsFloorletShortComputed).isEqualTo(PointSensitivities.empty());
   }
-
-
+  
   //-------------------------------------------------------------------------
 
   @Test
