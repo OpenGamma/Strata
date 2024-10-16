@@ -37,6 +37,7 @@ import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.product.rate.OvernightCompoundedRateComputation;
+import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 import com.opengamma.strata.product.swap.OvernightRateCalculation;
 
 /**
@@ -162,6 +163,18 @@ public class OvernightInArrearsCapFloorLegTest {
                 .stubConvention(StubConvention.SHORT_FINAL)
                 .build())
             .payReceive(PAY)
+            .build());
+    // accrual method not compounded
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OvernightInArrearsCapFloorLeg.builder()
+            .calculation(OvernightRateCalculation.builder()
+                .index(EUR_ESTR)
+                .accrualMethod(OvernightAccrualMethod.AVERAGED_DAILY)
+                .build())
+            .floorSchedule(FLOOR)
+            .notional(NOTIONAL)
+            .paymentSchedule(SCHEDULE)
+            .payReceive(RECEIVE)
             .build());
   }
 
