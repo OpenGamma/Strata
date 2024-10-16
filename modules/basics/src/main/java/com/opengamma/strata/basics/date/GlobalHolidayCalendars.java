@@ -1169,6 +1169,7 @@ final class GlobalHolidayCalendars {
   // dates of published fixings - https://twitter.com/Banxico
   // http://www.banxico.org.mx/SieInternet/consultarDirectorioInternetAction.do?accion=consultarCuadro&idCuadro=CF111&locale=en
   // http://www.gob.mx/cms/uploads/attachment/file/161094/calendario_vacaciones2016.pdf
+  // https://comunicacionsocial.diputados.gob.mx/index.php/boletines/la-camara-de-diputados-declaro-el-1-de-octubre-de-cada-seis-a-os-como-dia-de-descanso-obligatorio
   static ImmutableHolidayCalendar generateMexicoCity() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
@@ -1186,6 +1187,10 @@ final class GlobalHolidayCalendars {
       holidays.add(date(year, 5, 1));
       // independence
       holidays.add(date(year, 9, 16));
+      // inaguration day - occurring once in every 6 years (2024, 2030, etc).
+      if (year >= 2024 && (year + 4) % 6 == 0) {
+        holidays.add(date(year, 10, 1));
+      }
       // dead
       holidays.add(date(year, 11, 2));
       // revolution
@@ -1196,7 +1201,7 @@ final class GlobalHolidayCalendars {
       holidays.add(date(year, 12, 25));
     }
     removeSatSun(holidays);
-    return ImmutableHolidayCalendar.of(HolidayCalendarId.of("MXMC"), holidays, SATURDAY, SUNDAY);
+    return ImmutableHolidayCalendar.of(HolidayCalendarIds.MXMC, holidays, SATURDAY, SUNDAY);
   }
 
   // generate BRBD
