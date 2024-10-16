@@ -70,8 +70,7 @@ public class SabrOvernightInArrearsCapFloorLegPricer {
       SabrParametersIborCapletFloorletVolatilities volatilities) {
 
     validate(ratesProvider, volatilities);
-    return capFloorLeg.getCapletFloorletPeriods()
-        .stream()
+    return capFloorLeg.getCapletFloorletPeriods().stream()
         .map(period -> periodPricer.presentValue(period, ratesProvider, volatilities))
         .reduce(CurrencyAmount::plus)
         .orElse(CurrencyAmount.zero(capFloorLeg.getCurrency()));
@@ -117,8 +116,7 @@ public class SabrOvernightInArrearsCapFloorLegPricer {
       SabrParametersIborCapletFloorletVolatilities volatilities) {
 
     validate(ratesProvider, volatilities);
-    return capFloorLeg.getCapletFloorletPeriods()
-        .stream()
+    return capFloorLeg.getCapletFloorletPeriods().stream()
         .filter(period -> period.getPaymentDate().equals(ratesProvider.getValuationDate()))
         .map(period -> periodPricer.presentValue(period, ratesProvider, volatilities))
         .reduce(CurrencyAmount::plus)
@@ -187,8 +185,7 @@ public class SabrOvernightInArrearsCapFloorLegPricer {
       SabrParametersIborCapletFloorletVolatilities volatilities) {
 
     validate(ratesProvider, volatilities);
-    return capFloorLeg.getCapletFloorletPeriods()
-        .stream()
+    return capFloorLeg.getCapletFloorletPeriods().stream()
         .map(period -> periodPricer.presentValueSensitivityRatesStickyModel(period, ratesProvider, volatilities))
         .reduce(PointSensitivityBuilder::combinedWith)
         .orElse(PointSensitivityBuilder.none());
@@ -210,8 +207,7 @@ public class SabrOvernightInArrearsCapFloorLegPricer {
       SabrParametersIborCapletFloorletVolatilities volatilities) {
 
     validate(ratesProvider, volatilities);
-    return capFloorLeg.getCapletFloorletPeriods()
-        .stream()
+    return capFloorLeg.getCapletFloorletPeriods().stream()
         .map(period -> periodPricer.presentValueSensitivityModelParamsSabr(period, ratesProvider, volatilities))
         .reduce(PointSensitivityBuilder::combinedWith)
         .orElse(PointSensitivityBuilder.none());
