@@ -9,11 +9,14 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.index.OvernightIndices.EUR_ESTR;
 import static com.opengamma.strata.collect.TestHelper.dateUtc;
+import static com.opengamma.strata.pricer.capfloor.IborCapletFloorletSabrRateVolatilityDataSet.CONST_SHIFT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 import org.assertj.core.data.Offset;
@@ -427,7 +430,6 @@ public class SabrOvernightInArrearsCapletFloorletPeriodPricerTest {
     assertThat(computedCaplet.getAmount()).isCloseTo(0.0d, TOLERANCE_PV);
     assertThat(computedFloorlet.getCurrency()).isEqualTo(EUR);
     assertThat(computedFloorlet.getAmount()).isCloseTo(0.0d, TOLERANCE_PV);
-
   }
 
   //-------------------------------------------------------------------------
@@ -586,7 +588,6 @@ public class SabrOvernightInArrearsCapletFloorletPeriodPricerTest {
         .presentValueSensitivityModelParamsSabr(FLOORLET_SHORT, RATES_AFTER_END, VOLS_AFTER_END).build();
     assertThat(ptsCapletLongComputed).isEqualTo(PointSensitivities.empty());
     assertThat(ptsFloorletShortComputed).isEqualTo(PointSensitivities.empty());
-
   }
 
   @Test
@@ -597,7 +598,102 @@ public class SabrOvernightInArrearsCapletFloorletPeriodPricerTest {
         .presentValueSensitivityModelParamsSabr(FLOORLET_SHORT, RATES_AFTER_PAY, VOLS_AFTER_PAY).build();
     assertThat(ptsCapletLongComputed).isEqualTo(PointSensitivities.empty());
     assertThat(ptsFloorletShortComputed).isEqualTo(PointSensitivities.empty());
+  }
+  
+  //-------------------------------------------------------------------------
 
+  @Test
+  public void forwardRate_impliedVolatility_beforestart() {
+    double forwardRateCapletComputed = PRICER_ON_INARREARS_Q1.forwardRate(CAPLET_LONG, RATES);
+    double impliedVolCapletComputed = PRICER_ON_INARREARS_Q1.impliedVolatility(CAPLET_LONG, RATES, VOLS);
+    double forwardRateFloorletComputed = PRICER_ON_INARREARS_Q1.forwardRate(FLOORLET_LONG, RATES);
+    double impliedVolFloorletComputed = PRICER_ON_INARREARS_Q1.impliedVolatility(FLOORLET_LONG, RATES, VOLS);
+    OvernightIndexObservation onObs = OvernightIndexObservation.of(EUR_ESTR, START_DATE, REF_DATA);
+    double forwardExpected = RATES.overnightIndexRates(EUR_ESTR).periodRate(onObs, END_DATE);
+    assertThat(forwardRateCapletComputed).isCloseTo(forwardExpected, TOLERANCE_SMALL_IV);
+    assertThat(forwardRateFloorletComputed).isCloseTo(forwardExpected, TOLERANCE_SMALL_IV);
+    double num = NOTIONAL * ACCRUAL_FACTOR * RATES.discountFactor(EUR, PAYMENT_DATE);
+    double timeToExpiry = VOLS.relativeTime(END_DATE.atStartOfDay(ZoneOffset.UTC));
+    CurrencyAmount inArrearsPv = PRICER_ON_INARREARS_Q1.presentValue(CAPLET_LONG, RATES, VOLS);
+    double impliedVolExpected = BlackFormulaRepository.impliedVolatility(
+        inArrearsPv.getAmount() / num,
+        forwardExpected + CONST_SHIFT,
+        STRIKE + CONST_SHIFT,
+        timeToExpiry,
+        true);
+    assertThat(impliedVolCapletComputed).isCloseTo(impliedVolExpected, TOLERANCE_SMALL_IV);
+    assertThat(impliedVolFloorletComputed).isCloseTo(impliedVolExpected, TOLERANCE_SMALL_IV);
+  }
+
+  @Test
+  public void forwardRate_impliedVolatility_afterstart() {
+    double strike = 0.0115; // near-ATM
+    OvernightInArrearsCapletFloorletPeriod capletLong =
+        OvernightInArrearsCapletFloorletPeriod.builder()
+            .caplet(strike)
+            .startDate(START_DATE)
+            .endDate(END_DATE)
+            .paymentDate(PAYMENT_DATE)
+            .yearFraction(ACCRUAL_FACTOR)
+            .notional(NOTIONAL)
+            .overnightRate(RATE_COMP)
+            .build();
+    OvernightInArrearsCapletFloorletPeriod floorletLong =
+        OvernightInArrearsCapletFloorletPeriod.builder()
+            .floorlet(strike)
+            .startDate(START_DATE)
+            .endDate(END_DATE)
+            .paymentDate(PAYMENT_DATE)
+            .yearFraction(ACCRUAL_FACTOR)
+            .notional(NOTIONAL)
+            .overnightRate(RATE_COMP)
+            .build();
+    double forwardRateCapletComputed = PRICER_ON_INARREARS_Q1.forwardRate(capletLong, RATES_AFTER_START);
+    double impliedVolCapletComputed = PRICER_ON_INARREARS_Q1.impliedVolatility(
+        capletLong,
+        RATES_AFTER_START,
+        VOLS_AFTER_START);
+    double forwardRateFloorletComputed = PRICER_ON_INARREARS_Q1.forwardRate(floorletLong, RATES_AFTER_START);
+    double impliedVolFloorletComputed = PRICER_ON_INARREARS_Q1.impliedVolatility(
+        floorletLong,
+        RATES_AFTER_START,
+        VOLS_AFTER_START);
+    double forwardExpected = ForwardOvernightCompoundedRateComputationFn.DEFAULT.rate(
+        capletLong.getOvernightRate(),
+        START_DATE,
+        END_DATE,
+        RATES_AFTER_START);
+    assertThat(forwardRateCapletComputed).isCloseTo(forwardExpected, TOLERANCE_SMALL_IV);
+    assertThat(forwardRateFloorletComputed).isCloseTo(forwardExpected, TOLERANCE_SMALL_IV);
+    double num = NOTIONAL * ACCRUAL_FACTOR * RATES_AFTER_START.discountFactor(EUR, PAYMENT_DATE);
+    double timeToExpiry = VOLS_AFTER_START.relativeTime(END_DATE.atStartOfDay(ZoneOffset.UTC));
+    CurrencyAmount inArrearsPv = PRICER_ON_INARREARS_Q1.presentValue(capletLong, RATES_AFTER_START, VOLS_AFTER_START);
+    double impliedVolExpected = BlackFormulaRepository.impliedVolatility(
+        inArrearsPv.getAmount() / num,
+        forwardExpected + CONST_SHIFT,
+        strike + CONST_SHIFT,
+        timeToExpiry,
+        true);
+    assertThat(impliedVolCapletComputed).isCloseTo(impliedVolExpected, TOLERANCE_SMALL_IV);
+    assertThat(impliedVolFloorletComputed).isCloseTo(impliedVolExpected, TOLERANCE_SMALL_IV);
+  }
+
+  @Test
+  public void forwardRate_impliedVolatility_afterend() {
+    double forwardRateCapletComputed = PRICER_ON_INARREARS_Q1.forwardRate(CAPLET_LONG, RATES_AFTER_END);
+    double forwardRateFloorletComputed = PRICER_ON_INARREARS_Q1.forwardRate(FLOORLET_LONG, RATES_AFTER_END);
+    double forwardExpected = ForwardOvernightCompoundedRateComputationFn.DEFAULT.rate(
+        CAPLET_LONG.getOvernightRate(),
+        START_DATE,
+        END_DATE,
+        RATES_AFTER_END);
+    assertThat(forwardRateCapletComputed).isCloseTo(forwardExpected, TOLERANCE_SMALL_IV);
+    assertThat(forwardRateFloorletComputed).isCloseTo(forwardExpected, TOLERANCE_SMALL_IV);
+    // impliedVolatility fails after expiry
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_ON_INARREARS_Q1.impliedVolatility(CAPLET_LONG, RATES_AFTER_END, VOLS_AFTER_END));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_ON_INARREARS_Q1.impliedVolatility(FLOORLET_LONG, RATES_AFTER_END, VOLS_AFTER_END));
   }
 
 }
