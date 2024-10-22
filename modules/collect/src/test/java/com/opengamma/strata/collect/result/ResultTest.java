@@ -6,6 +6,7 @@
 package com.opengamma.strata.collect.result;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.result.FailureReason.CALCULATION_FAILED;
 import static com.opengamma.strata.collect.result.FailureReason.ERROR;
 import static com.opengamma.strata.collect.result.FailureReason.INVALID;
@@ -943,6 +944,17 @@ public class ResultTest {
     assertThat(test)
         .isFailure(ERROR)
         .hasFailureMessageMatching("failure");
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_filteringSuccessfulValues() {
+    List<Result<String>> list = ImmutableList.of(
+        Result.success("success 1"),
+        Result.failure(ERROR, "failure 1"),
+        Result.success("success 2"));
+    assertThat(list.stream().flatMap(Result.filteringSuccessfulValues()).collect(toImmutableList()))
+        .isEqualTo(ImmutableList.of("success 1", "success 2"));
   }
 
   //-------------------------------------------------------------------------

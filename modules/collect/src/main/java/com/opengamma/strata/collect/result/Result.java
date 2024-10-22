@@ -1008,6 +1008,24 @@ public final class Result<T>
   }
 
   /**
+   * Function used in a stream to filter for successful result values.
+   * <p>
+   * This method returns a function that can be used with {@link Stream#flatMap(Function)}
+   * to filter for successful Result values. Works similarly to {@link Guavate#filteringOptional}
+   * <p>
+   * This would be used as follows (with a static import):
+   * <pre> stream.flatMap(filteringSuccessfulValues()); </pre>
+   * This replaces code of the form:
+   * <pre> stream.filter(Result::isSuccess).map(Result::getValue); </pre>
+   *
+   * @param <T> the type of element in the output stream
+   * @return the function
+   */
+  public static <T> Function<Result<T>, Stream<T>> filteringSuccessfulValues() {
+    return result -> result.isSuccess() ? Stream.of(result.getValue()) : Stream.empty();
+  }
+
+  /**
    * Converts this result to a stream.
    * <p>
    * If this result is a success then a single element stream containing the result value is returned.
