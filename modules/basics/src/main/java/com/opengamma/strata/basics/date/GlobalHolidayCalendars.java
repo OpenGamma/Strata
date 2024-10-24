@@ -1199,7 +1199,6 @@ final class GlobalHolidayCalendars {
       holidays.add(date(year, 12, 12));
       // christmas
       holidays.add(date(year, 12, 25));
-      System.out.println();
     }
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarIds.MXMC, holidays, SATURDAY, SUNDAY);
