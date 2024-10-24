@@ -47,7 +47,7 @@ final class GlobalHolidayCalendars {
 
   /** Where to store the file. */
   private static final File DATA_FILE =
-      new File("src/main/resources/com/opengamma/strata/basics/date/GlobalHolidayCalendars.bin");
+      new File("modules/basics/src/main/resources/com/opengamma/strata/basics/date/GlobalHolidayCalendars.bin");
 
   //-------------------------------------------------------------------------
   /**
@@ -1199,6 +1199,7 @@ final class GlobalHolidayCalendars {
       holidays.add(date(year, 12, 12));
       // christmas
       holidays.add(date(year, 12, 25));
+      System.out.println();
     }
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarIds.MXMC, holidays, SATURDAY, SUNDAY);
