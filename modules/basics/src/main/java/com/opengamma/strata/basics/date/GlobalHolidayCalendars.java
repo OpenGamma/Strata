@@ -47,7 +47,7 @@ final class GlobalHolidayCalendars {
 
   /** Where to store the file. */
   private static final File DATA_FILE =
-      new File("modules/basics/src/main/resources/com/opengamma/strata/basics/date/GlobalHolidayCalendars.bin");
+      new File("src/main/resources/com/opengamma/strata/basics/date/GlobalHolidayCalendars.bin");
 
   //-------------------------------------------------------------------------
   /**
