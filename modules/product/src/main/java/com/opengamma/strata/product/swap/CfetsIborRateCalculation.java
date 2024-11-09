@@ -283,8 +283,6 @@ public final class CfetsIborRateCalculation implements RateCalculation, Immutabl
   @PropertyDefinition(get = "optional")
   private final ValueSchedule spread;
 
-
-
   // -------------------------------------------------------------------------
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
@@ -318,9 +316,12 @@ public final class CfetsIborRateCalculation implements RateCalculation, Immutabl
     getFinalStub().ifPresent(stub -> stub.collectIndices(builder));
   }
 
-@Override
-  public ImmutableList<RateAccrualPeriod> createAccrualPeriods(Schedule accrualSchedule, Schedule paymentSchedule,
+  @Override
+  public ImmutableList<RateAccrualPeriod> createAccrualPeriods(
+      Schedule accrualSchedule, 
+      Schedule paymentSchedule,
       ReferenceData refData) {
+
     // resolve data by schedule
     DoubleArray resolvedGearings = firstNonNull(gearing, ALWAYS_1).resolveValues(accrualSchedule);
     DoubleArray resolvedSpreads = firstNonNull(spread, ALWAYS_0).resolveValues(accrualSchedule);
