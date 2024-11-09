@@ -1,4 +1,11 @@
+/*
+ * Copyright (C) 2018 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.pricer.impl.rate;
+
+import java.time.LocalDate;
 
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
@@ -9,8 +16,6 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.rate.IborAveragedFixing;
 import com.opengamma.strata.product.rate.IborAveragedRateComputation;
 
-import java.time.LocalDate;
-
 /**
  * Rate computation implementation for  Cfets convention, in which a rate is based on the compounding of multiple fixings of a
  * single Ibor floating rate index.
@@ -18,7 +23,6 @@ import java.time.LocalDate;
  * The rate computation queries the rates from the {@code RatesProvider} and weighted-average them.
  * There is no convexity adjustment computed in this implementation.
  */
-
 public class CfetsForwardIborAveragedRateComputationFn
     implements RateComputationFn<IborAveragedRateComputation> {
 
@@ -45,16 +49,20 @@ public class CfetsForwardIborAveragedRateComputationFn
   }
 
   @Override
-  public PointSensitivityBuilder rateSensitivity(IborAveragedRateComputation computation, LocalDate startDate,
-      LocalDate endDate, RatesProvider provider) {
+  public PointSensitivityBuilder rateSensitivity(
+      IborAveragedRateComputation computation,
+      LocalDate startDate,
+      LocalDate endDate,
+      RatesProvider provider) {
+
     IborIndexRates rates = provider.iborIndexRates(computation.getIndex());
 
     // combine the weighted sensitivity to each fixing
     // omit fixed rates as they have no sensitivity to a curve
     return computation.getFixings().stream()
-               .filter(fixing -> !fixing.getFixedRate().isPresent())
-               .map(fixing -> weightedSensitivity(fixing, computation.getTotalWeight(), rates))
-               .reduce(PointSensitivityBuilder.none(), PointSensitivityBuilder::combinedWith);
+        .filter(fixing -> !fixing.getFixedRate().isPresent())
+        .map(fixing -> weightedSensitivity(fixing, computation.getTotalWeight(), rates))
+        .reduce(PointSensitivityBuilder.none(), PointSensitivityBuilder::combinedWith);
   }
 
   // Compute the weighted sensitivity for one IborAverageFixing.
