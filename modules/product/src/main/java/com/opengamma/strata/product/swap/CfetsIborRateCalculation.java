@@ -83,10 +83,6 @@ public final class CfetsIborRateCalculation implements RateCalculation, Immutabl
    */
   private static final long serialVersionUID = 1L;
 
-  static {
-    MetaBean.register(CfetsIborRateCalculation.Meta.INSTANCE);
-  }
-
   /**
    * The day count convention.
    * <p>
