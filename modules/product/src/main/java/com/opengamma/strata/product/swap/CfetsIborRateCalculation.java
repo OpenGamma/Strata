@@ -283,30 +283,7 @@ public final class CfetsIborRateCalculation implements RateCalculation, Immutabl
   @PropertyDefinition(get = "optional")
   private final ValueSchedule spread;
 
-  private CfetsIborRateCalculation(DayCount dayCount, IborIndex index, ResetSchedule resetPeriods,
-      FixingRelativeTo fixingRelativeTo, DaysAdjustment fixingDateOffset, NegativeRateMethod negativeRateMethod,
-      Double firstRegularRate, Double firstRate, DaysAdjustment firstFixingDateOffset,
-      IborRateStubCalculation initialStub, IborRateStubCalculation finalStub, ValueSchedule gearing,
-      ValueSchedule spread) {
-    JodaBeanUtils.notNull(dayCount, "dayCount");
-    JodaBeanUtils.notNull(index, "index");
-    JodaBeanUtils.notNull(fixingRelativeTo, "fixingRelativeTo");
-    JodaBeanUtils.notNull(fixingDateOffset, "fixingDateOffset");
-    JodaBeanUtils.notNull(negativeRateMethod, "negativeRateMethod");
-    this.dayCount = dayCount;
-    this.index = index;
-    this.resetPeriods = resetPeriods;
-    this.fixingRelativeTo = fixingRelativeTo;
-    this.fixingDateOffset = fixingDateOffset;
-    this.negativeRateMethod = negativeRateMethod;
-    this.firstRegularRate = firstRegularRate;
-    this.firstRate = firstRate;
-    this.firstFixingDateOffset = firstFixingDateOffset;
-    this.initialStub = initialStub;
-    this.finalStub = finalStub;
-    this.gearing = gearing;
-    this.spread = spread;
-  }
+
 
   // -------------------------------------------------------------------------
   @ImmutableDefaults
@@ -325,24 +302,6 @@ public final class CfetsIborRateCalculation implements RateCalculation, Immutabl
         builder.fixingDateOffset = builder.index.getFixingDateOffset();
       }
     }
-  }
-
-  /**
-   * The meta-bean for {@code CfetsIborRateCalculation}.
-   *
-   * @return the meta-bean, not null
-   */
-  public static CfetsIborRateCalculation.Meta meta() {
-    return CfetsIborRateCalculation.Meta.INSTANCE;
-  }
-
-  /**
-   * Returns a builder used to create an instance of the bean.
-   *
-   * @return the builder, not null
-   */
-  public static CfetsIborRateCalculation.Builder builder() {
-    return new CfetsIborRateCalculation.Builder();
   }
 
   @Override
@@ -488,11 +447,6 @@ public final class CfetsIborRateCalculation implements RateCalculation, Immutabl
   @Override
   public SwapLegType getType() {
     return SwapLegType.IBOR;
-  }
-
-  @Override
-  public CfetsIborRateCalculation.Meta metaBean() {
-    return CfetsIborRateCalculation.Meta.INSTANCE;
   }
 
   // -----------------------------------------------------------------------
