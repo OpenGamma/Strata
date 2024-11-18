@@ -183,7 +183,7 @@ public final class RateCalculationSwapLeg
       return resolveWithPaymentFrequencyDrivenPaymentPeriods(refData);
     }
     DayCount dayCount = calculation.getDayCount();
-    Schedule resolvedAccruals = accrualSchedule.createSchedule(refData);
+    Schedule resolvedAccruals = accrualSchedule.createSchedule(refData, true);
     if (accrualScheduleOffset != null) {
       resolvedAccruals = resolvedAccruals.toAdjusted(accrualScheduleOffset.resolve(refData));
     }
