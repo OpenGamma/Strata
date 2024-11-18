@@ -1137,7 +1137,7 @@ public final class BlackFormulaRepository {
       double timeToExpiry,
       boolean isCall) {
 
-    ArgChecker.isTrue(price >= 0d, "negative/NaN price; have {}", price);
+    ArgChecker.isTrue(price >= -NEAR_ZERO * forward, "negative/NaN price; have {}", price);
     ArgChecker.isTrue(forward > 0d, "negative/NaN forward; have {}", forward);
     ArgChecker.isTrue(strike >= 0d, "negative/NaN strike; have {}", strike);
     ArgChecker.isTrue(timeToExpiry >= 0d, "negative/NaN timeToExpiry; have {}", timeToExpiry);
@@ -1172,7 +1172,7 @@ public final class BlackFormulaRepository {
       double timeToExpiry,
       boolean isCall) {
 
-    ArgChecker.isTrue(price >= 0d, "negative/NaN price; have {}", price);
+    ArgChecker.isTrue(price >= -NEAR_ZERO * forward, "negative/NaN price; have {}", price);
     ArgChecker.isTrue(forward > 0d, "negative/NaN forward; have {}", forward);
     ArgChecker.isTrue(strike >= 0d, "negative/NaN strike; have {}", strike);
     ArgChecker.isTrue(timeToExpiry >= 0d, "negative/NaN timeToExpiry; have {}", timeToExpiry);
@@ -1211,7 +1211,7 @@ public final class BlackFormulaRepository {
       double timeToExpiry,
       double volGuess) {
 
-    ArgChecker.isTrue(otmPrice >= 0d, "negative/NaN otmPrice; have {}", otmPrice);
+    ArgChecker.isTrue(otmPrice >= -NEAR_ZERO * forward, "negative/NaN otmPrice; have {}", otmPrice);
     ArgChecker.isTrue(forward >= 0d, "negative/NaN forward; have {}", forward);
     ArgChecker.isTrue(strike >= 0d, "negative/NaN strike; have {}", strike);
     ArgChecker.isTrue(timeToExpiry >= 0d, "negative/NaN timeToExpiry; have {}", timeToExpiry);
@@ -1223,8 +1223,8 @@ public final class BlackFormulaRepository {
     ArgChecker.isFalse(Double.isInfinite(timeToExpiry), "timeToExpiry is Infinity");
     ArgChecker.isFalse(Double.isInfinite(volGuess), "volGuess is Infinity");
 
-    if (otmPrice == 0) {
-      return 0;
+    if (Math.abs(otmPrice) < NEAR_ZERO * forward) {
+      return 0.0d;
     }
     ArgChecker.isTrue(otmPrice < Math.min(forward, strike), "otmPrice of {} exceeded upper bound of {}", otmPrice,
         Math.min(forward, strike));
@@ -1274,6 +1274,9 @@ public final class BlackFormulaRepository {
       double timeToExpiry,
       double volGuess) {
 
+    if (Math.abs(otmPrice) < NEAR_ZERO * forward) {
+      return ValueDerivatives.of(0.0d, DoubleArray.of(0.0d));
+    }
     double impliedVolatility = impliedVolatility(otmPrice, forward, strike, timeToExpiry, volGuess);
     boolean isCall = strike >= forward;
     ValueDerivatives price = priceAdjoint(forward, strike, timeToExpiry, impliedVolatility, isCall);

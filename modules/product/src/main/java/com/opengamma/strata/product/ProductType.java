@@ -16,6 +16,7 @@ import com.opengamma.strata.product.bond.BondFutureOption;
 import com.opengamma.strata.product.bond.CapitalIndexedBond;
 import com.opengamma.strata.product.bond.FixedCouponBond;
 import com.opengamma.strata.product.capfloor.IborCapFloor;
+import com.opengamma.strata.product.capfloor.OvernightInArrearsCapFloor;
 import com.opengamma.strata.product.cms.Cms;
 import com.opengamma.strata.product.credit.Cds;
 import com.opengamma.strata.product.credit.CdsIndex;
@@ -110,6 +111,12 @@ public final class ProductType
    * A {@link IborCapFloor}.
    */
   public static final ProductType IBOR_CAP_FLOOR = ProductType.of("IborCapFloor", "Cap/Floor");
+  /**
+   * A {@link OvernightInArrearsCapFloor}.
+   */
+  public static final ProductType OVERNIGHT_IN_ARREARS_CAP_FLOOR = ProductType.of(
+      "OvernightInArrearsCapFloor",
+      "Overnight In Arrears Cap/Floor");
   /**
    * A {@link IborFuture}.
    */

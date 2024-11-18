@@ -32,6 +32,14 @@ executors:
       JAVA_TOOL_OPTIONS: -XX:MaxRAM=3572m
       MAVEN_OPTS: -Xmx1g
 
+  #----------------------------------------------------------------------------
+  jdk21:
+    docker:
+      - image: cimg/openjdk:21.0
+    working_directory: ~/repo
+    environment:
+      JAVA_TOOL_OPTIONS: -XX:MaxRAM=3572m
+      MAVEN_OPTS: -Xmx1g
 
 #############################################################################
 # reusable commands
@@ -45,9 +53,13 @@ commands:
       - run:
           name: Initializing Maven
           command: |
+            mvn --version
             mkdir -p ./.mvn
-            echo "-e -B -DtrimStackTrace=false --settings $( pwd )/.circleci/maven-settings.xml" > ./.mvn/maven.config
-            cat ./.mvn/maven.config
+            echo "-e" >> ./.mvn/maven.config
+            echo "-B" >> ./.mvn/maven.config
+            echo "-DtrimStackTrace=false" >> ./.mvn/maven.config
+            echo "--settings" >> ./.mvn/maven.config
+            echo "$( pwd )/.circleci/maven-settings.xml" >> ./.mvn/maven.config
             mvn --version
 
 #----------------------------------------------------------------------------
@@ -259,6 +271,15 @@ jobs:
             - maven_install
             - maven_test
 
+  build21:
+    executor: jdk21
+    steps:
+      - checkout
+      - with_maven:
+          actions:
+            - maven_install
+            - maven_test
+
 #----------------------------------------------------------------------------
   release:
     executor: jdk8
@@ -313,6 +334,8 @@ workflows:
       - build11:
           context: OG-OSS
       - build17:
+          context: OG-OSS
+      - build21:
           context: OG-OSS
 
 #----------------------------------------------------------------------------

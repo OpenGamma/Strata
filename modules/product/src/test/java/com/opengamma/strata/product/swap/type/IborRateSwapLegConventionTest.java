@@ -16,6 +16,7 @@ import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.basics.schedule.StubConvention.LONG_INITIAL;
+import static com.opengamma.strata.basics.schedule.StubConvention.SMART_INITIAL;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -152,6 +153,7 @@ public class IborRateSwapLegConventionTest {
             .startDate(startDate)
             .endDate(endDate)
             .businessDayAdjustment(BDA_MOD_FOLLOW)
+            .stubConvention(SMART_INITIAL)
             .build())
         .paymentSchedule(PaymentSchedule.builder()
             .paymentFrequency(P3M)
@@ -178,6 +180,7 @@ public class IborRateSwapLegConventionTest {
             .startDate(startDate)
             .endDate(endDate)
             .businessDayAdjustment(BDA_MOD_FOLLOW)
+            .stubConvention(SMART_INITIAL)
             .build())
         .paymentSchedule(PaymentSchedule.builder()
             .paymentFrequency(P3M)

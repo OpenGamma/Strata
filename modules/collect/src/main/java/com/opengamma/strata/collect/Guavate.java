@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.TreeMap;
@@ -27,6 +28,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
@@ -51,6 +53,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MoreCollectors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.opengamma.strata.collect.function.CheckedSupplier;
 import com.opengamma.strata.collect.tuple.ObjIntPair;
 import com.opengamma.strata.collect.tuple.Pair;
 
@@ -201,17 +204,43 @@ public final class Guavate {
   /**
    * Wraps a try-catch block around an expression, avoiding exceptions.
    * <p>
-   * This converts an exception throwing method into an optional returning one by discarding the exception.
-   * In most cases it is better to add a `findXxx()` method to the code you want to call.
+   * This converts an exception throwing method into a method that returns an optional by discarding the exception.
+   * In most cases it is better to write a `findXxx()` or 'tryXxx()' method to the code you want to call.
+   * <p>
+   * To handle checked exceptions, use {@link Unchecked#supplier(CheckedSupplier)}.
    * 
    * @param <T>  the type of the result in the optional
-   * @param supplier  the supplier that might throw an exception
+   * @param resultSupplier  the supplier that might throw an exception
    * @return the value wrapped in an optional, empty if the method returns null or an exception is thrown
    */
-  public static <T> Optional<T> tryCatchToOptional(Supplier<T> supplier) {
+  public static <T> Optional<T> tryCatchToOptional(Supplier<T> resultSupplier) {
     try {
-      return Optional.ofNullable(supplier.get());
+      return Optional.ofNullable(resultSupplier.get());
     } catch (RuntimeException ex) {
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * Wraps a try-catch block around an expression, avoiding exceptions.
+   * <p>
+   * This variant allows the exception to be observed, such as for logging.
+   * <p>
+   * This converts an exception throwing method into a method that returns an optional by discarding the exception.
+   * In most cases it is better to write a `findXxx()` or 'tryXxx()' method to the code you want to call.
+   * <p>
+   * To handle checked exceptions, use {@link Unchecked#supplier(CheckedSupplier)}.
+   * 
+   * @param <T>  the type of the result in the optional
+   * @param resultSupplier  the supplier that might throw an exception
+   * @param exceptionHandler  the exception handler
+   * @return the value wrapped in an optional, empty if the method returns null or an exception is thrown
+   */
+  public static <T> Optional<T> tryCatchToOptional(Supplier<T> resultSupplier, Consumer<RuntimeException> exceptionHandler) {
+    try {
+      return Optional.ofNullable(resultSupplier.get());
+    } catch (RuntimeException ex) {
+      exceptionHandler.accept(ex);
       return Optional.empty();
     }
   }
@@ -276,6 +305,18 @@ public final class Guavate {
   public static <T> Optional<T> first(Iterable<T> iterable) {
     Iterator<T> it = iterable.iterator();
     return it.hasNext() ? Optional.of(it.next()) : Optional.empty();
+  }
+
+  /**
+   * Gets the only element from the collection, returning empty if the collection is empty or has more than one element.
+   * 
+   * @param <T>  the type of element in the optional
+   * @param iterable  the iterable to query
+   * @return the first value, empty if empty or more than one element
+   */
+  public static <T> Optional<T> only(Iterable<T> iterable) {
+    Iterator<T> it = iterable.iterator();
+    return it.hasNext() ? Optional.of(it.next()).filter(element -> !it.hasNext()) : Optional.empty();
   }
 
   //-------------------------------------------------------------------------
@@ -484,6 +525,37 @@ public final class Guavate {
     }
   }
 
+  /**
+   * Converts an expression for use in the for-each statement wrapping it with a try-catch block to avoid exceptions.
+   * <p>
+   * This allows a method that throws an exception to be used with the for-each statement.
+   * In most cases it is better to write a `findXxx()` or 'tryXxx()' method to the code you want to call.
+   * The typical use case is for parsing, where the parser throws an exception if invalid.
+   * <p>
+   * This method is intended for use with the for-each statement:
+   * <p>
+   * <pre>
+   *  for (Item item : inTryCatchIgnore(() -> parse(str))) {
+   *    // use the value, code not called if parse(str) threw an exception
+   *  }
+   * </pre>
+   * <p>
+   * NOTE: This method is intended only for use with the for-each statement.
+   * It does in fact return a general purpose {@code Iterable}, but the method name
+   * is focussed on the for-each use case.
+   * 
+   * @param <T>  the type of the result in the optional
+   * @param supplier  the supplier that might throw an exception
+   * @return the value wrapped in an optional, empty if the method returns null or an exception is thrown
+   */
+  public static <T> Iterable<T> inTryCatchIgnore(Supplier<T> supplier) {
+    try {
+      return inNullable(supplier.get());
+    } catch (RuntimeException ex) {
+      return ImmutableList.of();
+    }
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Creates a stream that wraps a stream with the index.
@@ -610,11 +682,37 @@ public final class Guavate {
    *
    * @param <T>  the type of element in the stream
    * @return the operator
+   * @throws IllegalArgumentException if more than one element is present
    */
   public static <T> BinaryOperator<T> ensureOnlyOne() {
     return (a, b) -> {
       throw new IllegalArgumentException(Messages.format(
           "Multiple values found where only one was expected: {} and {}", a, b));
+    };
+  }
+
+  /**
+   * Reducer used in a stream to ensure there is no more than one matching element.
+   * <p>
+   * This method returns an operator that can be used with {@link Stream#reduce(BinaryOperator)}
+   * that returns either zero or one elements from the stream. Unlike {@link Stream#findFirst()}
+   * or {@link Stream#findAny()}, this approach ensures an exception is thrown if there
+   * is more than one element in the stream.
+   * <p>
+   * This would be used as follows (with a static import):
+   * <pre>
+   *   stream.filter(...).reduce(ensureOnlyOne()).get();
+   * </pre>
+   *
+   * @param <T>  the type of element in the stream
+   * @param message the message template for the {@link IllegalArgumentException} with "{}" placeholders
+   * @param args the arguments for the message
+   * @return the operator
+   * @throws IllegalArgumentException if more than one element is present
+   */
+  public static <T> BinaryOperator<T> ensureOnlyOne(String message, Object... args) {
+    return (a, b) -> {
+      throw new IllegalArgumentException(Messages.format(message, args));
     };
   }
 
@@ -704,10 +802,60 @@ public final class Guavate {
    * The collector throws {@code NullPointerException} if the stream consists of a null element.
    *
    * @param <T>  the type of element in the list
-   * @return the immutable list collector
+   * @return the optional collector
    */
   public static <T> Collector<T, ?, Optional<T>> toOptional() {
     return MoreCollectors.toOptional();
+  }
+
+  /**
+   * Collector used at the end of a stream to extract one element.
+   * <p>
+   * A collector is used to gather data at the end of a stream operation.
+   * This method returns a collector allowing streams to be gathered into an {@link Optional}.
+   * The collector throws {@code NullPointerException} if the stream consists of a null element.
+   * The collector returns empty if the stream consists of zero, two or more elements.
+   *
+   * @param <T>  the type of element in the list
+   * @return the collector
+   */
+  public static <T> Collector<T, ?, Optional<T>> toOnly() {
+    return new OnlyCollector<T>();
+  }
+
+  static class OnlyCollector<T> implements Collector<T, OnlyCollector<T>, Optional<T>> {
+    private T value;
+    private int count;
+
+    @Override
+    public Supplier<OnlyCollector<T>> supplier() {
+      return OnlyCollector::new;
+    }
+
+    @Override
+    public BiConsumer<OnlyCollector<T>, T> accumulator() {
+      return (state, value) -> {
+        state.value = value;
+        state.count++;
+      };
+    }
+
+    @Override
+    public BinaryOperator<OnlyCollector<T>> combiner() {
+      return (a, b) -> {
+        throw new UnsupportedOperationException("OnlyCollector does not support parallel processing");
+      };
+    }
+
+    @Override
+    public Function<OnlyCollector<T>, Optional<T>> finisher() {
+      return state -> state.count == 1 ? Optional.of(state.value) : Optional.empty();
+    }
+
+    @Override
+    public Set<Characteristics> characteristics() {
+      return ImmutableSet.of();
+    }
   }
 
   /**

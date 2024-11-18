@@ -16,10 +16,13 @@ import static org.assertj.core.data.Offset.offset;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 
+import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
 
 import com.google.common.math.DoubleMath;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
@@ -844,6 +847,171 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
     MultiCurrencyAmount pvPutBase = PRICER.currencyExposure(PUT_DKO_BASE, RATE_PROVIDER, VOLS);
     assertThat(pvPutBase.getAmount(EUR).getAmount()).isCloseTo(-76234.66256109312, offset(NOTIONAL * TOL));
     assertThat(pvPutBase.getAmount(USD).getAmount()).isCloseTo(35358.56586522361, offset(NOTIONAL * TOL));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_continuity_at_barrier() {
+    double eps = 1e-5;
+    for (ResolvedFxSingleBarrierOption option : OPTION_ALL) {
+      double barrier = option.getBarrier().getBarrierLevel(VAL_DATE);
+      double rateUp = barrier + eps;
+      double rateDw = barrier - eps;
+      ImmutableRatesProvider providerUp = ratesProviderWithFxRate(option, RATE_PROVIDER, rateUp);
+      ImmutableRatesProvider providerDw = ratesProviderWithFxRate(option, RATE_PROVIDER, rateDw);
+      double priceUp = PRICER.price(option, providerUp, VOLS);
+      double priceDw = PRICER.price(option, providerDw, VOLS);
+      double pvUp = PRICER.presentValue(option, providerUp, VOLS).getAmount();
+      double pvDw = PRICER.presentValue(option, providerDw, VOLS).getAmount();
+      assertThat(priceUp).isCloseTo(priceDw, Offset.strictOffset(eps * 10d));
+      double referenceAmount = option.getUnderlyingOption().getUnderlying().getReceiveCurrencyAmount().getAmount();
+      assertThat(pvUp).isCloseTo(pvDw, Offset.strictOffset(eps * referenceAmount * 10d));
+    }
+  }
+
+  @Test
+  public void test_delta_gamma_touched() {
+    for (ResolvedFxSingleBarrierOption option : OPTION_ALL) {
+      double barrier = option.getBarrier().getBarrierLevel(VAL_DATE);
+      double fxRateTouched = option.getBarrier().getBarrierType().isDown() ? barrier * 0.9 : barrier * 1.1;
+      ImmutableRatesProvider ratesProviderTouched = ratesProviderWithFxRate(option, RATE_PROVIDER, fxRateTouched);
+      double rateUp = fxRateTouched + FD_EPS;
+      double rateDw = fxRateTouched - FD_EPS;
+      ImmutableRatesProvider providerUp = ratesProviderWithFxRate(option, RATE_PROVIDER, rateUp);
+      ImmutableRatesProvider providerDw = ratesProviderWithFxRate(option, RATE_PROVIDER, rateDw);
+      double deltaComputed = PRICER.delta(option, ratesProviderTouched, VOLS_FLAT);
+      double gammaComputed = PRICER.gamma(option, ratesProviderTouched, VOLS_FLAT);
+      double priceUp = PRICER.price(option, providerUp, VOLS_FLAT);
+      double priceDw = PRICER.price(option, providerDw, VOLS_FLAT);
+      double deltaExpected = 0.5 * (priceUp - priceDw) / FD_EPS;
+      assertThat(deltaComputed).isCloseTo(deltaExpected, Offset.strictOffset(FD_EPS * 10d));
+      double deltaUp = PRICER.delta(option, providerUp, VOLS_FLAT);
+      double deltaDw = PRICER.delta(option, providerDw, VOLS_FLAT);
+      double gammaExpected = 0.5 * (deltaUp - deltaDw) / FD_EPS;
+      assertThat(gammaComputed).isCloseTo(gammaExpected, Offset.strictOffset(FD_EPS * 10d));
+    }
+  }
+
+  @Test
+  public void test_theta_touched() {
+    for (ResolvedFxSingleBarrierOption option : OPTION_ALL) {
+      double barrier = option.getBarrier().getBarrierLevel(VAL_DATE);
+      double fxRateTouched = option.getBarrier().getBarrierType().isDown() ? barrier * 0.9 : barrier * 1.1;
+      ImmutableRatesProvider ratesProviderTouched = ratesProviderWithFxRate(
+          option,
+          RatesProviderFxDataSets.createProviderEurUsdFlat(VAL_DATE),
+          fxRateTouched);
+      ImmutableRatesProvider providerUp = ratesProviderWithFxRate(
+          option,
+          RatesProviderFxDataSets.createProviderEurUsdFlat(VAL_DATE.plusDays(1)),
+          fxRateTouched);
+      ImmutableRatesProvider providerDw = ratesProviderWithFxRate(
+          option,
+          RatesProviderFxDataSets.createProviderEurUsdFlat(VAL_DATE.minusDays(1)),
+          fxRateTouched);
+      BlackFxOptionSmileVolatilities volsUp = FxVolatilitySmileDataSet.createVolatilitySmileProvider5Flat(
+          VAL_DATETIME.plusDays(1));
+      BlackFxOptionSmileVolatilities volsDw = FxVolatilitySmileDataSet.createVolatilitySmileProvider5Flat(
+          VAL_DATETIME.minusDays(1));
+      double thetaComputed = PRICER.theta(option, ratesProviderTouched, VOLS_FLAT);
+      double priceUp = PRICER.price(option, providerUp, volsUp);
+      double priceDw = PRICER.price(option, providerDw, volsDw);
+      double thetaExpected = 0.5 * (priceUp - priceDw) * 365d;
+      assertThat(thetaComputed).isCloseTo(thetaExpected, Offset.strictOffset(0.1 / 365d));
+    }
+  }
+
+  @Test
+  public void test_presentValueSensitivityRatesStickyStrike_touched() {
+    for (ResolvedFxSingleBarrierOption option : OPTION_ALL) {
+      double barrier = option.getBarrier().getBarrierLevel(VAL_DATE);
+      double fxRateTouched = option.getBarrier().getBarrierType().isDown() ? barrier * 0.9 : barrier * 1.1;
+      ImmutableRatesProvider ratesProviderTouched = ratesProviderWithFxRate(option, RATE_PROVIDER, fxRateTouched);
+      PointSensitivityBuilder point = PRICER.presentValueSensitivityRatesStickyStrike(
+          option, ratesProviderTouched, VOLS_FLAT);
+      CurrencyParameterSensitivities computed = ratesProviderTouched.parameterSensitivity(point.build());
+      CurrencyParameterSensitivities expected = FD_CAL.sensitivity(
+          ratesProviderTouched, p -> PRICER.presentValue(option, p, VOLS_FLAT));
+      double referenceAmount = option.getUnderlyingOption().getUnderlying().getReceiveCurrencyAmount().getAmount();
+      assertThat(computed.equalWithTolerance(expected, referenceAmount * FD_EPS * 10d)).isTrue();
+    }
+  }
+
+  @Test
+  public void test_presentValueSensitivityModelParamsVolatility_touched() {
+    for (ResolvedFxSingleBarrierOption option : OPTION_ALL) {
+      double barrier = option.getBarrier().getBarrierLevel(VAL_DATE);
+      double fxRateTouched = option.getBarrier().getBarrierType().isDown() ? barrier * 0.9 : barrier * 1.1;
+      ImmutableRatesProvider ratesProviderTouched = ratesProviderWithFxRate(option, RATE_PROVIDER, fxRateTouched);
+      PointSensitivityBuilder points = PRICER.presentValueSensitivityModelParamsVolatility(
+          option, ratesProviderTouched, VOLS_FLAT);
+      CurrencyParameterSensitivities computed = VOLS_FLAT.parameterSensitivity(points.build());
+      double referenceAmount = option.getUnderlyingOption().getUnderlying().getReceiveCurrencyAmount().getAmount();
+      Optional<CurrencyParameterSensitivity> optSensi = computed.findSensitivity(
+          VOLS_FLAT.getName(), option.getUnderlyingOption().getCurrencyPair().getCounter());
+      double totalComputed = optSensi.isPresent() ? optSensi.get().getSensitivity().sum() : 0d;
+      BlackFxOptionSmileVolatilities volsUp = VOLS_FLAT.withPerturbation((index, vol, metadata) -> vol + FD_EPS);
+      BlackFxOptionSmileVolatilities volsDw = VOLS_FLAT.withPerturbation((index, vol, metadata) -> vol - FD_EPS);
+      CurrencyAmount pvUp = PRICER.presentValue(option, ratesProviderTouched, volsUp);
+      CurrencyAmount pvDw = PRICER.presentValue(option, ratesProviderTouched, volsDw);
+      double totalExpected = 0.5 * (pvUp.getAmount() - pvDw.getAmount()) / FD_EPS;
+      assertThat(totalComputed).isCloseTo(
+          totalExpected, Offset.strictOffset(referenceAmount * FD_EPS));
+      double signedNotional = (option.getUnderlyingOption().getLongShort().isLong() ? 1d : -1d) *
+          Math.abs(option.getUnderlyingOption().getUnderlying().getBaseCurrencyPayment().getAmount());
+      double vegaComputed = PRICER.vega(option, ratesProviderTouched, VOLS_FLAT);
+      assertThat(vegaComputed).isCloseTo(totalComputed / signedNotional, Offset.strictOffset(TOL));
+    }
+  }
+
+  @Test
+  public void test_currencyExposure_touched() {
+    Currency foreignCurrency = Currency.GBP;
+    double eurGbpStart = 0.80;
+    for (ResolvedFxSingleBarrierOption option : OPTION_ALL) {
+      double barrier = option.getBarrier().getBarrierLevel(VAL_DATE);
+      CurrencyPair currencyPair = option.getCurrencyPair();
+      double spotTouched = option.getBarrier().getBarrierType().isDown() ? barrier * 0.9 : barrier * 1.1;
+      double spot = currencyPair.getBase().equals(EUR) ? spotTouched : 1d / spotTouched;
+      ImmutableRatesProvider ratesProvider = ratesProviderWithFxRate(option, RATE_PROVIDER, spot);
+      FxMatrix fxMatrixStart = FxMatrix.builder().addRate(EUR, USD, spot)
+          .addRate(EUR, foreignCurrency, eurGbpStart).build();
+      FxMatrix fxMatrixEurGbpUp = fxMatrixStart.toBuilder()
+          .addRate(USD, EUR, 1.0d / spot + FD_EPS).build(); // EUR updated
+      ImmutableRatesProvider rateProvideEurGbpUp = ratesProvider.toImmutableRatesProvider().toBuilder()
+          .fxRateProvider(fxMatrixEurGbpUp).build();
+      FxMatrix fxMatrixGbpUsdUp = fxMatrixStart.toBuilder()
+          .addRate(EUR, USD, spot + FD_EPS).build(); // USD updated
+      ImmutableRatesProvider rateProvideGbpUsdUp = ratesProvider.toImmutableRatesProvider().toBuilder()
+          .fxRateProvider(fxMatrixGbpUsdUp).build();
+      double referenceAmount = option.getUnderlyingOption().getUnderlying().getReceiveCurrencyAmount().getAmount();
+      Offset<Double> offset = Offset.strictOffset(referenceAmount * FD_EPS);
+      CurrencyAmount pv = PRICER.presentValue(option, ratesProvider, VOLS_FLAT);
+      MultiCurrencyAmount ce = PRICER.currencyExposure(option, ratesProvider, VOLS_FLAT);
+      assertThat(pv.convertedTo(foreignCurrency, fxMatrixStart).getAmount())
+          .isCloseTo(ce.convertedTo(foreignCurrency, fxMatrixStart).getAmount(), offset);
+      CurrencyAmount pvEurGbpUp = PRICER.presentValue(option, rateProvideEurGbpUp, VOLS_FLAT);
+      CurrencyAmount plPvEurGbpUp = pvEurGbpUp.convertedTo(foreignCurrency, fxMatrixEurGbpUp)
+          .minus(pv.convertedTo(foreignCurrency, fxMatrixStart));
+      CurrencyAmount plCeEurGbpUp = ce.convertedTo(foreignCurrency, fxMatrixEurGbpUp)
+          .minus(ce.convertedTo(foreignCurrency, fxMatrixStart));
+      assertThat(plPvEurGbpUp.getAmount()).isCloseTo(plCeEurGbpUp.getAmount(), offset);
+      CurrencyAmount pvGbpUsdUp = PRICER.presentValue(option, rateProvideGbpUsdUp, VOLS_FLAT);
+      CurrencyAmount plPvGbpUsdUp = pvGbpUsdUp.convertedTo(foreignCurrency, fxMatrixGbpUsdUp)
+          .minus(pv.convertedTo(foreignCurrency, fxMatrixStart));
+      CurrencyAmount plCeGbpUsdUp = ce.convertedTo(foreignCurrency, fxMatrixGbpUsdUp)
+          .minus(ce.convertedTo(foreignCurrency, fxMatrixStart));
+      assertThat(plPvGbpUsdUp.getAmount()).isCloseTo(plCeGbpUsdUp.getAmount(), offset);
+    }
+  }
+
+  private ImmutableRatesProvider ratesProviderWithFxRate(
+      ResolvedFxSingleBarrierOption option,
+      ImmutableRatesProvider baseRatesProvider,
+      double fxRate) {
+
+    FxMatrix fxMatrix = FxMatrix.builder().addRate(option.getCurrencyPair(), fxRate).build();
+    return baseRatesProvider.toBuilder().fxRateProvider(fxMatrix).build();
   }
 
 }

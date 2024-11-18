@@ -7,11 +7,13 @@ package com.opengamma.strata.product.swap;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.DayCounts.ONE_ONE;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USGS;
 import static com.opengamma.strata.basics.index.FxIndices.EUR_GBP_ECB;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
@@ -23,6 +25,7 @@ import static com.opengamma.strata.basics.schedule.Frequency.P1W;
 import static com.opengamma.strata.basics.schedule.Frequency.P2M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.TERM;
+import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_FINAL;
 import static com.opengamma.strata.basics.schedule.StubConvention.SMART_FINAL;
 import static com.opengamma.strata.basics.schedule.StubConvention.SMART_INITIAL;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -31,6 +34,7 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static com.opengamma.strata.product.swap.CompoundingMethod.NONE;
 import static com.opengamma.strata.product.swap.CompoundingMethod.STRAIGHT;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.MONTHLY;
@@ -114,6 +118,8 @@ public class RateCalculationSwapLegTest {
   private static final LocalDate DATE_06_09 = date(2014, 6, 9);
   private static final LocalDate DATE_14_06_09 = date(2014, 6, 9);
   private static final LocalDate DATE_19_06_09 = date(2019, 6, 9);
+  private static final LocalDate DATE_24_07_05 = date(2024, 7, 5);
+  private static final LocalDate DATE_25_07_07 = date(2025, 7, 7);
   private static final DaysAdjustment PLUS_THREE_DAYS = DaysAdjustment.ofBusinessDays(3, GBLO);
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, GBLO);
   private static final DaysAdjustment MINUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(-2, GBLO);
@@ -545,6 +551,53 @@ public class RateCalculationSwapLegTest {
         .currency(GBP)
         .notional(-1000d)
         .compoundingMethod(STRAIGHT)
+        .build();
+    // assertion
+    assertThat(test.resolve(REF_DATA)).isEqualTo(ResolvedSwapLeg.builder()
+        .type(FIXED)
+        .payReceive(PAY)
+        .paymentPeriods(rpp1)
+        .build());
+  }
+
+  @Test
+  public void test_resolve_combinePeriods() {
+    // test case
+    RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(DATE_24_07_05)
+            .endDate(DATE_25_07_07)
+            .frequency(P12M)
+            .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, USGS))
+            .stubConvention(SHORT_FINAL)
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(P12M)
+            .paymentDateOffset(DaysAdjustment.ofBusinessDays(0, USGS))
+            .compoundingMethod(NONE)
+            .build())
+        .notionalSchedule(NotionalSchedule.of(USD, 1000d))
+        .calculation(FixedRateCalculation.builder()
+            .dayCount(ACT_360)
+            .rate(ValueSchedule.of(0.025d))
+            .build())
+        .build();
+    // expected
+    RatePaymentPeriod rpp1 = RatePaymentPeriod.builder()
+        .paymentDate(DATE_25_07_07)
+        .accrualPeriods(
+            RateAccrualPeriod.builder()
+                .startDate(DATE_24_07_05)
+                .endDate(DATE_25_07_07)
+                .unadjustedStartDate(DATE_24_07_05)
+                .yearFraction(ACT_360.yearFraction(DATE_24_07_05, DATE_25_07_07))
+                .rateComputation(FixedRateComputation.of(0.025d))
+                .build())
+        .dayCount(ACT_360)
+        .currency(USD)
+        .notional(-1000d)
+        .compoundingMethod(NONE)
         .build();
     // assertion
     assertThat(test.resolve(REF_DATA)).isEqualTo(ResolvedSwapLeg.builder()

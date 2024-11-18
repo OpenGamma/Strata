@@ -61,21 +61,21 @@ public final class ImmutableCreditRatesProvider
    * <p>
    * The curve data, predicting the survival probability, associated with each legal entity and currency.
    */
-  @PropertyDefinition(validate = "notNull", get = "private")
+  @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities> creditCurves;
   /**
    * The discounting curves.
    * <p>
    * The curve data, predicting the discount factor, associated with each currency.
    */
-  @PropertyDefinition(validate = "notEmpty", get = "private")
+  @PropertyDefinition(validate = "notEmpty")
   private final ImmutableMap<Currency, CreditDiscountFactors> discountCurves;
   /**
    * The credit rate curves.
    * <p>
    * The curve date, predicting the recovery rate, associated with each legal entity.
    */
-  @PropertyDefinition(validate = "notEmpty", get = "private")
+  @PropertyDefinition(validate = "notEmpty")
   private final ImmutableMap<StandardId, RecoveryRates> recoveryRateCurves;
 
   //-------------------------------------------------------------------------
@@ -269,7 +269,7 @@ public final class ImmutableCreditRatesProvider
    * The curve data, predicting the survival probability, associated with each legal entity and currency.
    * @return the value of the property, not null
    */
-  private ImmutableMap<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities> getCreditCurves() {
+  public ImmutableMap<Pair<StandardId, Currency>, LegalEntitySurvivalProbabilities> getCreditCurves() {
     return creditCurves;
   }
 
@@ -280,7 +280,7 @@ public final class ImmutableCreditRatesProvider
    * The curve data, predicting the discount factor, associated with each currency.
    * @return the value of the property, not empty
    */
-  private ImmutableMap<Currency, CreditDiscountFactors> getDiscountCurves() {
+  public ImmutableMap<Currency, CreditDiscountFactors> getDiscountCurves() {
     return discountCurves;
   }
 
@@ -291,7 +291,7 @@ public final class ImmutableCreditRatesProvider
    * The curve date, predicting the recovery rate, associated with each legal entity.
    * @return the value of the property, not empty
    */
-  private ImmutableMap<StandardId, RecoveryRates> getRecoveryRateCurves() {
+  public ImmutableMap<StandardId, RecoveryRates> getRecoveryRateCurves() {
     return recoveryRateCurves;
   }
 

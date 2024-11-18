@@ -96,7 +96,7 @@ public final class CsvLoaderColumns {
   /** CSV header. */
   public static final String PAYMENT_DATE_FIELD = "Payment Date";
   /** CSV header. */
-  static final String LEG_1_PAYMENT_DATE_FIELD = "Leg 1 " + PAYMENT_DATE_FIELD;
+  public static final String LEG_1_PAYMENT_DATE_FIELD = "Leg 1 " + PAYMENT_DATE_FIELD;
   /** CSV header. */
   public static final String LEG_2_PAYMENT_DATE_FIELD = "Leg 2 " + PAYMENT_DATE_FIELD;
   /** CSV header. */

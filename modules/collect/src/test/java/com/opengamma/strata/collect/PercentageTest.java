@@ -43,6 +43,8 @@ class PercentageTest {
     assertThat(Percentage.parse(str + "pct")).isEqualTo(test);
     assertThat(Percentage.parse(str + " pct")).isEqualTo(test);
     assertThat(Percentage.parse(str)).isEqualTo(test);
+    assertThat(Percentage.parse(str)).isLessThan(Percentage.parse("1000%"));
+    assertThat(Percentage.parse(str)).isGreaterThan(Percentage.parse("-1000%"));
 
     assertThat(test.plus(Percentage.ZERO)).isEqualTo(test);
     assertThat(test.minus(Percentage.ZERO)).isEqualTo(test);

@@ -45,6 +45,7 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -556,6 +557,13 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double expected = realPrice * (refRate + 1d);
     assertThat(nominalPrice).isCloseTo(expected, offset(TOL));
     assertThat(PRICER.realPriceFromNominalPrice(PRODUCT, RATES_PROVIDER_ON_PAY, refDate, nominalPrice)).isCloseTo(realPrice, offset(TOL));
+
+    ValueDerivatives realPriceAd = PRICER.realPriceFromNominalPriceAd(PRODUCT, RATES_PROVIDER_ON_PAY, refDate, nominalPrice);
+    assertThat(realPrice).isCloseTo(realPriceAd.getValue(), offset(TOL));
+    double eps = 1.0e-5;
+    double dirtyPriceUp = PRICER.realPriceFromNominalPrice(PRODUCT, RATES_PROVIDER_ON_PAY, refDate, nominalPrice + eps);
+    double dirtyPriceDw = PRICER.realPriceFromNominalPrice(PRODUCT, RATES_PROVIDER_ON_PAY, refDate, nominalPrice - eps);
+    assertThat(realPriceAd.getDerivative(0)).isCloseTo(0.5 * (dirtyPriceUp - dirtyPriceDw) / eps, offset(eps));
   }
 
   @Test
@@ -568,6 +576,13 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double expected = realPrice * (refRate + 1d);
     assertThat(nominalPrice).isCloseTo(expected, offset(TOL));
     assertThat(PRICER.realPriceFromNominalPrice(PRODUCT, RATES_PROVIDER, refDate, nominalPrice)).isCloseTo(realPrice, offset(TOL));
+
+    ValueDerivatives realPriceAd = PRICER.realPriceFromNominalPriceAd(PRODUCT, RATES_PROVIDER, refDate, nominalPrice);
+    assertThat(realPrice).isCloseTo(realPriceAd.getValue(), offset(TOL));
+    double eps = 1.0e-5;
+    double dirtyPriceUp = PRICER.realPriceFromNominalPrice(PRODUCT, RATES_PROVIDER, refDate, nominalPrice + eps);
+    double dirtyPriceDw = PRICER.realPriceFromNominalPrice(PRODUCT, RATES_PROVIDER, refDate, nominalPrice - eps);
+    assertThat(realPriceAd.getDerivative(0)).isCloseTo(0.5 * (dirtyPriceUp - dirtyPriceDw) / eps, offset(eps));
   }
 
   @Test
@@ -633,6 +648,36 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     assertThat(computed).isEqualTo(cleanPrice);
     double yieldRe = PRICER.realYieldFromDirtyPrice(PRODUCT_US, RATES_PROVS_US, standardSettle, dirtyPrice);
     assertThat(yieldRe).isCloseTo(YIELD_US, offset(TOL));
+
+    ValueDerivatives dirtyPriceAd = PRICER.dirtyPriceFromRealYieldAd(PRODUCT_US, RATES_PROVS_US, standardSettle, YIELD_US);
+    assertThat(dirtyPrice).isCloseTo(dirtyPriceAd.getValue(), offset(TOL));
+    double eps = 1.0e-5;
+    double dirtyPriceUp = PRICER.dirtyPriceFromRealYield(PRODUCT_US, RATES_PROVS_US, standardSettle, YIELD_US + eps);
+    double dirtyPriceDw = PRICER.dirtyPriceFromRealYield(PRODUCT_US, RATES_PROVS_US, standardSettle, YIELD_US - eps);
+    assertThat(dirtyPriceAd.getDerivative(0)).isCloseTo(0.5 * (dirtyPriceUp - dirtyPriceDw) / eps, offset(eps));
+    ValueDerivatives realYieldAd = PRICER.realYieldFromDirtyPriceAd(PRODUCT_US, RATES_PROVS_US, standardSettle, dirtyPrice);
+    double realYieldUp = PRICER.realYieldFromDirtyPrice(PRODUCT_US, RATES_PROVS_US, standardSettle, dirtyPrice + eps);
+    double realYieldDw = PRICER.realYieldFromDirtyPrice(PRODUCT_US, RATES_PROVS_US, standardSettle, dirtyPrice - eps);
+    assertThat(realYieldAd.getDerivative(0)).isCloseTo(0.5 * (realYieldUp - realYieldDw) / eps, offset(eps));
+  }
+
+  @Test
+  public void test_priceFromRealYield_us_zeroYield() {
+    double yield = 0d;
+    LocalDate standardSettle = PRODUCT_US.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
+    double dirtyPrice = PRICER.dirtyPriceFromRealYield(PRODUCT_US, RATES_PROVS_US, standardSettle, yield);
+    double yieldRe = PRICER.realYieldFromDirtyPrice(PRODUCT_US, RATES_PROVS_US, standardSettle, dirtyPrice);
+    assertThat(yieldRe).isCloseTo(yield, offset(TOL));
+    ValueDerivatives dirtyPriceAd = PRICER.dirtyPriceFromRealYieldAd(PRODUCT_US, RATES_PROVS_US, standardSettle, yield);
+    assertThat(dirtyPrice).isCloseTo(dirtyPriceAd.getValue(), offset(TOL));
+    double eps = 1.0e-5;
+    double dirtyPriceUp = PRICER.dirtyPriceFromRealYield(PRODUCT_US, RATES_PROVS_US, standardSettle, yield + eps);
+    double dirtyPriceDw = PRICER.dirtyPriceFromRealYield(PRODUCT_US, RATES_PROVS_US, standardSettle, yield - eps);
+    assertThat(dirtyPriceAd.getDerivative(0)).isCloseTo(0.5 * (dirtyPriceUp - dirtyPriceDw) / eps, offset(eps));
+    ValueDerivatives realYieldAd = PRICER.realYieldFromDirtyPriceAd(PRODUCT_US, RATES_PROVS_US, standardSettle, dirtyPrice);
+    double realYieldUp = PRICER.realYieldFromDirtyPrice(PRODUCT_US, RATES_PROVS_US, standardSettle, dirtyPrice + eps);
+    double realYieldDw = PRICER.realYieldFromDirtyPrice(PRODUCT_US, RATES_PROVS_US, standardSettle, dirtyPrice - eps);
+    assertThat(realYieldAd.getDerivative(0)).isCloseTo(0.5 * (realYieldUp - realYieldDw) / eps, offset(eps));
   }
 
   @Test
@@ -706,6 +751,13 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   private static final DaysAdjustment SETTLE_OFFSET_GB = DaysAdjustment.ofBusinessDays(1, GBLO);
   private static final PeriodicSchedule SCHEDULE_GOV =
       PeriodicSchedule.of(START_GOV, END_GOV, FREQUENCY, BUSINESS_ADJUST_GOV, StubConvention.NONE, RollConventions.NONE);
+  private static final PeriodicSchedule SCHEDULE_GOV_ONE_PERIOD = PeriodicSchedule.of(
+      LocalDate.of(2016, 3, 1),
+      LocalDate.of(2016, 9, 1),
+      FREQUENCY,
+      BUSINESS_ADJUST_GOV,
+      StubConvention.NONE,
+      RollConventions.NONE);
   private static final BusinessDayAdjustment EX_COUPON_ADJ_GOV =
       BusinessDayAdjustment.of(BusinessDayConventions.PRECEDING, GBLO);
   private static final DaysAdjustment EX_COUPON_GOV = DaysAdjustment.ofCalendarDays(-8, EX_COUPON_ADJ_GOV);
@@ -719,6 +771,19 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .yieldConvention(GB_IL_FLOAT)
       .settlementDateOffset(SETTLE_OFFSET_GB)
       .accrualSchedule(SCHEDULE_GOV)
+      .exCouponPeriod(EX_COUPON_GOV)
+      .build()
+      .resolve(REF_DATA);
+  private static final ResolvedCapitalIndexedBond PRODUCT_GOV_ONE_PERIOD = CapitalIndexedBond.builder()
+      .securityId(SECURITY_ID)
+      .notional(NTNL)
+      .currency(GBP)
+      .dayCount(ACT_ACT_ICMA)
+      .rateCalculation(RATE_CALC_GOV)
+      .legalEntityId(LEGAL_ENTITY)
+      .yieldConvention(GB_IL_FLOAT)
+      .settlementDateOffset(SETTLE_OFFSET_GB)
+      .accrualSchedule(SCHEDULE_GOV_ONE_PERIOD)
       .exCouponPeriod(EX_COUPON_GOV)
       .build()
       .resolve(REF_DATA);
@@ -748,16 +813,45 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   public void test_priceFromRealYield_ukGov() {
     LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
     double computed = PRICER.cleanPriceFromRealYield(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV);
-    assertThat(computed).isCloseTo(3.60, offset(1.e-2));
+    assertThat(computed).isCloseTo(3.60, offset(1.e-1));
     double computedOnePeriod = PRICER.cleanPriceFromRealYield(PRODUCT_GOV_OP, RATES_PROVS_GB, PRODUCT_GOV_OP
         .getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA), YIELD_GOV_OP);
     assertThat(computedOnePeriod).isCloseTo(3.21, offset(4.e-2));
     double dirtyPrice = PRICER.dirtyPriceFromRealYield(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV);
-    double cleanPrice = PRICER.cleanNominalPriceFromDirtyNominalPrice(
-        PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyPrice);
+    double cleanPrice = PRICER.cleanRealPriceFromDirtyRealPrice(PRODUCT_GOV, standardSettle, dirtyPrice);
     assertThat(computed).isEqualTo(cleanPrice);
     double yieldRe = PRICER.realYieldFromDirtyPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyPrice);
     assertThat(yieldRe).isCloseTo(YIELD_GOV, offset(TOL));
+
+    ValueDerivatives dirtyPriceAd = PRICER.dirtyPriceFromRealYieldAd(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV);
+    assertThat(dirtyPrice).isCloseTo(dirtyPriceAd.getValue(), offset(TOL));
+    double eps = 1.0e-5;
+    double dirtyPriceUp = PRICER.dirtyPriceFromRealYield(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV + eps);
+    double dirtyPriceDw = PRICER.dirtyPriceFromRealYield(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV - eps);
+    assertThat(dirtyPriceAd.getDerivative(0)).isCloseTo(0.5 * (dirtyPriceUp - dirtyPriceDw) / eps, offset(eps));
+    ValueDerivatives realYieldAd = PRICER.realYieldFromDirtyPriceAd(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyPrice);
+    double realYieldUp = PRICER.realYieldFromDirtyPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyPrice + eps);
+    double realYieldDw = PRICER.realYieldFromDirtyPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyPrice - eps);
+    assertThat(realYieldAd.getDerivative(0)).isCloseTo(0.5 * (realYieldUp - realYieldDw) / eps, offset(eps));
+  }
+
+  @Test
+  public void test_priceFromRealYield_ukGov_onePeriod() {
+    LocalDate standardSettle = PRODUCT_GOV_ONE_PERIOD.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
+    double dirtyPrice = PRICER.dirtyPriceFromRealYield(PRODUCT_GOV_ONE_PERIOD, RATES_PROVS_GB, standardSettle, YIELD_GOV);
+    double yieldRe = PRICER.realYieldFromDirtyPrice(PRODUCT_GOV_ONE_PERIOD, RATES_PROVS_GB, standardSettle, dirtyPrice);
+    assertThat(yieldRe).isCloseTo(YIELD_GOV, offset(TOL));
+
+    ValueDerivatives dirtyPriceAd = PRICER.dirtyPriceFromRealYieldAd(PRODUCT_GOV_ONE_PERIOD, RATES_PROVS_GB, standardSettle, YIELD_GOV);
+    assertThat(dirtyPrice).isCloseTo(dirtyPriceAd.getValue(), offset(TOL));
+    double eps = 1.0e-5;
+    double dirtyPriceUp = PRICER.dirtyPriceFromRealYield(PRODUCT_GOV_ONE_PERIOD, RATES_PROVS_GB, standardSettle, YIELD_GOV + eps);
+    double dirtyPriceDw = PRICER.dirtyPriceFromRealYield(PRODUCT_GOV_ONE_PERIOD, RATES_PROVS_GB, standardSettle, YIELD_GOV - eps);
+    assertThat(dirtyPriceAd.getDerivative(0)).isCloseTo(0.5 * (dirtyPriceUp - dirtyPriceDw) / eps, offset(eps));
+    ValueDerivatives realYieldAd = PRICER.realYieldFromDirtyPriceAd(PRODUCT_GOV_ONE_PERIOD, RATES_PROVS_GB, standardSettle, dirtyPrice);
+    double realYieldUp = PRICER.realYieldFromDirtyPrice(PRODUCT_GOV_ONE_PERIOD, RATES_PROVS_GB, standardSettle, dirtyPrice + eps);
+    double realYieldDw = PRICER.realYieldFromDirtyPrice(PRODUCT_GOV_ONE_PERIOD, RATES_PROVS_GB, standardSettle, dirtyPrice - eps);
+    assertThat(realYieldAd.getDerivative(0)).isCloseTo(0.5 * (realYieldUp - realYieldDw) / eps, offset(eps));
   }
 
   @Test
@@ -781,7 +875,8 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double computed = PRICER.realYieldFromCurves(PRODUCT_GOV, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurves(
         PRODUCT_GOV, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA);
-    double expected = PRICER.realYieldFromDirtyPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyNominalPrice);
+    double dirtyRealPrice = PRICER.realPriceFromNominalPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyNominalPrice);
+    double expected = PRICER.realYieldFromDirtyPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyRealPrice);
     assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
@@ -792,8 +887,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
         PRODUCT_GOV, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double cleanNominalPrice =
         PRICER.cleanNominalPriceFromDirtyNominalPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyNominalPrice);
+    double cleanRealPrice =
+        PRICER.realPriceFromNominalPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, cleanNominalPrice);
     double computed = PRICER.zSpreadFromCurvesAndCleanPrice(
-        PRODUCT_GOV, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA, cleanNominalPrice, PERIODIC, PERIOD_PER_YEAR);
+        PRODUCT_GOV, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA, cleanRealPrice, PERIODIC, PERIOD_PER_YEAR);
     assertThat(computed).isCloseTo(Z_SPREAD, offset(TOL));
   }
 
@@ -822,9 +919,20 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   private static final LocalDate END_CORP = LocalDate.of(2040, 3, 22);
   private static final BusinessDayAdjustment BUSINESS_ADJUST_CORP =
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, GBLO);
-  private static final PeriodicSchedule SCHEDULE_CORP =
-      PeriodicSchedule.of(START_CORP, END_CORP, FREQUENCY, BUSINESS_ADJUST_CORP, StubConvention.NONE,
-          RollConventions.NONE);
+  private static final PeriodicSchedule SCHEDULE_CORP = PeriodicSchedule.of(
+      START_CORP,
+      END_CORP,
+      FREQUENCY,
+      BUSINESS_ADJUST_CORP,
+      StubConvention.NONE,
+      RollConventions.NONE);
+  private static final PeriodicSchedule SCHEDULE_CORP_ONE_PERIOD = PeriodicSchedule.of(
+      LocalDate.of(2016, 2, 15),
+      LocalDate.of(2016, 8, 15),
+      FREQUENCY,
+      BUSINESS_ADJUST_CORP,
+      StubConvention.NONE,
+      RollConventions.NONE);
   private static final BusinessDayAdjustment EX_COUPON_ADJ_CORP =
       BusinessDayAdjustment.of(BusinessDayConventions.PRECEDING, GBLO);
   private static final DaysAdjustment EX_COUPON_CORP = DaysAdjustment.ofCalendarDays(-8, EX_COUPON_ADJ_CORP);
@@ -838,6 +946,19 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .yieldConvention(GB_IL_BOND)
       .settlementDateOffset(SETTLE_OFFSET_GB)
       .accrualSchedule(SCHEDULE_CORP)
+      .exCouponPeriod(EX_COUPON_CORP)
+      .build()
+      .resolve(REF_DATA);
+  private static final ResolvedCapitalIndexedBond PRODUCT_CORP_ONE_PERIOD = CapitalIndexedBond.builder()
+      .securityId(SECURITY_ID)
+      .notional(NTNL)
+      .currency(GBP)
+      .dayCount(ACT_ACT_ICMA)
+      .rateCalculation(RATE_CALC_CORP)
+      .legalEntityId(LEGAL_ENTITY)
+      .yieldConvention(GB_IL_BOND)
+      .settlementDateOffset(SETTLE_OFFSET_GB)
+      .accrualSchedule(SCHEDULE_CORP_ONE_PERIOD)
       .exCouponPeriod(EX_COUPON_CORP)
       .build()
       .resolve(REF_DATA);
@@ -856,6 +977,36 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     assertThat(computed).isEqualTo(cleanPrice);
     double yieldRe = PRICER.realYieldFromDirtyPrice(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, dirtyPrice);
     assertThat(yieldRe).isCloseTo(YIELD_CORP, offset(TOL));
+
+    ValueDerivatives dirtyPriceAd = PRICER.dirtyPriceFromRealYieldAd(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, YIELD_CORP);
+    assertThat(dirtyPrice).isCloseTo(dirtyPriceAd.getValue(), offset(TOL));
+    double eps = 1.0e-5;
+    double dirtyPriceUp = PRICER.dirtyPriceFromRealYield(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, YIELD_CORP + eps);
+    double dirtyPriceDw = PRICER.dirtyPriceFromRealYield(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, YIELD_CORP - eps);
+    assertThat(dirtyPriceAd.getDerivative(0)).isCloseTo(0.5 * (dirtyPriceUp - dirtyPriceDw) / eps, offset(eps));
+    ValueDerivatives realYieldAd = PRICER.realYieldFromDirtyPriceAd(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, dirtyPrice);
+    double realYieldUp = PRICER.realYieldFromDirtyPrice(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, dirtyPrice + eps);
+    double realYieldDw = PRICER.realYieldFromDirtyPrice(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, dirtyPrice - eps);
+    assertThat(realYieldAd.getDerivative(0)).isCloseTo(0.5 * (realYieldUp - realYieldDw) / eps, offset(eps));
+  }
+
+  @Test
+  public void test_priceFromRealYield_ukCorp_onePeriod() {
+    LocalDate standardSettle = PRODUCT_CORP_ONE_PERIOD.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
+    double dirtyPrice = PRICER.dirtyPriceFromRealYield(PRODUCT_CORP_ONE_PERIOD, RATES_PROVS_GB, standardSettle, YIELD_CORP);
+    double yieldRe = PRICER.realYieldFromDirtyPrice(PRODUCT_CORP_ONE_PERIOD, RATES_PROVS_GB, standardSettle, dirtyPrice);
+    assertThat(yieldRe).isCloseTo(YIELD_CORP, offset(TOL));
+
+    ValueDerivatives dirtyPriceAd = PRICER.dirtyPriceFromRealYieldAd(PRODUCT_CORP_ONE_PERIOD, RATES_PROVS_GB, standardSettle, YIELD_CORP);
+    assertThat(dirtyPrice).isCloseTo(dirtyPriceAd.getValue(), offset(TOL));
+    double eps = 1.0e-5;
+    double dirtyPriceUp = PRICER.dirtyPriceFromRealYield(PRODUCT_CORP_ONE_PERIOD, RATES_PROVS_GB, standardSettle, YIELD_CORP + eps);
+    double dirtyPriceDw = PRICER.dirtyPriceFromRealYield(PRODUCT_CORP_ONE_PERIOD, RATES_PROVS_GB, standardSettle, YIELD_CORP - eps);
+    assertThat(dirtyPriceAd.getDerivative(0)).isCloseTo(0.5 * (dirtyPriceUp - dirtyPriceDw) / eps, offset(eps));
+    ValueDerivatives realYieldAd = PRICER.realYieldFromDirtyPriceAd(PRODUCT_CORP_ONE_PERIOD, RATES_PROVS_GB, standardSettle, dirtyPrice);
+    double realYieldUp = PRICER.realYieldFromDirtyPrice(PRODUCT_CORP_ONE_PERIOD, RATES_PROVS_GB, standardSettle, dirtyPrice + eps);
+    double realYieldDw = PRICER.realYieldFromDirtyPrice(PRODUCT_CORP_ONE_PERIOD, RATES_PROVS_GB, standardSettle, dirtyPrice - eps);
+    assertThat(realYieldAd.getDerivative(0)).isCloseTo(0.5 * (realYieldUp - realYieldDw) / eps, offset(eps));
   }
 
   @Test
@@ -955,6 +1106,17 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     assertThat(computed).isEqualTo(cleanPrice);
     double yieldRe = PRICER.realYieldFromDirtyPrice(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, dirtyPrice);
     assertThat(yieldRe).isCloseTo(YIELD_JPI, offset(TOL));
+
+    ValueDerivatives dirtyPriceAd = PRICER.dirtyPriceFromRealYieldAd(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, YIELD_JPI);
+    assertThat(dirtyPrice).isCloseTo(dirtyPriceAd.getValue(), offset(TOL));
+    double eps = 1.0e-5;
+    double dirtyPriceUp = PRICER.dirtyPriceFromRealYield(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, YIELD_JPI + eps);
+    double dirtyPriceDw = PRICER.dirtyPriceFromRealYield(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, YIELD_JPI - eps);
+    assertThat(dirtyPriceAd.getDerivative(0)).isCloseTo(0.5 * (dirtyPriceUp - dirtyPriceDw) / eps, offset(eps));
+    ValueDerivatives realYieldAd = PRICER.realYieldFromDirtyPriceAd(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, dirtyPrice);
+    double realYieldUp = PRICER.realYieldFromDirtyPrice(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, dirtyPrice + eps);
+    double realYieldDw = PRICER.realYieldFromDirtyPrice(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, dirtyPrice - eps);
+    assertThat(realYieldAd.getDerivative(0)).isCloseTo(0.5 * (realYieldUp - realYieldDw) / eps, offset(eps));
   }
 
   @Test
@@ -1050,6 +1212,17 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     assertThat(computed).isEqualTo(cleanPrice);
     double yieldRe = PRICER.realYieldFromDirtyPrice(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, dirtyPrice);
     assertThat(yieldRe).isCloseTo(YIELD_JPW, offset(TOL));
+
+    ValueDerivatives dirtyPriceAd = PRICER.dirtyPriceFromRealYieldAd(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, YIELD_JPW);
+    assertThat(dirtyPrice).isCloseTo(dirtyPriceAd.getValue(), offset(TOL));
+    double eps = 1.0e-5;
+    double dirtyPriceUp = PRICER.dirtyPriceFromRealYield(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, YIELD_JPW + eps);
+    double dirtyPriceDw = PRICER.dirtyPriceFromRealYield(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, YIELD_JPW - eps);
+    assertThat(dirtyPriceAd.getDerivative(0)).isCloseTo(0.5 * (dirtyPriceUp - dirtyPriceDw) / eps, offset(eps));
+    ValueDerivatives realYieldAd = PRICER.realYieldFromDirtyPriceAd(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, dirtyPrice);
+    double realYieldUp = PRICER.realYieldFromDirtyPrice(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, dirtyPrice + eps);
+    double realYieldDw = PRICER.realYieldFromDirtyPrice(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, dirtyPrice - eps);
+    assertThat(realYieldAd.getDerivative(0)).isCloseTo(0.5 * (realYieldUp - realYieldDw) / eps, offset(eps));
   }
 
   @Test

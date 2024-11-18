@@ -1,11 +1,13 @@
 queue_rules:
   - name: default
-    conditions:
+    merge_conditions:
       - "label=auto-merge"
       - "check-success=build"
+    merge_method: squash
 
 pull_request_rules:
   - name: Auto-Merge
+    description: Merge branch once conditions pass
     conditions:
       - "label=auto-merge"
       - "status-success=build"
@@ -14,9 +16,10 @@ pull_request_rules:
       - "title~=^((?!(wip|WIP)).)*$"
     actions:
       queue:
-        method: squash
         name: default
+
   - name: Delete-Branch
+    description: Delete branch once PR merged
     conditions:
       - "merged"
     actions:

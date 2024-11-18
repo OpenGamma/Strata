@@ -60,6 +60,18 @@ public class ValueStepSequenceTest {
   }
 
   @Test
+  public void test_resolve_with_roll_convention() {
+    ValueStepSequence test = ValueStepSequence.of(date(2022, 9, 21), date(2026, 9, 21), Frequency.P12M, ADJ);
+    List<ValueStep> steps = test.resolve(ImmutableList.of(), RollConventions.IMM);
+    assertThat(steps.size()).isEqualTo(5);
+    assertThat(steps.get(0)).isEqualTo(ValueStep.of(date(2022, 9, 21), ADJ));
+    assertThat(steps.get(1)).isEqualTo(ValueStep.of(date(2023, 9, 20), ADJ));
+    assertThat(steps.get(2)).isEqualTo(ValueStep.of(date(2024, 9, 18), ADJ));
+    assertThat(steps.get(3)).isEqualTo(ValueStep.of(date(2025, 9, 17), ADJ));
+    assertThat(steps.get(4)).isEqualTo(ValueStep.of(date(2026, 9, 16), ADJ));
+  }
+
+  @Test
   public void test_resolve_invalid() {
     ValueStepSequence test = ValueStepSequence.of(date(2016, 4, 20), date(2016, 10, 20), Frequency.P12M, ADJ);
     ValueStep baseStep = ValueStep.of(date(2016, 1, 20), ValueAdjustment.ofReplace(500d));

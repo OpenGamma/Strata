@@ -16,7 +16,9 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
@@ -202,8 +204,19 @@ public class DiscountingCapitalIndexedBondProductPricer {
         bond, ratesProvider, discountingProvider, ratesProvider.getValuationDate());
   }
 
-  // calculate the present value sensitivity
-  PointSensitivityBuilder presentValueSensitivity(
+  /**
+   * Calculates the present value sensitivity of the bond product for the specified reference date.
+   * <p>
+   * The present value sensitivity of the product is the sensitivity of the present value to
+   * the underlying curves.
+   *
+   * @param bond  the product
+   * @param ratesProvider  the rates provider, used to determine price index values
+   * @param discountingProvider  the discount factors provider
+   * @param referenceDate  the reference date
+   * @return the present value curve sensitivity of the product
+   */
+  public PointSensitivityBuilder presentValueSensitivity(
       ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider discountingProvider,
@@ -392,8 +405,20 @@ public class DiscountingCapitalIndexedBondProductPricer {
     return dirtyNominalPriceFromCurves(bond, ratesProvider, discountingProvider, settlementDate);
   }
 
-  // calculate the dirty price
-  double dirtyNominalPriceFromCurves(
+  /**
+   * Calculates the dirty price of the bond security for the specified settlement date.
+   * <p>
+   * The bond is represented as {@link Security} where standard ID of the bond is stored.
+   * <p>
+   * Strata uses <i>decimal prices</i> for bonds. For example, a price of 99.32% is represented in Strata by 0.9932.
+   *
+   * @param bond  the product
+   * @param ratesProvider  the rates provider, used to determine price index values
+   * @param discountingProvider  the discount factors provider
+   * @param settlementDate  the settlement date
+   * @return the dirty price of the bond security
+   */
+  public double dirtyNominalPriceFromCurves(
       ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider discountingProvider,
@@ -480,8 +505,19 @@ public class DiscountingCapitalIndexedBondProductPricer {
     return dirtyNominalPriceSensitivity(bond, ratesProvider, discountingProvider, settlementDate);
   }
 
-  // calculate the dirty price sensitivity
-  PointSensitivityBuilder dirtyNominalPriceSensitivity(
+  /**
+   * Calculates the dirty price sensitivity of the bond security for the specified settlement date.
+   * <p>
+   * The dirty price sensitivity of the security is the sensitivity of the dirty price value to
+   * the underlying curves.
+   *
+   * @param bond  the product
+   * @param ratesProvider  the rates provider, used to determine price index values
+   * @param discountingProvider  the discount factors provider
+   * @param settlementDate  the settlement date
+   * @return the dirty price curve sensitivity of the security
+   */
+  public PointSensitivityBuilder dirtyNominalPriceSensitivity(
       ResolvedCapitalIndexedBond bond,
       RatesProvider ratesProvider,
       LegalEntityDiscountingProvider discountingProvider,
@@ -669,6 +705,154 @@ public class DiscountingCapitalIndexedBondProductPricer {
   }
 
   /**
+   * Computes the dirty price from the conventional real yield and its derivative wrt the yield.
+   * <p>
+   * The resulting dirty price is real price or nominal price depending on the yield convention.
+   * <p>
+   * The input yield and output are expressed in fraction.
+   *
+   * @param bond  the product
+   * @param ratesProvider  the rates provider, used to determine price index values
+   * @param settlementDate  the settlement date
+   * @param yield  the yield
+   * @return the dirty price of the product and its derivative
+   */
+  public ValueDerivatives dirtyPriceFromRealYieldAd(
+      ResolvedCapitalIndexedBond bond,
+      RatesProvider ratesProvider,
+      LocalDate settlementDate,
+      double yield) {
+
+    ArgChecker.isTrue(settlementDate.isBefore(bond.getUnadjustedEndDate()),
+        "settlement date must be before end date");
+    int periodIndex = bond.findPeriodIndex(settlementDate)
+        .orElseThrow(() -> new IllegalArgumentException("Date outside range of bond"));
+    CapitalIndexedBondPaymentPeriod period = bond.getPeriodicPayments().get(periodIndex);
+    int nbCoupon = bond.getPeriodicPayments().size() - periodIndex;
+    double couponPerYear = bond.getFrequency().eventsPerYear();
+    CapitalIndexedBondYieldConvention yieldConvention = bond.getYieldConvention();
+    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.US_IL_REAL)) {
+      double pvAtFirstCoupon;
+      double pvAtFirstCouponDeriv;
+      double cpnRate = bond.getPeriodicPayments().get(0).getRealCoupon();
+      if (Math.abs(yield) > 1.0E-8) {
+        double factorOnPeriod = 1d + yield / couponPerYear;
+        double factorOnPeriodDeriv =  1d / couponPerYear;
+        double vn = Math.pow(factorOnPeriod, 1 - nbCoupon);
+        double vnDeriv = (1d - nbCoupon) * Math.pow(factorOnPeriod, -nbCoupon) * factorOnPeriodDeriv;
+        pvAtFirstCoupon = cpnRate * couponPerYear / yield * (factorOnPeriod - vn) + vn;
+        pvAtFirstCouponDeriv = -cpnRate * couponPerYear / yield / yield * (factorOnPeriod - vn) +
+            cpnRate * couponPerYear / yield * (factorOnPeriodDeriv - vnDeriv) + vnDeriv;
+      } else {
+        pvAtFirstCoupon = cpnRate * nbCoupon + 1d;
+        pvAtFirstCouponDeriv = (1d - nbCoupon) / couponPerYear + 0.5 * (1d - nbCoupon) * nbCoupon * cpnRate / couponPerYear;
+      }
+      double den = 1d + factorToNextCoupon(bond, settlementDate) * yield / couponPerYear;
+      double denDeriv = factorToNextCoupon(bond, settlementDate) / couponPerYear;
+      double price =  pvAtFirstCoupon / den;
+      double priceDeriv =  pvAtFirstCouponDeriv / den - pvAtFirstCoupon / den / den * denDeriv;
+      return ValueDerivatives.of(price, DoubleArray.of(priceDeriv));
+    }
+
+    double realRate = period.getRealCoupon();
+    double firstYearFraction = bond.yearFraction(period.getUnadjustedStartDate(), period.getUnadjustedEndDate());
+    double v = 1d / (1d + yield / couponPerYear);
+    double vDeriv = -v * v / couponPerYear;
+    double rs = ratioPeriodToNextCoupon(period, settlementDate);
+    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT)) {
+      RateComputation obs = period.getRateComputation();
+      LocalDateDoubleTimeSeries ts = ratesProvider.priceIndexValues(bond.getRateCalculation().getIndex()).getFixings();
+      YearMonth lastKnownFixingMonth = YearMonth.from(ts.getLatestDate());
+      double indexRatio = ts.getLatestValue() / bond.getFirstIndexValue();
+      YearMonth endFixingMonth = null;
+      if (obs instanceof InflationEndInterpolatedRateComputation) {
+        endFixingMonth = ((InflationEndInterpolatedRateComputation) obs).getEndSecondObservation().getFixingMonth();
+      } else if (obs instanceof InflationEndMonthRateComputation) {
+        endFixingMonth = ((InflationEndMonthRateComputation) obs).getEndObservation().getFixingMonth();
+      } else {
+        throw new IllegalArgumentException("The rate observation " + obs.toString() + " is not supported.");
+      }
+      double nbMonth = Math.abs(MONTHS.between(endFixingMonth, lastKnownFixingMonth));
+      double u = Math.sqrt(1d / 1.03);
+      double a = indexRatio * Math.pow(u, nbMonth / 6d);
+      if (nbCoupon == 1) {
+        double price = (realRate + 1d) * a / u * Math.pow(u * v, rs);
+        double priceDeriv = (realRate + 1d) * a / u * Math.pow(u * v, rs - 1d) * rs * u * vDeriv;
+        return ValueDerivatives.of(price, DoubleArray.of(priceDeriv));
+      } else {
+        double firstCashFlow = firstYearFraction * realRate * indexRatio * couponPerYear;
+        CapitalIndexedBondPaymentPeriod secondPeriod = bond.getPeriodicPayments().get(periodIndex + 1);
+        double secondYearFraction = bond.yearFraction(secondPeriod.getUnadjustedStartDate(), secondPeriod.getUnadjustedEndDate());
+        double secondCashFlow = secondYearFraction * realRate * indexRatio * couponPerYear;
+        double vn = Math.pow(v, nbCoupon - 1);
+        double vnDeriv = (nbCoupon - 1d) * Math.pow(v, nbCoupon - 2) * vDeriv;
+        double pvAtFirstCoupon =
+            firstCashFlow + secondCashFlow * u * v + a * realRate * v * v * (1d - vn / v) / (1d - v) + a * vn;
+        double pvAtFirstCouponDeriv =
+             secondCashFlow * u * vDeriv + a * vnDeriv +
+                 2d * a * realRate * v * vDeriv * (1d - vn / v) / (1d - v) -
+                 a * realRate * v * vnDeriv / (1d - v) +
+                 a * realRate * vn * vDeriv / (1d - v) +
+                 a * realRate * v * v * (1d - vn / v) / Math.pow(1d - v, 2) * vDeriv;
+        double price = pvAtFirstCoupon * Math.pow(u * v, rs);
+        double priceDeriv = pvAtFirstCouponDeriv * Math.pow(u * v, rs) +
+            rs * u * vDeriv * pvAtFirstCoupon * Math.pow(u * v, rs - 1);
+        return ValueDerivatives.of(price, DoubleArray.of(priceDeriv));
+      }
+    }
+    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.GB_IL_BOND)) {
+      double indexRatio = indexRatio(bond, ratesProvider, settlementDate);
+      double firstCashFlow = realRate * indexRatio * firstYearFraction * couponPerYear;
+      if (nbCoupon == 1) {
+        double price = Math.pow(v, rs) * (firstCashFlow + 1d);
+        double priceDeriv = rs * vDeriv * Math.pow(v, rs - 1d) * (firstCashFlow + 1d);
+        return ValueDerivatives.of(price, DoubleArray.of(priceDeriv));
+      } else {
+        CapitalIndexedBondPaymentPeriod secondPeriod = bond.getPeriodicPayments().get(periodIndex + 1);
+        double secondYearFraction = bond.yearFraction(secondPeriod.getUnadjustedStartDate(), secondPeriod.getUnadjustedEndDate());
+        double secondCashFlow = realRate * indexRatio * secondYearFraction * couponPerYear;
+        double vn = Math.pow(v, nbCoupon - 1);
+        double vnDeriv = (nbCoupon - 1d) * vDeriv * Math.pow(v, nbCoupon - 2);
+        double pvAtFirstCoupon = firstCashFlow + secondCashFlow * v + realRate * v * v * (1d - vn / v) / (1d - v) + vn;
+        double pvAtFirstCouponDeriv = secondCashFlow * vDeriv + vnDeriv +
+            2d * realRate * v * vDeriv * (1d - vn / v) / (1d - v) -
+            realRate * v * vnDeriv / (1d - v) +
+            realRate * vDeriv * vn / (1d - v) +
+            realRate * v * v * vDeriv * (1d - vn / v) / Math.pow(1d - v, 2);
+        double price = pvAtFirstCoupon * Math.pow(v, rs);
+        double priceDeriv = pvAtFirstCouponDeriv * Math.pow(v, rs) + pvAtFirstCoupon * Math.pow(v, rs - 1) * vDeriv * rs;
+        return ValueDerivatives.of(price, DoubleArray.of(priceDeriv));
+      }
+    }
+    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.JP_IL_SIMPLE)) {
+      LocalDate maturityDate = bond.getEndDate();
+      double maturity = bond.yearFraction(settlementDate, maturityDate);
+      double cleanPrice = (1d + realRate * couponPerYear * maturity) / (1d + yield * maturity);
+      double cleanPriceDeriv = -cleanPrice * maturity / (1d + yield * maturity);
+      double price = dirtyRealPriceFromCleanRealPrice(bond, settlementDate, cleanPrice);
+      return ValueDerivatives.of(price, DoubleArray.of(cleanPriceDeriv));
+    }
+    if (yieldConvention.equals(CapitalIndexedBondYieldConvention.JP_IL_COMPOUND)) {
+      double pvAtFirstCoupon = 0d;
+      double pvAtFirstCouponDeriv = 0d;
+      for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
+        CapitalIndexedBondPaymentPeriod paymentPeriod = bond.getPeriodicPayments().get(loopcpn + periodIndex);
+        pvAtFirstCoupon += paymentPeriod.getRealCoupon() * Math.pow(v, loopcpn);
+        pvAtFirstCouponDeriv += paymentPeriod.getRealCoupon() * loopcpn * Math.pow(v, loopcpn - 1) * vDeriv;
+      }
+      pvAtFirstCoupon += Math.pow(v, nbCoupon - 1);
+      pvAtFirstCouponDeriv += (nbCoupon - 1) * Math.pow(v, nbCoupon - 2) * vDeriv;
+      double factorToNext = factorToNextCoupon(bond, settlementDate);
+      double price = pvAtFirstCoupon * Math.pow(v, factorToNext);
+      double priceDeriv = pvAtFirstCouponDeriv * Math.pow(v, factorToNext) +
+          pvAtFirstCoupon * factorToNext * Math.pow(v, factorToNext - 1d) * vDeriv;
+      return ValueDerivatives.of(price, DoubleArray.of(priceDeriv));
+    }
+    throw new IllegalArgumentException(
+        "The convention " + bond.getYieldConvention().toString() + " is not supported.");
+  }
+
+  /**
    * Computes the clean price from the conventional real yield.
    * <p>
    * The resulting clean price is real price or nominal price depending on the yield convention.
@@ -690,9 +874,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
       double yield) {
 
     double dirtyPrice = dirtyPriceFromRealYield(bond, ratesProvider, settlementDate, yield);
-    if (bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT)) {
-      return cleanNominalPriceFromDirtyNominalPrice(bond, ratesProvider, settlementDate, dirtyPrice);
-    }
     return cleanRealPriceFromDirtyRealPrice(bond, settlementDate, dirtyPrice);
   }
 
@@ -728,6 +909,38 @@ public class DiscountingCapitalIndexedBondProductPricer {
   }
 
   /**
+   * Computes the conventional real yield from the dirty price and its derivaitve wrt the dirty price.
+   * <p>
+   * The input dirty price should be real price or nominal price depending on the yield convention. This is coherent to
+   * the implementation of {@link #dirtyPriceFromRealYield(ResolvedCapitalIndexedBond, RatesProvider, LocalDate, double)}.
+   * <p>
+   * The input price and output are expressed in fraction.
+   *
+   * @param bond  the product
+   * @param ratesProvider  the rates provider, used to determine price index values
+   * @param settlementDate  the settlement date
+   * @param dirtyPrice  the bond dirty price
+   * @return the yield of the product and its derivative
+   */
+  public ValueDerivatives realYieldFromDirtyPriceAd(
+      ResolvedCapitalIndexedBond bond,
+      RatesProvider ratesProvider,
+      LocalDate settlementDate,
+      double dirtyPrice) {
+
+    final Function<Double, Double> priceResidual = new Function<Double, Double>() {
+      @Override
+      public Double apply(Double y) {
+        return dirtyPriceFromRealYield(bond, ratesProvider, settlementDate, y) - dirtyPrice;
+      }
+    };
+    double[] range = ROOT_BRACKETER.getBracketedPoints(priceResidual, -0.05, 0.10);
+    double yield = ROOT_FINDER.getRoot(priceResidual, range[0], range[1]);
+    ValueDerivatives priceDYield = dirtyPriceFromRealYieldAd(bond, ratesProvider, settlementDate, yield);
+    return ValueDerivatives.of(yield, DoubleArray.of(1.0 / priceDYield.getDerivative(0)));
+  }
+
+  /**
    * Computes the conventional real yield from the curves.
    * <p>
    * The yield is in the bill yield convention.
@@ -746,15 +959,10 @@ public class DiscountingCapitalIndexedBondProductPricer {
 
     validate(ratesProvider, discountingProvider);
     LocalDate settlementDate = bond.calculateSettlementDateFromValuation(ratesProvider.getValuationDate(), refData);
-    double dirtyPrice;
-    if (bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT)) {
-      dirtyPrice = dirtyNominalPriceFromCurves(bond, ratesProvider, discountingProvider, settlementDate);
-    } else {
-      double dirtyNominalPrice =
-          dirtyNominalPriceFromCurves(bond, ratesProvider, discountingProvider, settlementDate);
-      dirtyPrice = realPriceFromNominalPrice(bond, ratesProvider, settlementDate, dirtyNominalPrice);
-    }
-    return realYieldFromDirtyPrice(bond, ratesProvider, settlementDate, dirtyPrice);
+    double dirtyNominalPrice =
+        dirtyNominalPriceFromCurves(bond, ratesProvider, discountingProvider, settlementDate);
+    double dirtyRealPrice = realPriceFromNominalPrice(bond, ratesProvider, settlementDate, dirtyNominalPrice);
+    return realYieldFromDirtyPrice(bond, ratesProvider, settlementDate, dirtyRealPrice);
   }
 
   /**
@@ -1035,6 +1243,28 @@ public class DiscountingCapitalIndexedBondProductPricer {
   }
 
   /**
+   * Calculates the real price of the bond from its settlement date and nominal price
+   * and its derivative wrt the nominal price.
+   * <p>
+   * The input and output prices are both clean or dirty.
+   *
+   * @param bond  the product
+   * @param ratesProvider  the rates provider, used to determine price index values
+   * @param settlementDate  the settlement date
+   * @param nominalPrice  the nominal price
+   * @return the price of the bond product and its derivative
+   */
+  public ValueDerivatives realPriceFromNominalPriceAd(
+      ResolvedCapitalIndexedBond bond,
+      RatesProvider ratesProvider,
+      LocalDate settlementDate,
+      double nominalPrice) {
+
+    double indexRatio = indexRatio(bond, ratesProvider, settlementDate);
+    return ValueDerivatives.of(nominalPrice / indexRatio, DoubleArray.of(1d / indexRatio));
+  }
+
+  /**
    * Calculates the nominal price of the bond from its settlement date and real price.
    * <p>
    * The input and output prices are both clean or dirty.
@@ -1096,9 +1326,6 @@ public class DiscountingCapitalIndexedBondProductPricer {
             z,
             compoundedRateType,
             periodsPerYear);
-        if (bond.getYieldConvention().equals(CapitalIndexedBondYieldConvention.GB_IL_FLOAT)) {
-          return cleanNominalPriceFromDirtyNominalPrice(bond, ratesProvider, settlementDate, dirtyPrice) - cleanPrice;
-        }
         double dirtyRealPrice = realPriceFromNominalPrice(bond, ratesProvider, settlementDate, dirtyPrice);
         return cleanRealPriceFromDirtyRealPrice(bond, settlementDate, dirtyRealPrice) - cleanPrice;
       }

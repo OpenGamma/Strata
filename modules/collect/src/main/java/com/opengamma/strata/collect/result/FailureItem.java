@@ -121,16 +121,18 @@ public final class FailureItem
    * <p>
    * The failure will still have a stack trace, but the cause type will not be present.
    *
+   * @param skipFrames  the number of caller frames to skip, not including this one
    * @param reason  the reason
    * @param message  the failure message, not empty
-   * @param skipFrames  the number of caller frames to skip, not including this one
+   * @param messageArgs  the arguments for the message
    * @return the failure
    */
-  static FailureItem ofAutoStackTrace(FailureReason reason, String message, int skipFrames) {
+  static FailureItem ofAutoStackTrace(int skipFrames, FailureReason reason, String message, Object... messageArgs) {
     ArgChecker.notNull(reason, "reason");
     ArgChecker.notEmpty(message, "message");
-    String stackTrace = localGetStackTraceAsString(message, skipFrames);
-    return new FailureItem(reason, message, ImmutableMap.of(), stackTrace, null);
+    Pair<String, Map<String, String>> messageArgPair = Messages.formatWithAttributes(message, messageArgs);
+    String stackTrace = localGetStackTraceAsString(messageArgPair.getFirst(), skipFrames);
+    return new FailureItem(reason, messageArgPair.getFirst(), messageArgPair.getSecond(), stackTrace, null);
   }
 
   /**

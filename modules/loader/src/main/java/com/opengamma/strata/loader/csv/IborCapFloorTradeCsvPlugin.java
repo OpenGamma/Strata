@@ -68,7 +68,7 @@ import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 
 /**
- * Handles the CSV file format for CapFloor trades.
+ * Handles the CSV file format for IBOR cap/floor trades.
  */
 public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin<IborCapFloorTrade> {
 
@@ -122,7 +122,7 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
       TradeCsvInfoResolver resolver) {
 
     if (requiredJavaType.isAssignableFrom(IborCapFloorTrade.class)) {
-      return Optional.of(resolver.parseCapFloorTrade(baseRow, info));
+      return Optional.of(resolver.parseIborCapFloorTrade(baseRow, info));
     }
     return Optional.empty();
   }

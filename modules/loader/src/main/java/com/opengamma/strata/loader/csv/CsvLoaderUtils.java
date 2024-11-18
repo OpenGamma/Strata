@@ -39,7 +39,6 @@ import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Decimal;
 import com.opengamma.strata.collect.io.CsvRow;
-import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.ParseFailureException;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -292,9 +291,13 @@ public final class CsvLoaderUtils {
       case "EUROPEAN":
       case "E":
         return EtdOptionType.EUROPEAN;
+      case "ASIAN":
+      case "T":
+        return EtdOptionType.ASIAN;
       default:
         throw new ParseFailureException(
-            "Unable to parse ETD option type from '{value}', must be 'American', 'European', 'A' or 'E' (case insensitive)", str);
+            "Unable to parse ETD option type from '{value}', must be 'American', 'European', 'Asian', 'A', 'E' or " +
+                "'T' (case insensitive)", str);
     }
   }
 

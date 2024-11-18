@@ -55,7 +55,7 @@ public final class EtdVariant
   /**
    * The optional date code, populated for Weekly and Daily.
    * <p>
-   * This will be the week number for Weekly and the day-of-week for Daily.
+   * This will be the week number for Weekly and the day-of-month for Daily.
    */
   @PropertyDefinition(get = "optional")
   private final Integer dateCode;
@@ -65,7 +65,7 @@ public final class EtdVariant
   @PropertyDefinition(get = "optional")
   private final EtdSettlementType settlementType;
   /**
-   * The optional option type, 'American' or 'European', populated for Flex Options.
+   * The optional option type, such as 'American' or 'European', populated for Flex Options.
    */
   @PropertyDefinition(get = "optional")
   private final EtdOptionType optionType;
@@ -270,7 +270,7 @@ public final class EtdVariant
   /**
    * Gets the optional date code, populated for Weekly and Daily.
    * <p>
-   * This will be the week number for Weekly and the day-of-week for Daily.
+   * This will be the week number for Weekly and the day-of-month for Daily.
    * @return the optional value of the property, not null
    */
   public OptionalInt getDateCode() {
@@ -288,7 +288,7 @@ public final class EtdVariant
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the optional option type, 'American' or 'European', populated for Flex Options.
+   * Gets the optional option type, such as 'American' or 'European', populated for Flex Options.
    * @return the optional value of the property, not null
    */
   public Optional<EtdOptionType> getOptionType() {

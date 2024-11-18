@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -36,6 +37,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -163,6 +165,18 @@ public class GuavateTest {
     assertThat(Guavate.tryCatchToOptional(() -> LocalDate.parse("XXX"))).isEmpty();
   }
 
+  @Test
+  public void test_tryCatchToOptional_observed() {
+    List<RuntimeException> extracted = new ArrayList<>();
+    Consumer<RuntimeException> handler = ex -> extracted.add(ex);
+    assertThat(Guavate.tryCatchToOptional(() -> LocalDate.parse("2020-06-01"), handler)).hasValue(LocalDate.of(2020, 6, 1));
+    assertThat(extracted).isEmpty();
+    assertThat(Guavate.tryCatchToOptional(() -> null, handler)).isEmpty();
+    assertThat(extracted).isEmpty();
+    assertThat(Guavate.tryCatchToOptional(() -> LocalDate.parse("XXX"), handler)).isEmpty();
+    assertThat(extracted).singleElement().isInstanceOf(DateTimeParseException.class);
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_firstNonEmpty_supplierMatch1() {
@@ -210,9 +224,17 @@ public class GuavateTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_first() {
-    assertThat(Guavate.first(ImmutableSet.of())).isEqualTo(Optional.empty());
+    assertThat(Guavate.first(ImmutableSet.of())).isEmpty();
     assertThat(Guavate.first(ImmutableSet.of("a"))).hasValue("a");
     assertThat(Guavate.first(ImmutableSet.of("a", "b"))).hasValue("a");
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_only() {
+    assertThat(Guavate.only(ImmutableSet.of())).isEmpty();
+    assertThat(Guavate.only(ImmutableSet.of("a"))).hasValue("a");
+    assertThat(Guavate.only(ImmutableSet.of("a", "b"))).isEmpty();
   }
 
   //-------------------------------------------------------------------------
@@ -308,6 +330,34 @@ public class GuavateTest {
     assertThat(extracted).isEmpty();
   }
 
+  @Test
+  public void test_inTryCatchIgnore_present() {
+    List<String> extracted = new ArrayList<>();
+    for (String str : Guavate.inTryCatchIgnore(() -> "a")) {
+      extracted.add(str);
+    }
+    assertThat(extracted).containsExactly("a");
+  }
+
+  @Test
+  public void test_inTryCatchIgnore_null() {
+    List<String> extracted = new ArrayList<>();
+    Supplier<String> supplier = () -> null;
+    for (String str : Guavate.inTryCatchIgnore(supplier)) {
+      extracted.add(str);
+    }
+    assertThat(extracted).isEmpty();
+  }
+
+  @Test
+  public void test_inTryCatchIgnore_exception() {
+    List<LocalDate> extracted = new ArrayList<>();
+    for (LocalDate str : Guavate.inTryCatchIgnore(() -> LocalDate.parse("XXX"))) {
+      extracted.add(str);
+    }
+    assertThat(extracted).isEmpty();
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_zipWithIndex() {
@@ -374,6 +424,17 @@ public class GuavateTest {
     assertThatIllegalArgumentException().isThrownBy(() -> Stream.of("a", "b").reduce(Guavate.ensureOnlyOne()));
   }
 
+  @Test
+  public void test_ensureOnlyOne_withCustomMessage() {
+    String message = "Expected one letter but found multiple for date {}";
+    LocalDate arg = LocalDate.of(2024, 4, 24);
+    assertThat(Stream.empty().reduce(Guavate.ensureOnlyOne(message, arg))).isEqualTo(Optional.empty());
+    assertThat(Stream.of("a").reduce(Guavate.ensureOnlyOne(message, arg))).isEqualTo(Optional.of("a"));
+    assertThatIllegalArgumentException().isThrownBy(() -> Stream.of("a", "b")
+            .reduce(Guavate.ensureOnlyOne(message, arg)))
+        .withMessage(Messages.format(message, arg));
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_casting() {
@@ -412,6 +473,16 @@ public class GuavateTest {
         .isEqualTo(Optional.empty());
     assertThatIllegalArgumentException().isThrownBy(() -> list.stream().collect(Guavate.toOptional()));
     assertThatNullPointerException().isThrownBy(() -> Stream.of((String[]) null).collect(Guavate.toOptional()));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_toOnly() {
+    List<String> list = Arrays.asList("a", "ab");
+    assertThat(list.stream().filter(s -> s.length() == 1).collect(Guavate.toOnly())).hasValue("a");
+    assertThat(list.stream().filter(s -> s.length() == 0).collect(Guavate.toOnly())).isEmpty();
+    assertThat(list.stream().collect(Guavate.toOnly())).isEmpty();
+    assertThatNullPointerException().isThrownBy(() -> Stream.of((String[]) null).collect(Guavate.toOnly()));
   }
 
   //-------------------------------------------------------------------------

@@ -9,11 +9,9 @@ import static com.opengamma.strata.basics.StandardSchemes.OG_ETD_SCHEME;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.product.etd.EtdVariant.MONTHLY;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.YearMonth;
-import java.time.format.DateTimeParseException;
 
 import org.junit.jupiter.api.Test;
 
@@ -30,6 +28,7 @@ public class EtdIdUtilsTest {
   private static final YearMonth EXPIRY = YearMonth.of(2017, 6);
   private static final EtdContractCode OGBS = EtdContractCode.of("OGBS");
   private static final EtdContractCode FGBS = EtdContractCode.of("FGBS");
+  private static final EtdContractCode BAJAJ_AUTO = EtdContractCode.of("BAJAJ-AUTO");
 
   @Test
   public void test_contractSpecId_future() {
@@ -45,8 +44,60 @@ public class EtdIdUtilsTest {
   }
 
   @Test
+  void test_contractSpecIdWithExtraHyphen_future() {
+    EtdContractSpecId test = EtdIdUtils.contractSpecId(EtdType.FUTURE, ExchangeIds.XNSE, BAJAJ_AUTO);
+    assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "F-XNSE-BAJAJ-AUTO"));
+    assertThat(EtdIdUtils.splitId(test))
+        .isEqualTo(SplitEtdContractSpecId.builder()
+            .specId(test)
+            .type(EtdType.FUTURE)
+            .exchangeId(ExchangeIds.XNSE)
+            .contractCode(BAJAJ_AUTO)
+            .build());
+  }
+
+  @Test
   public void test_contractSpecId_option() {
     EtdContractSpecId test = EtdIdUtils.contractSpecId(EtdType.OPTION, ExchangeIds.ECAG, OGBS);
+    assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "O-ECAG-OGBS"));
+    assertThat(EtdIdUtils.splitId(test))
+        .isEqualTo(SplitEtdContractSpecId.builder()
+            .specId(test)
+            .type(EtdType.OPTION)
+            .exchangeId(ExchangeIds.ECAG)
+            .contractCode(OGBS)
+            .build());
+  }
+
+  @Test
+  void test_contractSpecIdWithExtraHyphen_option() {
+    EtdContractSpecId test = EtdIdUtils.contractSpecId(EtdType.OPTION, ExchangeIds.XNSE, BAJAJ_AUTO);
+    assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "O-XNSE-BAJAJ-AUTO"));
+    assertThat(EtdIdUtils.splitId(test))
+        .isEqualTo(SplitEtdContractSpecId.builder()
+            .specId(test)
+            .type(EtdType.OPTION)
+            .exchangeId(ExchangeIds.XNSE)
+            .contractCode(BAJAJ_AUTO)
+            .build());
+  }
+
+  @Test
+  public void test_contractSpecId_future_from_securityId() {
+    EtdContractSpecId test = EtdIdUtils.contractSpecId(SecurityId.of(OG_ETD_SCHEME, "F-ECAG-FGBS-202305"));
+    assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "F-ECAG-FGBS"));
+    assertThat(EtdIdUtils.splitId(test))
+        .isEqualTo(SplitEtdContractSpecId.builder()
+            .specId(test)
+            .type(EtdType.FUTURE)
+            .exchangeId(ExchangeIds.ECAG)
+            .contractCode(FGBS)
+            .build());
+  }
+
+  @Test
+  public void test_contractSpecId_option_from_securityId() {
+    EtdContractSpecId test = EtdIdUtils.contractSpecId(SecurityId.of(OG_ETD_SCHEME, "O-ECAG-OGBS-202305-P1"));
     assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "O-ECAG-OGBS"));
     assertThat(EtdIdUtils.splitId(test))
         .isEqualTo(SplitEtdContractSpecId.builder()
@@ -70,6 +121,22 @@ public class EtdIdUtilsTest {
             .expiry(EXPIRY)
             .variant(MONTHLY)
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
+  }
+
+  @Test
+  public void test_futureIdWithExtraHyphen_monthly() {
+    SecurityId test = EtdIdUtils.futureId(ExchangeIds.XNSE, BAJAJ_AUTO, EXPIRY, MONTHLY);
+    assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "F-XNSE-BAJAJ-AUTO-201706"));
+    assertThat(EtdIdUtils.splitId(test))
+        .isEqualTo(SplitEtdId.builder()
+            .securityId(test)
+            .exchangeId(ExchangeIds.XNSE)
+            .contractCode(BAJAJ_AUTO)
+            .expiry(EXPIRY)
+            .variant(MONTHLY)
+            .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.XNSE);
   }
 
   @Test
@@ -85,6 +152,7 @@ public class EtdIdUtilsTest {
             .expiry(EXPIRY)
             .variant(variant)
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   @Test
@@ -100,6 +168,7 @@ public class EtdIdUtilsTest {
             .expiry(EXPIRY)
             .variant(variant)
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   @Test
@@ -115,6 +184,7 @@ public class EtdIdUtilsTest {
             .expiry(EXPIRY)
             .variant(variant)
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   //-------------------------------------------------------------------------
@@ -131,6 +201,7 @@ public class EtdIdUtilsTest {
             .variant(MONTHLY)
             .option(SplitEtdOption.of(0, PutCall.PUT, 12.34))
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   @Test
@@ -148,6 +219,7 @@ public class EtdIdUtilsTest {
             .variant(variant)
             .option(SplitEtdOption.of(0, PutCall.CALL, -1.45))
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   @Test
@@ -165,6 +237,7 @@ public class EtdIdUtilsTest {
             .variant(variant)
             .option(SplitEtdOption.of(3, PutCall.PUT, 12.34))
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   @Test
@@ -182,6 +255,7 @@ public class EtdIdUtilsTest {
             .variant(variant)
             .option(SplitEtdOption.of(11, PutCall.PUT, 12.34))
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   //-------------------------------------------------------------------------
@@ -200,6 +274,25 @@ public class EtdIdUtilsTest {
             .variant(MONTHLY)
             .option(SplitEtdOption.of(0, PutCall.PUT, 12.34, underlyingMonth))
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
+  }
+
+  @Test
+  public void test_optionIdUnderlyingWithHyphen_monthly() {
+    YearMonth underlyingMonth = YearMonth.of(2017, 9);
+    SecurityId test = EtdIdUtils.optionId(
+        ExchangeIds.XNSE, BAJAJ_AUTO, EXPIRY, MONTHLY, 0, PutCall.PUT, 12.34, underlyingMonth);
+    assertThat(test.getStandardId()).isEqualTo(StandardId.of(OG_ETD_SCHEME, "O-XNSE-BAJAJ-AUTO-201706-P12.34-U201709"));
+    assertThat(EtdIdUtils.splitId(test))
+        .isEqualTo(SplitEtdId.builder()
+            .securityId(test)
+            .exchangeId(ExchangeIds.XNSE)
+            .contractCode(BAJAJ_AUTO)
+            .expiry(EXPIRY)
+            .variant(MONTHLY)
+            .option(SplitEtdOption.of(0, PutCall.PUT, 12.34, underlyingMonth))
+            .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.XNSE);
   }
 
   @Test
@@ -216,6 +309,7 @@ public class EtdIdUtilsTest {
             .variant(MONTHLY)
             .option(SplitEtdOption.of(0, PutCall.PUT, 12.34))
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   @Test
@@ -234,6 +328,7 @@ public class EtdIdUtilsTest {
             .variant(variant)
             .option(SplitEtdOption.of(0, PutCall.CALL, -1.45, underlyingMonth))
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   @Test
@@ -252,6 +347,7 @@ public class EtdIdUtilsTest {
             .variant(variant)
             .option(SplitEtdOption.of(3, PutCall.PUT, 12.34, underlyingMonth))
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   @Test
@@ -270,6 +366,7 @@ public class EtdIdUtilsTest {
             .variant(variant)
             .option(SplitEtdOption.of(11, PutCall.PUT, 12.34, underlyingMonth))
             .build());
+    assertThat(EtdIdUtils.splitIdToExchangeId(test)).isEqualTo(ExchangeIds.ECAG);
   }
 
   //-------------------------------------------------------------------------
@@ -279,8 +376,6 @@ public class EtdIdUtilsTest {
         .isThrownBy(() -> EtdIdUtils.splitId(EtdContractSpecId.of("A", "B")));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> EtdIdUtils.splitId(EtdContractSpecId.of(OG_ETD_SCHEME, "B")));
-    assertThatIllegalArgumentException()
-        .isThrownBy(() -> EtdIdUtils.splitId(EtdContractSpecId.of(OG_ETD_SCHEME, "F-ECAG-AB-ABCDEF")));
   }
 
   @Test
@@ -289,7 +384,7 @@ public class EtdIdUtilsTest {
         .isThrownBy(() -> EtdIdUtils.splitId(SecurityId.of("A", "B")));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> EtdIdUtils.splitId(SecurityId.of(OG_ETD_SCHEME, "B")));
-    assertThatExceptionOfType(DateTimeParseException.class)
+    assertThatIllegalArgumentException()
         .isThrownBy(() -> EtdIdUtils.splitId(SecurityId.of(OG_ETD_SCHEME, "F-ECAG-AB-ABCDEF")));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> EtdIdUtils.splitId(SecurityId.of(OG_ETD_SCHEME, "F-ECAG-AB-20206")));

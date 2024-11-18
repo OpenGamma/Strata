@@ -20,17 +20,17 @@ public final class IndexAboveQuantileMethod
   public static final IndexAboveQuantileMethod DEFAULT = new IndexAboveQuantileMethod();
 
   @Override
-  int index(double quantileSize) {
+  protected int index(double quantileSize) {
     return (int) Math.ceil(quantileSize);
   }
 
   @Override
-  int sampleCorrection(int sampleSize) {
+  protected int sampleCorrection(int sampleSize) {
     return sampleSize;
   }
 
   @Override
-  double indexShift() {
+  protected double indexShift() {
     return 0d;
   }
 }

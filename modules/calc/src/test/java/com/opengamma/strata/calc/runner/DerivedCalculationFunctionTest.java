@@ -286,7 +286,6 @@ final class TestTarget implements CalculationTarget {  // CSIGNORE
     this.value = value;
   }
 
-  @Test
   public int getValue() {
     return value;
   }

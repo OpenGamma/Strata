@@ -62,29 +62,29 @@ public abstract class DiscreteQuantileMethod
   //-------------------------------------------------------------------------
 
   /**
-   * Internal method computing the index for a give quantile multiply by sample size.
+   * Computes the index for a given quantile multiplied by sample size.
    * <p>
    * The quantile size is given by quantile * sample size.
    *
    * @param quantileSize  the quantile size
    * @return the index in the sample
    */
-  abstract int index(double quantileSize);
+  protected abstract int index(double quantileSize);
 
   /**
-   * Internal method returning the sample size correction for the specific implementation.
+   * Returns the sample size correction for the specific implementation.
    *
    * @param sampleSize  the sample size
    * @return the correction
    */
-  abstract int sampleCorrection(int sampleSize);
+  protected abstract int sampleCorrection(int sampleSize);
 
   /**
    * Shift added to/subtracted from index during intermediate steps in the expected shortfall computation.
    *
    * @return the index shift
    */
-  abstract double indexShift();
+  protected abstract double indexShift();
 
   /**
    * Generate an index of doubles.
