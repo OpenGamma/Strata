@@ -25,6 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataHolder;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -40,7 +42,7 @@ import com.opengamma.strata.market.param.ParameterizedDataCombiner;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
-
+import com.opengamma.strata.product.fx.type.FxSwapConvention;
 /**
  * Provides access to discount factors for currencies.
  * <p>
@@ -148,6 +150,16 @@ public final class DiscountFxForwardRates
     return valuationDate;
   }
 
+  private LocalDate spotDate() {
+    try {
+      FxSwapConvention fxSwapConvention = FxSwapConvention.of(currencyPair);
+      ReferenceData refData = ReferenceDataHolder.getReferenceDataWithFallback(ReferenceData.standard());
+      return fxSwapConvention.calculateSpotDateFromTradeDate(valuationDate, refData);
+    } catch (IllegalArgumentException e) {
+      return valuationDate;
+    }
+  }
+
   @Override
   public <T> Optional<T> findData(MarketDataName<T> name) {
     return baseCurrencyDiscountFactors.findData(name)
@@ -194,9 +206,18 @@ public final class DiscountFxForwardRates
     ArgChecker.isTrue(
         currencyPair.contains(baseCurrency), "Currency {} invalid for CurrencyPair {}", baseCurrency, currencyPair);
     boolean inverse = baseCurrency.equals(currencyPair.getCounter());
+
+    LocalDate spotDate = spotDate();
+
     double dfCcyBaseAtMaturity = baseCurrencyDiscountFactors.discountFactor(referenceDate);
+    double dfCcyBaseSpot = baseCurrencyDiscountFactors.discountFactor(spotDate);
+
     double dfCcyCounterAtMaturity = counterCurrencyDiscountFactors.discountFactor(referenceDate);
-    double forwardRate = fxRateProvider.fxRate(currencyPair) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);
+    double dfCcyCounterSpot = counterCurrencyDiscountFactors.discountFactor(spotDate);
+
+    double forwardRate = fxRateProvider.fxRate(currencyPair) * ((dfCcyBaseAtMaturity / dfCcyBaseSpot)
+        / (dfCcyCounterAtMaturity / dfCcyCounterSpot));
+
     return inverse ? 1d / forwardRate : forwardRate;
   }
 
@@ -214,9 +235,13 @@ public final class DiscountFxForwardRates
     ArgChecker.isTrue(
         currencyPair.contains(baseCurrency), "Currency {} invalid for CurrencyPair {}", baseCurrency, currencyPair);
     boolean inverse = baseCurrency.equals(currencyPair.getCounter());
+    LocalDate spotDate = spotDate();
     double dfCcyBaseAtMaturity = baseCurrencyDiscountFactors.discountFactor(referenceDate);
+    double dfCcyBaseSpot = baseCurrencyDiscountFactors.discountFactor(spotDate);
     double dfCcyCounterAtMaturity = counterCurrencyDiscountFactors.discountFactor(referenceDate);
-    double forwardRateDelta = dfCcyBaseAtMaturity / dfCcyCounterAtMaturity;
+    double dfCcyCounterSpot = counterCurrencyDiscountFactors.discountFactor(spotDate);
+
+    double forwardRateDelta = ((dfCcyBaseAtMaturity / dfCcyBaseSpot) / (dfCcyCounterAtMaturity / dfCcyCounterSpot));
     return inverse ? 1d / forwardRateDelta : forwardRateDelta;
   }
 
@@ -230,25 +255,48 @@ public final class DiscountFxForwardRates
     Currency refCounterCurrency = pointSensitivity.getReferenceCounterCurrency();
     Currency sensitivityCurrency = pointSensitivity.getCurrency();
     LocalDate referenceDate = pointSensitivity.getReferenceDate();
+    LocalDate spotDate = spotDate();
 
     boolean inverse = refBaseCurrency.equals(currencyPair.getCounter());
     DiscountFactors discountFactorsRefBase = (inverse ? counterCurrencyDiscountFactors : baseCurrencyDiscountFactors);
     DiscountFactors discountFactorsRefCounter = (inverse ? baseCurrencyDiscountFactors : counterCurrencyDiscountFactors);
-    double dfCcyBaseAtMaturity = discountFactorsRefBase.discountFactor(referenceDate);
-    double dfCcyCounterAtMaturityInv = 1d / discountFactorsRefCounter.discountFactor(referenceDate);
-
     double fxRate = fxRateProvider.fxRate(refBaseCurrency, refCounterCurrency);
+
+    // DF(Spot,Reference) = DF(Valuation,Reference) / DF(Valuation,Spot)
+    double dfCcyBaseAtSpotInv = 1.0d / discountFactorsRefBase.discountFactor(spotDate);
+    double dfCcyBaseAtMaturity = discountFactorsRefBase.discountFactor(referenceDate);
+    double dfCcyCounterAtSpot = discountFactorsRefCounter.discountFactor(spotDate);
+    double dfCcyCounterAtMaturityInv = 1.0d / discountFactorsRefCounter.discountFactor(referenceDate);
+
+    // base
     ZeroRateSensitivity dfCcyBaseAtMaturitySensitivity =
         discountFactorsRefBase.zeroRatePointSensitivity(referenceDate, sensitivityCurrency)
-            .multipliedBy(fxRate * dfCcyCounterAtMaturityInv * pointSensitivity.getSensitivity());
+            .multipliedBy(fxRate * (dfCcyCounterAtSpot * dfCcyCounterAtMaturityInv *
+                dfCcyBaseAtSpotInv) * pointSensitivity.getSensitivity());
 
+    ZeroRateSensitivity dfCcyBaseAtSpotSensitivity =
+        discountFactorsRefBase.zeroRatePointSensitivity(spotDate, sensitivityCurrency)
+            .multipliedBy(-fxRate * (dfCcyCounterAtSpot * dfCcyCounterAtMaturityInv *
+                dfCcyBaseAtMaturity) * dfCcyBaseAtSpotInv *
+                dfCcyBaseAtSpotInv * pointSensitivity.getSensitivity());
+
+    // counter
     ZeroRateSensitivity dfCcyCounterAtMaturitySensitivity =
         discountFactorsRefCounter.zeroRatePointSensitivity(referenceDate, sensitivityCurrency)
-            .multipliedBy(-fxRate * dfCcyBaseAtMaturity * dfCcyCounterAtMaturityInv *
+            .multipliedBy(-fxRate * (dfCcyCounterAtSpot * dfCcyBaseAtMaturity *
+                dfCcyBaseAtSpotInv) * dfCcyCounterAtMaturityInv *
                 dfCcyCounterAtMaturityInv * pointSensitivity.getSensitivity());
 
+    ZeroRateSensitivity dfCcyCounterAtSpotSensitivity =
+        discountFactorsRefCounter.zeroRatePointSensitivity(spotDate, sensitivityCurrency)
+            .multipliedBy(fxRate * (dfCcyBaseAtMaturity * dfCcyCounterAtMaturityInv *
+                dfCcyBaseAtSpotInv) * pointSensitivity.getSensitivity());
+
+    // base and counter combined
     return discountFactorsRefBase.parameterSensitivity(dfCcyBaseAtMaturitySensitivity)
-        .combinedWith(discountFactorsRefCounter.parameterSensitivity(dfCcyCounterAtMaturitySensitivity));
+        .combinedWith(discountFactorsRefBase.parameterSensitivity(dfCcyBaseAtSpotSensitivity))
+        .combinedWith(discountFactorsRefCounter.parameterSensitivity(dfCcyCounterAtMaturitySensitivity)
+        .combinedWith(discountFactorsRefCounter.parameterSensitivity(dfCcyCounterAtSpotSensitivity)));
   }
 
   @Override
@@ -259,18 +307,28 @@ public final class DiscountFxForwardRates
     CurrencyPair pair = pointSensitivity.getCurrencyPair();
     double s = pointSensitivity.getSensitivity();
     LocalDate d = pointSensitivity.getReferenceDate();
-    double f = fxRateProvider.fxRate(pair.getBase(), pair.getCounter());
-    double pA = baseCurrencyDiscountFactors.discountFactor(d);
-    double pB = counterCurrencyDiscountFactors.discountFactor(d);
+    LocalDate sp = spotDate();
+    double spotRate = fxRateProvider.fxRate(pair.getBase(), pair.getCounter());
+    double baseCcyDfRef = baseCurrencyDiscountFactors.discountFactor(d);
+    double counterCcyDfRef = counterCurrencyDiscountFactors.discountFactor(d);
+
+    double baseCcyDfSpot = baseCurrencyDiscountFactors.discountFactor(sp);
+    double counterCcyDfSpot = counterCurrencyDiscountFactors.discountFactor(sp);
+
     if (ccyRef.equals(pair.getBase())) {
-      CurrencyAmount amountCounter = CurrencyAmount.of(pair.getBase(), s * f * pA / pB);
-      CurrencyAmount amountBase = CurrencyAmount.of(pair.getCounter(), -s * f * f * pA / pB);
+      CurrencyAmount amountCounter = CurrencyAmount.of(pair.getBase(), s * spotRate *
+          baseCcyDfRef / counterCcyDfRef);
+      CurrencyAmount amountBase = CurrencyAmount.of(pair.getCounter(), -1.0d *
+          amountCounter.getAmount() / baseCcyDfSpot * spotRate * counterCcyDfSpot);
       return MultiCurrencyAmount.of(amountBase, amountCounter);
     } else {
-      CurrencyAmount amountBase = CurrencyAmount.of(pair.getBase(), -s * pB / (pA * f * f));
-      CurrencyAmount amountCounter = CurrencyAmount.of(pair.getCounter(), s * pB / (pA * f));
+      CurrencyAmount amountCounter = CurrencyAmount.of(pair.getCounter(), s * counterCcyDfRef
+          / (baseCcyDfRef * spotRate));
+      CurrencyAmount amountBase = CurrencyAmount.of(pair.getBase(), -1.0d *
+          amountCounter.getAmount() * baseCcyDfSpot / (spotRate * counterCcyDfSpot));
       return MultiCurrencyAmount.of(amountBase, amountCounter);
     }
+
   }
 
   //-------------------------------------------------------------------------

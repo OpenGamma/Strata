@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.swap;
 
+import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
@@ -16,6 +17,7 @@ import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.basics.schedule.Frequency.P12M;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.SPOT_DATE_2014_01_24;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_CMP_FLAT_SWAP_LEG_PAY_GBP;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_CMP_NONE_SWAP_LEG_PAY_GBP;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_FX_RESET_SWAP_LEG_PAY_GBP;
@@ -116,7 +118,7 @@ public class DiscountingSwapLegPricerTest {
 
   private static final RatesProvider MOCK_PROV = new MockRatesProvider(RatesProviderDataSets.VAL_DATE_2014_01_22);
   private static final RatesProvider MOCK_PROV_FUTURE = new MockRatesProvider(date(2040, 1, 22));
-
+  private static final LocalDate SPOT_DATE = SPOT_DATE_2014_01_24;
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double TOLERANCE = 1.0e-12;
   private static final double TOLERANCE_DELTA = 1.0E+0;
@@ -590,6 +592,7 @@ public class DiscountingSwapLegPricerTest {
   private static final LocalDate DATE_14_03_31 = date(2014, 3, 31);
   private static final double START_INDEX = 218.0;
   private static final double NOTIONAL = 1000d;
+  private static final double SCALED_NOTIONAL = 10000d;
   private static final LocalDate VAL_DATE_INFLATION = date(2014, 7, 8);
   private static final ImmutableRatesProvider RATES_GBP_INFLATION = RatesProviderDataSets.multiGbp(VAL_DATE_INFLATION);
 
@@ -821,12 +824,14 @@ public class DiscountingSwapLegPricerTest {
 
   @Test
   public void test_currencyExposure_fx() {
+    double dfBaseSpot = RATES_GBP_USD.discountFactor(GBP, SPOT_DATE);
+    double dfCounterSpot = RATES_GBP_USD.discountFactor(USD, SPOT_DATE);
+
     ResolvedSwapLeg expSwapLeg = FIXED_FX_RESET_SWAP_LEG_PAY_GBP;
     PointSensitivities point = PRICER_LEG.presentValueSensitivity(expSwapLeg, RATES_GBP_USD).build();
-    MultiCurrencyAmount expected = RATES_GBP_USD.currencyExposure(point.convertedTo(USD, RATES_GBP_USD))
-        .plus(PRICER_LEG.presentValue(expSwapLeg, RATES_GBP_USD));
+    MultiCurrencyAmount expected = RATES_GBP_USD.currencyExposure(point.convertedTo(USD, RATES_GBP_USD)).plus(PRICER_LEG.presentValue(expSwapLeg, RATES_GBP_USD));
     MultiCurrencyAmount computed = PRICER_LEG.currencyExposure(expSwapLeg, RATES_GBP_USD);
-    assertThat(computed.getAmount(USD).getAmount()).isCloseTo(expected.getAmount(USD).getAmount(), offset(EPS * NOTIONAL));
+    assertThat(computed.getAmount(USD).getAmount()).isCloseTo(expected.getAmount(USD).getAmount(), offset(EPS * SCALED_NOTIONAL));
     assertThat(computed.contains(GBP)).isFalse(); // 0 GBP
   }
 

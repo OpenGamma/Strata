@@ -122,7 +122,7 @@ public class DiscountingSwapLegPricer {
   }
 
   // calculates the present value in the currency of the swap leg
-  double presentValueInternal(ResolvedSwapLeg leg, RatesProvider provider) {
+  protected double presentValueInternal(ResolvedSwapLeg leg, RatesProvider provider) {
     return presentValuePeriodsInternal(leg, provider) + presentValueEventsInternal(leg, provider);
   }
 
@@ -513,7 +513,7 @@ public class DiscountingSwapLegPricer {
   }
 
   // calculates the present value of the events composing the leg in the currency of the swap leg
-  double presentValueEventsInternal(ResolvedSwapLeg leg, RatesProvider provider) {
+  protected double presentValueEventsInternal(ResolvedSwapLeg leg, RatesProvider provider) {
     double total = 0d;
     for (SwapPaymentEvent event : leg.getPaymentEvents()) {
       if (!event.getPaymentDate().isBefore(provider.getValuationDate())) {
@@ -524,7 +524,7 @@ public class DiscountingSwapLegPricer {
   }
 
   // calculates the present value of the periods composing the leg in the currency of the swap leg
-  double presentValuePeriodsInternal(ResolvedSwapLeg leg, RatesProvider provider) {
+  protected double presentValuePeriodsInternal(ResolvedSwapLeg leg, RatesProvider provider) {
     double total = 0d;
     for (SwapPaymentPeriod period : leg.getPaymentPeriods()) {
       if (!period.getPaymentDate().isBefore(provider.getValuationDate())) {

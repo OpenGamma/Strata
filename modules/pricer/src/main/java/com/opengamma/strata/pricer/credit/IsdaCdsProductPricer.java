@@ -44,7 +44,7 @@ public class IsdaCdsProductPricer {
    * <p>
    * An approximation formula is used if a certain variable is smaller than this parameter.
    */
-  private static final double SMALL = 1.0e-5;
+  protected static final double SMALL = 1.0e-5;
 
   /**
    * The formula
@@ -496,7 +496,7 @@ public class IsdaCdsProductPricer {
 
   //-------------------------------------------------------------------------
   // computes protection leg pv per unit notional
-  private double protectionLeg(
+  protected double protectionLeg(
       ResolvedCds cds,
       CreditDiscountFactors discountFactors,
       LegalEntitySurvivalProbabilities survivalProbabilities,
@@ -554,7 +554,7 @@ public class IsdaCdsProductPricer {
   }
 
   // computes risky annuity
-  double riskyAnnuity(
+  protected double riskyAnnuity(
       ResolvedCds cds,
       CreditDiscountFactors discountFactors,
       LegalEntitySurvivalProbabilities survivalProbabilities,
@@ -597,7 +597,7 @@ public class IsdaCdsProductPricer {
   }
 
   // computes accrual-on-default pv per unit notional for a single payment period
-  private double singlePeriodAccrualOnDefault(
+  protected double singlePeriodAccrualOnDefault(
       CreditCouponPaymentPeriod coupon,
       LocalDate effectiveStartDate,
       DoubleArray integrationSchedule,
@@ -740,7 +740,7 @@ public class IsdaCdsProductPricer {
     return dfSensi.combinedWith(pvSensi);
   }
 
-  private double computeExtendedEpsilon(double dhrt, double pn, double qn, double pd, double qd) {
+  protected double computeExtendedEpsilon(double dhrt, double pn, double qn, double pd, double qd) {
     if (Math.abs(dhrt) < SMALL) {
       return -0.5 - dhrt / 6d - dhrt * dhrt / 24d;
     }
@@ -793,7 +793,7 @@ public class IsdaCdsProductPricer {
     return dfSensi.combinedWith(pvSensi);
   }
 
-  private Pair<Double, PointSensitivityBuilder> singlePeriodAccrualOnDefaultSensitivity(
+  protected Pair<Double, PointSensitivityBuilder> singlePeriodAccrualOnDefaultSensitivity(
       CreditCouponPaymentPeriod coupon,
       LocalDate effectiveStartDate,
       DoubleArray integrationSchedule,
@@ -899,7 +899,7 @@ public class IsdaCdsProductPricer {
   }
 
   //-------------------------------------------------------------------------
-  private boolean isExpired(ResolvedCds cds, CreditRatesProvider ratesProvider) {
+  protected boolean isExpired(ResolvedCds cds, CreditRatesProvider ratesProvider) {
     return !cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate());
   }
 
@@ -914,7 +914,7 @@ public class IsdaCdsProductPricer {
     ArgChecker.isTrue(recoveryRates instanceof ConstantRecoveryRates, "recoveryRates must be ConstantRecoveryRates");
   }
 
-  private Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> reduceDiscountFactors(
+  protected Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> reduceDiscountFactors(
       ResolvedCds cds,
       CreditRatesProvider ratesProvider) {
 

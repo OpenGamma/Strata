@@ -58,6 +58,15 @@ public class IsdaCdsTradePricer {
     this.upfrontPricer = DiscountingPaymentPricer.DEFAULT;
   }
 
+  /**
+   * The constructor with the product pricer specified.
+   * @param productPricer the product pricer
+   */
+  public IsdaCdsTradePricer(IsdaCdsProductPricer productPricer) {
+    this.productPricer = productPricer;
+    this.upfrontPricer = DiscountingPaymentPricer.DEFAULT;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the accrual-on-default formula used in this pricer. 

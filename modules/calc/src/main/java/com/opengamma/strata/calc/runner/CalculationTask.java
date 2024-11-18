@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataHolder;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -231,7 +232,9 @@ public final class CalculationTask implements ImmutableBean {
       Set<Measure> measures = Sets.intersection(requestedMeasures, supportedMeasures);
       Map<Measure, Result<?>> map = ImmutableMap.of();
       if (!measures.isEmpty()) {
-        map = function.calculate(target, measures, parameters, marketData, refData);
+        // TODO: everything should ideally be resolved in the CalculationFunction, not relying on ReferenceDataHolder lower down.
+        map = ReferenceDataHolder.withReferenceData(refData,
+            () -> function.calculate(target, measures, parameters, marketData, refData));
       }
       // check if result does not contain all requested measures
       if (!map.keySet().containsAll(requestedMeasures)) {

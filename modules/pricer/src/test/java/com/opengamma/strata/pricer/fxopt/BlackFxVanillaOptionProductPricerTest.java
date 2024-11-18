@@ -44,6 +44,7 @@ public class BlackFxVanillaOptionProductPricerTest {
   private static final ZoneId ZONE = ZoneId.of("Z");
   private static final ZonedDateTime EXPIRY = ZonedDateTime.of(2014, 5, 9, 13, 10, 0, 0, ZONE);
   private static final LocalDate VAL_DATE = RatesProviderDataSets.VAL_DATE_2014_01_22;
+  private static final LocalDate SPOT_DATE = RatesProviderDataSets.SPOT_DATE_2014_01_24;
   private static final ZonedDateTime VAL_DATETIME_AFTER = EXPIRY.plusDays(1);
   private static final LocalDate VAL_DATE_AFTER = VAL_DATETIME_AFTER.toLocalDate();
   private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
@@ -175,10 +176,17 @@ public class BlackFxVanillaOptionProductPricerTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_delta_presentValueDelta() {
-    double deltaCall = PRICER.delta(CALL_OTM, RATES_PROVIDER, VOLS);
+
+    double dfBaseSpot = RATES_PROVIDER.discountFactor(EUR, SPOT_DATE);
+    double dfCounterSpot = RATES_PROVIDER.discountFactor(USD, SPOT_DATE);
+    double adjustedFxSpotScalingFactor = dfBaseSpot / dfCounterSpot;
+
+    double deltaCall = PRICER.delta(CALL_OTM, RATES_PROVIDER, VOLS) * adjustedFxSpotScalingFactor;
     CurrencyAmount pvDeltaCall = PRICER.presentValueDelta(CALL_OTM, RATES_PROVIDER, VOLS);
-    double deltaPut = PRICER.delta(PUT_ITM, RATES_PROVIDER, VOLS);
+    pvDeltaCall = CurrencyAmount.of(pvDeltaCall.getCurrency(), pvDeltaCall.getAmount() * adjustedFxSpotScalingFactor);
+    double deltaPut = PRICER.delta(PUT_ITM, RATES_PROVIDER, VOLS) / dfCounterSpot * dfBaseSpot;
     CurrencyAmount pvDeltaPut = PRICER.presentValueDelta(PUT_ITM, RATES_PROVIDER, VOLS);
+    pvDeltaPut = CurrencyAmount.of(pvDeltaPut.getCurrency(), pvDeltaPut.getAmount() * adjustedFxSpotScalingFactor);
     double timeToExpiry = VOLS.relativeTime(EXPIRY);
     double dfFor = RATES_PROVIDER.discountFactor(EUR, PAYMENT_DATE);
     double forward = PRICER.getDiscountingFxSingleProductPricer().forwardFxRate(FX_PRODUCT_HIGH, RATES_PROVIDER)
@@ -200,6 +208,10 @@ public class BlackFxVanillaOptionProductPricerTest {
 
   @Test
   public void test_delta_presentValueDelta_atExpiry() {
+    double dfBaseSpot = RATES_PROVIDER_EXPIRY.discountFactor(EUR, LocalDate.of(2014, 5, 13));
+    double dfCounterSpot = RATES_PROVIDER_EXPIRY.discountFactor(USD, LocalDate.of(2014, 5, 13));
+    double adjustedFxSpotScalingFactor = dfBaseSpot / dfCounterSpot;
+
     double dfFor = RATES_PROVIDER_EXPIRY.discountFactor(EUR, PAYMENT_DATE);
     double deltaCallOtm = PRICER.delta(CALL_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvDeltaCallOtm = PRICER.presentValueDelta(CALL_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
@@ -207,12 +219,12 @@ public class BlackFxVanillaOptionProductPricerTest {
     assertThat(pvDeltaCallOtm.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
     double deltaCallItm = PRICER.delta(CALL_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvDeltaCallItm = PRICER.presentValueDelta(CALL_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
-    assertThat(deltaCallItm).isCloseTo(dfFor, offset(TOL));
-    assertThat(pvDeltaCallItm.getAmount()).isCloseTo(NOTIONAL * dfFor, offset(NOTIONAL * TOL));
+    assertThat(deltaCallItm * adjustedFxSpotScalingFactor).isCloseTo(dfFor, offset(TOL));
+    assertThat(pvDeltaCallItm.getAmount() * adjustedFxSpotScalingFactor).isCloseTo(NOTIONAL * dfFor, offset(NOTIONAL * TOL));
     double deltaPutItm = PRICER.delta(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvDeltaPutItm = PRICER.presentValueDelta(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
-    assertThat(deltaPutItm).isCloseTo(-dfFor, offset(TOL));
-    assertThat(pvDeltaPutItm.getAmount()).isCloseTo(-NOTIONAL * dfFor, offset(NOTIONAL * TOL));
+    assertThat(deltaPutItm * adjustedFxSpotScalingFactor).isCloseTo(-dfFor, offset(TOL));
+    assertThat(pvDeltaPutItm.getAmount() * adjustedFxSpotScalingFactor).isCloseTo(-NOTIONAL * dfFor, offset(NOTIONAL * TOL));
     double deltaPutOtm = PRICER.delta(PUT_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvDeltaPutOtm = PRICER.presentValueDelta(PUT_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     assertThat(deltaPutOtm).isCloseTo(0d, offset(TOL));
@@ -280,6 +292,10 @@ public class BlackFxVanillaOptionProductPricerTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_gamma_presentValueGamma() {
+    double dfBaseSpot = RATES_PROVIDER.discountFactor(EUR, SPOT_DATE);
+    double dfCounterSpot = RATES_PROVIDER.discountFactor(USD, SPOT_DATE);
+    double adjustedFxSpotScalingFactor = dfCounterSpot / dfBaseSpot;
+
     double gammaCall = PRICER.gamma(CALL_OTM, RATES_PROVIDER, VOLS);
     CurrencyAmount pvGammaCall = PRICER.presentValueGamma(CALL_OTM, RATES_PROVIDER, VOLS);
     double gammaPut = PRICER.gamma(PUT_ITM, RATES_PROVIDER, VOLS);
@@ -290,16 +306,18 @@ public class BlackFxVanillaOptionProductPricerTest {
     double forward = PRICER.getDiscountingFxSingleProductPricer().forwardFxRate(FX_PRODUCT_HIGH, RATES_PROVIDER)
         .fxRate(CURRENCY_PAIR);
     double vol = SMILE_TERM.volatility(timeToExpiry, STRIKE_RATE_HIGH, forward);
+
     double expectedGamma = dfFor * dfFor / dfDom *
         BlackFormulaRepository.gamma(forward, STRIKE_RATE_HIGH, timeToExpiry, vol);
+
     double expectedPvGamma = -NOTIONAL * dfFor * dfFor / dfDom *
         BlackFormulaRepository.gamma(forward, STRIKE_RATE_HIGH, timeToExpiry, vol);
-    assertThat(gammaCall).isCloseTo(expectedGamma, offset(TOL));
+    assertThat(gammaCall).isCloseTo(expectedGamma * adjustedFxSpotScalingFactor * adjustedFxSpotScalingFactor, offset(TOL));
     assertThat(pvGammaCall.getCurrency()).isEqualTo(USD);
-    assertThat(pvGammaCall.getAmount()).isCloseTo(expectedPvGamma, offset(NOTIONAL * TOL));
-    assertThat(gammaPut).isCloseTo(expectedGamma, offset(TOL));
+    assertThat(pvGammaCall.getAmount()).isCloseTo(expectedPvGamma * adjustedFxSpotScalingFactor * adjustedFxSpotScalingFactor, offset(NOTIONAL * TOL));
+    assertThat(gammaPut).isCloseTo(expectedGamma * adjustedFxSpotScalingFactor * adjustedFxSpotScalingFactor, offset(TOL));
     assertThat(pvGammaPut.getCurrency()).isEqualTo(USD);
-    assertThat(pvGammaPut.getAmount()).isCloseTo(-expectedPvGamma, offset(NOTIONAL * TOL));
+    assertThat(pvGammaPut.getAmount()).isCloseTo(-expectedPvGamma * adjustedFxSpotScalingFactor * adjustedFxSpotScalingFactor, offset(NOTIONAL * TOL));
   }
 
   @Test
@@ -429,7 +447,7 @@ public class BlackFxVanillaOptionProductPricerTest {
   public void test_forwardFxRate() {
     FxRate fxRate = PRICER.forwardFxRate(CALL_ITM, RATES_PROVIDER);
     assertThat(fxRate.getPair()).isEqualTo(CURRENCY_PAIR);
-    assertThat(fxRate.fxRate(CURRENCY_PAIR)).isCloseTo(1.39904, withinPercentage(PERCENTAGE_TOL));
+    assertThat(fxRate.fxRate(CURRENCY_PAIR)).isCloseTo(1.399078, withinPercentage(PERCENTAGE_TOL));
   }
 
   //-------------------------------------------------------------------------
@@ -460,11 +478,15 @@ public class BlackFxVanillaOptionProductPricerTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_currencyExposure() {
+    double dfCounterSpot = RATES_PROVIDER.discountFactor(USD, SPOT_DATE);
+    double dfBaseSpot = RATES_PROVIDER.discountFactor(EUR, SPOT_DATE);
+    double adjustedFxSpotScalingFactor = dfBaseSpot / dfCounterSpot;
+
     MultiCurrencyAmount computedPricer = PRICER.currencyExposure(CALL_OTM, RATES_PROVIDER, VOLS);
     CurrencyAmount pv = PRICER.presentValue(CALL_OTM, RATES_PROVIDER, VOLS);
     PointSensitivities point = PRICER.presentValueSensitivityRatesStickyStrike(CALL_OTM, RATES_PROVIDER, VOLS);
     MultiCurrencyAmount computedPoint = RATES_PROVIDER.currencyExposure(point).plus(pv);
-    assertThat(computedPricer.getAmount(EUR).getAmount()).isCloseTo(computedPoint.getAmount(EUR).getAmount(), offset(NOTIONAL * TOL));
+    assertThat(computedPricer.getAmount(EUR).getAmount() * adjustedFxSpotScalingFactor).isCloseTo(computedPoint.getAmount(EUR).getAmount(), offset(NOTIONAL * TOL));
     assertThat(computedPricer.getAmount(USD).getAmount()).isCloseTo(computedPoint.getAmount(USD).getAmount(), offset(NOTIONAL * TOL));
   }
 

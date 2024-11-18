@@ -10,6 +10,8 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import java.time.LocalDate;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.ReferenceDataHolder;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -458,9 +460,21 @@ public class DiscountingRatePaymentPeriodPricer
   }
 
   //-------------------------------------------------------------------------
+
+  /**
+   * Calculates the currency exposure of a single payment period.
+   * <p>
+   * If {@link ReferenceDataHolder} has been populated for this thread, it will be used to obtain the calendar
+   * for calculating the spot date from the valuation date. Otherwise the {@link ReferenceData#standard() standard}
+   * calendar will be used instead.
+   *
+   * @param period  the period
+   * @param provider  the rates provider
+   * @return the currency exposure
+   */
   @Override
   public MultiCurrencyAmount currencyExposure(RatePaymentPeriod period, RatesProvider provider) {
-    double df = provider.discountFactor(period.getCurrency(), period.getPaymentDate());
+    double dfCounterMaturity = provider.discountFactor(period.getCurrency(), period.getPaymentDate());
     if (period.getFxReset().isPresent()) {
       FxReset fxReset = period.getFxReset().get();
       LocalDate fixingDate = fxReset.getObservation().getFixingDate();
@@ -469,14 +483,21 @@ public class DiscountingRatePaymentPeriodPricer
           rates.getFixings().get(fixingDate).isPresent()) {
         double fxRate = rates.rate(fxReset.getObservation(), fxReset.getReferenceCurrency());
         return MultiCurrencyAmount.of(period.getCurrency(),
-            accrualWithNotional(period, period.getNotional() * fxRate * df, provider));
+            accrualWithNotional(period, period.getNotional() * fxRate * dfCounterMaturity, provider));
       }
+      ReferenceData refData = ReferenceDataHolder.getReferenceDataWithFallback(ReferenceData.standard());
+      Currency baseCurrency = fxReset.getReferenceCurrency();
+      Currency counterCurrency = period.getCurrency();
+      double dfScaled = FxDfScaler.scaledDf(provider, refData, baseCurrency, counterCurrency, dfCounterMaturity);
+
       double fxRateSpotSensitivity = rates.getFxForwardRates()
           .rateFxSpotSensitivity(fxReset.getReferenceCurrency(), fxReset.getObservation().getMaturityDate());
       return MultiCurrencyAmount.of(fxReset.getReferenceCurrency(),
-          accrualWithNotional(period, period.getNotional() * fxRateSpotSensitivity * df, provider));
+          accrualWithNotional(period, period.getNotional() * fxRateSpotSensitivity *
+              dfScaled, provider));
     }
-    return MultiCurrencyAmount.of(period.getCurrency(), accrualWithNotional(period, period.getNotional() * df, provider));
+    return MultiCurrencyAmount.of(period.getCurrency(), accrualWithNotional(period,
+        period.getNotional() * dfCounterMaturity, provider));
   }
 
   @Override

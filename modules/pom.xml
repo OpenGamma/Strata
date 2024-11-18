@@ -216,7 +216,7 @@
           </execution>
         </executions>
       </plugin>
-      <!--  remove slow SuiteHTMLReporter - 
+      <!--  remove slow SuiteHTMLReporter -
             already defined in corporate parent, but appears to be necessary for some configurations -->
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>

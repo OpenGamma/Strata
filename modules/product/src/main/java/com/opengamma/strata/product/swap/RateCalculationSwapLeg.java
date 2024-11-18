@@ -30,10 +30,14 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.product.common.PayReceive;
 
 /**
@@ -75,6 +79,14 @@ public final class RateCalculationSwapLeg
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final PeriodicSchedule accrualSchedule;
+
+  /**
+   * The accrual schedule offset.
+   * <p>
+   * This is used to define offset of all accrual periods.
+   */
+  @PropertyDefinition
+  private final DaysAdjustment accrualScheduleOffset;
   /**
    * The payment schedule.
    * <p>
@@ -140,6 +152,7 @@ public final class RateCalculationSwapLeg
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Returns an instance based on this leg with the start date replaced.
    * <p>
@@ -164,15 +177,92 @@ public final class RateCalculationSwapLeg
    */
   @Override
   public ResolvedSwapLeg resolve(ReferenceData refData) {
+    // Must check if pay/accr freq combination is acceptable by standard approach (accr -> pay schedules).
+    // If combination is not acceptable (pay freq not multiple of accr freq), fallback to pay -> accr approach.
+    if (!validPaymentAndAccrualFrequencyCombination()) {
+      return resolveWithPaymentFrequencyDrivenPaymentPeriods(refData);
+    }
     DayCount dayCount = calculation.getDayCount();
-    Schedule resolvedAccruals = accrualSchedule.createSchedule(refData, true);
+    Schedule resolvedAccruals = accrualSchedule.createSchedule(refData);
+    if (accrualScheduleOffset != null) {
+      resolvedAccruals = resolvedAccruals.toAdjusted(accrualScheduleOffset.resolve(refData));
+    }
+
     Schedule resolvedPayments = paymentSchedule.createSchedule(resolvedAccruals, refData);
-    List<RateAccrualPeriod> accrualPeriods = calculation.createAccrualPeriods(resolvedAccruals, resolvedPayments, refData);
+    List<RateAccrualPeriod> accrualPeriods =
+        calculation.createAccrualPeriods(resolvedAccruals, resolvedPayments, refData);
     List<NotionalPaymentPeriod> payPeriods = paymentSchedule.createPaymentPeriods(
         resolvedAccruals, resolvedPayments, accrualPeriods, dayCount, notionalSchedule, payReceive, refData);
     LocalDate startDate = accrualPeriods.get(0).getStartDate();
     ImmutableList<SwapPaymentEvent> payEvents = notionalSchedule.createEvents(payPeriods, startDate, refData);
     return new ResolvedSwapLeg(getType(), payReceive, payPeriods, payEvents, getCurrency());
+  }
+
+  private boolean validPaymentAndAccrualFrequencyCombination() {
+    try {
+      paymentSchedule.getPaymentFrequency().exactDivide(accrualSchedule.getFrequency());
+      return true;
+    } catch (IllegalArgumentException ex) {
+      boolean isTermPayFrequency = paymentSchedule.getPaymentFrequency().isTerm();
+      boolean isWeekBased = accrualSchedule.getFrequency().isWeekBased();
+
+      // short-circuit if accrual frequency is week-based, since payment frequency driven approach
+      // should be used, even when payment freq == TERM
+      if (isWeekBased) {
+        return false;
+      }
+
+      // return false, unless payment frequency is TERM (where stubs can be used)
+      return isTermPayFrequency;
+    }
+  }
+
+  /**
+   * Converts this swap leg to the equivalent {@code ResolvedSwapLeg} using payment driven approach.
+   * When payment frequency is not a multiple of accrual frequency, whole accrual range is split into sub-ranges
+   * driven by payment frequency. E.g. if accrual freq is 1W, payment freq is 1M and swap length is 3M, then
+   * whole 3M accrual schedule is split into 3 sub-schedules (due to payment 1M freq):
+   *    1. 0-1M
+   *    2. 1-2M
+   *    3. 2-3M
+   * Each sub-schedule then should only have one TERM payment. When each sub-schedule is
+   * resolved (payments with accruals created), then all are merged and result is returned.
+   *
+   * @return the equivalent resolved swap leg
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   * @throws RuntimeException if unable to resolve due to an invalid swap schedule or definition
+   */
+  private ResolvedSwapLeg resolveWithPaymentFrequencyDrivenPaymentPeriods(ReferenceData refData) {
+    PeriodicSchedule paymentPeriodicSchedule = PeriodicSchedule.builder()
+        .startDate(accrualSchedule.getStartDate())
+        .endDate(accrualSchedule.getEndDate())
+        .frequency(paymentSchedule.getPaymentFrequency())
+        .businessDayAdjustment(accrualSchedule.getBusinessDayAdjustment())
+        .stubConvention(accrualSchedule.getStubConvention().orElse(StubConvention.SMART_INITIAL))
+        .build();
+    Schedule schedule = paymentPeriodicSchedule.createSchedule(refData);
+    ImmutableList.Builder<NotionalPaymentPeriod> payPeriodsBuilder = ImmutableList.builder();
+    for (SchedulePeriod p : schedule.getPeriods()) {
+      PeriodicSchedule bucketSchedule =
+          accrualSchedule.toBuilder().stubConvention(StubConvention.SHORT_FINAL).startDate(p.getStartDate())
+              .endDate(p.getEndDate()).businessDayAdjustment(BusinessDayAdjustment.NONE)
+              .build();
+      payPeriodsBuilder.addAll(resolvePayPeriodsPerBucket(bucketSchedule, refData));
+    }
+    ImmutableList<NotionalPaymentPeriod> payPeriods = payPeriodsBuilder.build();
+    LocalDate startDate = payPeriods.get(0).getStartDate();
+    ImmutableList<SwapPaymentEvent> payEvents = notionalSchedule.createEvents(payPeriods, startDate, refData);
+    return new ResolvedSwapLeg(getType(), payReceive, payPeriods, payEvents, getCurrency());
+  }
+
+  private List<NotionalPaymentPeriod> resolvePayPeriodsPerBucket(PeriodicSchedule bucketSchedule, ReferenceData refData) {
+    DayCount dayCount = calculation.getDayCount();
+    Schedule resolvedAccruals = bucketSchedule.createSchedule(refData, true);
+    Schedule resolvedPayments = resolvedAccruals.mergeToTerm();
+    List<RateAccrualPeriod> accrualPeriods =
+        calculation.createAccrualPeriods(resolvedAccruals, resolvedPayments, refData);
+    return paymentSchedule.createPaymentPeriods(resolvedAccruals, resolvedPayments, accrualPeriods, dayCount,
+        notionalSchedule, payReceive, refData);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
@@ -204,6 +294,7 @@ public final class RateCalculationSwapLeg
   private RateCalculationSwapLeg(
       PayReceive payReceive,
       PeriodicSchedule accrualSchedule,
+      DaysAdjustment accrualScheduleOffset,
       PaymentSchedule paymentSchedule,
       NotionalSchedule notionalSchedule,
       RateCalculation calculation) {
@@ -214,6 +305,7 @@ public final class RateCalculationSwapLeg
     JodaBeanUtils.notNull(calculation, "calculation");
     this.payReceive = payReceive;
     this.accrualSchedule = accrualSchedule;
+    this.accrualScheduleOffset = accrualScheduleOffset;
     this.paymentSchedule = paymentSchedule;
     this.notionalSchedule = notionalSchedule;
     this.calculation = calculation;
@@ -250,6 +342,17 @@ public final class RateCalculationSwapLeg
   @Override
   public PeriodicSchedule getAccrualSchedule() {
     return accrualSchedule;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the accrual schedule offset.
+   * <p>
+   * This is used to define offset of all accrual periods.
+   * @return the value of the property
+   */
+  public DaysAdjustment getAccrualScheduleOffset() {
+    return accrualScheduleOffset;
   }
 
   //-----------------------------------------------------------------------
@@ -308,6 +411,7 @@ public final class RateCalculationSwapLeg
       RateCalculationSwapLeg other = (RateCalculationSwapLeg) obj;
       return JodaBeanUtils.equal(payReceive, other.payReceive) &&
           JodaBeanUtils.equal(accrualSchedule, other.accrualSchedule) &&
+          JodaBeanUtils.equal(accrualScheduleOffset, other.accrualScheduleOffset) &&
           JodaBeanUtils.equal(paymentSchedule, other.paymentSchedule) &&
           JodaBeanUtils.equal(notionalSchedule, other.notionalSchedule) &&
           JodaBeanUtils.equal(calculation, other.calculation);
@@ -320,6 +424,7 @@ public final class RateCalculationSwapLeg
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(payReceive);
     hash = hash * 31 + JodaBeanUtils.hashCode(accrualSchedule);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accrualScheduleOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentSchedule);
     hash = hash * 31 + JodaBeanUtils.hashCode(notionalSchedule);
     hash = hash * 31 + JodaBeanUtils.hashCode(calculation);
@@ -328,10 +433,11 @@ public final class RateCalculationSwapLeg
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(320);
+    StringBuilder buf = new StringBuilder(352);
     buf.append("RateCalculationSwapLeg{");
     buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
     buf.append("accrualSchedule").append('=').append(JodaBeanUtils.toString(accrualSchedule)).append(',').append(' ');
+    buf.append("accrualScheduleOffset").append('=').append(JodaBeanUtils.toString(accrualScheduleOffset)).append(',').append(' ');
     buf.append("paymentSchedule").append('=').append(JodaBeanUtils.toString(paymentSchedule)).append(',').append(' ');
     buf.append("notionalSchedule").append('=').append(JodaBeanUtils.toString(notionalSchedule)).append(',').append(' ');
     buf.append("calculation").append('=').append(JodaBeanUtils.toString(calculation)).append(',').append(' ');
@@ -363,6 +469,11 @@ public final class RateCalculationSwapLeg
      */
     private final MetaProperty<PeriodicSchedule> accrualSchedule = DirectMetaProperty.ofImmutable(
         this, "accrualSchedule", RateCalculationSwapLeg.class, PeriodicSchedule.class);
+    /**
+     * The meta-property for the {@code accrualScheduleOffset} property.
+     */
+    private final MetaProperty<DaysAdjustment> accrualScheduleOffset = DirectMetaProperty.ofImmutable(
+        this, "accrualScheduleOffset", RateCalculationSwapLeg.class, DaysAdjustment.class);
     /**
      * The meta-property for the {@code paymentSchedule} property.
      */
@@ -405,6 +516,7 @@ public final class RateCalculationSwapLeg
         this, null,
         "payReceive",
         "accrualSchedule",
+        "accrualScheduleOffset",
         "paymentSchedule",
         "notionalSchedule",
         "calculation",
@@ -426,6 +538,8 @@ public final class RateCalculationSwapLeg
           return payReceive;
         case 304659814:  // accrualSchedule
           return accrualSchedule;
+        case 1849616793:  // accrualScheduleOffset
+          return accrualScheduleOffset;
         case -1499086147:  // paymentSchedule
           return paymentSchedule;
         case 1447860727:  // notionalSchedule
@@ -474,6 +588,14 @@ public final class RateCalculationSwapLeg
      */
     public MetaProperty<PeriodicSchedule> accrualSchedule() {
       return accrualSchedule;
+    }
+
+    /**
+     * The meta-property for the {@code accrualScheduleOffset} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<DaysAdjustment> accrualScheduleOffset() {
+      return accrualScheduleOffset;
     }
 
     /**
@@ -540,6 +662,8 @@ public final class RateCalculationSwapLeg
           return ((RateCalculationSwapLeg) bean).getPayReceive();
         case 304659814:  // accrualSchedule
           return ((RateCalculationSwapLeg) bean).getAccrualSchedule();
+        case 1849616793:  // accrualScheduleOffset
+          return ((RateCalculationSwapLeg) bean).getAccrualScheduleOffset();
         case -1499086147:  // paymentSchedule
           return ((RateCalculationSwapLeg) bean).getPaymentSchedule();
         case 1447860727:  // notionalSchedule
@@ -577,6 +701,7 @@ public final class RateCalculationSwapLeg
 
     private PayReceive payReceive;
     private PeriodicSchedule accrualSchedule;
+    private DaysAdjustment accrualScheduleOffset;
     private PaymentSchedule paymentSchedule;
     private NotionalSchedule notionalSchedule;
     private RateCalculation calculation;
@@ -594,6 +719,7 @@ public final class RateCalculationSwapLeg
     private Builder(RateCalculationSwapLeg beanToCopy) {
       this.payReceive = beanToCopy.getPayReceive();
       this.accrualSchedule = beanToCopy.getAccrualSchedule();
+      this.accrualScheduleOffset = beanToCopy.getAccrualScheduleOffset();
       this.paymentSchedule = beanToCopy.getPaymentSchedule();
       this.notionalSchedule = beanToCopy.getNotionalSchedule();
       this.calculation = beanToCopy.getCalculation();
@@ -607,6 +733,8 @@ public final class RateCalculationSwapLeg
           return payReceive;
         case 304659814:  // accrualSchedule
           return accrualSchedule;
+        case 1849616793:  // accrualScheduleOffset
+          return accrualScheduleOffset;
         case -1499086147:  // paymentSchedule
           return paymentSchedule;
         case 1447860727:  // notionalSchedule
@@ -626,6 +754,9 @@ public final class RateCalculationSwapLeg
           break;
         case 304659814:  // accrualSchedule
           this.accrualSchedule = (PeriodicSchedule) newValue;
+          break;
+        case 1849616793:  // accrualScheduleOffset
+          this.accrualScheduleOffset = (DaysAdjustment) newValue;
           break;
         case -1499086147:  // paymentSchedule
           this.paymentSchedule = (PaymentSchedule) newValue;
@@ -653,6 +784,7 @@ public final class RateCalculationSwapLeg
       return new RateCalculationSwapLeg(
           payReceive,
           accrualSchedule,
+          accrualScheduleOffset,
           paymentSchedule,
           notionalSchedule,
           calculation);
@@ -686,6 +818,18 @@ public final class RateCalculationSwapLeg
     public Builder accrualSchedule(PeriodicSchedule accrualSchedule) {
       JodaBeanUtils.notNull(accrualSchedule, "accrualSchedule");
       this.accrualSchedule = accrualSchedule;
+      return this;
+    }
+
+    /**
+     * Sets the accrual schedule offset.
+     * <p>
+     * This is used to define offset of all accrual periods.
+     * @param accrualScheduleOffset  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder accrualScheduleOffset(DaysAdjustment accrualScheduleOffset) {
+      this.accrualScheduleOffset = accrualScheduleOffset;
       return this;
     }
 
@@ -735,10 +879,11 @@ public final class RateCalculationSwapLeg
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(320);
+      StringBuilder buf = new StringBuilder(352);
       buf.append("RateCalculationSwapLeg.Builder{");
       buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
       buf.append("accrualSchedule").append('=').append(JodaBeanUtils.toString(accrualSchedule)).append(',').append(' ');
+      buf.append("accrualScheduleOffset").append('=').append(JodaBeanUtils.toString(accrualScheduleOffset)).append(',').append(' ');
       buf.append("paymentSchedule").append('=').append(JodaBeanUtils.toString(paymentSchedule)).append(',').append(' ');
       buf.append("notionalSchedule").append('=').append(JodaBeanUtils.toString(notionalSchedule)).append(',').append(' ');
       buf.append("calculation").append('=').append(JodaBeanUtils.toString(calculation)).append(',').append(' ');
