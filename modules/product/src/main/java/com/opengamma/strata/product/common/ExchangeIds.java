@@ -81,6 +81,9 @@ public final class ExchangeIds {
   /** JSE - Equity Derivatives Market. */
   public static final ExchangeId XSAF = ExchangeId.of("XSAF");
 
+  /** JSE - Commodity Derivatives Market. */
+  public static final ExchangeId XSFA = ExchangeId.of("XSFA");
+
   /** Mercado Español de Futuros Financiero (MEFF). */
   public static final ExchangeId XMRV = ExchangeId.of("XMRV");
 
