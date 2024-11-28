@@ -1209,6 +1209,7 @@ final class GlobalHolidayCalendars {
   // http://www.planalto.gov.br/ccivil_03/leis/l0662.htm
   // http://www.planalto.gov.br/ccivil_03/Leis/L6802.htm
   // http://www.planalto.gov.br/ccivil_03/leis/2002/L10607.htm
+  // https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14759.htm
   static ImmutableHolidayCalendar generateBrazil() {
     // base law is from 1949, reworded in 2002
     List<LocalDate> holidays = new ArrayList<>(2000);
@@ -1236,6 +1237,10 @@ final class GlobalHolidayCalendars {
       holidays.add(date(year, 11, 2));
       // republic
       holidays.add(date(year, 11, 15));
+      // Dia Nacional de Zumbi e da Consciência Negra
+      if (year >= 2024) {
+        holidays.add(date(year, 11, 20));
+      }
       // christmas
       holidays.add(date(year, 12, 25));
     }
