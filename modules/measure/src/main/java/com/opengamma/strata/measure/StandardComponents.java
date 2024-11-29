@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.measure;
 
+import com.opengamma.strata.measure.fxopt.FxCollarTradeCalculationFunction;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -107,6 +108,7 @@ public final class StandardComponents {
       new FxSingleTradeCalculationFunction(),
       new FxSwapTradeCalculationFunction(),
       new FxVanillaOptionTradeCalculationFunction(),
+      new FxCollarTradeCalculationFunction(),
       new IborCapFloorTradeCalculationFunction(),
       new SecurityPositionCalculationFunction(),
       new SecurityTradeCalculationFunction(),
