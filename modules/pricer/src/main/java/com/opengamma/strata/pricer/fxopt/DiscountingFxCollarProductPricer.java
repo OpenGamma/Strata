@@ -41,6 +41,28 @@ public class DiscountingFxCollarProductPricer {
   }
 
   /**
+   * Calculates the price of the foreign exchange collar product.
+   * <p>
+   * The price of the product is the value on the valuation date for one unit of the base currency
+   * and is expressed in the counter currency. The price does not take into account the long/short flag.
+   * See {@link #presentValue} for scaling and currency.
+   *
+   * @param collar  the option product
+   * @param provider  the rates provider
+   * @param volatilities  the Black volatility provider
+   * @return the price of the product
+   */
+  public double price(
+      ResolvedFxCollar collar,
+      RatesProvider provider,
+      BlackFxOptionVolatilities volatilities) {
+
+    double option1 = fxPricer.price(collar.getOption1(), provider, volatilities);
+    double option2 = fxPricer.price(collar.getOption1(), provider, volatilities);
+    return option1 + option2;
+  }
+
+  /**
    * Calculates the present value of the foreign exchange collar product.
    * <p>
    * The present value of the product is the value on the valuation date.

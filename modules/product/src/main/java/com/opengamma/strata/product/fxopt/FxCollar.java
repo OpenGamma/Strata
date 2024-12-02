@@ -90,7 +90,7 @@ public class FxCollar implements FxProduct, Resolvable<ResolvedFxCollar>, Immuta
 
   @Override
   public CurrencyPair getCurrencyPair() {
-    return null;
+    return option1.getUnderlying().getCurrencyPair();
   }
 
   @Override
