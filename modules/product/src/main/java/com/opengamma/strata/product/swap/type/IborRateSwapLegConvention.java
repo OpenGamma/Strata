@@ -43,6 +43,7 @@ import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
+import com.opengamma.strata.product.swap.ResetSchedule;
 
 /**
  * A market convention for the floating leg of rate swap trades based on an Ibor index.
@@ -218,6 +219,16 @@ public final class IborRateSwapLegConvention
   @PropertyDefinition
   private final boolean notionalExchange;
 
+  /**
+   * The reset schedule is used when averaging rates, optional.
+   * <p>
+   * Most swaps have a single fixing for each accrual period.
+   * This property allows multiple fixings to be defined by dividing the accrual periods into reset periods.
+   * <p>
+   */
+  @PropertyDefinition
+  private final ResetSchedule resetPeriods;
+  
   //-------------------------------------------------------------------------
   /**
    * Obtains a convention based on the specified index.
@@ -562,7 +573,8 @@ public final class IborRateSwapLegConvention
       Frequency paymentFrequency,
       DaysAdjustment paymentDateOffset,
       CompoundingMethod compoundingMethod,
-      boolean notionalExchange) {
+      boolean notionalExchange,
+      ResetSchedule resetPeriods) {
     JodaBeanUtils.notNull(index, "index");
     this.index = index;
     this.currency = currency;
@@ -579,6 +591,7 @@ public final class IborRateSwapLegConvention
     this.paymentDateOffset = paymentDateOffset;
     this.compoundingMethod = compoundingMethod;
     this.notionalExchange = notionalExchange;
+    this.resetPeriods = resetPeriods;
   }
 
   @Override
@@ -614,6 +627,19 @@ public final class IborRateSwapLegConvention
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the reset schedule is used when averaging rates, optional.
+   * <p>
+   * Most swaps have a single fixing for each accrual period.
+   * This property allows multiple fixings to be defined by dividing the accrual periods into reset periods.
+   * <p>
+   * @return the value of the property
+   */
+  public ResetSchedule getResetPeriods() {
+    return resetPeriods;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -642,7 +668,8 @@ public final class IborRateSwapLegConvention
           JodaBeanUtils.equal(paymentFrequency, other.paymentFrequency) &&
           JodaBeanUtils.equal(paymentDateOffset, other.paymentDateOffset) &&
           JodaBeanUtils.equal(compoundingMethod, other.compoundingMethod) &&
-          (notionalExchange == other.notionalExchange);
+          (notionalExchange == other.notionalExchange) &&
+          JodaBeanUtils.equal(resetPeriods, other.resetPeriods);
     }
     return false;
   }
@@ -665,12 +692,13 @@ public final class IborRateSwapLegConvention
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(compoundingMethod);
     hash = hash * 31 + JodaBeanUtils.hashCode(notionalExchange);
+    hash = hash * 31 + JodaBeanUtils.hashCode(resetPeriods);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(512);
+    StringBuilder buf = new StringBuilder(544);
     buf.append("IborRateSwapLegConvention{");
     buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
     buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
@@ -686,7 +714,8 @@ public final class IborRateSwapLegConvention
     buf.append("paymentFrequency").append('=').append(JodaBeanUtils.toString(paymentFrequency)).append(',').append(' ');
     buf.append("paymentDateOffset").append('=').append(JodaBeanUtils.toString(paymentDateOffset)).append(',').append(' ');
     buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(compoundingMethod)).append(',').append(' ');
-    buf.append("notionalExchange").append('=').append(JodaBeanUtils.toString(notionalExchange));
+    buf.append("notionalExchange").append('=').append(JodaBeanUtils.toString(notionalExchange)).append(',').append(' ');
+    buf.append("resetPeriods").append('=').append(JodaBeanUtils.toString(resetPeriods));
     buf.append('}');
     return buf.toString();
   }
@@ -777,6 +806,11 @@ public final class IborRateSwapLegConvention
     private final MetaProperty<Boolean> notionalExchange = DirectMetaProperty.ofImmutable(
         this, "notionalExchange", IborRateSwapLegConvention.class, Boolean.TYPE);
     /**
+     * The meta-property for the {@code resetPeriods} property.
+     */
+    private final MetaProperty<ResetSchedule> resetPeriods = DirectMetaProperty.ofImmutable(
+        this, "resetPeriods", IborRateSwapLegConvention.class, ResetSchedule.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -795,7 +829,8 @@ public final class IborRateSwapLegConvention
         "paymentFrequency",
         "paymentDateOffset",
         "compoundingMethod",
-        "notionalExchange");
+        "notionalExchange",
+        "resetPeriods");
 
     /**
      * Restricted constructor.
@@ -836,6 +871,8 @@ public final class IborRateSwapLegConvention
           return compoundingMethod;
         case -159410813:  // notionalExchange
           return notionalExchange;
+        case -1272973693:  // resetPeriods
+          return resetPeriods;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -976,6 +1013,14 @@ public final class IborRateSwapLegConvention
       return notionalExchange;
     }
 
+    /**
+     * The meta-property for the {@code resetPeriods} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<ResetSchedule> resetPeriods() {
+      return resetPeriods;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -1010,6 +1055,8 @@ public final class IborRateSwapLegConvention
           return ((IborRateSwapLegConvention) bean).compoundingMethod;
         case -159410813:  // notionalExchange
           return ((IborRateSwapLegConvention) bean).isNotionalExchange();
+        case -1272973693:  // resetPeriods
+          return ((IborRateSwapLegConvention) bean).getResetPeriods();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -1046,6 +1093,7 @@ public final class IborRateSwapLegConvention
     private DaysAdjustment paymentDateOffset;
     private CompoundingMethod compoundingMethod;
     private boolean notionalExchange;
+    private ResetSchedule resetPeriods;
 
     /**
      * Restricted constructor.
@@ -1073,6 +1121,7 @@ public final class IborRateSwapLegConvention
       this.paymentDateOffset = beanToCopy.paymentDateOffset;
       this.compoundingMethod = beanToCopy.compoundingMethod;
       this.notionalExchange = beanToCopy.isNotionalExchange();
+      this.resetPeriods = beanToCopy.getResetPeriods();
     }
 
     //-----------------------------------------------------------------------
@@ -1109,6 +1158,8 @@ public final class IborRateSwapLegConvention
           return compoundingMethod;
         case -159410813:  // notionalExchange
           return notionalExchange;
+        case -1272973693:  // resetPeriods
+          return resetPeriods;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -1162,6 +1213,9 @@ public final class IborRateSwapLegConvention
         case -159410813:  // notionalExchange
           this.notionalExchange = (Boolean) newValue;
           break;
+        case -1272973693:  // resetPeriods
+          this.resetPeriods = (ResetSchedule) newValue;
+          break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -1191,7 +1245,8 @@ public final class IborRateSwapLegConvention
           paymentFrequency,
           paymentDateOffset,
           compoundingMethod,
-          notionalExchange);
+          notionalExchange,
+          resetPeriods);
     }
 
     //-----------------------------------------------------------------------
@@ -1430,10 +1485,24 @@ public final class IborRateSwapLegConvention
       return this;
     }
 
+    /**
+     * Sets the reset schedule is used when averaging rates, optional.
+     * <p>
+     * Most swaps have a single fixing for each accrual period.
+     * This property allows multiple fixings to be defined by dividing the accrual periods into reset periods.
+     * <p>
+     * @param resetPeriods  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder resetPeriods(ResetSchedule resetPeriods) {
+      this.resetPeriods = resetPeriods;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(512);
+      StringBuilder buf = new StringBuilder(544);
       buf.append("IborRateSwapLegConvention.Builder{");
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
@@ -1449,7 +1518,8 @@ public final class IborRateSwapLegConvention
       buf.append("paymentFrequency").append('=').append(JodaBeanUtils.toString(paymentFrequency)).append(',').append(' ');
       buf.append("paymentDateOffset").append('=').append(JodaBeanUtils.toString(paymentDateOffset)).append(',').append(' ');
       buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(compoundingMethod)).append(',').append(' ');
-      buf.append("notionalExchange").append('=').append(JodaBeanUtils.toString(notionalExchange));
+      buf.append("notionalExchange").append('=').append(JodaBeanUtils.toString(notionalExchange)).append(',').append(' ');
+      buf.append("resetPeriods").append('=').append(JodaBeanUtils.toString(resetPeriods));
       buf.append('}');
       return buf.toString();
     }
