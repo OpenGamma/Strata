@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.pricer.fxopt;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -8,10 +13,16 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.fxopt.FxCollarTrade;
 import com.opengamma.strata.product.fxopt.ResolvedFxCollar;
 import com.opengamma.strata.product.fxopt.ResolvedFxCollarTrade;
 import java.time.LocalDate;
 
+/**
+ * Pricer for FX collar trades with a lognormal model.
+ * <p>
+ * This function provides the ability to price an {@link FxCollarTrade}.
+ */
 public class DiscountingFxCollarTradePricer {
 
   /**
@@ -33,6 +44,7 @@ public class DiscountingFxCollarTradePricer {
    * Creates an instance.
    *
    * @param productPricer  the pricer for {@link ResolvedFxCollar}
+   * @param paymentPricer  the pricer for {@link DiscountingPaymentPricer}
    */
   public DiscountingFxCollarTradePricer(
       DiscountingFxCollarProductPricer productPricer, DiscountingPaymentPricer paymentPricer) {
@@ -48,6 +60,7 @@ public class DiscountingFxCollarTradePricer {
    *
    * @param trade  the trade
    * @param provider  the rates provider
+   * @param volatilities  the Black volatility provider
    * @return the present value of the trade in the settlement currency
    */
   public MultiCurrencyAmount presentValue(ResolvedFxCollarTrade trade, RatesProvider provider, BlackFxOptionVolatilities volatilities) {
@@ -75,6 +88,7 @@ public class DiscountingFxCollarTradePricer {
       ResolvedFxCollarTrade trade,
       RatesProvider provider,
       BlackFxOptionVolatilities volatilities) {
+
     ResolvedFxCollar product = trade.getProduct();
     PointSensitivities pvcsProduct = productPricer.presentValueSensitivityRatesStickyStrike(product, provider, volatilities);
     Payment premium = trade.getPremium();
@@ -96,6 +110,7 @@ public class DiscountingFxCollarTradePricer {
       ResolvedFxCollarTrade trade,
       RatesProvider provider,
       BlackFxOptionVolatilities volatilities) {
+
     ResolvedFxCollar product = trade.getProduct();
     return productPricer.presentValueSensitivityModelParamsVolatility(product, provider, volatilities).build();
   }
@@ -112,6 +127,7 @@ public class DiscountingFxCollarTradePricer {
       ResolvedFxCollarTrade trade,
       RatesProvider provider,
       BlackFxOptionVolatilities volatilities) {
+
     Payment premium = trade.getPremium();
     CurrencyAmount pvPremium = paymentPricer.presentValue(premium, provider);
     ResolvedFxCollar product = trade.getProduct();

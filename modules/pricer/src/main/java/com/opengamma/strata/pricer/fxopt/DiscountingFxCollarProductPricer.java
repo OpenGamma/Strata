@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.pricer.fxopt;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -10,6 +15,11 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.fxopt.ResolvedFxCollar;
 import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOption;
 
+/**
+ * Pricer for fx collar transaction products.
+ * <p>
+ * This provides the ability to price an {@link ResolvedFxCollar}.
+ */
 public class DiscountingFxCollarProductPricer {
   /**
    * Default implementation.
@@ -70,7 +80,7 @@ public class DiscountingFxCollarProductPricer {
    * <p>
    * The present value delta is the first derivative of {@link #presentValue} with respect to spot.
    *
-   * @param collar  the option product
+   * @param collar  the collar product
    * @param provider  the rates provider
    * @param volatilities  the Black volatility provider
    * @return the present value delta of the product
@@ -79,6 +89,7 @@ public class DiscountingFxCollarProductPricer {
       ResolvedFxCollar collar,
       RatesProvider provider,
       BlackFxOptionVolatilities volatilities) {
+
     CurrencyAmount option1 = fxPricer.presentValueDelta(collar.getOption1(), provider, volatilities);
     CurrencyAmount option2 = fxPricer.presentValueDelta(collar.getOption2(), provider, volatilities);
     return option1.plus(option2);
@@ -101,6 +112,7 @@ public class DiscountingFxCollarProductPricer {
       ResolvedFxCollar collar,
       RatesProvider provider,
       BlackFxOptionVolatilities volatilities) {
+
     PointSensitivities option1 = fxPricer.presentValueSensitivityRatesStickyStrike(collar.getOption1(), provider, volatilities);
     PointSensitivities option2 = fxPricer.presentValueSensitivityRatesStickyStrike(collar.getOption2(), provider, volatilities);
     return option1.combinedWith(option2);
@@ -119,6 +131,7 @@ public class DiscountingFxCollarProductPricer {
       ResolvedFxCollar collar,
       RatesProvider provider,
       BlackFxOptionVolatilities volatilities) {
+
     double option1 = fxPricer.gamma(collar.getOption1(), provider, volatilities);
     double option2 = fxPricer.gamma(collar.getOption2(), provider, volatilities);
     return option1 + option2;
@@ -138,6 +151,7 @@ public class DiscountingFxCollarProductPricer {
       ResolvedFxCollar collar,
       RatesProvider provider,
       BlackFxOptionVolatilities volatilities) {
+
     CurrencyAmount option1 = fxPricer.presentValueGamma(collar.getOption1(), provider, volatilities);
     CurrencyAmount option2 = fxPricer.presentValueGamma(collar.getOption2(), provider, volatilities);
     return option1.plus(option2);
@@ -156,6 +170,7 @@ public class DiscountingFxCollarProductPricer {
       ResolvedFxCollar collar,
       RatesProvider provider,
       BlackFxOptionVolatilities volatilities) {
+
     double option1 = fxPricer.vega(collar.getOption1(), provider, volatilities);
     double option2 = fxPricer.vega(collar.getOption2(), provider, volatilities);
     return option1 + option2;
@@ -175,6 +190,7 @@ public class DiscountingFxCollarProductPricer {
       ResolvedFxCollar collar,
       RatesProvider provider,
       BlackFxOptionVolatilities volatilities) {
+
     CurrencyAmount option1 = fxPricer.presentValueVega(collar.getOption1(), provider, volatilities);
     CurrencyAmount option2 = fxPricer.presentValueVega(collar.getOption2(), provider, volatilities);
     return option1.plus(option2);
@@ -194,6 +210,7 @@ public class DiscountingFxCollarProductPricer {
       ResolvedFxCollar collar,
       RatesProvider provider,
       BlackFxOptionVolatilities volatilities) {
+
     PointSensitivityBuilder option1 = fxPricer.presentValueSensitivityModelParamsVolatility(collar.getOption1(), provider, volatilities);
     PointSensitivityBuilder option2 = fxPricer.presentValueSensitivityModelParamsVolatility(collar.getOption2(), provider, volatilities);
     return option1.combinedWith(option2);
@@ -212,6 +229,7 @@ public class DiscountingFxCollarProductPricer {
       ResolvedFxCollar collar,
       RatesProvider provider,
       BlackFxOptionVolatilities volatilities) {
+
     double option1 = fxPricer.theta(collar.getOption1(), provider, volatilities);
     double option2 = fxPricer.theta(collar.getOption2(), provider, volatilities);
     return option1 + option2;
@@ -232,6 +250,7 @@ public class DiscountingFxCollarProductPricer {
       ResolvedFxCollar collar,
       RatesProvider provider,
       BlackFxOptionVolatilities volatilities) {
+
     CurrencyAmount option1 = fxPricer.presentValueTheta(collar.getOption1(), provider, volatilities);
     CurrencyAmount option2 = fxPricer.presentValueTheta(collar.getOption2(), provider, volatilities);
     return option1.plus(option2);
@@ -264,17 +283,40 @@ public class DiscountingFxCollarProductPricer {
     return fxPricer.impliedVolatility(collar.getOption1(), provider, volatilities);
   }
 
+  /**
+   * Calculates the present value sensitivity of the FX collar product.
+   * <p>
+   * The present value sensitivity of the product is the sensitivity of the present value to
+   * the underlying curves.
+   *
+   * @param collar  the product
+   * @param provider  the rates provider
+   * @param volatilities  the Black volatility provider
+   * @return the present value sensitivity
+   */
+  public PointSensitivities presentValueSensitivity(
+      ResolvedFxCollar collar,
+      RatesProvider provider,
+      BlackFxOptionVolatilities volatilities) {
 
-  public PointSensitivities presentValueSensitivity(ResolvedFxCollar collar, RatesProvider provider, BlackFxOptionVolatilities volatilities) {
     PointSensitivities option1 = fxPricer.presentValueSensitivityRatesStickyStrike(collar.getOption1(), provider, volatilities);
     PointSensitivities option2 = fxPricer.presentValueSensitivityRatesStickyStrike(collar.getOption2(), provider, volatilities);
     return option1.combinedWith(option2);
   }
 
+  /**
+   * Calculates the currency exposure of the foreign exchange collar product.
+   *
+   * @param collar  the collar product
+   * @param provider  the rates provider
+   * @param volatilities  the Black volatility provider
+   * @return the currency exposure
+   */
   public MultiCurrencyAmount currencyExposure(
       ResolvedFxCollar collar,
       RatesProvider provider,
       BlackFxOptionVolatilities volatilities) {
+
     MultiCurrencyAmount option1 = fxPricer.currencyExposure(collar.getOption1(), provider, volatilities);
     MultiCurrencyAmount option2 = fxPricer.currencyExposure(collar.getOption2(), provider, volatilities);
     return option1.plus(option2);

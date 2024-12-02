@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.product.fxopt;
 
 import com.opengamma.strata.basics.ReferenceData;
@@ -13,6 +18,10 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.gen.BeanDefinition;
 import org.joda.beans.gen.PropertyDefinition;
 
+/**
+ * A trade in an FX collar.
+ * <p>
+ */
 @BeanDefinition
 public class FxCollarTrade implements FxTrade, ResolvableTrade<ResolvedFxCollarTrade>,
     ImmutableBean, Serializable {
@@ -26,7 +35,14 @@ public class FxCollarTrade implements FxTrade, ResolvableTrade<ResolvedFxCollarT
   @PropertyDefinition(validate = "notNull")
   private final AdjustablePayment premium;
 
-
+  /**
+   * Obtains an instance of an FX collar trade.
+   *
+   * @param info  the trade info
+   * @param product  the product
+   * @param premium  the premium
+   * @return the trade
+   */
   public static FxCollarTrade of(TradeInfo info, FxCollar product, AdjustablePayment premium) {
     return new FxCollarTrade(info, product, premium);
   }
@@ -53,16 +69,35 @@ public class FxCollarTrade implements FxTrade, ResolvableTrade<ResolvedFxCollarT
     this.premium = premium;
   }
 
+  /**
+   * Gets the additional trade information, defaulted to an empty instance.
+   * <p>
+   * This allows additional information to be attached to the trade.
+   * @return the value of the property, not null
+   */
   @Override
   public TradeInfo getInfo() {
     return info;
   }
 
+  /**
+   * Gets the resolved FX collar product.
+   * <p>
+   * The product captures the contracted financial details of the trade.
+   * @return the value of the property, not null
+   */
   @Override
   public FxCollar getProduct() {
     return product;
   }
 
+  /**
+   * Gets the premium of the FX collar.
+   * <p>
+   * The premium sign should be compatible with the product Long/Short flag.
+   * This means that the premium is negative for long and positive for short.
+   * @return the value of the property, not null
+   */
   public AdjustablePayment getPremium() {
     return premium;
   }

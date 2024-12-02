@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.product.fxopt;
 
 import com.opengamma.strata.basics.ReferenceData;
@@ -11,16 +16,38 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.gen.BeanDefinition;
 import org.joda.beans.gen.PropertyDefinition;
 
+/**
+ * An FX collar.
+ * <p>
+ */
 @BeanDefinition(builderScope = "private")
 public class FxCollar implements FxProduct, Resolvable<ResolvedFxCollar>, ImmutableBean,
     Serializable {
 
+  /**
+   * The foreign exchange transaction.
+   * <p>
+   */
   @PropertyDefinition(validate = "notNull")
   private final FxVanillaOption option1;
 
+  /**
+   * The foreign exchange transaction.
+   * <p>
+   */
   @PropertyDefinition(validate = "notNull")
   private final FxVanillaOption option2;
 
+  /**
+   * Creates an {@code FxCollar} from two transactions.
+   * <p>
+   * The transactions must be passed in with value dates in the correct order.
+   * The currency pair of each leg must match and have amounts flowing in opposite directions.
+   *
+   * @param option1  the earlier leg
+   * @param option2  the later leg
+   * @return the FX collar
+   */
   public static FxCollar of(FxVanillaOption option1, FxVanillaOption option2) {
     return new FxCollar(option1, option2);
   }
@@ -43,9 +70,20 @@ public class FxCollar implements FxProduct, Resolvable<ResolvedFxCollar>, Immuta
     this.option2 = option2;
   }
 
+  /**
+   * Gets the foreign exchange transaction.
+   * <p>
+   * @return the value of the property, not null
+   */
   public FxVanillaOption getOption1() {
     return option1;
   }
+
+  /**
+   * Gets the foreign exchange transaction.
+   * <p>
+   * @return the value of the property, not null
+   */
   public FxVanillaOption getOption2() {
     return option2;
   }

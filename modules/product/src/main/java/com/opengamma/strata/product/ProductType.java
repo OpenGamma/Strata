@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.product;
 
-import org.joda.convert.FromString;
-
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.TypedString;
 import com.opengamma.strata.collect.named.Described;
@@ -28,9 +26,9 @@ import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fx.FxNdf;
 import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSwap;
+import com.opengamma.strata.product.fxopt.FxCollar;
 import com.opengamma.strata.product.fxopt.FxSingleBarrierOption;
 import com.opengamma.strata.product.fxopt.FxVanillaOption;
-import com.opengamma.strata.product.fxopt.FxCollar;
 import com.opengamma.strata.product.index.IborFuture;
 import com.opengamma.strata.product.index.IborFutureOption;
 import com.opengamma.strata.product.index.OvernightFuture;
@@ -38,6 +36,7 @@ import com.opengamma.strata.product.index.OvernightFutureOption;
 import com.opengamma.strata.product.payment.BulletPayment;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swaption.Swaption;
+import org.joda.convert.FromString;
 
 /**
  * The type of a portfolio item.
