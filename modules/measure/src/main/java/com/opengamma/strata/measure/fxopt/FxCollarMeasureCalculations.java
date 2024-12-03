@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.measure.fxopt;
 
 import static com.opengamma.strata.measure.fxopt.FxCalculationUtils.checkBlackVolatilities;
@@ -61,6 +66,7 @@ public class FxCollarMeasureCalculations {
       ResolvedFxCollarTrade trade,
       RatesScenarioMarketData ratesMarketData,
       FxOptionScenarioMarketData optionMarketData) {
+
     CurrencyPair currencyPair = trade.getProduct().getOption1().getCurrencyPair();
     return MultiCurrencyScenarioArray.of(
         ratesMarketData.getScenarioCount(),
@@ -75,6 +81,7 @@ public class FxCollarMeasureCalculations {
       ResolvedFxCollarTrade trade,
       RatesProvider ratesProvider,
       FxOptionVolatilities volatilities) {
+
     return tradePricer.presentValue(trade, ratesProvider, checkBlackVolatilities(volatilities));
   }
 
@@ -108,6 +115,7 @@ public class FxCollarMeasureCalculations {
       ResolvedFxCollarTrade trade,
       RatesScenarioMarketData ratesMarketData,
       FxOptionScenarioMarketData optionMarketData) {
+
     CurrencyPair currencyPair = trade.getProduct().getOption1().getCurrencyPair();
     return ScenarioArray.of(
         ratesMarketData.getScenarioCount(),
@@ -181,6 +189,7 @@ public class FxCollarMeasureCalculations {
       ResolvedFxCollarTrade trade,
       RatesProvider ratesProvider,
       FxOptionVolatilities volatilities) {
+
     PointSensitivities pointSens = tradePricer.presentValueSensitivityRatesStickyStrike(
         trade, ratesProvider, checkBlackVolatilities(volatilities));
     return ratesProvider.parameterSensitivity(pointSens);
@@ -207,10 +216,10 @@ public class FxCollarMeasureCalculations {
       RatesProvider ratesProvider,
       FxOptionVolatilities volatilities) {
 
-      BlackFxOptionVolatilities blackVols = checkBlackVolatilities(volatilities);
-      PointSensitivities pointSens =
-          tradePricer.presentValueSensitivityModelParamsVolatility(trade, ratesProvider, blackVols);
-      return blackVols.parameterSensitivity(pointSens);
+    BlackFxOptionVolatilities blackVols = checkBlackVolatilities(volatilities);
+    PointSensitivities pointSens =
+        tradePricer.presentValueSensitivityModelParamsVolatility(trade, ratesProvider, blackVols);
+    return blackVols.parameterSensitivity(pointSens);
   }
 
   // calculates currency exposure for all scenarios
@@ -233,7 +242,8 @@ public class FxCollarMeasureCalculations {
       ResolvedFxCollarTrade trade,
       RatesProvider ratesProvider,
       FxOptionVolatilities volatilities) {
-      return tradePricer.currencyExposure(trade, ratesProvider, checkBlackVolatilities(volatilities));
+
+    return tradePricer.currencyExposure(trade, ratesProvider, checkBlackVolatilities(volatilities));
   }
 
   // calculates current cash for all scenarios
@@ -253,6 +263,7 @@ public class FxCollarMeasureCalculations {
   CurrencyAmount currentCash(
       ResolvedFxCollarTrade trade,
       LocalDate valuationDate) {
-      return tradePricer.currentCash(trade, valuationDate);
+
+    return tradePricer.currentCash(trade, valuationDate);
   }
 }

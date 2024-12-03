@@ -8,6 +8,8 @@ package com.opengamma.strata.measure;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.Test;
+
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.measure.cms.CmsTradeCalculationFunctionTest;
 import com.opengamma.strata.measure.deposit.TermDepositTradeCalculationFunctionTest;
@@ -17,7 +19,6 @@ import com.opengamma.strata.measure.fx.FxSingleTradeCalculationFunctionTest;
 import com.opengamma.strata.measure.fx.FxSwapTradeCalculationFunctionTest;
 import com.opengamma.strata.measure.fxopt.FxCollarTradeCalculationFunctionTest;
 import com.opengamma.strata.measure.swap.SwapTradeCalculationFunctionTest;
-import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link StandardComponents}.

@@ -29,6 +29,27 @@ import com.opengamma.strata.product.fxopt.FxCollar;
 import com.opengamma.strata.product.fxopt.FxCollarTrade;
 import com.opengamma.strata.product.fxopt.ResolvedFxCollarTrade;
 
+/**
+ * Perform calculations on an FX collar trade for each of a set of scenarios.
+ * <p>
+ * This uses Black FX option volatilities, which must be specified using {@link FxOptionMarketDataLookup}.
+ * An instance of {@link RatesMarketDataLookup} must also be specified.
+ * <p>
+ * The supported built-in measures are:
+ * <ul>
+ *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum on rate curves}
+ *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed on rate curves}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum on rate curves}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed on rate curves}
+ *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
+ *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
+ *   <li>{@linkplain Measures#VEGA_MARKET_QUOTE_BUCKETED Vega market quote bucketed on volatility curves/surfaces}
+ *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
+ * </ul>
+ * <p>
+ * The "natural" currency is the market convention base currency of the underlying FX.
+ */
 public class FxCollarTradeCalculationFunction implements CalculationFunction<FxCollarTrade> {
 
   /**

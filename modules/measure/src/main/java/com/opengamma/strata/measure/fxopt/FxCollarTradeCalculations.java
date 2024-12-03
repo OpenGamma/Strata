@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.measure.fxopt;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -13,6 +18,19 @@ import com.opengamma.strata.pricer.fxopt.FxOptionVolatilities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.fxopt.ResolvedFxCollarTrade;
 
+/**
+ * Calculates pricing and risk measures for FX collar trades.
+ * <p>
+ * This provides a high-level entry point for FX collar pricing and risk measures.
+ * Pricing is performed using the Black method.
+ * <p>
+ * Each method takes a {@link ResolvedFxCollarTrade}, whereas application code will
+ * typically work with {@link com.opengamma.strata.product.fxopt.FxCollarTrade}
+ * . Call
+ * {@link com.opengamma.strata.product.fxopt.FxCollarTrade
+ * #resolve(com.opengamma.strata.basics.ReferenceData) FxVanillaOptionTrade::resolve(ReferenceData)}
+ * to convert {@code FxVanillaOptionTrade} to {@code ResolvedFxVanillaOptionTrade}.
+ */
 public class FxCollarTradeCalculations {
 
   /**
@@ -52,6 +70,7 @@ public class FxCollarTradeCalculations {
       RatesMarketDataLookup ratesLookup,
       FxOptionMarketDataLookup fxLookup,
       ScenarioMarketData marketData) {
+
     return calc.presentValue(
         trade,
         ratesLookup.marketDataView(marketData),
@@ -70,6 +89,7 @@ public class FxCollarTradeCalculations {
       ResolvedFxCollarTrade trade,
       RatesProvider ratesProvider,
       FxOptionVolatilities volatilities) {
+
     return calc.presentValue(trade, ratesProvider, volatilities);
   }
 
@@ -90,6 +110,7 @@ public class FxCollarTradeCalculations {
       RatesMarketDataLookup ratesLookup,
       FxOptionMarketDataLookup fxLookup,
       ScenarioMarketData marketData) {
+
     return calc.pv01RatesCalibratedSum(
         trade,
         ratesLookup.marketDataView(marketData),
@@ -111,6 +132,7 @@ public class FxCollarTradeCalculations {
       ResolvedFxCollarTrade trade,
       RatesProvider ratesProvider,
       FxOptionVolatilities volatilities) {
+
     return calc.pv01RatesCalibratedSum(trade, ratesProvider, volatilities);
   }
 
@@ -131,6 +153,7 @@ public class FxCollarTradeCalculations {
       RatesMarketDataLookup ratesLookup,
       FxOptionMarketDataLookup fxLookup,
       ScenarioMarketData marketData) {
+
     return calc.pv01RatesCalibratedBucketed(
         trade,
         ratesLookup.marketDataView(marketData),
@@ -152,6 +175,7 @@ public class FxCollarTradeCalculations {
       ResolvedFxCollarTrade trade,
       RatesProvider ratesProvider,
       FxOptionVolatilities volatilities) {
+
     return calc.pv01RatesCalibratedBucketed(trade, ratesProvider, volatilities);
   }
 
@@ -173,6 +197,7 @@ public class FxCollarTradeCalculations {
       RatesMarketDataLookup ratesLookup,
       FxOptionMarketDataLookup fxLookup,
       ScenarioMarketData marketData) {
+
     return calc.pv01RatesMarketQuoteSum(
         trade,
         ratesLookup.marketDataView(marketData),
@@ -195,6 +220,7 @@ public class FxCollarTradeCalculations {
       ResolvedFxCollarTrade trade,
       RatesProvider ratesProvider,
       FxOptionVolatilities volatilities) {
+
     return calc.pv01RatesMarketQuoteSum(trade, ratesProvider, volatilities);
   }
 
@@ -216,6 +242,7 @@ public class FxCollarTradeCalculations {
       RatesMarketDataLookup ratesLookup,
       FxOptionMarketDataLookup fxLookup,
       ScenarioMarketData marketData) {
+
     return calc.pv01RatesMarketQuoteBucketed(
         trade,
         ratesLookup.marketDataView(marketData),
@@ -238,6 +265,7 @@ public class FxCollarTradeCalculations {
       ResolvedFxCollarTrade trade,
       RatesProvider ratesProvider,
       FxOptionVolatilities volatilities) {
+
     return calc.pv01RatesMarketQuoteBucketed(trade, ratesProvider, volatilities);
   }
 
@@ -258,6 +286,7 @@ public class FxCollarTradeCalculations {
       RatesMarketDataLookup ratesLookup,
       FxOptionMarketDataLookup fxLookup,
       ScenarioMarketData marketData) {
+
     return calc.vegaMarketQuoteBucketed(
         trade,
         ratesLookup.marketDataView(marketData),
@@ -279,6 +308,7 @@ public class FxCollarTradeCalculations {
       ResolvedFxCollarTrade trade,
       RatesProvider ratesProvider,
       FxOptionVolatilities volatilities) {
+
     return calc.vegaMarketQuoteBucketed(trade, ratesProvider, volatilities);
   }
 
@@ -298,6 +328,7 @@ public class FxCollarTradeCalculations {
       RatesMarketDataLookup ratesLookup,
       FxOptionMarketDataLookup fxLookup,
       ScenarioMarketData marketData) {
+
     return calc.currencyExposure(
         trade,
         ratesLookup.marketDataView(marketData),
@@ -318,6 +349,7 @@ public class FxCollarTradeCalculations {
       ResolvedFxCollarTrade trade,
       RatesProvider ratesProvider,
       FxOptionVolatilities volatilities) {
+
     return calc.currencyExposure(trade, ratesProvider, volatilities);
   }
 
@@ -329,6 +361,7 @@ public class FxCollarTradeCalculations {
    * @param trade  the trade
    * @param ratesLookup  the lookup used to query the market data
    * @param marketData  the market data
+   * @param fxLookup  the market data lookup
    * @return the current cash, one entry per scenario
    */
   public CurrencyScenarioArray currentCash(
@@ -336,6 +369,7 @@ public class FxCollarTradeCalculations {
       RatesMarketDataLookup ratesLookup,
       FxOptionMarketDataLookup fxLookup,
       ScenarioMarketData marketData) {
+
     return calc.currentCash(
         trade,
         ratesLookup.marketDataView(marketData),
@@ -354,6 +388,7 @@ public class FxCollarTradeCalculations {
   public CurrencyAmount currentCash(
       ResolvedFxCollarTrade trade,
       RatesProvider ratesProvider) {
+
     return calc.currentCash(trade, ratesProvider.getValuationDate());
   }
 }

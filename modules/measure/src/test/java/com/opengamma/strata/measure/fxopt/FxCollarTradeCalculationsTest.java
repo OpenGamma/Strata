@@ -1,6 +1,13 @@
+/*
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.measure.fxopt;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -16,7 +23,6 @@ import com.opengamma.strata.pricer.fxopt.BlackFxOptionVolatilities;
 import com.opengamma.strata.pricer.fxopt.DiscountingFxCollarTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.fxopt.ResolvedFxCollarTrade;
-import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link FxCollarTradeCalculations}.

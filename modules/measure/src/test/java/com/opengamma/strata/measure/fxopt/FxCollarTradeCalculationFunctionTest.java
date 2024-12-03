@@ -1,3 +1,8 @@
+/*
+ * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.measure.fxopt;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
@@ -7,6 +12,14 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.product.common.LongShort.LONG;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.Set;
+
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -52,12 +65,6 @@ import com.opengamma.strata.product.fxopt.FxCollar;
 import com.opengamma.strata.product.fxopt.FxCollarTrade;
 import com.opengamma.strata.product.fxopt.FxVanillaOption;
 import com.opengamma.strata.product.fxopt.ResolvedFxCollarTrade;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.Set;
-import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link FxCollarTradeCalculationFunction}.
