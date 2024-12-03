@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.product;
 
+import org.joda.convert.FromString;
+
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.TypedString;
 import com.opengamma.strata.collect.named.Described;
@@ -36,7 +38,6 @@ import com.opengamma.strata.product.index.OvernightFutureOption;
 import com.opengamma.strata.product.payment.BulletPayment;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swaption.Swaption;
-import org.joda.convert.FromString;
 
 /**
  * The type of a portfolio item.
@@ -211,7 +212,7 @@ public final class ProductType
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param name  the name
    * @param description  the description
    */
@@ -222,7 +223,7 @@ public final class ProductType
 
   /**
    * Gets the human-readable description of the type.
-   * 
+   *
    * @return the description
    */
   @Override

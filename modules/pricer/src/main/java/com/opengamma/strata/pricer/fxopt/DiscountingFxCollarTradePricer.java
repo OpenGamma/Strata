@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.fxopt;
 
+import java.time.LocalDate;
+
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -16,7 +18,6 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.fxopt.FxCollarTrade;
 import com.opengamma.strata.product.fxopt.ResolvedFxCollar;
 import com.opengamma.strata.product.fxopt.ResolvedFxCollarTrade;
-import java.time.LocalDate;
 
 /**
  * Pricer for FX collar trades with a lognormal model.

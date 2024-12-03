@@ -5,16 +5,18 @@
  */
 package com.opengamma.strata.product.fxopt;
 
-import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.Resolvable;
-import com.opengamma.strata.basics.currency.CurrencyPair;
-import com.opengamma.strata.product.fx.FxProduct;
 import java.io.Serializable;
+
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.gen.BeanDefinition;
 import org.joda.beans.gen.PropertyDefinition;
+
+import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.Resolvable;
+import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.product.fx.FxProduct;
 
 /**
  * An FX collar.

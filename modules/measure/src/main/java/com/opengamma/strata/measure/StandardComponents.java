@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.measure;
 
-import com.opengamma.strata.measure.fxopt.FxCollarTradeCalculationFunction;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -32,6 +31,7 @@ import com.opengamma.strata.measure.fx.FxNdfTradeCalculationFunction;
 import com.opengamma.strata.measure.fx.FxRateMarketDataFunction;
 import com.opengamma.strata.measure.fx.FxSingleTradeCalculationFunction;
 import com.opengamma.strata.measure.fx.FxSwapTradeCalculationFunction;
+import com.opengamma.strata.measure.fxopt.FxCollarTradeCalculationFunction;
 import com.opengamma.strata.measure.fxopt.FxOptionVolatilitiesMarketDataFunction;
 import com.opengamma.strata.measure.fxopt.FxSingleBarrierOptionTradeCalculationFunction;
 import com.opengamma.strata.measure.fxopt.FxVanillaOptionTradeCalculationFunction;

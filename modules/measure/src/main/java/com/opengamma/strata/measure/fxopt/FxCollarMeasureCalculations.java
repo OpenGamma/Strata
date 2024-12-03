@@ -2,6 +2,8 @@ package com.opengamma.strata.measure.fxopt;
 
 import static com.opengamma.strata.measure.fxopt.FxCalculationUtils.checkBlackVolatilities;
 
+import java.time.LocalDate;
+
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -18,7 +20,6 @@ import com.opengamma.strata.pricer.fxopt.FxOptionVolatilities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.product.fxopt.ResolvedFxCollarTrade;
-import java.time.LocalDate;
 
 /**
  * Multi-scenario measure calculations for FX collar trades.
