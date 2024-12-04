@@ -84,6 +84,8 @@ If you are actively devloping Strata, then it is recommended to take some additi
  - Choose the file `Strata/eclipse/install/Strata-Eclipse-CodeTemplates-Java.xml`
  - Click "OK"
 
+10. Updating Joda Beans metadata
+ - Before committing your changes, run `mvn joda-beans:generate package -DskipTests`
 
 #### Questions and comments
 
