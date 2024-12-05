@@ -13,8 +13,6 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.schedule.Frequency;
-import com.opengamma.strata.basics.schedule.StubConvention;
-import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 
 /**
  * Market standard Overnight-Overnight swap conventions.
@@ -22,13 +20,12 @@ import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 final class StandardOvernightOvernightSwapConventions {
 
   /**
-   * USD SOFR vs USD Fed Fund 3M swap .
+   * USD SOFR vs USD Fed Fund 3M swap.
    * <p>
-   * The spot date offset is 2 days and the cut-off period is 2 days.
+   * The spot date offset is 2 days.
    */
   public static final OvernightOvernightSwapConvention USD_FED_FUND_SOFR_3M =
       makeConvention("USD-SOFR-3M-FED-FUND-3M", USD_SOFR, USD_FED_FUND, P3M, 2, 2);
-
 
   //-------------------------------------------------------------------------
   // build conventions
@@ -41,28 +38,12 @@ final class StandardOvernightOvernightSwapConventions {
       int spotLag) {
 
     HolidayCalendarId calendar = spreadIndex.getFixingCalendar();
-    DaysAdjustment paymentDateOffset = DaysAdjustment.ofBusinessDays(paymentLag, calendar);
     DaysAdjustment spotDateOffset = DaysAdjustment.ofBusinessDays(spotLag, calendar);
     return ImmutableOvernightOvernightSwapConvention.of(
         name,
-        OvernightRateSwapLegConvention.builder()
-            .index(spreadIndex)
-            .accrualMethod(OvernightAccrualMethod.COMPOUNDED)
-            .accrualFrequency(frequency)
-            .paymentFrequency(frequency)
-            .paymentDateOffset(paymentDateOffset)
-            .stubConvention(StubConvention.SMART_INITIAL)
-            .build(),
-        OvernightRateSwapLegConvention.builder()
-            .index(flatIndex)
-            .accrualMethod(OvernightAccrualMethod.COMPOUNDED)
-            .accrualFrequency(frequency)
-            .paymentFrequency(frequency)
-            .paymentDateOffset(paymentDateOffset)
-            .stubConvention(StubConvention.SMART_INITIAL)
-            .build(),
-        spotDateOffset
-    );
+        OvernightRateSwapLegConvention.of(spreadIndex, frequency, paymentLag),
+        OvernightRateSwapLegConvention.of(flatIndex, frequency, paymentLag),
+        spotDateOffset);
   }
 
   //-------------------------------------------------------------------------

@@ -20,11 +20,11 @@ public final class OvernightOvernightSwapConventions {
 
   //-------------------------------------------------------------------------
   /**
-   * The 'USD-FED-FUND-AA-LIBOR-3M' swap convention.
+   * The 'USD-SOFR-3M-FED-FUND-3M' swap convention.
    * <p>
-   * USD Fed Fund Arithmetic Average 3M v Libor 3M swap.
-   * Both legs use day count 'Act/360'.
-   * The spot date offset is 2 days, the rate cut-off period is 2 days.
+   * USD SOFR v USD Fed Fund 3M swap.
+   * <p>
+   * The spot date offset is 2 days.
    */
   public static final OvernightOvernightSwapConvention USD_FED_FUND_SOFR_3M =
       OvernightOvernightSwapConvention.of(StandardOvernightOvernightSwapConventions.USD_FED_FUND_SOFR_3M.getName());

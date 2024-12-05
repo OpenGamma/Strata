@@ -63,8 +63,7 @@ public final class ImmutableOvernightOvernightSwapConvention
   /**
    * The market convention of the floating leg that has the spread applied.
    * <p>
-   * The spread is the market price of the instrument.
-   * It is added to the observed interest rate.
+   * The spread is the market price of the instrument. It is added to the observed interest rate.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final OvernightRateSwapLegConvention spreadLeg;
@@ -84,7 +83,7 @@ public final class ImmutableOvernightOvernightSwapConvention
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a convention based on the specified name and leg conventions.
+   * Obtains a convention based on the specified name, leg conventions and spot date offset.
    * <p>
    * The two leg conventions must be in the same currency.
    *
@@ -198,8 +197,7 @@ public final class ImmutableOvernightOvernightSwapConvention
   /**
    * Gets the market convention of the floating leg that has the spread applied.
    * <p>
-   * The spread is the market price of the instrument.
-   * It is added to the observed interest rate.
+   * The spread is the market price of the instrument. It is added to the observed interest rate.
    * @return the value of the property, not null
    */
   @Override
@@ -496,8 +494,7 @@ public final class ImmutableOvernightOvernightSwapConvention
     /**
      * Sets the market convention of the floating leg that has the spread applied.
      * <p>
-     * The spread is the market price of the instrument.
-     * It is added to the observed interest rate.
+     * The spread is the market price of the instrument. It is added to the observed interest rate.
      * @param spreadLeg  the new value, not null
      * @return this, for chaining, not null
      */

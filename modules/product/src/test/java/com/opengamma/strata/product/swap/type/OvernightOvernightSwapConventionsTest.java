@@ -9,7 +9,6 @@ import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.time.Period;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,8 +20,6 @@ import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
@@ -32,7 +29,7 @@ import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.SwapTrade;
 
 /**
- * Test {@link OvernightIborSwapConventions}.
+ * Test {@link OvernightOvernightSwapConventions}.
  */
 public class OvernightOvernightSwapConventionsTest {
 
@@ -40,126 +37,93 @@ public class OvernightOvernightSwapConventionsTest {
 
   public static Object[][] data_spot_lag() {
     return new Object[][] {
-        {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, 2},
-        {OvernightIborSwapConventions.GBP_SONIA_OIS_1Y_LIBOR_3M, 0},
+        {OvernightOvernightSwapConventions.USD_FED_FUND_SOFR_3M, 2},
     };
   }
 
   @ParameterizedTest
   @MethodSource("data_spot_lag")
-  public void test_spot_lag(ImmutableOvernightIborSwapConvention convention, int lag) {
+  public void test_spot_lag(OvernightOvernightSwapConvention convention, int lag) {
     assertThat(convention.getSpotDateOffset().getDays()).isEqualTo(lag);
-    assertThat(convention.getSpotDateOffset()).isEqualTo(convention.getIborLeg().getIndex().getEffectiveDateOffset());
   }
 
   //-------------------------------------------------------------------------
-  public static Object[][] data_period_on() {
+  public static Object[][] data_period() {
     return new Object[][] {
-        {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, Frequency.P3M},
-        {OvernightIborSwapConventions.GBP_SONIA_OIS_1Y_LIBOR_3M, Frequency.P12M},
+        {OvernightOvernightSwapConventions.USD_FED_FUND_SOFR_3M, Frequency.P3M}
     };
   }
 
   @ParameterizedTest
-  @MethodSource("data_period_on")
-  public void test_accrualPeriod_on(OvernightIborSwapConvention convention, Frequency frequency) {
-    assertThat(convention.getOvernightLeg().getAccrualFrequency()).isEqualTo(frequency);
+  @MethodSource("data_period")
+  public void test_accrualPeriod_on(OvernightOvernightSwapConvention convention, Frequency frequency) {
+    assertThat(convention.getSpreadLeg().getAccrualFrequency()).isEqualTo(frequency);
+    assertThat(convention.getFlatLeg().getAccrualFrequency()).isEqualTo(frequency);
   }
 
   @ParameterizedTest
-  @MethodSource("data_period_on")
-  public void test_paymentPeriod_on(OvernightIborSwapConvention convention, Frequency frequency) {
-    assertThat(convention.getOvernightLeg().getPaymentFrequency()).isEqualTo(frequency);
-  }
-
-  //-------------------------------------------------------------------------
-  public static Object[][] data_period_ibor() {
-    return new Object[][] {
-        {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, Frequency.P3M},
-        {OvernightIborSwapConventions.GBP_SONIA_OIS_1Y_LIBOR_3M, Frequency.P3M},
-    };
-  }
-
-  @ParameterizedTest
-  @MethodSource("data_period_ibor")
-  public void test_accrualPeriod_ibor(OvernightIborSwapConvention convention, Frequency frequency) {
-    assertThat(convention.getIborLeg().getAccrualFrequency()).isEqualTo(frequency);
-  }
-
-  @ParameterizedTest
-  @MethodSource("data_period_ibor")
-  public void test_paymentPeriod_ibor(OvernightIborSwapConvention convention, Frequency frequency) {
-    assertThat(convention.getIborLeg().getPaymentFrequency()).isEqualTo(frequency);
+  @MethodSource("data_period")
+  public void test_paymentPeriod_on(OvernightOvernightSwapConvention convention, Frequency frequency) {
+    assertThat(convention.getSpreadLeg().getPaymentFrequency()).isEqualTo(frequency);
+    assertThat(convention.getFlatLeg().getPaymentFrequency()).isEqualTo(frequency);
   }
 
   //-------------------------------------------------------------------------
   public static Object[][] data_day_count() {
     return new Object[][] {
-        {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, DayCounts.ACT_360},
-        {OvernightIborSwapConventions.GBP_SONIA_OIS_1Y_LIBOR_3M, DayCounts.ACT_365F},
+        {OvernightOvernightSwapConventions.USD_FED_FUND_SOFR_3M, DayCounts.ACT_360},
     };
   }
 
   @ParameterizedTest
   @MethodSource("data_day_count")
-  public void test_day_count(OvernightIborSwapConvention convention, DayCount dayCount) {
-    assertThat(convention.getOvernightLeg().getDayCount()).isEqualTo(dayCount);
-    assertThat(convention.getIborLeg().getDayCount()).isEqualTo(dayCount);
+  public void test_day_count(OvernightOvernightSwapConvention convention, DayCount dayCount) {
+    assertThat(convention.getSpreadLeg().getDayCount()).isEqualTo(dayCount);
+    assertThat(convention.getFlatLeg().getDayCount()).isEqualTo(dayCount);
   }
 
   //-------------------------------------------------------------------------
-  public static Object[][] data_float_leg() {
+  public static Object[][] data_float_index() {
     return new Object[][] {
-        {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, OvernightIndices.USD_FED_FUND},
-        {OvernightIborSwapConventions.GBP_SONIA_OIS_1Y_LIBOR_3M, OvernightIndices.GBP_SONIA},
+        {OvernightOvernightSwapConventions.USD_FED_FUND_SOFR_3M, OvernightIndices.USD_SOFR, OvernightIndices.USD_FED_FUND},
     };
   }
 
   @ParameterizedTest
-  @MethodSource("data_float_leg")
-  public void test_float_leg(OvernightIborSwapConvention convention, OvernightIndex floatLeg) {
-    assertThat(convention.getOvernightLeg().getIndex()).isEqualTo(floatLeg);
-  }
+  @MethodSource("data_float_index")
+  public void test_float_leg(
+      OvernightOvernightSwapConvention convention,
+      OvernightIndex spreadLegIndex,
+      OvernightIndex flatLegIndex) {
 
-  //-------------------------------------------------------------------------
-  public static Object[][] data_ibor_leg() {
-    return new Object[][] {
-        {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, IborIndices.USD_LIBOR_3M},
-        {OvernightIborSwapConventions.GBP_SONIA_OIS_1Y_LIBOR_3M, IborIndices.GBP_LIBOR_3M},
-    };
-  }
-
-  @ParameterizedTest
-  @MethodSource("data_ibor_leg")
-  public void test_ibor_leg(OvernightIborSwapConvention convention, IborIndex iborLeg) {
-    assertThat(convention.getIborLeg().getIndex()).isEqualTo(iborLeg);
+    assertThat(convention.getSpreadLeg().getIndex()).isEqualTo(spreadLegIndex);
+    assertThat(convention.getFlatLeg().getIndex()).isEqualTo(flatLegIndex);
   }
 
   //-------------------------------------------------------------------------
   public static Object[][] data_day_convention() {
     return new Object[][] {
-        {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, BusinessDayConventions.MODIFIED_FOLLOWING},
-        {OvernightIborSwapConventions.GBP_SONIA_OIS_1Y_LIBOR_3M, BusinessDayConventions.MODIFIED_FOLLOWING},
+        {OvernightOvernightSwapConventions.USD_FED_FUND_SOFR_3M, BusinessDayConventions.MODIFIED_FOLLOWING}
     };
   }
 
   @ParameterizedTest
   @MethodSource("data_day_convention")
-  public void test_day_convention(OvernightIborSwapConvention convention, BusinessDayConvention dayConvention) {
-    assertThat(convention.getOvernightLeg().getAccrualBusinessDayAdjustment().getConvention()).isEqualTo(dayConvention);
+  public void test_day_convention(OvernightOvernightSwapConvention convention, BusinessDayConvention dayConvention) {
+    assertThat(convention.getSpreadLeg().getAccrualBusinessDayAdjustment().getConvention()).isEqualTo(dayConvention);
+    assertThat(convention.getFlatLeg().getAccrualBusinessDayAdjustment().getConvention()).isEqualTo(dayConvention);
   }
 
   //-------------------------------------------------------------------------
   public static Object[][] data_stub_on() {
     return new Object[][] {
-        {OvernightIborSwapConventions.USD_FED_FUND_AA_LIBOR_3M, Tenor.TENOR_4M},
-        {OvernightIborSwapConventions.GBP_SONIA_OIS_1Y_LIBOR_3M, Tenor.of(Period.ofMonths(13))},
+        {OvernightOvernightSwapConventions.USD_FED_FUND_SOFR_3M, Tenor.TENOR_4M}
     };
   }
 
   @ParameterizedTest
   @MethodSource("data_stub_on")
-  public void test_stub_overnight(OvernightIborSwapConvention convention, Tenor tenor) {
+  public void test_stub_overnight(OvernightOvernightSwapConvention convention, Tenor tenor) {
     LocalDate tradeDate = LocalDate.of(2015, 10, 20);
     SwapTrade swap = convention.createTrade(tradeDate, tenor, BuySell.BUY, 1, 0.01, REF_DATA);
     ResolvedSwap swapResolved = swap.getProduct().resolve(REF_DATA);
@@ -171,8 +135,7 @@ public class OvernightOvernightSwapConventionsTest {
   //-------------------------------------------------------------------------
   @Test
   public void coverage() {
-    coverPrivateConstructor(OvernightIborSwapConventions.class);
-    coverPrivateConstructor(StandardOvernightIborSwapConventions.class);
+    coverPrivateConstructor(OvernightOvernightSwapConventions.class);
+    coverPrivateConstructor(StandardOvernightOvernightSwapConventions.class);
   }
-
 }

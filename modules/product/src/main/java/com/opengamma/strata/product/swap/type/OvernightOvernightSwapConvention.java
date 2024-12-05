@@ -24,7 +24,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
 /**
  * A market convention for Overnight-Overnight swap trades.
  * <p>
- * This defines the market convention for a Overnight-Overnight single currency swap.
+ * This defines the market convention for an Overnight-Overnight single currency swap.
  * The convention is formed by combining two swap leg conventions in the same currency.
  * <p>
  * To manually create a convention, see {@link ImmutableOvernightOvernightSwapConvention}.
@@ -80,14 +80,14 @@ public interface OvernightOvernightSwapConvention extends SingleCurrencySwapConv
    * of 5 years creates a swap starting on the spot date and maturing 5 years later.
    * <p>
    * The notional is unsigned, with buy/sell determining the direction of the trade.
-   * If buying the swap, the Ibor rate is received from the counterparty, with the overnight and spread being paid.
-   * If selling the swap, the Ibor rate is paid to the counterparty, with the overnight and spread being received.
-   * 
+   * If buying the swap, the rate of the flat leg is received from the counterparty,
+   * with the rate of the spread leg being paid. If selling the swap, the opposite occurs.
+   *
    * @param tradeDate  the date of the trade
    * @param tenor  the tenor of the swap
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount
-   * @param spread  the spread of added the overnight rates, typically derived from the market
+   * @param spread  the spread, typically derived from the market
    * @param refData  the reference data, used to resolve the trade dates
    * @return the trade
    * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
@@ -113,15 +113,15 @@ public interface OvernightOvernightSwapConvention extends SingleCurrencySwapConv
    * and maturing 5 years later.
    * <p>
    * The notional is unsigned, with buy/sell determining the direction of the trade.
-   * If buying the swap, the Ibor rate is received from the counterparty, with the overnight and spread being paid.
-   * If selling the swap, the Ibor rate is paid to the counterparty, with the overnight and spread being received.
-   * 
+   * If buying the swap, the rate of the flat leg is received from the counterparty,
+   * with the rate of the spread leg being paid. If selling the swap, the opposite occurs.
+   *
    * @param tradeDate  the date of the trade
    * @param periodToStart  the period between the spot date and the start date
    * @param tenor  the tenor of the swap
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount
-   * @param spread  the spread of added the overnight rates, typically derived from the market
+   * @param spread  the spread, typically derived from the market
    * @param refData  the reference data, used to resolve the trade dates
    * @return the trade
    * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
@@ -146,15 +146,15 @@ public interface OvernightOvernightSwapConvention extends SingleCurrencySwapConv
    * This returns a trade based on the specified dates.
    * <p>
    * The notional is unsigned, with buy/sell determining the direction of the trade.
-   * If buying the swap, the Ibor rate is received from the counterparty, with the overnight and spread being paid.
-   * If selling the swap, the Ibor rate is paid to the counterparty, with the overnight and spread being received.
-   * 
+   * If buying the swap, the rate of the flat leg is received from the counterparty,
+   * with the rate of the spread leg being paid. If selling the swap, the opposite occurs.
+   *
    * @param tradeDate  the date of the trade
    * @param startDate  the start date
    * @param endDate  the end date
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount
-   * @param spread  the spread of added the overnight rates, typically derived from the market
+   * @param spread  the spread, typically derived from the market
    * @return the trade
    */
   @Override
@@ -176,15 +176,15 @@ public interface OvernightOvernightSwapConvention extends SingleCurrencySwapConv
    * This returns a trade based on the specified dates.
    * <p>
    * The notional is unsigned, with buy/sell determining the direction of the trade.
-   * If buying the swap, the Ibor rate is received from the counterparty, with the overnight and spread being paid.
-   * If selling the swap, the Ibor rate is paid to the counterparty, with the overnight and spread being received.
-   * 
+   * If buying the swap, the rate of the flat leg is received from the counterparty,
+   * with the rate of the spread leg being paid. If selling the swap, the opposite occurs.
+   *
    * @param tradeInfo  additional information about the trade
    * @param startDate  the start date
    * @param endDate  the end date
    * @param buySell  the buy/sell flag
    * @param notional  the notional amount
-   * @param spread  the spread of added the overnight rates, typically derived from the market
+   * @param spread  the spread, typically derived from the market
    * @return the trade
    */
   @Override
