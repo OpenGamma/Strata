@@ -27,7 +27,7 @@ public final class OvernightOvernightSwapConventions {
    * The spot date offset is 2 days.
    */
   public static final OvernightOvernightSwapConvention USD_FED_FUND_SOFR_3M =
-      OvernightOvernightSwapConvention.of(StandardOvernightOvernightSwapConventions.USD_FED_FUND_SOFR_3M.getName());
+      OvernightOvernightSwapConvention.of(StandardOvernightOvernightSwapConventions.USD_SOFR_3M_FED_FUND_3M.getName());
 
   //-------------------------------------------------------------------------
   /**
