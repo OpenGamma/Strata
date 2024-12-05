@@ -142,7 +142,7 @@ public class OvernightOvernightSwapConventionTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_name() {
     return new Object[][] {
-        {OvernightOvernightSwapConventions.USD_FED_FUND_SOFR_3M, "USD-SOFR-3M-FED-FUND-3M"},
+        {OvernightOvernightSwapConventions.USD_SOFR_3M_FED_FUND_3M, "USD-SOFR-3M-FED-FUND-3M"},
     };
   }
 

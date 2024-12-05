@@ -37,7 +37,7 @@ public class OvernightOvernightSwapConventionsTest {
 
   public static Object[][] data_spot_lag() {
     return new Object[][] {
-        {OvernightOvernightSwapConventions.USD_FED_FUND_SOFR_3M, 2},
+        {OvernightOvernightSwapConventions.USD_SOFR_3M_FED_FUND_3M, 2},
     };
   }
 
@@ -50,7 +50,7 @@ public class OvernightOvernightSwapConventionsTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_period() {
     return new Object[][] {
-        {OvernightOvernightSwapConventions.USD_FED_FUND_SOFR_3M, Frequency.P3M}
+        {OvernightOvernightSwapConventions.USD_SOFR_3M_FED_FUND_3M, Frequency.P3M}
     };
   }
 
@@ -71,7 +71,7 @@ public class OvernightOvernightSwapConventionsTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_day_count() {
     return new Object[][] {
-        {OvernightOvernightSwapConventions.USD_FED_FUND_SOFR_3M, DayCounts.ACT_360},
+        {OvernightOvernightSwapConventions.USD_SOFR_3M_FED_FUND_3M, DayCounts.ACT_360},
     };
   }
 
@@ -85,7 +85,7 @@ public class OvernightOvernightSwapConventionsTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_float_index() {
     return new Object[][] {
-        {OvernightOvernightSwapConventions.USD_FED_FUND_SOFR_3M, OvernightIndices.USD_SOFR, OvernightIndices.USD_FED_FUND},
+        {OvernightOvernightSwapConventions.USD_SOFR_3M_FED_FUND_3M, OvernightIndices.USD_SOFR, OvernightIndices.USD_FED_FUND},
     };
   }
 
@@ -103,7 +103,7 @@ public class OvernightOvernightSwapConventionsTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_day_convention() {
     return new Object[][] {
-        {OvernightOvernightSwapConventions.USD_FED_FUND_SOFR_3M, BusinessDayConventions.MODIFIED_FOLLOWING}
+        {OvernightOvernightSwapConventions.USD_SOFR_3M_FED_FUND_3M, BusinessDayConventions.MODIFIED_FOLLOWING}
     };
   }
 
@@ -117,7 +117,7 @@ public class OvernightOvernightSwapConventionsTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_stub_on() {
     return new Object[][] {
-        {OvernightOvernightSwapConventions.USD_FED_FUND_SOFR_3M, Tenor.TENOR_4M}
+        {OvernightOvernightSwapConventions.USD_SOFR_3M_FED_FUND_3M, Tenor.TENOR_4M}
     };
   }
 
