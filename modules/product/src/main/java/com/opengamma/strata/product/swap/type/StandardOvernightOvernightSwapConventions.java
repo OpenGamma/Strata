@@ -24,7 +24,7 @@ final class StandardOvernightOvernightSwapConventions {
    * <p>
    * The spot date offset is 2 days.
    */
-  static final OvernightOvernightSwapConvention USD_SOFR_3M_FED_FUND_3M =
+  public static final OvernightOvernightSwapConvention USD_SOFR_3M_FED_FUND_3M =
       makeConvention("USD-SOFR-3M-FED-FUND-3M", USD_SOFR, USD_FED_FUND, P3M, 2, 2);
 
   //-------------------------------------------------------------------------
