@@ -49,7 +49,8 @@ public class DiscountingFxCollarTradePricerTest {
   private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
   private static final ZoneId ZONE = ZoneId.of("Z");
   private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(ZONE);
-  private static final ZonedDateTime EXPIRY = ZonedDateTime.of(2014, 5, 9, 13, 10, 0, 0, ZONE);
+  private static final ZonedDateTime OPTION1_EXPIRY = ZonedDateTime.of(2014, 5, 9, 13, 10, 0, 0, ZONE);
+  private static final ZonedDateTime OPTION2_EXPIRY = ZonedDateTime.of(2024, 5, 9, 13, 10, 0, 0, ZONE);
 
   private static final FxMatrix FX_MATRIX = RatesProviderFxDataSets.fxMatrix();
   private static final RatesProvider RATES_PROVIDER = RatesProviderFxDataSets.createProviderEURUSD(VAL_DATE);
@@ -69,7 +70,7 @@ public class DiscountingFxCollarTradePricerTest {
   private static final BlackFxOptionSmileVolatilities VOLS =
       BlackFxOptionSmileVolatilities.of(FxOptionVolatilitiesName.of("Test"), CURRENCY_PAIR, VAL_DATE_TIME, SMILE_TERM);
 
-  private static final LocalDate PAYMENT_DATE = LocalDate.of(2014, 5, 13);
+  private static final LocalDate PAYMENT_DATE = LocalDate.of(2025, 5, 13);
   private static final double NOTIONAL = 1.0e6;
   private static final CurrencyAmount EUR_AMOUNT = CurrencyAmount.of(EUR, NOTIONAL);
   private static final CurrencyAmount USD_AMOUNT = CurrencyAmount.of(USD, -NOTIONAL * FX_MATRIX.fxRate(EUR, USD));
@@ -77,12 +78,12 @@ public class DiscountingFxCollarTradePricerTest {
 
   private static final ResolvedFxVanillaOption OPTION_PRODUCT1 = ResolvedFxVanillaOption.builder()
       .longShort(SHORT)
-      .expiry(EXPIRY)
+      .expiry(OPTION1_EXPIRY)
       .underlying(FX_PRODUCT)
       .build();
   private static final ResolvedFxVanillaOption OPTION_PRODUCT2 = ResolvedFxVanillaOption.builder()
       .longShort(LONG)
-      .expiry(EXPIRY)
+      .expiry(OPTION2_EXPIRY)
       .underlying(FX_PRODUCT)
       .build();
   private static final ResolvedFxCollar COLLAR_PRODUCT = ResolvedFxCollar.of(OPTION_PRODUCT1, OPTION_PRODUCT2);
