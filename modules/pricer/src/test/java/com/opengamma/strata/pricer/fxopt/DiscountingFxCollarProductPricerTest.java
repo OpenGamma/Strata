@@ -40,31 +40,29 @@ import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOption;
  * Test {@link DiscountingFxCollarProductPricer}.
  */
 public class DiscountingFxCollarProductPricerTest {
-
   private static final ZoneId ZONE = ZoneId.of("Z");
-  private static final ZonedDateTime OPTION1_EXPIRY = ZonedDateTime.of(2014, 5, 9, 13, 10, 0, 0, ZONE);
-  private static final ZonedDateTime OPTION2_EXPIRY = ZonedDateTime.of(2024, 5, 9, 13, 10, 0, 0, ZONE);
+  private static final ZonedDateTime EXPIRY = ZonedDateTime.of(2014, 5, 9, 13, 10, 0, 0, ZONE);
   private static final LocalDate VAL_DATE = RatesProviderDataSets.VAL_DATE_2014_01_22;
   private static final LocalDate SPOT_DATE = RatesProviderDataSets.SPOT_DATE_2014_01_24;
-  private static final ZonedDateTime VAL_DATETIME_AFTER = OPTION1_EXPIRY.plusDays(1);
+  private static final ZonedDateTime VAL_DATETIME_AFTER = EXPIRY.plusDays(1);
   private static final LocalDate VAL_DATE_AFTER = VAL_DATETIME_AFTER.toLocalDate();
   private static final LocalTime VAL_TIME = LocalTime.of(13, 45);
   private static final ZonedDateTime VAL_DATETIME = VAL_DATE.atTime(VAL_TIME).atZone(ZONE);
   private static final RatesProvider RATES_PROVIDER = RatesProviderFxDataSets.createProviderEURUSD(VAL_DATE);
   private static final RatesProvider RATES_PROVIDER_EXPIRY =
-      RatesProviderFxDataSets.createProviderEURUSD(OPTION1_EXPIRY.toLocalDate());
+      RatesProviderFxDataSets.createProviderEURUSD(EXPIRY.toLocalDate());
   private static final RatesProvider RATES_PROVIDER_AFTER =
       RatesProviderFxDataSets.createProviderEURUSD(VAL_DATE_AFTER);
   private static final BlackFxOptionSmileVolatilities VOLS =
       FxVolatilitySmileDataSet.createVolatilitySmileProvider6(VAL_DATETIME);
   private static final BlackFxOptionSmileVolatilities VOLS_EXPIRY =
-      FxVolatilitySmileDataSet.createVolatilitySmileProvider6(OPTION1_EXPIRY);
+      FxVolatilitySmileDataSet.createVolatilitySmileProvider6(EXPIRY);
   private static final BlackFxOptionSmileVolatilities VOLS_AFTER =
       FxVolatilitySmileDataSet.createVolatilitySmileProvider6(VAL_DATETIME_AFTER);
 
   private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(EUR, USD);
   private static final double NOTIONAL = 1.0e6;
-  private static final LocalDate PAYMENT_DATE = LocalDate.of(2025, 5, 13);
+  private static final LocalDate PAYMENT_DATE = LocalDate.of(2014, 5, 13);
   private static final double STRIKE_RATE_HIGH = 1.44;
   private static final double STRIKE_RATE_LOW = 1.36;
   private static final CurrencyAmount EUR_AMOUNT1 = CurrencyAmount.of(EUR, -NOTIONAL);
@@ -79,22 +77,22 @@ public class DiscountingFxCollarProductPricerTest {
   private static final double FD_EPS = 1.0e-7;
   private static final ResolvedFxVanillaOption CALL_OTM = ResolvedFxVanillaOption.builder()
       .longShort(LONG)
-      .expiry(OPTION1_EXPIRY)
+      .expiry(EXPIRY)
       .underlying(FX_PRODUCT_HIGH)
       .build();
   private static final ResolvedFxVanillaOption CALL_ITM = ResolvedFxVanillaOption.builder()
       .longShort(LONG)
-      .expiry(OPTION1_EXPIRY)
+      .expiry(EXPIRY)
       .underlying(FX_PRODUCT_LOW)
       .build();
   private static final ResolvedFxVanillaOption PUT_OTM = ResolvedFxVanillaOption.builder()
       .longShort(SHORT)
-      .expiry(OPTION2_EXPIRY)
+      .expiry(EXPIRY)
       .underlying(FX_PRODUCT_LOW)
       .build();
   private static final ResolvedFxVanillaOption PUT_ITM = ResolvedFxVanillaOption.builder()
       .longShort(SHORT)
-      .expiry(OPTION2_EXPIRY)
+      .expiry(EXPIRY)
       .underlying(FX_PRODUCT_HIGH)
       .build();
 
@@ -109,15 +107,15 @@ public class DiscountingFxCollarProductPricerTest {
     double price = PRICER.price(COLLAR_OTM_PRODUCT, RATES_PROVIDER_AFTER, VOLS_AFTER);
     CurrencyAmount pv = PRICER.presentValue(COLLAR_OTM_PRODUCT, RATES_PROVIDER_AFTER, VOLS_AFTER);
     assertThat(price).isCloseTo(0d, offset(NOTIONAL * TOL));
-    assertThat(pv.getAmount()).isCloseTo(-257261.85269435332d, offset(NOTIONAL * TOL));
+    assertThat(pv.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
   @Test
   public void test_delta_presentValueDelta_afterExpiry() {
     double delta = PRICER.delta(COLLAR_OTM_PRODUCT, RATES_PROVIDER_AFTER, VOLS_AFTER);
     CurrencyAmount pvDelta = PRICER.presentValueDelta(COLLAR_OTM_PRODUCT, RATES_PROVIDER_AFTER, VOLS_AFTER);
-    assertThat(delta).isCloseTo(0.5226226870034261d, offset(TOL));
-    assertThat(pvDelta.getAmount()).isCloseTo(-522622.6870034261d, offset(NOTIONAL * TOL));
+    assertThat(delta).isCloseTo(0d, offset(TOL));
+    assertThat(pvDelta.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
   @Test
@@ -146,32 +144,32 @@ public class DiscountingFxCollarProductPricerTest {
   public void test_gamma_presentValueGamma_atExpiry() {
     double gamma = PRICER.gamma(COLLAR_ITM_PRODUCT, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvGamma = PRICER.presentValueGamma(COLLAR_ITM_PRODUCT, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
-    assertThat(gamma).isCloseTo(0.4528463034849822d, offset(TOL));
-    assertThat(pvGamma.getAmount()).isCloseTo(-452846.3034849822d, offset(NOTIONAL * TOL));
+    assertThat(gamma).isCloseTo(0d, offset(TOL));
+    assertThat(pvGamma.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
   @Test
   public void test_gamma_presentValueGamma_afterExpiry() {
     double gamma = PRICER.gamma(COLLAR_ITM_PRODUCT, RATES_PROVIDER_AFTER, VOLS_AFTER);
     CurrencyAmount pvGamma = PRICER.presentValueGamma(COLLAR_ITM_PRODUCT, RATES_PROVIDER_AFTER, VOLS_AFTER);
-    assertThat(gamma).isCloseTo(0.4529327240855165d, offset(TOL));
-    assertThat(pvGamma.getAmount()).isCloseTo(-452932.7240855165d, offset(NOTIONAL * TOL));
+    assertThat(gamma).isCloseTo(0d, offset(TOL));
+    assertThat(pvGamma.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
   @Test
   public void test_vega_presentValueVega_atExpiry() {
     double vega = PRICER.vega(COLLAR_ITM_PRODUCT, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvVega = PRICER.presentValueVega(COLLAR_ITM_PRODUCT, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
-    assertThat(vega).isCloseTo(1.4686383663515858d, offset(TOL));
-    assertThat(pvVega.getAmount()).isCloseTo(-1468638.3663515858d, offset(NOTIONAL * TOL));
+    assertThat(vega).isCloseTo(0d, offset(TOL));
+    assertThat(pvVega.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
   @Test
   public void test_vega_presentValueVega_afterExpiry() {
     double vega = PRICER.vega(COLLAR_ITM_PRODUCT, RATES_PROVIDER_AFTER, VOLS_AFTER);
     CurrencyAmount pvVega = PRICER.presentValueVega(COLLAR_ITM_PRODUCT, RATES_PROVIDER_AFTER, VOLS_AFTER);
-    assertThat(vega).isCloseTo(1.4684981622648046d, offset(TOL));
-    assertThat(pvVega.getAmount()).isCloseTo(-1468498.1622648046d, offset(NOTIONAL * TOL));
+    assertThat(vega).isCloseTo(0d, offset(TOL));
+    assertThat(pvVega.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
   @Test
@@ -192,23 +190,23 @@ public class DiscountingFxCollarProductPricerTest {
   public void test_theta_presentValueTheta_atExpiry() {
     double theta = PRICER.theta(COLLAR_ITM_PRODUCT, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvTheta = PRICER.presentValueTheta(COLLAR_ITM_PRODUCT, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
-    assertThat(theta).isCloseTo(-0.012130514723693857d, offset(TOL));
-    assertThat(pvTheta.getAmount()).isCloseTo(12130.514723693857d, offset(NOTIONAL * TOL));
+    assertThat(theta).isCloseTo(0d, offset(TOL));
+    assertThat(pvTheta.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
   @Test
   public void test_theta_presentValueTheta_afterExpiry() {
     double theta = PRICER.theta(COLLAR_ITM_PRODUCT, RATES_PROVIDER_AFTER, VOLS_AFTER);
     CurrencyAmount pvTheta = PRICER.presentValueTheta(COLLAR_ITM_PRODUCT, RATES_PROVIDER_AFTER, VOLS_AFTER);
-    assertThat(theta).isCloseTo(-0.012132526249128384d, offset(TOL));
-    assertThat(pvTheta.getAmount()).isCloseTo(12132.526249128385d, offset(NOTIONAL * TOL));
+    assertThat(theta).isCloseTo(0d, offset(TOL));
+    assertThat(pvTheta.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
   @Test
   public void test_forwardFxRate() {
     FxRate fxRate = PRICER.forwardFxRate(COLLAR_ITM_PRODUCT, RATES_PROVIDER);
     assertThat(fxRate.getPair()).isEqualTo(CURRENCY_PAIR);
-    assertThat(fxRate.fxRate(CURRENCY_PAIR)).isCloseTo(1.384072571916743, withinPercentage(PERCENTAGE_TOL));
+    assertThat(fxRate.fxRate(CURRENCY_PAIR)).isCloseTo(1.399078, withinPercentage(PERCENTAGE_TOL));
   }
 
   @Test

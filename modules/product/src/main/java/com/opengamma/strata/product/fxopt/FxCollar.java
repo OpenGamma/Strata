@@ -59,8 +59,6 @@ public final class FxCollar implements FxProduct, Resolvable<ResolvedFxCollar>, 
    */
   @ImmutableValidator
   private void validate() {
-    ArgChecker.inOrderNotEqual(
-        option1.getExpiry(), option2.getExpiry(), "option1.expiry", "option2.expiry");
     if (!option1.getCurrencyPair().equals(option2.getCurrencyPair())) {
       throw new IllegalArgumentException("Options must have the same currency pair");
     }

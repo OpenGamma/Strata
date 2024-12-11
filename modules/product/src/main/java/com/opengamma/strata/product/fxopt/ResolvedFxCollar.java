@@ -24,7 +24,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.ResolvedProduct;
 
 /**
@@ -53,8 +52,6 @@ public final class ResolvedFxCollar implements ResolvedProduct, ImmutableBean, S
    */
   @ImmutableValidator
   private void validate() {
-    ArgChecker.inOrderNotEqual(
-        option1.getExpiry(), option2.getExpiry(), "option1.expiry", "option2.expiry");
     if (!option1.getCurrencyPair().equals(option2.getCurrencyPair())) {
       throw new IllegalArgumentException("Options must have the same currency pair");
     }
