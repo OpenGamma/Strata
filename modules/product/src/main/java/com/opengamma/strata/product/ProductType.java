@@ -28,6 +28,7 @@ import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fx.FxNdf;
 import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSwap;
+import com.opengamma.strata.product.fxopt.FxCollar;
 import com.opengamma.strata.product.fxopt.FxSingleBarrierOption;
 import com.opengamma.strata.product.fxopt.FxVanillaOption;
 import com.opengamma.strata.product.index.IborFuture;
@@ -107,6 +108,10 @@ public final class ProductType
    * A {@link FxVanillaOption}.
    */
   public static final ProductType FX_VANILLA_OPTION = ProductType.of("FxVanillaOption", "FX Vanilla Option");
+  /**
+   * A {@link FxCollar}.
+   */
+  public static final ProductType FX_COLLAR = ProductType.of("FxCollar", "FX Collar");
   /**
    * A {@link IborCapFloor}.
    */
@@ -207,7 +212,7 @@ public final class ProductType
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param name  the name
    * @param description  the description
    */
@@ -218,7 +223,7 @@ public final class ProductType
 
   /**
    * Gets the human-readable description of the type.
-   * 
+   *
    * @return the description
    */
   @Override

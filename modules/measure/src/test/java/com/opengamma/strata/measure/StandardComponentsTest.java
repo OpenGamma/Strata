@@ -17,6 +17,7 @@ import com.opengamma.strata.measure.fra.FraTradeCalculationFunctionTest;
 import com.opengamma.strata.measure.fx.FxNdfTradeCalculationFunctionTest;
 import com.opengamma.strata.measure.fx.FxSingleTradeCalculationFunctionTest;
 import com.opengamma.strata.measure.fx.FxSwapTradeCalculationFunctionTest;
+import com.opengamma.strata.measure.fxopt.FxCollarTradeCalculationFunctionTest;
 import com.opengamma.strata.measure.swap.SwapTradeCalculationFunctionTest;
 
 /**
@@ -31,6 +32,7 @@ public class StandardComponentsTest {
     assertThat(test.findFunction(FxSingleTradeCalculationFunctionTest.TRADE)).isPresent();
     assertThat(test.findFunction(FxNdfTradeCalculationFunctionTest.TRADE)).isPresent();
     assertThat(test.findFunction(FxSwapTradeCalculationFunctionTest.TRADE)).isPresent();
+    assertThat(test.findFunction(FxCollarTradeCalculationFunctionTest.TRADE)).isPresent();
     assertThat(test.findFunction(SwapTradeCalculationFunctionTest.TRADE)).isPresent();
     assertThat(test.findFunction(TermDepositTradeCalculationFunctionTest.TRADE)).isPresent();
     assertThat(test.findFunction(CmsTradeCalculationFunctionTest.TRADE)).isPresent();
