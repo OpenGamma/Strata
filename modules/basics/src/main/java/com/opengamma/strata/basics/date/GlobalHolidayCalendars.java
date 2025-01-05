@@ -370,7 +370,7 @@ final class GlobalHolidayCalendars {
   }
 
   // generate USGS
-  // http://www.sifma.org/services/holiday-schedule/
+  // https://www.sifma.org/resources/general/holiday-schedule/
   static ImmutableHolidayCalendar generateUsGovtSecurities() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
@@ -404,7 +404,7 @@ final class GlobalHolidayCalendars {
 
   //-------------------------------------------------------------------------
   // generate NYFD
-  // http://www.ny.frb.org/aboutthefed/holiday_schedule.html
+  // https://www.newyorkfed.org/aboutthefed/holiday_schedule.html
   static ImmutableHolidayCalendar generateNewYorkFed() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
@@ -496,6 +496,7 @@ final class GlobalHolidayCalendars {
     holidays.add(date(2007, 1, 2));  // Death of Gerald Ford
     holidays.add(date(2012, 10, 30));  // Hurricane Sandy
     holidays.add(date(2018, 12, 5));  // Death of George H.W. Bush
+    holidays.add(date(2025, 1, 9));  // Death of Jimmy Carter
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarIds.NYSE, holidays, SATURDAY, SUNDAY);
   }
