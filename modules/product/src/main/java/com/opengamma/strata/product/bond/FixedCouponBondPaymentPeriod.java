@@ -20,6 +20,7 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.gen.BeanDefinition;
 import org.joda.beans.gen.ImmutableConstructor;
+import org.joda.beans.gen.ImmutableDefaults;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
@@ -123,16 +124,19 @@ public final class FixedCouponBondPaymentPeriod
   @PropertyDefinition(validate = "ArgChecker.notNegative")
   private final double yearFraction;
   /**
-   * Indicates if the is period is regular
+   * Indicates if the is period is regular.
    * <p>
-   * The regular status of the period
-   * <p>
-   * It true the a full coupon is paid. Otherwise the period is shorter/longer
+   * If true the full coupon is paid, otherwise the period is shorter/longer.
    */
   @PropertyDefinition
-  private final boolean isRegular;
+  private final boolean regular;
 
   //-------------------------------------------------------------------------
+  @ImmutableDefaults
+  private static void applyDefaults(Builder builder) {
+    builder.regular = true;
+  }
+
   // could use @ImmutablePreBuild and @ImmutableValidate but faster inline
   @ImmutableConstructor
   private FixedCouponBondPaymentPeriod(
@@ -145,7 +149,7 @@ public final class FixedCouponBondPaymentPeriod
       LocalDate detachmentDate,
       double fixedRate,
       double yearFraction,
-      boolean isRegular) {
+      boolean regular) {
     this.currency = ArgChecker.notNull(currency, "currency");
     this.notional = notional;
     this.startDate = ArgChecker.notNull(startDate, "startDate");
@@ -155,7 +159,7 @@ public final class FixedCouponBondPaymentPeriod
     this.detachmentDate = firstNonNull(detachmentDate, endDate);
     this.fixedRate = fixedRate;
     this.yearFraction = yearFraction;
-    this.isRegular = isRegular;
+    this.regular = regular;
     // check for unadjusted must be after firstNonNull
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
     ArgChecker.inOrderNotEqual(
@@ -352,15 +356,13 @@ public final class FixedCouponBondPaymentPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets indicates if the is period is regular
+   * Gets indicates if the is period is regular.
    * <p>
-   * The regular status of the period
-   * <p>
-   * It true the a full coupon is paid. Otherwise the period is shorter/longer
+   * If true the full coupon is paid, otherwise the period is shorter/longer.
    * @return the value of the property
    */
-  public boolean isIsRegular() {
-    return isRegular;
+  public boolean isRegular() {
+    return regular;
   }
 
   //-----------------------------------------------------------------------
@@ -388,7 +390,7 @@ public final class FixedCouponBondPaymentPeriod
           JodaBeanUtils.equal(detachmentDate, other.detachmentDate) &&
           JodaBeanUtils.equal(fixedRate, other.fixedRate) &&
           JodaBeanUtils.equal(yearFraction, other.yearFraction) &&
-          (isRegular == other.isRegular);
+          (regular == other.regular);
     }
     return false;
   }
@@ -405,7 +407,7 @@ public final class FixedCouponBondPaymentPeriod
     hash = hash * 31 + JodaBeanUtils.hashCode(detachmentDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(fixedRate);
     hash = hash * 31 + JodaBeanUtils.hashCode(yearFraction);
-    hash = hash * 31 + JodaBeanUtils.hashCode(isRegular);
+    hash = hash * 31 + JodaBeanUtils.hashCode(regular);
     return hash;
   }
 
@@ -422,7 +424,7 @@ public final class FixedCouponBondPaymentPeriod
     buf.append("detachmentDate").append('=').append(JodaBeanUtils.toString(detachmentDate)).append(',').append(' ');
     buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
     buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
-    buf.append("isRegular").append('=').append(JodaBeanUtils.toString(isRegular));
+    buf.append("regular").append('=').append(JodaBeanUtils.toString(regular));
     buf.append('}');
     return buf.toString();
   }
@@ -483,10 +485,10 @@ public final class FixedCouponBondPaymentPeriod
     private final MetaProperty<Double> yearFraction = DirectMetaProperty.ofImmutable(
         this, "yearFraction", FixedCouponBondPaymentPeriod.class, Double.TYPE);
     /**
-     * The meta-property for the {@code isRegular} property.
+     * The meta-property for the {@code regular} property.
      */
-    private final MetaProperty<Boolean> isRegular = DirectMetaProperty.ofImmutable(
-        this, "isRegular", FixedCouponBondPaymentPeriod.class, Boolean.TYPE);
+    private final MetaProperty<Boolean> regular = DirectMetaProperty.ofImmutable(
+        this, "regular", FixedCouponBondPaymentPeriod.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
@@ -501,7 +503,7 @@ public final class FixedCouponBondPaymentPeriod
         "detachmentDate",
         "fixedRate",
         "yearFraction",
-        "isRegular");
+        "regular");
 
     /**
      * Restricted constructor.
@@ -530,8 +532,8 @@ public final class FixedCouponBondPaymentPeriod
           return fixedRate;
         case -1731780257:  // yearFraction
           return yearFraction;
-        case 506685202:  // isRegular
-          return isRegular;
+        case 1086463900:  // regular
+          return regular;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -625,11 +627,11 @@ public final class FixedCouponBondPaymentPeriod
     }
 
     /**
-     * The meta-property for the {@code isRegular} property.
+     * The meta-property for the {@code regular} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Boolean> isRegular() {
-      return isRegular;
+    public MetaProperty<Boolean> regular() {
+      return regular;
     }
 
     //-----------------------------------------------------------------------
@@ -654,8 +656,8 @@ public final class FixedCouponBondPaymentPeriod
           return ((FixedCouponBondPaymentPeriod) bean).getFixedRate();
         case -1731780257:  // yearFraction
           return ((FixedCouponBondPaymentPeriod) bean).getYearFraction();
-        case 506685202:  // isRegular
-          return ((FixedCouponBondPaymentPeriod) bean).isIsRegular();
+        case 1086463900:  // regular
+          return ((FixedCouponBondPaymentPeriod) bean).isRegular();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -686,12 +688,13 @@ public final class FixedCouponBondPaymentPeriod
     private LocalDate detachmentDate;
     private double fixedRate;
     private double yearFraction;
-    private boolean isRegular;
+    private boolean regular;
 
     /**
      * Restricted constructor.
      */
     private Builder() {
+      applyDefaults(this);
     }
 
     /**
@@ -708,7 +711,7 @@ public final class FixedCouponBondPaymentPeriod
       this.detachmentDate = beanToCopy.getDetachmentDate();
       this.fixedRate = beanToCopy.getFixedRate();
       this.yearFraction = beanToCopy.getYearFraction();
-      this.isRegular = beanToCopy.isIsRegular();
+      this.regular = beanToCopy.isRegular();
     }
 
     //-----------------------------------------------------------------------
@@ -733,8 +736,8 @@ public final class FixedCouponBondPaymentPeriod
           return fixedRate;
         case -1731780257:  // yearFraction
           return yearFraction;
-        case 506685202:  // isRegular
-          return isRegular;
+        case 1086463900:  // regular
+          return regular;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -770,8 +773,8 @@ public final class FixedCouponBondPaymentPeriod
         case -1731780257:  // yearFraction
           this.yearFraction = (Double) newValue;
           break;
-        case 506685202:  // isRegular
-          this.isRegular = (Boolean) newValue;
+        case 1086463900:  // regular
+          this.regular = (Boolean) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -797,7 +800,7 @@ public final class FixedCouponBondPaymentPeriod
           detachmentDate,
           fixedRate,
           yearFraction,
-          isRegular);
+          regular);
     }
 
     //-----------------------------------------------------------------------
@@ -934,16 +937,14 @@ public final class FixedCouponBondPaymentPeriod
     }
 
     /**
-     * Sets indicates if the is period is regular
+     * Sets indicates if the is period is regular.
      * <p>
-     * The regular status of the period
-     * <p>
-     * It true the a full coupon is paid. Otherwise the period is shorter/longer
-     * @param isRegular  the new value
+     * If true the full coupon is paid, otherwise the period is shorter/longer.
+     * @param regular  the new value
      * @return this, for chaining, not null
      */
-    public Builder isRegular(boolean isRegular) {
-      this.isRegular = isRegular;
+    public Builder regular(boolean regular) {
+      this.regular = regular;
       return this;
     }
 
@@ -961,7 +962,7 @@ public final class FixedCouponBondPaymentPeriod
       buf.append("detachmentDate").append('=').append(JodaBeanUtils.toString(detachmentDate)).append(',').append(' ');
       buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
       buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
-      buf.append("isRegular").append('=').append(JodaBeanUtils.toString(isRegular));
+      buf.append("regular").append('=').append(JodaBeanUtils.toString(regular));
       buf.append('}');
       return buf.toString();
     }

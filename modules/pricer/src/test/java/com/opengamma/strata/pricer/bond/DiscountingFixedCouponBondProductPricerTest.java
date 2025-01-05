@@ -230,6 +230,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
     double yield = PRICER.yieldFromDirtyPrice(bond, settlementDate, dirtyPrice);
     assertThat(yield).isCloseTo(0.07288818170674201, offset(TOL)); // 2.x.œœ
   }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_presentValue() {

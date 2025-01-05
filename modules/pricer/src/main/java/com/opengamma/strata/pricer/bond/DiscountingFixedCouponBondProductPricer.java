@@ -555,9 +555,9 @@ public class DiscountingFixedCouponBondProductPricer {
     if (nCoupon == 1) {
       if (yieldConv.equals(US_STREET) || yieldConv.equals(DE_BONDS)) {
         FixedCouponBondPaymentPeriod payment = payments.get(payments.size() - 1);
+        double eventsPerYear = bond.getFrequency().eventsPerYear();
         return (1d + payment.getFixedRate() * payment.getYearFraction()) /
-            (1d + factorToNextCoupon(bond, settlementDate) * yield /
-                ((double) bond.getFrequency().eventsPerYear()));
+            (1d + factorToNextCoupon(bond, settlementDate) * yield / eventsPerYear);
       }
     }
     if ((yieldConv.equals(US_STREET)) || (yieldConv.equals(GB_BUMP_DMO)) || (yieldConv.equals(DE_BONDS))) {
@@ -593,11 +593,11 @@ public class DiscountingFixedCouponBondProductPricer {
     if (nCoupon == 1) {
       if (yieldConv.equals(US_STREET) || yieldConv.equals(DE_BONDS)) {
         FixedCouponBondPaymentPeriod payment = payments.get(payments.size() - 1);
-        double df = (1d + factorToNextCoupon(bond, settlementDate) * yield /
-            ((double) bond.getFrequency().eventsPerYear()));
+        double eventsPerYear = bond.getFrequency().eventsPerYear();
+        double df = (1d + factorToNextCoupon(bond, settlementDate) * yield / eventsPerYear);
         double price = (1d + payment.getFixedRate() * payment.getYearFraction()) / df;
         double yieldBar = -(1d + payment.getFixedRate() * payment.getYearFraction()) /
-            (df * df) * factorToNextCoupon(bond, settlementDate) / ((double) bond.getFrequency().eventsPerYear());
+            (df * df) * factorToNextCoupon(bond, settlementDate) / eventsPerYear;
         return ValueDerivatives.of(price, DoubleArray.of(yieldBar));
       }
     }
@@ -626,8 +626,8 @@ public class DiscountingFixedCouponBondProductPricer {
       double yield) {
 
     List<FixedCouponBondPaymentPeriod> periodicPayments = bond.getPeriodicPayments();
-    int eventsPerYear = bond.getFrequency().eventsPerYear();
-    double factorOnPeriod = 1 + yield / ((double) eventsPerYear);
+    double eventsPerYear = bond.getFrequency().eventsPerYear();
+    double factorOnPeriod = 1 + yield / eventsPerYear;
     double fixedRate = bond.getFixedRate();
     double pvAtFirstCoupon = 0;
     double factor = 1;
@@ -640,7 +640,7 @@ public class DiscountingFixedCouponBondProductPricer {
           first = false;
           factor = 1;
         } else {
-          if (period.isIsRegular()) {
+          if (period.isRegular()) {
             factor *= factorOnPeriod;
           } else {
             factor *= Math.pow(factorOnPeriod, yearFraction * eventsPerYear);
@@ -661,7 +661,8 @@ public class DiscountingFixedCouponBondProductPricer {
       double yield) {
 
     int nbCoupon = bond.getPeriodicPayments().size();
-    double factorOnPeriod = 1 + yield / ((double) bond.getFrequency().eventsPerYear());
+    double eventsPerYear = bond.getFrequency().eventsPerYear();
+    double factorOnPeriod = 1 + yield / eventsPerYear;
     double fixedRate = bond.getFixedRate();
     double pvAtFirstCoupon = 0;
     int pow = 0;
@@ -694,7 +695,7 @@ public class DiscountingFixedCouponBondProductPricer {
       }
     }
     factorOnPeriodBar += -factorNextCoupon * Math.pow(factorOnPeriod, -factorNextCoupon - 1.0) * priceAfterBar;
-    double yieldBar = 1.0d / ((double) bond.getFrequency().eventsPerYear()) * factorOnPeriodBar;
+    double yieldBar = 1.0d / eventsPerYear * factorOnPeriodBar;
     return ValueDerivatives.of(price, DoubleArray.of(yieldBar));
   }
 
@@ -971,12 +972,12 @@ public class DiscountingFixedCouponBondProductPricer {
     int nCoupon = payments.size() - couponIndex(payments, settlementDate);
     FixedCouponBondYieldConvention yieldConv = bond.getYieldConvention();
     if ((yieldConv.equals(US_STREET)) && (nCoupon == 1)) {
-      return factorToNextCoupon(bond, settlementDate) /
-          bond.getFrequency().eventsPerYear();
+      double eventsPerYear = bond.getFrequency().eventsPerYear();
+      return factorToNextCoupon(bond, settlementDate) / eventsPerYear;
     }
     if ((yieldConv.equals(US_STREET)) || (yieldConv.equals(GB_BUMP_DMO)) || (yieldConv.equals(DE_BONDS))) {
-      return modifiedDurationFromYield(bond, settlementDate, yield) *
-          (1d + yield / bond.getFrequency().eventsPerYear());
+      double eventsPerYear = bond.getFrequency().eventsPerYear();
+      return modifiedDurationFromYield(bond, settlementDate, yield) * (1d + yield / eventsPerYear);
     }
     throw new UnsupportedOperationException("The convention " + yieldConv.name() + " is not supported.");
   }
@@ -1069,7 +1070,8 @@ public class DiscountingFixedCouponBondProductPricer {
     int couponIndex = couponIndex(bond.getPeriodicPayments(), settlementDate);
     double factorSpot = accruedYearFraction(bond, settlementDate);
     double factorPeriod = bond.getPeriodicPayments().get(couponIndex).getYearFraction();
-    return (factorPeriod - factorSpot) * ((double) bond.getFrequency().eventsPerYear());
+    double eventsPerYear = bond.getFrequency().eventsPerYear();
+    return (factorPeriod - factorSpot) * eventsPerYear;
   }
 
   private int couponIndex(ImmutableList<FixedCouponBondPaymentPeriod> list, LocalDate date) {
