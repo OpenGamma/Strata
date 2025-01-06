@@ -78,16 +78,16 @@ public final class RatesCurveInputsMarketDataFunction implements MarketDataFunct
           .collect(toImmutableList());
 
       Set<MarketDataId<?>> requirements = nodeRequirements(curveDefns);
-      Map<MarketDataId<?>, MarketDataBox<?>> marketDataValues =
-          requirements.stream().collect(toImmutableMap(k -> k, k -> marketData.getValue(k)));
+      Map<MarketDataId<?>, MarketDataBox<?>> marketDataValues = requirements.stream()
+          .collect(toImmutableMap(k -> k, k -> (MarketDataBox<?>) marketData.getValue(k)));
       return buildMultipleCurveInputs(MarketDataBox.ofScenarioValues(curveDefns), marketDataValues, valuationDates, refData);
     }
     // only one valuation date
     LocalDate valuationDate = valuationDates.getValue(0);
     CurveDefinition filteredDefn = configuredDefn.filtered(valuationDate, refData);
     Set<MarketDataId<?>> requirements = nodeRequirements(ImmutableList.of(filteredDefn));
-    Map<MarketDataId<?>, MarketDataBox<?>> marketDataValues =
-        requirements.stream().collect(toImmutableMap(k -> k, k -> marketData.getValue(k)));
+    Map<MarketDataId<?>, MarketDataBox<?>> marketDataValues = requirements.stream()
+        .collect(toImmutableMap(k -> k, k -> (MarketDataBox<?>) marketData.getValue(k)));
     // Do any of the inputs contain values for multiple scenarios, or do they contain 1 value each?
     boolean multipleInputValues = marketDataValues.values().stream().anyMatch(MarketDataBox::isScenarioValue);
 
