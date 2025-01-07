@@ -1,6 +1,6 @@
-Strata Trade Type,Strata Position Type,CCP,Id Scheme,Id,Trade Date,Convention,Buy Sell,Currency,Notional,FX Rate,Payment Date,Payment Date Convention,Payment Date Calendar,Security Id,Quantity,
-FX,,CME,OG,tradeId1,06/12/2016,USD/INR,Sell,USD,3850000,67.4,08/12/2016,Following,USNY,,,
-FX,Trade,CME,OG,tradeId2,06/12/2016,USD/INR,Sell,USD,3850000,67.4,08/12/2016,Following,USNY,,,
-"",SEC,LCH,OG,123431,,,,,,,,,,AAPL,12
-"Position",SEC,LCH,OG,123431,,,,,,,,,,AAPL,24
-FX,EtdFuture,CME,OG,tradeId1,06/12/2016,USD/INR,Sell,USD,3850000,67.4,08/12/2016,Following,USNY,,,
+Strata Trade Type,Strata Position Type,Strata Sensitivity Type,CCP,Id Scheme,Id,Trade Date,Convention,Buy Sell,Currency,Notional,FX Rate,Payment Date,Payment Date Convention,Payment Date Calendar,Security Id,Quantity,""
+FX,,,CME,OG,tradeId1,06/12/2016,USD/INR,Sell,USD,3850000,67.4,08/12/2016,Following,USNY,,,
+FX,Trade,Trade,CME,OG,tradeId2,06/12/2016,USD/INR,Sell,USD,3850000,67.4,08/12/2016,Following,USNY,,,
+"",SEC,,LCH,OG,123431,,,,,,,,,,AAPL,12,SEC
+Position,SEC,Position,LCH,OG,123431,,,,,,,,,,AAPL,24,SEC
+FX,EtdFuture,CRIF,CME,OG,tradeId1,06/12/2016,USD/INR,Sell,USD,3850000,67.4,08/12/2016,Following,USNY,,,
