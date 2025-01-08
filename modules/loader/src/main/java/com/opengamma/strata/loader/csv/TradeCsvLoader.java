@@ -433,17 +433,16 @@ public final class TradeCsvLoader {
       Optional<String> positionTypeOpt = row.findValue(POSITION_TYPE_FIELD).filter(str -> !str.equalsIgnoreCase("TRADE"));
       Optional<String> sensitivityTypeOpt = row.findValue(SENSITIVITY_TYPE_FIELD).filter(str -> !str.equalsIgnoreCase("TRADE"));
 
-      boolean isPositionOrSensitivityRow = positionTypeOpt.isPresent() || sensitivityTypeOpt.isPresent();
-
-      if (tradeTypeOpt.isPresent() && isPositionOrSensitivityRow) {
-        failures.add(FailureItem.of(
-            FailureReason.PARSING,
-            "CSV position file '{fileName}' contained row with mixed trade/position/sensitivity type '{type}' at line {lineNumber}",
-            CharSources.extractFileName(charSource),
-            tradeTypeOpt.get() + "/" + positionTypeOpt.orElse("-") + "/" + sensitivityTypeOpt.orElse("-"),
-            row.lineNumber()));
-        continue; // ignore bad row
-      } else if (positionTypeOpt.isPresent() || sensitivityTypeOpt.isPresent()) {
+      if (positionTypeOpt.isPresent() || sensitivityTypeOpt.isPresent()) {
+        if (tradeTypeOpt.isPresent()) {
+          failures.add(FailureItem.of(
+              FailureReason.PARSING,
+              "CSV position file '{fileName}' contained row with mixed trade/position/sensitivity type '{type}' at line {lineNumber}",
+              CharSources.extractFileName(charSource),
+              tradeTypeOpt.get() + "/" + positionTypeOpt.orElse("-") + "/" + sensitivityTypeOpt.orElse("-"),
+              row.lineNumber()));
+          continue; // ignore bad row
+        }
         continue; // quietly ignore a position row
       }
 
