@@ -17,6 +17,8 @@ public final class CsvLoaderColumns {
   /** CSV header (Basic). */
   public static final String POSITION_TYPE_FIELD = "Strata Position Type";
   /** CSV header (Basic). */
+  public static final String SENSITIVITY_TYPE_FIELD = "Strata Sensitivity Type";
+  /** CSV header (Basic). */
   public static final String ID_SCHEME_FIELD = "Id Scheme";
   /** CSV header (Basic). */
   public static final String ID_FIELD = "Id";
