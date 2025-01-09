@@ -760,6 +760,10 @@ public final class IborIndices {
    */
   public static final IborIndex ZAR_JIBAR_12M = IborIndex.of("ZAR-JIBAR-12M");
 
+  /**
+   * 7 Days Repo in CFETS
+   */
+  public static final IborIndex CNY_REPO_1W = IborIndex.of("CNY-REPO-1W");
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
