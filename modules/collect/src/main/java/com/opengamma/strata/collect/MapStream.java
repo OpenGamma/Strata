@@ -426,7 +426,6 @@ public final class MapStream<K, V>
     return wrap(underlying.flatMap(e -> mapper.apply(e.getKey(), e.getValue())));
   }
 
-
   /**
    * Transforms the entries in the stream by applying a mapper function to each key and value.
    *
