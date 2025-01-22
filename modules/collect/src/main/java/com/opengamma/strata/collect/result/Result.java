@@ -5,8 +5,12 @@
  */
 package com.opengamma.strata.collect.result;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -15,6 +19,8 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
@@ -33,6 +39,7 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Streams;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.Messages;
@@ -485,7 +492,7 @@ public final class Result<T>
 
     return value
         .map(Result::success)
-        .orElse(Result.failure(reason, message, messageArgs));
+        .orElse(failure(reason, message, messageArgs));
   }
 
   /**
@@ -672,8 +679,61 @@ public final class Result<T>
     }
   }
 
+  /**
+   * Returns a collector that can be used to create a collected {@link Result}
+   * from a stream of {@link Result} instances, using the provided collector.
+   *
+   * @param <T> the type of the success value in the {@link Result}
+   * @param <R> the type of the collection returned by the collector
+   * @param collector the collector to combine the results
+   * @return a {@link Collector}
+   */
+  public static <T, R> Collector<Result<? extends T>, ?, Result<R>> toCombinedResult(Collector<T, ?, R> collector) {
+    return Collector.of(
+        () -> new Result.StreamBuilder<>(collector),
+        StreamBuilder::add,
+        StreamBuilder::combine,
+        StreamBuilder::build);
+  }
+
   private static <T> Stream<T> extractSuccesses(Iterable<? extends Result<T>> results) {
     return Guavate.stream(results).map(Result::getValue);
+  }
+
+  // mutable combined instance builder for use in stream collection
+  // using a single dedicated collector is more efficient than a reduction with multiple calls to combinedWith()
+  private static final class StreamBuilder<T, A, R> {
+
+    private final Collector<T, A, R> collector;
+    private final A collection;
+    private final ImmutableList.Builder<Failure> failures = ImmutableList.builder();
+
+    private StreamBuilder(Collector<T, A, R> collector) {
+      this.collector = collector;
+      this.collection = collector.supplier().get();
+    }
+
+    private void add(Result<? extends T> item) {
+      item.ifSuccess(value -> collector.accumulator().accept(collection, value));
+      item.ifFailure(failures::add);
+    }
+
+    private StreamBuilder<T, A, R> combine(Result.StreamBuilder<T, A, R> builder) {
+      collector.combiner().apply(collection, builder.collection);
+      failures.addAll(builder.failures.build());
+      return this;
+    }
+
+    private Result<R> build() {
+      List<FailureItem> failureItems = failures.build().stream()
+          .flatMap(failure -> failure.getItems().stream())
+          .collect(toImmutableList());
+      if (failureItems.isEmpty()) {
+        return success(collector.finisher().apply(collection));
+      } else {
+        return failure(Failure.of(failureItems));
+      }
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -1025,8 +1085,8 @@ public final class Result<T>
    * @return the meta-bean, not null
    */
   @SuppressWarnings("rawtypes")
-  public static Result.Meta meta() {
-    return Result.Meta.INSTANCE;
+  public static Meta meta() {
+    return Meta.INSTANCE;
   }
 
   /**
@@ -1037,11 +1097,11 @@ public final class Result<T>
    */
   @SuppressWarnings("unchecked")
   public static <R> Result.Meta<R> metaResult(Class<R> cls) {
-    return Result.Meta.INSTANCE;
+    return Meta.INSTANCE;
   }
 
   static {
-    MetaBean.register(Result.Meta.INSTANCE);
+    MetaBean.register(Meta.INSTANCE);
   }
 
   /**
@@ -1060,7 +1120,7 @@ public final class Result<T>
   @SuppressWarnings("unchecked")
   @Override
   public Result.Meta<T> metaBean() {
-    return Result.Meta.INSTANCE;
+    return Meta.INSTANCE;
   }
 
   //-----------------------------------------------------------------------
