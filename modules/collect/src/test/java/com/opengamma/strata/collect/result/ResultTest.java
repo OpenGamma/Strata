@@ -682,7 +682,7 @@ public class ResultTest {
   //-------------------------------------------------------------------------
 
   @Test
-  public void toCombinedResult_allSuccesses(){
+  public void toCombinedResult_allSuccesses() {
     Result<Integer> success1 = Result.success(1);
     Result<Integer> success2 = Result.success(2);
     Result<Integer> success3 = Result.success(3);
@@ -695,7 +695,7 @@ public class ResultTest {
   }
 
   @Test
-  public void toCombinedResult_withFailures(){
+  public void toCombinedResult_withFailures() {
     Result<Integer> success1 = Result.success(1);
     Result<Integer> failure1 = Result.failure(MISSING_DATA, "failure 1");
     Result<Integer> failure2 = Result.failure(ERROR, "failure 2");
