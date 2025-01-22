@@ -1082,8 +1082,8 @@ public final class Result<T>
    * @return the meta-bean, not null
    */
   @SuppressWarnings("rawtypes")
-  public static Meta meta() {
-    return Meta.INSTANCE;
+  public static Result.Meta meta() {
+    return Result.Meta.INSTANCE;
   }
 
   /**
@@ -1094,11 +1094,11 @@ public final class Result<T>
    */
   @SuppressWarnings("unchecked")
   public static <R> Result.Meta<R> metaResult(Class<R> cls) {
-    return Meta.INSTANCE;
+    return Result.Meta.INSTANCE;
   }
 
   static {
-    MetaBean.register(Meta.INSTANCE);
+    MetaBean.register(Result.Meta.INSTANCE);
   }
 
   /**
@@ -1117,7 +1117,7 @@ public final class Result<T>
   @SuppressWarnings("unchecked")
   @Override
   public Result.Meta<T> metaBean() {
-    return Meta.INSTANCE;
+    return Result.Meta.INSTANCE;
   }
 
   //-----------------------------------------------------------------------
