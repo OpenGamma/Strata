@@ -12,8 +12,6 @@ import static com.opengamma.strata.collect.result.FailureReason.CALCULATION_FAIL
 import static com.opengamma.strata.collect.result.FailureReason.ERROR;
 import static com.opengamma.strata.collect.result.FailureReason.INVALID;
 import static com.opengamma.strata.collect.result.FailureReason.MISSING_DATA;
-import static com.opengamma.strata.collect.result.Result.toCombinedResult;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.fail;
@@ -32,8 +30,6 @@ import org.junit.jupiter.api.Test;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Streams;
-import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.TestHelper;
 
 /**
