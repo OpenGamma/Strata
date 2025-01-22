@@ -489,7 +489,7 @@ public final class Result<T>
 
     return value
         .map(Result::success)
-        .orElse(failure(reason, message, messageArgs));
+        .orElse(Result.failure(reason, message, messageArgs));
   }
 
   /**
