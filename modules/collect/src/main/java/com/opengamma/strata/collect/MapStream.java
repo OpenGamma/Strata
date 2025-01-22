@@ -414,20 +414,6 @@ public final class MapStream<K, V>
 
   /**
    * Transforms the entries in the stream by applying a mapper function to each key and value.
-   * <p>
-   * The result of this method is a {@code MapStream}, unlike {@link #flatMap(BiFunction)}.
-   *
-   * @param mapper  a mapper function whose return value is a stream of new key-value entries
-   * @param <RK>  the type of the new keys
-   * @param <RV>  the type of the new values
-   * @return a stream of entries with the keys and values transformed
-   */
-  public <RK, RV> MapStream<RK, RV> flatMapBoth(BiFunction<? super K, ? super V, Stream<Entry<RK, RV>>> mapper) {
-    return wrap(underlying.flatMap(e -> mapper.apply(e.getKey(), e.getValue())));
-  }
-
-  /**
-   * Transforms the entries in the stream by applying a mapper function to each key and value.
    *
    * @param mapper  a mapper function whose return values are included in the new stream
    * @param <R>  the type of elements in the new stream
@@ -531,6 +517,20 @@ public final class MapStream<K, V>
    */
   public <R> Stream<R> flatMap(BiFunction<? super K, ? super V, Stream<R>> mapper) {
     return underlying.flatMap(e -> mapper.apply(e.getKey(), e.getValue()));
+  }
+
+  /**
+   * Transforms the entries in the stream by applying a mapper function to each key and value.
+   * <p>
+   * The result of this method is a {@code MapStream}, unlike {@link #flatMap(BiFunction)}.
+   *
+   * @param mapper  a mapper function whose return value is a stream of new key-value entries
+   * @param <RK>  the type of the new keys
+   * @param <RV>  the type of the new values
+   * @return a stream of entries with the keys and values transformed
+   */
+  public <RK, RV> MapStream<RK, RV> flatMapBoth(BiFunction<? super K, ? super V, Stream<Entry<RK, RV>>> mapper) {
+    return wrap(underlying.flatMap(e -> mapper.apply(e.getKey(), e.getValue())));
   }
 
   /**
