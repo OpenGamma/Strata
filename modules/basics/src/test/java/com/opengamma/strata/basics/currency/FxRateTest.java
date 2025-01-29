@@ -277,7 +277,6 @@ public class FxRateTest {
     coverImmutableBean(FxRate.of(GBP, USD, 1.25d));
   }
 
-
   @Test
   public void testIsStringJodaConvertible(){
     boolean isConvertible = JodaBeanUtils.stringConverter().isConvertible(FxRate.class);
