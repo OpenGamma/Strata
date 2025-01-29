@@ -25,6 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
 
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.collect.ArgChecker;
@@ -106,6 +108,7 @@ public final class FxRate
    * @return the FX rate
    * @throws IllegalArgumentException if the FX rate cannot be parsed
    */
+  @FromString
   public static FxRate parse(String rateStr) {
     ArgChecker.notNull(rateStr, "rateStr");
     Matcher matcher = REGEX_FORMAT.matcher(rateStr.toUpperCase(Locale.ENGLISH));
@@ -234,6 +237,7 @@ public final class FxRate
    * @return the formatted string
    */
   @Override
+  @ToString
   public String toString() {
     return pair + " " + (DoubleMath.isMathematicalInteger(rate) ? Long.toString((long) rate) : Double.toString(rate));
   }

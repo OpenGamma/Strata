@@ -10,6 +10,7 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
+import org.joda.beans.JodaBeanUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -276,4 +277,10 @@ public class FxRateTest {
     coverImmutableBean(FxRate.of(GBP, USD, 1.25d));
   }
 
+
+  @Test
+  public void testIsStringJodaConvertible(){
+    boolean isConvertible = JodaBeanUtils.stringConverter().isConvertible(FxRate.class);
+    assertThat(isConvertible).isTrue();
+  }
 }
