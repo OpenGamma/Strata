@@ -278,7 +278,7 @@ public class FxRateTest {
   }
 
   @Test
-  public void testIsStringJodaConvertible(){
+  public void testIsStringJodaConvertible() {
     boolean isConvertible = JodaBeanUtils.stringConverter().isConvertible(FxRate.class);
     assertThat(isConvertible).isTrue();
   }
