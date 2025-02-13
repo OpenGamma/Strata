@@ -54,6 +54,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Ordering;
 import com.opengamma.strata.collect.tuple.ObjIntPair;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -155,6 +156,15 @@ public class GuavateTest {
     Map<String, String> test = Guavate.combineMapsOverwriting(
         map1, entry("a", "yyy"), entry("c", "three"), entry("a", "xxx"));
     assertThat(test).isEqualTo(ImmutableMap.of("a", "xxx", "b", "two", "c", "three"));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_combineListMultimaps() {
+    ListMultimap<String, String> listMultimap1 = ImmutableListMultimap.of("a", "one", "b", "two", "a", "three");
+    ListMultimap<String, String> listMultimap2 = ImmutableListMultimap.of("a", "four", "b", "five");
+    ListMultimap<String, String> test = Guavate.combineListMultimaps(listMultimap1, listMultimap2);
+    assertThat(test).isEqualTo(ImmutableListMultimap.of("a", "one", "b", "two", "a", "three", "a", "four", "b", "five"));
   }
 
   //-------------------------------------------------------------------------
