@@ -8,6 +8,7 @@ package com.opengamma.strata.measure.fxopt;
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.joda.beans.ImmutableBean;
@@ -87,7 +88,9 @@ final class DefaultFxOptionMarketDataLookup
   public ImmutableSet<MarketDataId<?>> getVolatilityIds(CurrencyPair currencyPair) {
     FxOptionVolatilitiesId id = volatilityIds.get(currencyPair);
     if (id == null) {
-      throw new IllegalArgumentException(msgPairNotFound(currencyPair));
+      return Optional.ofNullable(volatilityIds.get(currencyPair.inverse()))
+          .map(ImmutableSet::<MarketDataId<?>>of)
+          .orElseThrow(() -> new IllegalArgumentException(msgPairNotFound(currencyPair)));
     }
     return ImmutableSet.of(id);
   }
@@ -110,7 +113,9 @@ final class DefaultFxOptionMarketDataLookup
   public FxOptionVolatilities volatilities(CurrencyPair currencyPair, MarketData marketData) {
     FxOptionVolatilitiesId volatilityId = volatilityIds.get(currencyPair);
     if (volatilityId == null) {
-      throw new MarketDataNotFoundException(msgPairNotFound(currencyPair));
+      return Optional.ofNullable(volatilityIds.get(currencyPair.inverse()))
+          .map(marketData::getValue)
+          .orElseThrow(() -> new MarketDataNotFoundException(msgPairNotFound(currencyPair)));
     }
     return marketData.getValue(volatilityId);
   }

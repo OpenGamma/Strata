@@ -87,6 +87,28 @@ public class FxOptionMarketDataLookupTest {
         .isThrownBy(() -> test.volatilities(EUR_GBP, MOCK_MARKET_DATA));
   }
 
+  @Test
+  public void test_of_inverse() {
+    CurrencyPair usdEur = EUR_USD.inverse();
+    ImmutableMap<CurrencyPair, FxOptionVolatilitiesId> ids = ImmutableMap.of(EUR_USD, VOL_ID1, GBP_USD, VOL_ID1);
+    FxOptionMarketDataLookup test = FxOptionMarketDataLookup.of(ids);
+    assertThat(test.queryType()).isEqualTo(FxOptionMarketDataLookup.class);
+    assertThat(test.getVolatilityCurrencyPairs()).containsOnly(EUR_USD, GBP_USD);
+    assertThat(test.getVolatilityIds(usdEur)).containsOnly(VOL_ID1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getVolatilityIds(EUR_GBP));
+
+    assertThat(test.requirements(EUR_USD)).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThat(test.requirements(ImmutableSet.of(EUR_USD)))
+        .isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.requirements(ImmutableSet.of(EUR_GBP)));
+
+    assertThat(test.volatilities(usdEur, MOCK_MARKET_DATA)).isEqualTo(MOCK_VOLS);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.volatilities(EUR_GBP, MOCK_MARKET_DATA));
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_marketDataView() {
