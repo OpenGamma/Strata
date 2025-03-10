@@ -168,6 +168,9 @@ public final class ExchangeIds {
   /** NSE International Exchange. */
   public static final ExchangeId INSE = ExchangeId.of("INSE");
 
+  /** TAIFEX Exchange. */
+  public static final ExchangeId TAIFEX = ExchangeId.of("TAIFEX");
+
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
