@@ -169,7 +169,7 @@ public final class ExchangeIds {
   public static final ExchangeId INSE = ExchangeId.of("INSE");
 
   /** TAIFEX Exchange. */
-  public static final ExchangeId TAIFEX = ExchangeId.of("TAIFEX");
+  public static final ExchangeId XTAF = ExchangeId.of("XTAF");
 
   //-------------------------------------------------------------------------
   /**
