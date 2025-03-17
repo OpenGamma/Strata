@@ -24,6 +24,7 @@ import org.joda.beans.gen.ImmutableValidator;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 import org.joda.beans.ser.JodaBeanSer;
+import org.joda.beans.ser.SerDeserializers;
 
 import com.opengamma.strata.collect.UncheckedReflectiveOperationException;
 
@@ -120,7 +121,7 @@ public final class SerializedValue implements ImmutableBean {
     if (convert != null) {
       return JodaBeanUtils.stringConverter().convertFromString(javaType, convert);
     } else if (bean != null) {
-      return JodaBeanSer.COMPACT.binReader().read(bean, javaType);
+      return JodaBeanSer.COMPACT.withDeserializers(SerDeserializers.LENIENT).binReader().read(bean, javaType);
     } else if (java != null) {
       try (ByteArrayInputStream bais = new ByteArrayInputStream(java);
           ObjectInputStream ois = new ObjectInputStream(bais)) {
