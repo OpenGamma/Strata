@@ -171,6 +171,9 @@ public final class ExchangeIds {
   /** TAIWAN Futures Exchange. */
   public static final ExchangeId XTAF = ExchangeId.of("XTAF");
 
+  /** Thailand Futures Exchange. */
+  public static final ExchangeId TFEX = ExchangeId.of("TFEX");
+
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
