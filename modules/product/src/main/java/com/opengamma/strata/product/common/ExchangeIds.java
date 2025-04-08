@@ -174,6 +174,9 @@ public final class ExchangeIds {
   /** Thailand Futures Exchange. */
   public static final ExchangeId TFEX = ExchangeId.of("TFEX");
 
+  /** Borsa Istanbul Exchange. */
+  public static final ExchangeId XIST = ExchangeId.of("XIST");
+
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
