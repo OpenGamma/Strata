@@ -10,8 +10,10 @@ import static java.time.temporal.ChronoUnit.MONTHS;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.YearMonth;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
@@ -70,6 +72,13 @@ public final class ImmutableOvernightFutureContractSpec
    */
   @PropertyDefinition(validate = "notNull")
   private final DateSequence dateSequence;
+  /**
+   * The accrual period of the future.
+   * <p>
+   * This is the period of time over which the daily interest rate fixing is observed.
+   */
+  @PropertyDefinition(get = "optional")
+  private final Period accrualPeriod;
   /**
    * The method of accruing Overnight interest.
    */
@@ -150,7 +159,7 @@ public final class ImmutableOvernightFutureContractSpec
       LocalDate startDate,
       ReferenceData refData) {
 
-    LocalDate nextReferenceDate = dateSequence.baseSequence().next(startDate);
+    LocalDate nextReferenceDate = getFinalReferenceDate(startDate);
     double accrualFactor = startDate.withDayOfMonth(1).until(nextReferenceDate.withDayOfMonth(1), MONTHS) / 12d;
     LocalDate endDate = endDateAdjustment.adjust(nextReferenceDate, refData);
     LocalDate lastTradeDate = lastTradeDateAdjustment.adjust(nextReferenceDate, refData);
@@ -191,7 +200,7 @@ public final class ImmutableOvernightFutureContractSpec
       LocalDate startDate,
       ReferenceData refData) {
 
-    LocalDate nextReferenceDate = dateSequence.baseSequence().next(startDate);
+    LocalDate nextReferenceDate = getFinalReferenceDate(startDate);
     double accrualFactor = startDate.withDayOfMonth(1).until(nextReferenceDate.withDayOfMonth(1), MONTHS) / 12d;
     LocalDate endDate = endDateAdjustment.adjust(nextReferenceDate, refData);
     LocalDate lastTradeDate = lastTradeDateAdjustment.adjust(nextReferenceDate, refData);
@@ -216,8 +225,17 @@ public final class ImmutableOvernightFutureContractSpec
 
   @Override
   public LocalDate calculateLastFixingDate(LocalDate referenceDate, ReferenceData refData) {
-    LocalDate nextReferenceDate = dateSequence.baseSequence().next(referenceDate);
+    LocalDate nextReferenceDate = getFinalReferenceDate(referenceDate);
     return endDateAdjustment.adjust(nextReferenceDate, refData);
+  }
+
+  private LocalDate getFinalReferenceDate(LocalDate referenceDate) {
+    if (getAccrualPeriod().isPresent()) {
+      YearMonth finalReferenceMonth = YearMonth.from(referenceDate.plus(getAccrualPeriod().get()));
+      return dateSequence.dateMatching(finalReferenceMonth);
+    } else {
+      return dateSequence.baseSequence().next(referenceDate);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -237,6 +255,7 @@ public final class ImmutableOvernightFutureContractSpec
               "name",
               "index",
               "dateSequence",
+              "accrualPeriod",
               "accrualMethod",
               "startDateAdjustment",
               "endDateAdjustment",
@@ -246,6 +265,7 @@ public final class ImmutableOvernightFutureContractSpec
           b -> b.getName(),
           b -> b.getIndex(),
           b -> b.getDateSequence(),
+          b -> b.accrualPeriod,
           b -> b.getAccrualMethod(),
           b -> b.getStartDateAdjustment(),
           b -> b.getEndDateAdjustment(),
@@ -281,6 +301,7 @@ public final class ImmutableOvernightFutureContractSpec
       String name,
       OvernightIndex index,
       DateSequence dateSequence,
+      Period accrualPeriod,
       OvernightAccrualMethod accrualMethod,
       BusinessDayAdjustment startDateAdjustment,
       DaysAdjustment endDateAdjustment,
@@ -296,6 +317,7 @@ public final class ImmutableOvernightFutureContractSpec
     this.name = name;
     this.index = index;
     this.dateSequence = dateSequence;
+    this.accrualPeriod = accrualPeriod;
     this.accrualMethod = accrualMethod;
     this.startDateAdjustment = startDateAdjustment;
     this.endDateAdjustment = endDateAdjustment;
@@ -341,6 +363,17 @@ public final class ImmutableOvernightFutureContractSpec
    */
   public DateSequence getDateSequence() {
     return dateSequence;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the accrual period of the future.
+   * <p>
+   * This is the period of time over which the daily interest rate fixing is observed.
+   * @return the optional value of the property, not null
+   */
+  public Optional<Period> getAccrualPeriod() {
+    return Optional.ofNullable(accrualPeriod);
   }
 
   //-----------------------------------------------------------------------
@@ -422,6 +455,7 @@ public final class ImmutableOvernightFutureContractSpec
       return JodaBeanUtils.equal(name, other.name) &&
           JodaBeanUtils.equal(index, other.index) &&
           JodaBeanUtils.equal(dateSequence, other.dateSequence) &&
+          JodaBeanUtils.equal(accrualPeriod, other.accrualPeriod) &&
           JodaBeanUtils.equal(accrualMethod, other.accrualMethod) &&
           JodaBeanUtils.equal(startDateAdjustment, other.startDateAdjustment) &&
           JodaBeanUtils.equal(endDateAdjustment, other.endDateAdjustment) &&
@@ -437,6 +471,7 @@ public final class ImmutableOvernightFutureContractSpec
     hash = hash * 31 + JodaBeanUtils.hashCode(name);
     hash = hash * 31 + JodaBeanUtils.hashCode(index);
     hash = hash * 31 + JodaBeanUtils.hashCode(dateSequence);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accrualPeriod);
     hash = hash * 31 + JodaBeanUtils.hashCode(accrualMethod);
     hash = hash * 31 + JodaBeanUtils.hashCode(startDateAdjustment);
     hash = hash * 31 + JodaBeanUtils.hashCode(endDateAdjustment);
@@ -454,6 +489,7 @@ public final class ImmutableOvernightFutureContractSpec
     private String name;
     private OvernightIndex index;
     private DateSequence dateSequence;
+    private Period accrualPeriod;
     private OvernightAccrualMethod accrualMethod;
     private BusinessDayAdjustment startDateAdjustment;
     private DaysAdjustment endDateAdjustment;
@@ -474,6 +510,7 @@ public final class ImmutableOvernightFutureContractSpec
       this.name = beanToCopy.getName();
       this.index = beanToCopy.getIndex();
       this.dateSequence = beanToCopy.getDateSequence();
+      this.accrualPeriod = beanToCopy.accrualPeriod;
       this.accrualMethod = beanToCopy.getAccrualMethod();
       this.startDateAdjustment = beanToCopy.getStartDateAdjustment();
       this.endDateAdjustment = beanToCopy.getEndDateAdjustment();
@@ -491,6 +528,8 @@ public final class ImmutableOvernightFutureContractSpec
           return index;
         case -258065009:  // dateSequence
           return dateSequence;
+        case -1249900464:  // accrualPeriod
+          return accrualPeriod;
         case -1335729296:  // accrualMethod
           return accrualMethod;
         case -1235962691:  // startDateAdjustment
@@ -517,6 +556,9 @@ public final class ImmutableOvernightFutureContractSpec
           break;
         case -258065009:  // dateSequence
           this.dateSequence = (DateSequence) newValue;
+          break;
+        case -1249900464:  // accrualPeriod
+          this.accrualPeriod = (Period) newValue;
           break;
         case -1335729296:  // accrualMethod
           this.accrualMethod = (OvernightAccrualMethod) newValue;
@@ -552,6 +594,7 @@ public final class ImmutableOvernightFutureContractSpec
           name,
           index,
           dateSequence,
+          accrualPeriod,
           accrualMethod,
           startDateAdjustment,
           endDateAdjustment,
@@ -596,6 +639,18 @@ public final class ImmutableOvernightFutureContractSpec
     public Builder dateSequence(DateSequence dateSequence) {
       JodaBeanUtils.notNull(dateSequence, "dateSequence");
       this.dateSequence = dateSequence;
+      return this;
+    }
+
+    /**
+     * Sets the accrual period of the future.
+     * <p>
+     * This is the period of time over which the daily interest rate fixing is observed.
+     * @param accrualPeriod  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder accrualPeriod(Period accrualPeriod) {
+      this.accrualPeriod = accrualPeriod;
       return this;
     }
 
@@ -670,11 +725,12 @@ public final class ImmutableOvernightFutureContractSpec
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(288);
+      StringBuilder buf = new StringBuilder(320);
       buf.append("ImmutableOvernightFutureContractSpec.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("dateSequence").append('=').append(JodaBeanUtils.toString(dateSequence)).append(',').append(' ');
+      buf.append("accrualPeriod").append('=').append(JodaBeanUtils.toString(accrualPeriod)).append(',').append(' ');
       buf.append("accrualMethod").append('=').append(JodaBeanUtils.toString(accrualMethod)).append(',').append(' ');
       buf.append("startDateAdjustment").append('=').append(JodaBeanUtils.toString(startDateAdjustment)).append(',').append(' ');
       buf.append("endDateAdjustment").append('=').append(JodaBeanUtils.toString(endDateAdjustment)).append(',').append(' ');
