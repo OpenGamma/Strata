@@ -282,7 +282,6 @@ public class BlackFxVanillaOptionProductPricer {
     return (fwdDelta + fwdVega * volatilityDerivatives.getDerivative(2)) * discountFactor * fwdRateSpotSensitivity;
   }
 
-
   //-------------------------------------------------------------------------
   /**
    * Calculates the gamma of the foreign exchange vanilla option product.
