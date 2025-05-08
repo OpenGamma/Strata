@@ -97,7 +97,7 @@ public class BlackFxOptionSmileVolatilitiesTest {
         assertThat(volComputed).isCloseTo(volExpected, offset(TOLERANCE));
         // test derivatives of volatility
         double volStrikeUp = VOLS.volatility(CURRENCY_PAIR, expiryTime, TEST_STRIKE[j] + EPS, FORWARD[i]);
-        double volStrikeDw = VOLS.volatility(CURRENCY_PAIR, expiryTime, TEST_STRIKE[j]- EPS, FORWARD[i]);
+        double volStrikeDw = VOLS.volatility(CURRENCY_PAIR, expiryTime, TEST_STRIKE[j] - EPS, FORWARD[i]);
         double strikeDerivExp = 0.5 * (volStrikeUp - volStrikeDw) / EPS;
         double volForwardUp = VOLS.volatility(CURRENCY_PAIR, expiryTime, TEST_STRIKE[j], FORWARD[i] + EPS);
         double volForwardDw = VOLS.volatility(CURRENCY_PAIR, expiryTime, TEST_STRIKE[j], FORWARD[i] - EPS);
