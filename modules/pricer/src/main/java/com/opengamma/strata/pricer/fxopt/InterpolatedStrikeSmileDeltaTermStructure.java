@@ -65,6 +65,12 @@ public final class InterpolatedStrikeSmileDeltaTermStructure
     implements SmileDeltaTermStructure, ParameterizedData, ImmutableBean, Serializable {
 
   /**
+   * The relative shift used for calculating sensitivities of the volatility values to input parameters by the finite
+   * difference approximation.
+   */
+  private static final double EPS = 1e-6;
+
+  /**
    * The smile description at the different time to expiry. All item should have the same deltas.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
@@ -708,7 +714,17 @@ public final class InterpolatedStrikeSmileDeltaTermStructure
     // take negative of dVoldStrike as increase in x when plotted with same y values is equivalent of negative x shift
     double negativedVoldStrike = -1d * dVoldStrike;
     double dVoldExpiry = dStrikedExpiry * negativedVoldStrike + dSmileVoldExpiry;
-    return ValueDerivatives.of(vol, DoubleArray.of(dVoldExpiry, dVoldStrike));
+
+    // vol derivative to forward by finite difference approximation
+    DoubleArray strikesUp = smile.strike(forward * (1d + EPS));
+    DoubleArray strikesDw = smile.strike(forward * (1d - EPS));
+    BoundCurveInterpolator volBoundUp = strikeInterpolator.bind(
+        strikesUp, smile.getVolatility(), strikeExtrapolatorLeft, strikeExtrapolatorRight);
+    BoundCurveInterpolator volBoundDw = strikeInterpolator.bind(
+        strikesDw, smile.getVolatility(), strikeExtrapolatorLeft, strikeExtrapolatorRight);
+    double dVoldForward = 0.5 * (volBoundUp.interpolate(strike) - volBoundDw.interpolate(strike)) / (forward * EPS);
+
+    return ValueDerivatives.of(vol, DoubleArray.of(dVoldExpiry, dVoldStrike, dVoldForward));
   }
 
   //-------------------------------------------------------------------------

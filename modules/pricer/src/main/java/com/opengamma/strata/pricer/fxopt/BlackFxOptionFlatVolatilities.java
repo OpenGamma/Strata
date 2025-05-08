@@ -211,7 +211,8 @@ public final class BlackFxOptionFlatVolatilities
     double vol = volatility(currencyPair, expiry, strike, forward);
     double dVoldStrike = 0d;
     double dVoldExpiry = curve.firstDerivative(expiry);
-    return ValueDerivatives.of(vol, DoubleArray.of(dVoldStrike, dVoldExpiry));
+    double dVoldForward = 0d;
+    return ValueDerivatives.of(vol, DoubleArray.of(dVoldStrike, dVoldExpiry, dVoldForward));
   }
 
   private CurrencyParameterSensitivity parameterSensitivity(FxOptionSensitivity point) {
