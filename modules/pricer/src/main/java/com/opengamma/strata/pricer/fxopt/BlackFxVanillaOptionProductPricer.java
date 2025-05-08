@@ -255,8 +255,13 @@ public class BlackFxVanillaOptionProductPricer {
     double forwardRate = forward.fxRate(strikePair);
     double strikeRate = option.getStrike();
     boolean isCall = option.getPutCall().isCall();
+    double discountFactor = ratesProvider.discountFactor(option.getCounterCurrency(), underlying.getPaymentDate());
+    double fwdRateSpotSensitivity = fxPricer.forwardFxRateSpotSensitivity(
+        option.getPutCall().isCall() ? underlying : underlying.inverse(),
+        ratesProvider);
     if (timeToExpiry == 0d) {
-      return isCall ? (forwardRate > strikeRate ? 1d : 0d) : (strikeRate > forwardRate ? -1d : 0d);
+      double forwardDelta = isCall ? (forwardRate > strikeRate ? 1d : 0d) : (strikeRate > forwardRate ? -1d : 0d);
+      return discountFactor * forwardDelta * fwdRateSpotSensitivity;
     }
     ValueDerivatives volatilityDerivatives = volatilities.firstPartialDerivatives(
         strikePair,
@@ -274,10 +279,6 @@ public class BlackFxVanillaOptionProductPricer {
         timeToExpiry,
         volatilityDerivatives.getValue(),
         isCall);
-    double discountFactor = ratesProvider.discountFactor(option.getCounterCurrency(), underlying.getPaymentDate());
-    double fwdRateSpotSensitivity = fxPricer.forwardFxRateSpotSensitivity(
-        option.getPutCall().isCall() ? underlying : underlying.inverse(),
-        ratesProvider);
     return (fwdDelta + fwdVega * volatilityDerivatives.getDerivative(2)) * discountFactor * fwdRateSpotSensitivity;
   }
 
