@@ -131,16 +131,17 @@ public interface SmileDeltaTermStructure
   /**
    * Computes the partial derivatives of the volatilities.
    * <p>
-   * The first derivatives are {@code dVol/dExpiry and dVol/dStrike}.
+   * The first derivatives are {@code dVol/dExpiry, dVol/dStrike, dVol/dForward}.
    * The derivatives are in the following order:
    * <ul>
    * <li>[0] derivative with respect to expiry
    * <li>[1] derivative with respect to strike
+   * <li>[2] derivative with respect to forward
    * </ul>
    *
    * @param expiry  the expiry at which the partial derivative is taken
    * @param strike  the strike at which the partial derivative is taken
-   * @param forward  the forward rate
+   * @param forward  the forward rate at which the partial derivative is taken
    * @return the z-value and it's partial first derivatives
    * @throws RuntimeException if the derivative cannot be calculated
    */

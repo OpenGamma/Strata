@@ -256,10 +256,9 @@ public final class BlackFxOptionSurfaceVolatilities
       double strike,
       double forward) {
 
-    if (currencyPair.isInverse(this.currencyPair)) {
-      return surface.firstPartialDerivatives(expiry, 1d / strike);
-    }
-    return surface.firstPartialDerivatives(expiry, strike);
+    double adjustedStrike = currencyPair.isInverse(this.currencyPair) ? 1d / strike : strike;
+    ValueDerivatives surfaceDerivatives = surface.firstPartialDerivatives(expiry, adjustedStrike);
+    return ValueDerivatives.of(surfaceDerivatives.getValue(), surfaceDerivatives.getDerivatives().concat(0d));
   }
 
   private CurrencyParameterSensitivity parameterSensitivity(FxOptionSensitivity point) {
