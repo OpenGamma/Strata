@@ -257,7 +257,7 @@ public class BlackFxVanillaOptionProductPricer {
     boolean isCall = option.getPutCall().isCall();
     double discountFactor = ratesProvider.discountFactor(option.getCounterCurrency(), underlying.getPaymentDate());
     double fwdRateSpotSensitivity = fxPricer.forwardFxRateSpotSensitivity(
-        option.getPutCall().isCall() ? underlying : underlying.inverse(),
+        isCall ? underlying : underlying.inverse(),
         ratesProvider);
     if (timeToExpiry == 0d) {
       double forwardDelta = isCall ? (forwardRate > strikeRate ? 1d : 0d) : (strikeRate > forwardRate ? -1d : 0d);

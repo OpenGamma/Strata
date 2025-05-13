@@ -96,6 +96,9 @@ public class BlackFxOptionSmileVolatilitiesTest {
         double volComputed = VOLS.volatility(CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i]);
         assertThat(volComputed).isCloseTo(volExpected, offset(TOLERANCE));
         // test derivatives of volatility
+        double volExpiryUp = VOLS.volatility(CURRENCY_PAIR, expiryTime + EPS, TEST_STRIKE[j], FORWARD[i]);
+        double volExpiryDw = VOLS.volatility(CURRENCY_PAIR, expiryTime - EPS, TEST_STRIKE[j], FORWARD[i]);
+        double expiryDerivExp = 0.5 * (volExpiryUp - volExpiryDw) / EPS;
         double volStrikeUp = VOLS.volatility(CURRENCY_PAIR, expiryTime, TEST_STRIKE[j] + EPS, FORWARD[i]);
         double volStrikeDw = VOLS.volatility(CURRENCY_PAIR, expiryTime, TEST_STRIKE[j] - EPS, FORWARD[i]);
         double strikeDerivExp = 0.5 * (volStrikeUp - volStrikeDw) / EPS;
@@ -103,6 +106,7 @@ public class BlackFxOptionSmileVolatilitiesTest {
         double volForwardDw = VOLS.volatility(CURRENCY_PAIR, expiryTime, TEST_STRIKE[j], FORWARD[i] - EPS);
         double forwardDerivExp = 0.5 * (volForwardUp - volForwardDw) / EPS;
         ValueDerivatives volDerivatives = VOLS.firstPartialDerivatives(CURRENCY_PAIR, expiryTime, TEST_STRIKE[j], FORWARD[i]);
+        assertThat(volDerivatives.getDerivative(0)).isCloseTo(expiryDerivExp, offset(EPS * 1000d));
         assertThat(volDerivatives.getDerivative(1)).isCloseTo(strikeDerivExp, offset(EPS));
         assertThat(volDerivatives.getDerivative(2)).isCloseTo(forwardDerivExp, offset(EPS));
       }
@@ -119,6 +123,11 @@ public class BlackFxOptionSmileVolatilitiesTest {
             1d / FORWARD[i]);
         assertThat(volComputed).isCloseTo(volExpected, offset(TOLERANCE));
         // test derivatives of volatility
+        double volExpiryUp = VOLS.volatility(
+            CURRENCY_PAIR.inverse(), expiryTime + EPS, 1d / TEST_STRIKE[j], 1d / FORWARD[i]);
+        double volExpiryDw = VOLS.volatility(
+            CURRENCY_PAIR.inverse(), expiryTime - EPS, 1d / TEST_STRIKE[j], 1d / FORWARD[i]);
+        double expiryDerivExp = 0.5 * (volExpiryUp - volExpiryDw) / EPS;
         double volStrikeUp = VOLS.volatility(
             CURRENCY_PAIR.inverse(), expiryTime, 1d / TEST_STRIKE[j] + EPS, 1d / FORWARD[i]);
         double volStrikeDw = VOLS.volatility(
@@ -131,6 +140,7 @@ public class BlackFxOptionSmileVolatilitiesTest {
         double forwardDerivExp = 0.5 * (volForwardUp - volForwardDw) / EPS;
         ValueDerivatives volDerivatives = VOLS.firstPartialDerivatives(
             CURRENCY_PAIR.inverse(), expiryTime, 1d / TEST_STRIKE[j], 1d / FORWARD[i]);
+        assertThat(volDerivatives.getDerivative(0)).isCloseTo(expiryDerivExp, offset(EPS * 1000d));
         assertThat(volDerivatives.getDerivative(1)).isCloseTo(strikeDerivExp, offset(EPS));
         assertThat(volDerivatives.getDerivative(2)).isCloseTo(forwardDerivExp, offset(EPS));
       }

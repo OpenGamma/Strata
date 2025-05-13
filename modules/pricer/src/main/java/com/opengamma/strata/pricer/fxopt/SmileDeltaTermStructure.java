@@ -136,7 +136,7 @@ public interface SmileDeltaTermStructure
    * <ul>
    * <li>[0] derivative with respect to expiry
    * <li>[1] derivative with respect to strike
-   * <li>[1] derivative with respect to forward
+   * <li>[2] derivative with respect to forward
    * </ul>
    *
    * @param expiry  the expiry at which the partial derivative is taken
