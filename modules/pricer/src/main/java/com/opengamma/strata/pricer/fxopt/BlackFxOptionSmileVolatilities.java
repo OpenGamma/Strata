@@ -165,9 +165,19 @@ public final class BlackFxOptionSmileVolatilities
       double forward) {
 
     if (currencyPair.isInverse(this.currencyPair)) {
-      return smile.partialFirstDerivatives(expiry, 1d / strike, 1d / forward);
+      ValueDerivatives valueDerivatives = smile.partialFirstDerivatives(expiry, 1d / strike, 1d / forward);
+      return inverseDerivatives(valueDerivatives, strike, forward);
     }
     return smile.partialFirstDerivatives(expiry, strike, forward);
+  }
+
+  private ValueDerivatives inverseDerivatives(ValueDerivatives valueDerivatives, double strike, double forward) {
+    return ValueDerivatives.of(
+        valueDerivatives.getValue(),
+        DoubleArray.of(
+            valueDerivatives.getDerivatives().get(0),
+            -valueDerivatives.getDerivatives().get(1) / (strike * strike),
+            -valueDerivatives.getDerivatives().get(2) / (forward * forward)));
   }
 
   private CurrencyParameterSensitivity parameterSensitivity(FxOptionSensitivity point) {

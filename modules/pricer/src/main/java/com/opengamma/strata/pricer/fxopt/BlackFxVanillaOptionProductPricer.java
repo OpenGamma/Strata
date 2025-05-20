@@ -9,6 +9,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -224,6 +225,61 @@ public class BlackFxVanillaOptionProductPricer {
     }
     double volatility = volatilities.volatility(strikePair, option.getExpiry(), strikeRate, forwardRate);
     return BlackFormulaRepository.delta(forwardRate, strikeRate, timeToExpiry, volatility, isCall);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the smile adjusted delta of the foreign exchange vanilla option product.
+   * <p>
+   * The delta is the first derivative of {@link #price} with respect to spot.
+   * The sensitivity of the volatility to spot is also included in this method,
+   * that is based on how FX option volatility surface is constructed in {@code BlackFxOptionVolatilities}.
+   *
+   * @param option  the option product
+   * @param ratesProvider  the rates provider
+   * @param volatilities  the Black volatility provider
+   * @return the delta of the product
+   */
+  public double smileAdjustedDelta(
+      ResolvedFxVanillaOption option,
+      RatesProvider ratesProvider,
+      BlackFxOptionVolatilities volatilities) {
+
+    double timeToExpiry = volatilities.relativeTime(option.getExpiry());
+    if (timeToExpiry < 0d) {
+      return 0d;
+    }
+    ResolvedFxSingle underlying = option.getUnderlying();
+    FxRate forward = fxPricer.forwardFxRate(underlying, ratesProvider);
+    CurrencyPair strikePair = underlying.getCurrencyPair();
+    double forwardRate = forward.fxRate(strikePair);
+    double strikeRate = option.getStrike();
+    boolean isCall = option.getPutCall().isCall();
+    double discountFactor = ratesProvider.discountFactor(option.getCounterCurrency(), underlying.getPaymentDate());
+    double fwdRateSpotSensitivity = fxPricer.forwardFxRateSpotSensitivity(
+        isCall ? underlying : underlying.inverse(),
+        ratesProvider);
+    if (timeToExpiry == 0d) {
+      double forwardDelta = isCall ? (forwardRate > strikeRate ? 1d : 0d) : (strikeRate > forwardRate ? -1d : 0d);
+      return discountFactor * forwardDelta * fwdRateSpotSensitivity;
+    }
+    ValueDerivatives volatilityDerivatives = volatilities.firstPartialDerivatives(
+        strikePair,
+        timeToExpiry,
+        strikeRate,
+        forwardRate);
+    double fwdVega = BlackFormulaRepository.vega(
+        forwardRate,
+        strikeRate,
+        timeToExpiry,
+        volatilityDerivatives.getValue());
+    double fwdDelta = BlackFormulaRepository.delta(
+        forwardRate,
+        strikeRate,
+        timeToExpiry,
+        volatilityDerivatives.getValue(),
+        isCall);
+    return (fwdDelta + fwdVega * volatilityDerivatives.getDerivative(2)) * discountFactor * fwdRateSpotSensitivity;
   }
 
   //-------------------------------------------------------------------------
@@ -465,9 +521,37 @@ public class BlackFxVanillaOptionProductPricer {
       RatesProvider ratesProvider,
       BlackFxOptionVolatilities volatilities) {
 
+    double delta = delta(option, ratesProvider, volatilities);
+    return currencyExposureFromDelta(delta, option, ratesProvider, volatilities);
+  }
+
+  /**
+   * Calculates the currency exposure of the foreign exchange vanilla option product, with smile adjustment included.
+   * <p>
+   * The smile adjustment is based on {@link BlackFxVanillaOptionProductPricer#smileAdjustedDelta}.
+   *
+   * @param option  the option product
+   * @param ratesProvider  the rates provider
+   * @param volatilities  the Black volatility provider
+   * @return the currency exposure
+   */
+  public MultiCurrencyAmount smileAdjustedCurrencyExposure(
+      ResolvedFxVanillaOption option,
+      RatesProvider ratesProvider,
+      BlackFxOptionVolatilities volatilities) {
+
+    double delta = smileAdjustedDelta(option, ratesProvider, volatilities);
+    return currencyExposureFromDelta(delta, option, ratesProvider, volatilities);
+  }
+
+  private MultiCurrencyAmount currencyExposureFromDelta(
+      double delta,
+      ResolvedFxVanillaOption option,
+      RatesProvider ratesProvider,
+      BlackFxOptionVolatilities volatilities) {
+
     CurrencyPair strikePair = option.getUnderlying().getCurrencyPair();
     double price = price(option, ratesProvider, volatilities);
-    double delta = delta(option, ratesProvider, volatilities);
     double spot = ratesProvider.fxRate(strikePair);
     double signedNotional = signedNotional(option);
     CurrencyAmount domestic = CurrencyAmount.of(strikePair.getCounter(), (price - delta * spot) * signedNotional);
