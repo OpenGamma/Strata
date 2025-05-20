@@ -347,19 +347,29 @@ public final class SmileDeltaParameters
    */
   public DoubleArray impliedStrikesDerivativeToForward(double forward) {
     int nbDelta = delta.size();
-    double[] dStrikedTime = new double[2 * nbDelta + 1];
+    double[] dStrikedForward = new double[2 * nbDelta + 1];
     double atmVol = volatility.get(nbDelta);
-    dStrikedTime[nbDelta] = Math.exp(atmVol * atmVol * expiry / 2.0);
+    dStrikedForward[nbDelta] = Math.exp(atmVol * atmVol * expiry / 2.0);
     for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {
       double[] valueDerivatives = new double[4];
       BlackFormulaRepository.impliedStrike(
-          -delta.get(loopdelta), false, forward, expiry, volatility.get(loopdelta), valueDerivatives); // Put
-      dStrikedTime[loopdelta] = valueDerivatives[1];
+          -delta.get(loopdelta),
+          false,
+          forward,
+          expiry,
+          volatility.get(loopdelta),
+          valueDerivatives); // Put
+      dStrikedForward[loopdelta] = valueDerivatives[1];
       BlackFormulaRepository.impliedStrike(
-          delta.get(loopdelta), true, forward, expiry, volatility.get(2 * nbDelta - loopdelta), valueDerivatives); // Call
-      dStrikedTime[2 * nbDelta - loopdelta] = valueDerivatives[1];
+          delta.get(loopdelta),
+          true,
+          forward,
+          expiry,
+          volatility.get(2 * nbDelta - loopdelta),
+          valueDerivatives); // Call
+      dStrikedForward[2 * nbDelta - loopdelta] = valueDerivatives[1];
     }
-    return DoubleArray.ofUnsafe(dStrikedTime);
+    return DoubleArray.ofUnsafe(dStrikedForward);
   }
 
   //-------------------------------------------------------------------------
