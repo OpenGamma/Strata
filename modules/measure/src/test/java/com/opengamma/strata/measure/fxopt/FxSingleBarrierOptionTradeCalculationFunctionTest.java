@@ -151,12 +151,14 @@ public class FxSingleBarrierOptionTradeCalculationFunctionTest {
     BlackFxSingleBarrierOptionTradePricer pricer = BlackFxSingleBarrierOptionTradePricer.DEFAULT;
     MultiCurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, VOLS);
     MultiCurrencyAmount expectedCurrencyExp = pricer.currencyExposure(RTRADE, provider, VOLS);
+    double expectedDelta = pricer.delta(RTRADE, provider, VOLS);
     CurrencyAmount expectedCash = pricer.currentCash(RTRADE, VAL_DATE);
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE,
         Measures.PAR_SPREAD,
         Measures.CURRENCY_EXPOSURE,
+        Measures.DELTA,
         Measures.CURRENT_CASH,
         Measures.RESOLVED_TARGET);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
@@ -164,6 +166,8 @@ public class FxSingleBarrierOptionTradeCalculationFunctionTest {
             Measures.PRESENT_VALUE, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
             Measures.CURRENCY_EXPOSURE, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExp))))
+        .containsEntry(
+            Measures.DELTA, Result.success(DoubleArray.of(expectedDelta)))
         .containsEntry(
             Measures.CURRENT_CASH, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedCash))))
         .containsEntry(
