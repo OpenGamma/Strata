@@ -117,6 +117,12 @@ public final class Measures {
    */
   public static final Measure CURRENCY_EXPOSURE = Measure.of(StandardMeasures.CURRENCY_EXPOSURE.getName());
   /**
+   * Measure representing the delta of the calculation target.
+   * <p>
+   * Delta is the sensitivity of a derivative to moves of the underlying spot price.
+   */
+  public static final Measure DELTA = Measure.of(StandardMeasures.DELTA.getName());
+  /**
    * Measure representing the current cash of the calculation target.
    * <p>
    * Current cash is the sum of all cash flows paid on the valuation date.

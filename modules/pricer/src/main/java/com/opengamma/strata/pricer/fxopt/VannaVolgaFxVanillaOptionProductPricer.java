@@ -282,6 +282,48 @@ public class VannaVolgaFxVanillaOptionProductPricer {
     return MultiCurrencyAmount.of(domestic, foreign);
   }
 
+  /**
+   * Calculates the delta of the foreign exchange vanilla option product.
+   *
+   * @param option  the option product
+   * @param ratesProvider  the rates provider
+   * @param volatilities  the Black volatility provider
+   * @return the delta
+   */
+  public double delta(
+      ResolvedFxVanillaOption option,
+      RatesProvider ratesProvider,
+      BlackFxOptionSmileVolatilities volatilities) {
+
+    validate(ratesProvider, volatilities);
+    double timeToExpiry = volatilities.relativeTime(option.getExpiry());
+    if (timeToExpiry <= 0d) {
+      return 0d;
+    }
+    ResolvedFxSingle underlyingFx = option.getUnderlying();
+    Currency ccyCounter = option.getCounterCurrency();
+    double df = ratesProvider.discountFactor(ccyCounter, underlyingFx.getPaymentDate());
+    FxRate forward = fxPricer.forwardFxRate(underlyingFx, ratesProvider);
+    CurrencyPair currencyPair = underlyingFx.getCurrencyPair();
+    double forwardRate = forward.fxRate(currencyPair);
+    double fwdRateSpotSensitivity = fxPricer.forwardFxRateSpotSensitivity(
+        option.getPutCall().isCall() ? underlyingFx : underlyingFx.inverse(), ratesProvider);
+    double strikeRate = option.getStrike();
+    boolean isCall = option.getPutCall().isCall();
+    SmileDeltaParameters smileAtTime = volatilities.getSmile().smileForExpiry(timeToExpiry);
+    double[] strikes = smileAtTime.strike(forwardRate).toArray();
+    double[] vols = smileAtTime.getVolatility().toArray();
+    double volAtm = vols[1];
+    double[] x = vannaVolgaWeights(forwardRate, strikeRate, timeToExpiry, volAtm, strikes);
+    double deltaFwd = BlackFormulaRepository.delta(forwardRate, strikeRate, timeToExpiry, volAtm, isCall);
+    for (int i = 0; i < 3; i += 2) {
+      double deltaFwdAtm = BlackFormulaRepository.delta(forwardRate, strikes[i], timeToExpiry, volAtm, isCall);
+      double deltaFwdSmile = BlackFormulaRepository.delta(forwardRate, strikes[i], timeToExpiry, vols[i], isCall);
+      deltaFwd += x[i] * (deltaFwdSmile - deltaFwdAtm);
+    }
+    return df * deltaFwd * fwdRateSpotSensitivity;
+  }
+
   //-------------------------------------------------------------------------
   // signed notional amount to computed present value and value Greeks
   private double signedNotional(ResolvedFxVanillaOption option) {

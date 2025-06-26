@@ -9,11 +9,13 @@ import static com.opengamma.strata.measure.fxopt.FxCalculationUtils.checkBlackVo
 import static com.opengamma.strata.measure.fxopt.FxCalculationUtils.checkTrinomialTreeVolatilities;
 
 import java.time.LocalDate;
+import java.util.stream.IntStream;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
@@ -307,6 +309,39 @@ final class FxSingleBarrierOptionMeasureCalculations {
       return trinomialTreePricer.currencyExposure(trade, ratesProvider, checkTrinomialTreeVolatilities(volatilities));
     } else {
       return blackPricer.currencyExposure(trade, ratesProvider, checkBlackVolatilities(volatilities));
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates delta for all scenarios
+  DoubleArray delta(
+      ResolvedFxSingleBarrierOptionTrade trade,
+      RatesScenarioMarketData ratesMarketData,
+      FxOptionScenarioMarketData optionMarketData,
+      FxSingleBarrierOptionMethod method) {
+
+    CurrencyPair currencyPair = trade.getProduct().getCurrencyPair();
+    double[] array = IntStream.range(0, ratesMarketData.getScenarioCount()).mapToDouble(i ->
+        delta(
+            trade,
+            ratesMarketData.scenario(i).ratesProvider(),
+            optionMarketData.scenario(i).volatilities(currencyPair),
+            method))
+        .toArray();
+    return DoubleArray.copyOf(array);
+  }
+
+  // delta for one scenario
+  double delta(
+      ResolvedFxSingleBarrierOptionTrade trade,
+      RatesProvider ratesProvider,
+      FxOptionVolatilities volatilities,
+      FxSingleBarrierOptionMethod method) {
+
+    if (method == FxSingleBarrierOptionMethod.TRINOMIAL_TREE) {
+      return trinomialTreePricer.delta(trade, ratesProvider, checkTrinomialTreeVolatilities(volatilities));
+    } else {
+      return blackPricer.delta(trade, ratesProvider, checkBlackVolatilities(volatilities));
     }
   }
 

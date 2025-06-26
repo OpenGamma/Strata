@@ -9,11 +9,13 @@ import static com.opengamma.strata.measure.fxopt.FxCalculationUtils.checkBlackVo
 import static com.opengamma.strata.measure.fxopt.FxCalculationUtils.checkVannaVolgaVolatilities;
 
 import java.time.LocalDate;
+import java.util.stream.IntStream;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
@@ -306,6 +308,39 @@ final class FxVanillaOptionMeasureCalculations {
       return vannaVolgaPricer.currencyExposure(trade, ratesProvider, checkVannaVolgaVolatilities(volatilities));
     } else {
       return blackPricer.currencyExposure(trade, ratesProvider, checkBlackVolatilities(volatilities));
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates delta for all scenarios
+  DoubleArray delta(
+      ResolvedFxVanillaOptionTrade trade,
+      RatesScenarioMarketData ratesMarketData,
+      FxOptionScenarioMarketData optionMarketData,
+      FxVanillaOptionMethod method) {
+
+    CurrencyPair currencyPair = trade.getProduct().getCurrencyPair();
+    double[] array = IntStream.range(0, ratesMarketData.getScenarioCount()).mapToDouble(i ->
+            delta(
+                trade,
+                ratesMarketData.scenario(i).ratesProvider(),
+                optionMarketData.scenario(i).volatilities(currencyPair),
+                method))
+        .toArray();
+    return DoubleArray.copyOf(array);
+  }
+
+  // delta for one scenario
+  double delta(
+      ResolvedFxVanillaOptionTrade trade,
+      RatesProvider ratesProvider,
+      FxOptionVolatilities volatilities,
+      FxVanillaOptionMethod method) {
+
+    if (method == FxVanillaOptionMethod.VANNA_VOLGA) {
+      return vannaVolgaPricer.delta(trade, ratesProvider, checkVannaVolgaVolatilities(volatilities));
+    } else {
+      return blackPricer.delta(trade, ratesProvider, checkBlackVolatilities(volatilities));
     }
   }
 

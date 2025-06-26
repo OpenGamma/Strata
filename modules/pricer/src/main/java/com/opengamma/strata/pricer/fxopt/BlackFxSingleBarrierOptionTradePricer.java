@@ -148,6 +148,24 @@ public class BlackFxSingleBarrierOptionTradePricer {
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates the delta of the FX barrier option trade.
+   *
+   * @param trade  the option trade
+   * @param ratesProvider  the rates provider
+   * @param volatilities  the Black volatility provider
+   * @return the delta
+   */
+  public double delta(
+      ResolvedFxSingleBarrierOptionTrade trade,
+      RatesProvider ratesProvider,
+      BlackFxOptionVolatilities volatilities) {
+
+    ResolvedFxSingleBarrierOption product = trade.getProduct();
+    return productPricer.delta(product, ratesProvider, volatilities);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the current of the FX barrier option trade.
    * 
    * @param trade  the option trade
