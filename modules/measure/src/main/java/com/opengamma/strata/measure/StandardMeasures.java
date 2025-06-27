@@ -35,7 +35,7 @@ final class StandardMeasures {
   // currency exposure, with no currency conversion
   public static final Measure CURRENCY_EXPOSURE = ImmutableMeasure.of("CurrencyExposure", false);
   // delta
-  public static final Measure DELTA = ImmutableMeasure.of("Delta");
+  public static final Measure OPTION_DELTA = ImmutableMeasure.of("OptionDelta");
   // current cash
   public static final Measure CURRENT_CASH = ImmutableMeasure.of("CurrentCash");
   // forward FX rate

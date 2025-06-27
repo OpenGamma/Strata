@@ -119,9 +119,9 @@ public final class Measures {
   /**
    * Measure representing the delta of the calculation target.
    * <p>
-   * Delta is the sensitivity of a derivative to moves of the underlying spot price.
+   * Option Delta is the sensitivity of an option to moves of the underlying spot price.
    */
-  public static final Measure DELTA = Measure.of(StandardMeasures.DELTA.getName());
+  public static final Measure OPTION_DELTA = Measure.of(StandardMeasures.OPTION_DELTA.getName());
   /**
    * Measure representing the current cash of the calculation target.
    * <p>

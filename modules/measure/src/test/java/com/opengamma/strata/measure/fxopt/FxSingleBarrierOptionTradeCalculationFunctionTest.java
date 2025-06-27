@@ -158,7 +158,7 @@ public class FxSingleBarrierOptionTradeCalculationFunctionTest {
         Measures.PRESENT_VALUE,
         Measures.PAR_SPREAD,
         Measures.CURRENCY_EXPOSURE,
-        Measures.DELTA,
+        Measures.OPTION_DELTA,
         Measures.CURRENT_CASH,
         Measures.RESOLVED_TARGET);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
@@ -167,7 +167,7 @@ public class FxSingleBarrierOptionTradeCalculationFunctionTest {
         .containsEntry(
             Measures.CURRENCY_EXPOSURE, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExp))))
         .containsEntry(
-            Measures.DELTA, Result.success(DoubleArray.of(expectedDelta)))
+            Measures.OPTION_DELTA, Result.success(DoubleArray.of(expectedDelta)))
         .containsEntry(
             Measures.CURRENT_CASH, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedCash))))
         .containsEntry(
