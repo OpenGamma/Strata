@@ -322,50 +322,6 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricer {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Calculates the delta of the FX barrier option product.
-   * <p>
-   * The trinomial tree is first calibrated to Black volatilities,
-   * then the price is computed based on the calibrated tree.
-   *
-   * @param option  the option product
-   * @param ratesProvider  the rates provider
-   * @param volatilities  the Black volatility provider
-   * @return the delta
-   */
-  public double delta(
-      ResolvedFxSingleBarrierOption option,
-      RatesProvider ratesProvider,
-      BlackFxOptionVolatilities volatilities) {
-
-    RecombiningTrinomialTreeData treeData =
-        calibrator.calibrateTrinomialTree(option.getUnderlyingOption(), ratesProvider, volatilities);
-    return delta(option, ratesProvider, volatilities, treeData);
-  }
-
-  /**
-   * Calculates the delta of the FX barrier option product.
-   * <p>
-   * This assumes the tree is already calibrated and the tree data is stored as {@code RecombiningTrinomialTreeData}.
-   * The tree data should be consistent with the pricer and other inputs, see {@link #validateData}.
-   *
-   * @param option  the option product
-   * @param ratesProvider  the rates provider
-   * @param volatilities  the Black volatility provider
-   * @param treeData  the trinomial tree data
-   * @return the delta
-   */
-  public double delta(
-      ResolvedFxSingleBarrierOption option,
-      RatesProvider ratesProvider,
-      BlackFxOptionVolatilities volatilities,
-      RecombiningTrinomialTreeData treeData) {
-
-    ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilities, treeData);
-    return priceDerivatives.getDerivative(0);
-  }
-
-  //-------------------------------------------------------------------------
   private ValueDerivatives priceDerivatives(
       ResolvedFxSingleBarrierOption option,
       RatesProvider ratesProvider,

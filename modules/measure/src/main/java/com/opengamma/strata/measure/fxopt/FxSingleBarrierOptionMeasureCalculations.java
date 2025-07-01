@@ -339,7 +339,8 @@ final class FxSingleBarrierOptionMeasureCalculations {
       FxSingleBarrierOptionMethod method) {
 
     if (method == FxSingleBarrierOptionMethod.TRINOMIAL_TREE) {
-      return trinomialTreePricer.delta(trade, ratesProvider, checkTrinomialTreeVolatilities(volatilities));
+      throw new IllegalArgumentException(
+          "FX single barrier option Trinomial Tree pricer does not currently support delta calculation");
     } else {
       return blackPricer.delta(trade, ratesProvider, checkBlackVolatilities(volatilities));
     }

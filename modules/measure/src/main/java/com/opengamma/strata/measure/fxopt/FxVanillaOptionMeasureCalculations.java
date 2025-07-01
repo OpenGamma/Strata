@@ -338,7 +338,8 @@ final class FxVanillaOptionMeasureCalculations {
       FxVanillaOptionMethod method) {
 
     if (method == FxVanillaOptionMethod.VANNA_VOLGA) {
-      return vannaVolgaPricer.delta(trade, ratesProvider, checkVannaVolgaVolatilities(volatilities));
+      throw new IllegalArgumentException(
+          "FX single barrier option Trinomial Tree pricer does not currently support delta calculation");
     } else {
       return blackPricer.delta(trade, ratesProvider, checkBlackVolatilities(volatilities));
     }
