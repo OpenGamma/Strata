@@ -9,14 +9,13 @@ import static com.opengamma.strata.measure.fxopt.FxCalculationUtils.checkBlackVo
 import static com.opengamma.strata.measure.fxopt.FxCalculationUtils.checkVannaVolgaVolatilities;
 
 import java.time.LocalDate;
-import java.util.stream.IntStream;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -313,21 +312,19 @@ final class FxVanillaOptionMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates delta for all scenarios
-  DoubleArray delta(
+  DoubleScenarioArray delta(
       ResolvedFxVanillaOptionTrade trade,
       RatesScenarioMarketData ratesMarketData,
       FxOptionScenarioMarketData optionMarketData,
       FxVanillaOptionMethod method) {
 
     CurrencyPair currencyPair = trade.getProduct().getCurrencyPair();
-    double[] array = IntStream.range(0, ratesMarketData.getScenarioCount()).mapToDouble(i ->
-            delta(
-                trade,
-                ratesMarketData.scenario(i).ratesProvider(),
-                optionMarketData.scenario(i).volatilities(currencyPair),
-                method))
-        .toArray();
-    return DoubleArray.copyOf(array);
+    return DoubleScenarioArray.of(ratesMarketData.getScenarioCount(),
+        i -> delta(
+            trade,
+            ratesMarketData.scenario(i).ratesProvider(),
+            optionMarketData.scenario(i).volatilities(currencyPair),
+            method));
   }
 
   // delta for one scenario
@@ -339,7 +336,7 @@ final class FxVanillaOptionMeasureCalculations {
 
     if (method == FxVanillaOptionMethod.VANNA_VOLGA) {
       throw new IllegalArgumentException(
-          "FX single barrier option Trinomial Tree pricer does not currently support delta calculation");
+          "FX vanilla option Vanna Volga pricer does not currently support delta calculation");
     } else {
       return blackPricer.delta(trade, ratesProvider, checkBlackVolatilities(volatilities));
     }
