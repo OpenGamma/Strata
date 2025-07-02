@@ -319,7 +319,8 @@ final class FxVanillaOptionMeasureCalculations {
       FxVanillaOptionMethod method) {
 
     CurrencyPair currencyPair = trade.getProduct().getCurrencyPair();
-    return DoubleScenarioArray.of(ratesMarketData.getScenarioCount(),
+    return DoubleScenarioArray.of(
+        ratesMarketData.getScenarioCount(),
         i -> delta(
             trade,
             ratesMarketData.scenario(i).ratesProvider(),

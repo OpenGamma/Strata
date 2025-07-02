@@ -37,6 +37,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
@@ -167,7 +168,7 @@ public class FxSingleBarrierOptionTradeCalculationFunctionTest {
         .containsEntry(
             Measures.CURRENCY_EXPOSURE, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExp))))
         .containsEntry(
-            Measures.OPTION_DELTA, Result.success(DoubleArray.of(expectedDelta)))
+            Measures.OPTION_DELTA, Result.success(DoubleScenarioArray.of(DoubleArray.of(expectedDelta))))
         .containsEntry(
             Measures.CURRENT_CASH, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedCash))))
         .containsEntry(
