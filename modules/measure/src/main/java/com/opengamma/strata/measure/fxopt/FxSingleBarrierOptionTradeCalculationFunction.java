@@ -69,6 +69,7 @@ public class FxSingleBarrierOptionTradeCalculationFunction
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED,
               FxSingleBarrierOptionMeasureCalculations.DEFAULT::pv01RatesMarketQuoteBucketed)
           .put(Measures.CURRENCY_EXPOSURE, FxSingleBarrierOptionMeasureCalculations.DEFAULT::currencyExposure)
+          .put(Measures.OPTION_DELTA, FxSingleBarrierOptionMeasureCalculations.DEFAULT::delta)
           .put(Measures.CURRENT_CASH, FxSingleBarrierOptionMeasureCalculations.DEFAULT::currentCash)
           .put(Measures.VEGA_MARKET_QUOTE_BUCKETED,
               FxSingleBarrierOptionMeasureCalculations.DEFAULT::vegaMarketQuoteBucketed)

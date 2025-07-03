@@ -168,4 +168,12 @@ public class BlackFxVanillaOptionTradePricerTest {
     assertThat(impVolComputed).isEqualTo(imlVolExpected);
   }
 
+  @Test
+  public void test_delta() {
+    double delta = PRICER_TRADE.delta(OPTION_TRADE, RATES_PROVIDER, VOLS);
+    double deltaExpected = PRICER_PRODUCT.delta(OPTION_PRODUCT, RATES_PROVIDER, VOLS);
+
+    assertThat(delta).isEqualTo(deltaExpected);
+  }
+
 }
