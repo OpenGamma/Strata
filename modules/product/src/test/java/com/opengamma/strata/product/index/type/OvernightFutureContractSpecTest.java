@@ -330,6 +330,21 @@ public class OvernightFutureContractSpecTest {
     assertThat(trade.getProduct().getNotional()).isEqualTo(5_000_000d);
   }
 
+  @Test
+  public void test_createPosition_usdSofr3mCme() {
+    OvernightFutureContractSpec test = OvernightFutureContractSpecs.USD_SOFR_3M_IMM_CME;
+    OvernightFuturePosition trade = test.createPosition(SecurityId.of("OG", "1"), YearMonth.of(2025, 7), 20, REF_DATA);
+    assertThat(trade.getCurrency()).isEqualTo(Currency.USD);
+    assertThat(trade.getQuantity()).isEqualTo(20);
+    assertThat(trade.getProduct().getIndex()).isEqualTo(USD_SOFR);
+    assertThat(trade.getProduct().getAccrualMethod()).isEqualTo(COMPOUNDED);
+    assertThat(trade.getProduct().getAccrualFactor()).isEqualTo(3 / 12d);
+    assertThat(trade.getProduct().getStartDate()).isEqualTo(date(2025, 7, 16));
+    assertThat(trade.getProduct().getEndDate()).isEqualTo(date(2025, 10, 14));
+    assertThat(trade.getProduct().getLastTradeDate()).isEqualTo(date(2025, 10, 14));
+    assertThat(trade.getProduct().getNotional()).isEqualTo(1_000_000d);
+  }
+
   //-------------------------------------------------------------------------
   public static Object[][] data_name() {
     return new Object[][] {
