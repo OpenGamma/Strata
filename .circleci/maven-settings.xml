@@ -4,7 +4,7 @@
                           https://maven.apache.org/xsd/settings-1.0.0.xsd">
   <servers>
     <server>
-      <id>oss-sonatype</id>
+      <id>central</id>
       <username>${env.OSS_SONATYPE_USER}</username>
       <password>${env.OSS_SONATYPE_PASSWORD}</password>
     </server>
