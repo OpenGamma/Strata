@@ -37,6 +37,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
@@ -143,12 +144,14 @@ public class FxVanillaOptionTradeCalculationFunctionTest {
     BlackFxVanillaOptionTradePricer pricer = BlackFxVanillaOptionTradePricer.DEFAULT;
     MultiCurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, VOLS);
     MultiCurrencyAmount expectedCurrencyExp = pricer.currencyExposure(RTRADE, provider, VOLS);
+    double expectedDelta = pricer.delta(RTRADE, provider, VOLS);
     CurrencyAmount expectedCash = pricer.currentCash(RTRADE, VAL_DATE);
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE,
         Measures.PAR_SPREAD,
         Measures.CURRENCY_EXPOSURE,
+        Measures.OPTION_DELTA,
         Measures.CURRENT_CASH,
         Measures.RESOLVED_TARGET);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
@@ -156,6 +159,8 @@ public class FxVanillaOptionTradeCalculationFunctionTest {
             Measures.PRESENT_VALUE, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
             Measures.CURRENCY_EXPOSURE, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExp))))
+        .containsEntry(
+            Measures.OPTION_DELTA, Result.success(DoubleScenarioArray.of(DoubleArray.of(expectedDelta))))
         .containsEntry(
             Measures.CURRENT_CASH, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedCash))))
         .containsEntry(

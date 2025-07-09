@@ -119,6 +119,14 @@ public class BlackFxSingleBarrierOptionTradePricerTest {
   }
 
   @Test
+  public void test_delta() {
+    double delta = PRICER_TRADE.delta(OPTION_TRADE, RATES_PROVIDER, VOLS);
+    double deltaExpected = PRICER_PRODUCT.delta(OPTION_PRODUCT, RATES_PROVIDER, VOLS);
+
+    assertThat(delta).isEqualTo(deltaExpected);
+  }
+
+  @Test
   public void test_currentCash_zero() {
     assertThat(PRICER_TRADE.currentCash(OPTION_TRADE, VAL_DATE)).isEqualTo(CurrencyAmount.zero(PREMIUM.getCurrency()));
   }
