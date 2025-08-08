@@ -45,6 +45,7 @@ import com.opengamma.strata.product.bond.ResolvedFixedCouponBondTrade;
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
+ *   <li>{@linkplain Measures#CASH_FLOWS Cash flows}
  *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  * </ul>
  * 
@@ -82,6 +83,7 @@ public class FixedCouponBondTradeCalculationFunction<T extends SecuritizedProduc
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, FixedCouponBondMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
           .put(Measures.CURRENCY_EXPOSURE, FixedCouponBondMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, FixedCouponBondMeasureCalculations.DEFAULT::currentCash)
+          .put(Measures.CASH_FLOWS, FixedCouponBondMeasureCalculations.DEFAULT::cashFlows)
           .put(Measures.RESOLVED_TARGET, (rt, smd) -> rt)
           .build();
 
