@@ -22,6 +22,8 @@ import static com.opengamma.strata.basics.index.OvernightIndices.USD_SOFR;
 import static com.opengamma.strata.product.swap.OvernightAccrualMethod.AVERAGED_DAILY;
 import static com.opengamma.strata.product.swap.OvernightAccrualMethod.COMPOUNDED;
 
+import java.time.Period;
+
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 
@@ -183,8 +185,9 @@ final class StandardOvernightFutureContractSpecs {
       ImmutableOvernightFutureContractSpec.builder()
           .name("USD-SOFR-3M-IMM-CME")
           .index(USD_SOFR)
-          .dateSequence(QUARTERLY_IMM)
+          .dateSequence(QUARTERLY_IMM_6_SERIAL)
           .accrualMethod(COMPOUNDED)
+          .accrualPeriod(Period.ofMonths(3))
           .notional(1_000_000d)
           .build();
 
