@@ -849,6 +849,79 @@ final class GlobalHolidayCalendars {
     }
     // queen's birthday
     holidays.add(first(year, 6).with(firstInMonth(MONDAY)));
+    // matariki day
+    // https://www.legislation.govt.nz/act/public/2022/0014/latest/whole.html#LMS557893
+    if (year >= 2022 && year <= 2052) {
+      switch (year) {
+        case 2022:
+        case 2033:
+        case 2044:
+          holidays.add(date(year, 6, 24));
+          break;
+        case 2023:
+        case 2028:
+          holidays.add(date(year, 7, 14));
+          break;
+        case 2024:
+          holidays.add(date(year, 6, 28));
+          break;
+        case 2025:
+          holidays.add(date(year, 6, 20));
+          break;
+        case 2026:
+        case 2037:
+          holidays.add(date(year, 7, 10));
+          break;
+        case 2027:
+        case 2038:
+        case 2049:
+          holidays.add(date(year, 6, 25));
+          break;
+        case 2029:
+        case 2040:
+          holidays.add(date(year, 7, 6));
+          break;
+        case 2030:
+        case 2052:
+          holidays.add(date(year, 6, 21));
+          break;
+        case 2031:
+        case 2042:
+          holidays.add(date(year, 7, 11));
+          break;
+        case 2032:
+          holidays.add(date(year, 7, 2));
+          break;
+        case 2034:
+        case 2045:
+          holidays.add(date(year, 7, 7));
+          break;
+        case 2035:
+        case 2046:
+          holidays.add(date(year, 6, 29));
+          break;
+        case 2036:
+          holidays.add(date(year, 7, 18));
+          break;
+        case 2039:
+        case 2050:
+          holidays.add(date(year, 7, 15));
+          break;
+        case 2041:
+        case 2047:
+          holidays.add(date(year, 7, 19));
+          break;
+        case 2043:
+        case 2048:
+          holidays.add(date(year, 7, 3));
+          break;
+        case 2051:
+          holidays.add(date(year, 6, 30));
+          break;
+        default:
+          break;
+      }
+    }
     // queen's funeral
     if (year == 2022) {
       holidays.add(date(year, 9, 26));
