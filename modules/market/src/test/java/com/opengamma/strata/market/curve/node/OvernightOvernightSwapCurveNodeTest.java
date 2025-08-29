@@ -191,5 +191,4 @@ public class OvernightOvernightSwapCurveNodeTest {
     assertSerialization(test);
   }
 
-
 }
