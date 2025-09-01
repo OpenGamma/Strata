@@ -80,10 +80,11 @@ public final class OvernightOvernightSwapCurveNode
   /**
    * The method by which the date of the node is calculated, defaulted to 'End'.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final CurveNodeDate date;
   /**
    * The date order rules, used to ensure that the dates in the curve are in order.
+   * <p>
    * If not specified, this will default to {@link CurveNodeDateOrder#DEFAULT}.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
@@ -274,6 +275,7 @@ public final class OvernightOvernightSwapCurveNode
     JodaBeanUtils.notNull(template, "template");
     JodaBeanUtils.notNull(rateId, "rateId");
     JodaBeanUtils.notEmpty(label, "label");
+    JodaBeanUtils.notNull(date, "date");
     JodaBeanUtils.notNull(dateOrder, "dateOrder");
     this.template = template;
     this.rateId = rateId;
@@ -330,7 +332,7 @@ public final class OvernightOvernightSwapCurveNode
   //-----------------------------------------------------------------------
   /**
    * Gets the method by which the date of the node is calculated, defaulted to 'End'.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public CurveNodeDate getDate() {
     return date;
@@ -339,6 +341,7 @@ public final class OvernightOvernightSwapCurveNode
   //-----------------------------------------------------------------------
   /**
    * Gets the date order rules, used to ensure that the dates in the curve are in order.
+   * <p>
    * If not specified, this will default to {@link CurveNodeDateOrder#DEFAULT}.
    * @return the value of the property, not null
    */
@@ -718,16 +721,18 @@ public final class OvernightOvernightSwapCurveNode
 
     /**
      * Sets the method by which the date of the node is calculated, defaulted to 'End'.
-     * @param date  the new value
+     * @param date  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder date(CurveNodeDate date) {
+      JodaBeanUtils.notNull(date, "date");
       this.date = date;
       return this;
     }
 
     /**
      * Sets the date order rules, used to ensure that the dates in the curve are in order.
+     * <p>
      * If not specified, this will default to {@link CurveNodeDateOrder#DEFAULT}.
      * @param dateOrder  the new value, not null
      * @return this, for chaining, not null
