@@ -658,6 +658,10 @@ final class GlobalHolidayCalendars {
       holidays.add(bumpToMon(date(year, 7, 1)));
       // labour
       holidays.add(first(year, 9).with(dayOfWeekInMonth(1, MONDAY)));
+      // national day for truth and reconciliation
+      if (year >= 2021) {
+        holidays.add(date(year, 9, 30));
+      }
       // thanksgiving
       holidays.add(first(year, 10).with(dayOfWeekInMonth(2, MONDAY)));
       // christmas
@@ -694,6 +698,10 @@ final class GlobalHolidayCalendars {
       holidays.add(first(year, 8).with(dayOfWeekInMonth(1, MONDAY)));
       // labour (public)
       holidays.add(first(year, 9).with(dayOfWeekInMonth(1, MONDAY)));
+      // national day for truth and reconciliation
+      if (year >= 2021) {
+        holidays.add(date(year, 9, 30));
+      }
       // thanksgiving (public)
       holidays.add(first(year, 10).with(dayOfWeekInMonth(2, MONDAY)));
       // remembrance
