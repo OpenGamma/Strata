@@ -659,7 +659,7 @@ final class GlobalHolidayCalendars {
       // labour
       holidays.add(first(year, 9).with(dayOfWeekInMonth(1, MONDAY)));
       // national day for truth and reconciliation
-      if (year >= 2020) {
+      if (year >= 2021) {
         holidays.add(date(year, 9, 30));
       }
       // thanksgiving
@@ -699,7 +699,7 @@ final class GlobalHolidayCalendars {
       // labour (public)
       holidays.add(first(year, 9).with(dayOfWeekInMonth(1, MONDAY)));
       // national day for truth and reconciliation
-      if (year >= 2020) {
+      if (year >= 2021) {
         holidays.add(date(year, 9, 30));
       }
       // thanksgiving (public)
