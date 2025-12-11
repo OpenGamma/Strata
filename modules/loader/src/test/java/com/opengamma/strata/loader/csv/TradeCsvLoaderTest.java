@@ -441,6 +441,40 @@ public class TradeCsvLoaderTest {
     assertBeanEquals(loadedTrades.get(0), expectedTrade0);
   }
 
+  @Test
+  public void test_load_fx_vanilla_option_equivalent() {
+    TradeCsvLoader standard = TradeCsvLoader.standard();
+    ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fx-option-alt.csv");
+    ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
+    ValueWithFailures<List<FxVanillaOptionTrade>> loadedData = standard.parse(charSources, FxVanillaOptionTrade.class);
+    assertThat(loadedData.getFailures().size()).as(loadedData.getFailures().toString()).isEqualTo(0);
+
+    List<FxVanillaOptionTrade> loadedTrades = loadedData.getValue();
+    assertThat(loadedTrades).hasSize(1);
+
+    FxVanillaOptionTrade expectedTrade0 = FxVanillaOptionTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2016-12-06"))
+            .id(StandardId.of("OG", "tradeId32"))
+            .addAttribute(AttributeType.CCP, CcpIds.CME)
+            .build())
+        .product(FxVanillaOption.builder()
+            .longShort(LongShort.LONG)
+            .expiryDate(LocalDate.of(2017, 1, 8))
+            .expiryTime(LocalTime.of(11, 0))
+            .expiryZone(ZoneId.of("Europe/London"))
+            .underlying(FxSingle.of(
+                CurrencyAmount.of(USD, 30000),
+                FxRate.of(USD, GBP, 1.31),
+                LocalDate.of(2017, 1, 10)))
+            .build())
+        .premium(AdjustablePayment.of(
+            CurrencyAmount.of(GBP, -2000),
+            AdjustableDate.of(LocalDate.of(2016, 12, 8))))
+        .build();
+    assertBeanEquals(loadedTrades.get(0), expectedTrade0);
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_load_fx_ndf() {
@@ -2266,6 +2300,19 @@ public class TradeCsvLoaderTest {
         trades.getValue(),
         expectedFxSingleBarrierOptionWithRebate(),
         expectedFxSingleBarrierOptionWithoutRebate());
+  }
+
+  @Test
+  public void test_FxSingleBarrierOption_equivalent() {
+    TradeCsvLoader standard = TradeCsvLoader.standard();
+    ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fx-option-alt.csv");
+    ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
+    ValueWithFailures<List<FxSingleBarrierOptionTrade>> loadedData = standard.parse(charSources, FxSingleBarrierOptionTrade.class);
+    assertThat(loadedData.getFailures().size()).as(loadedData.getFailures().toString()).isEqualTo(0);
+
+    List<FxSingleBarrierOptionTrade> loadedTrades = loadedData.getValue();
+    assertBeanEquals(loadedTrades.get(0), expectedFxSingleBarrierOptionWithRebate());
+    assertBeanEquals(loadedTrades.get(1), expectedFxSingleBarrierOptionWithoutRebate());
   }
 
   @Test

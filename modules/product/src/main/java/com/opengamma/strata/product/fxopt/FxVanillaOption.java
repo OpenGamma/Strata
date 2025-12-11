@@ -32,6 +32,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.common.PutCall;
@@ -91,6 +92,8 @@ public final class FxVanillaOption
   /**
    * Creates an equivalent {@code FxVanillaOption} using currency pair, option expiry, call/put flag, strike, base
    * currency notional, and underlying payment date.
+   * <p>
+   * No payment date adjustments apply.
    *
    * @param longShort the long/short flag of the option
    * @param expiry the option expiry
@@ -110,6 +113,33 @@ public final class FxVanillaOption
       double baseNotional,
       LocalDate paymentDate) {
 
+    return of(longShort, expiry, currencyPair, putCall, strike, baseNotional, paymentDate, null);
+  }
+
+  /**
+   * Creates an equivalent {@code FxVanillaOption} using currency pair, option expiry, call/put flag, strike, base
+   * currency notional, underlying payment date, and payment date adjustment.
+   *
+   * @param longShort the long/short flag of the option
+   * @param expiry the option expiry
+   * @param currencyPair the FX currency pair
+   * @param putCall the put/call flag of the option
+   * @param strike the FX strike
+   * @param baseNotional the base currency notional amount: should always be positive
+   * @param paymentDate the payment date of the underlying FX cash flows
+   * @param paymentDateAdjustment the adjustment to apply to the payment date
+   * @return an equivalent fx vanilla option
+   */
+  public static FxVanillaOption of(
+      LongShort longShort,
+      ZonedDateTime expiry,
+      CurrencyPair currencyPair,
+      PutCall putCall,
+      double strike,
+      double baseNotional,
+      LocalDate paymentDate,
+      BusinessDayAdjustment paymentDateAdjustment) {
+
     ArgChecker.isTrue(baseNotional > 0, "Base notional must be positive");
     ArgChecker.isTrue(strike > 0, "FX strike must be positive");
 
@@ -118,10 +148,11 @@ public final class FxVanillaOption
     double baseAmount = putCall.isCall() ? baseNotional : -baseNotional;
     double counterNotional = strike * baseNotional;
     double counterAmount = putCall.isCall() ? -counterNotional : counterNotional;
-    FxSingle equivalentUnderlying = FxSingle.of(
-        CurrencyAmount.of(currencyPair.getBase(), baseAmount),
-        CurrencyAmount.of(currencyPair.getCounter(), counterAmount),
-        paymentDate);
+    CurrencyAmount baseCurrencyAmount = CurrencyAmount.of(currencyPair.getBase(), baseAmount);
+    CurrencyAmount counterCurrencyAmount = CurrencyAmount.of(currencyPair.getCounter(), counterAmount);
+    FxSingle equivalentUnderlying = paymentDateAdjustment == null ?
+        FxSingle.of(baseCurrencyAmount, counterCurrencyAmount, paymentDate) :
+        FxSingle.of(baseCurrencyAmount, counterCurrencyAmount, paymentDate, paymentDateAdjustment);
 
     return FxVanillaOption.builder()
         .longShort(longShort)
