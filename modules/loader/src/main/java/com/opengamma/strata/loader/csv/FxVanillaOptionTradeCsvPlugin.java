@@ -19,12 +19,15 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_PAYMENT_DAT
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LONG_SHORT_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CAL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_AMOUNT_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_CURRENCY_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_CAL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_CNV_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DIRECTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PUT_CALL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.STRIKE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 
 import java.time.LocalDate;
@@ -36,6 +39,8 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
@@ -43,6 +48,7 @@ import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.LongShort;
+import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fxopt.FxVanillaOption;
@@ -121,12 +127,16 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
    * @return the parsed trade
    */
   static FxVanillaOptionTrade parse(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
+    if (row.findValue(PUT_CALL_FIELD).isPresent()) {
+      FxVanillaOptionTrade trade = parseRow(row, info);
+      return resolver.completeTrade(row, trade);
+    }
     FxSingleTrade singleTrade = FxSingleTradeCsvPlugin.parseRow(row, info);
     FxVanillaOptionTrade trade = parseRow(row, info, singleTrade.getProduct());
     return resolver.completeTrade(row, trade);
   }
 
-  // parses the trade
+  // parses the trade from the underlying FX single
   private static FxVanillaOptionTrade parseRow(CsvRow row, TradeInfo info, FxSingle underlying) {
     LongShort longShort = row.getValue(LONG_SHORT_FIELD, LoaderUtils::parseLongShort);
     LocalDate expiryDate = row.getValue(EXPIRY_DATE_FIELD, LoaderUtils::parseDate);
@@ -140,6 +150,35 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
         .expiryZone(expiryZone)
         .underlying(underlying)
         .build();
+    return FxVanillaOptionTrade.builder()
+        .info(info)
+        .product(option)
+        .premium(CsvLoaderUtils.tryParsePremiumFromDefaultFields(row)
+            .orElse(AdjustablePayment.of(option.getCurrencyPair().getBase(), 0d, expiryDate)))
+        .build();
+  }
+
+  // parse the trade from the currency pairs, base currency notional, and put/call
+  private static FxVanillaOptionTrade parseRow(CsvRow row, TradeInfo info) {
+    LongShort longShort = row.getValue(LONG_SHORT_FIELD, LoaderUtils::parseLongShort);
+    LocalDate expiryDate = row.getValue(EXPIRY_DATE_FIELD, LoaderUtils::parseDate);
+    LocalTime expiryTime = row.getValue(EXPIRY_TIME_FIELD, LoaderUtils::parseTime);
+    ZoneId expiryZone = row.getValue(EXPIRY_ZONE_FIELD, LoaderUtils::parseZoneId);
+    PutCall putCall = row.getValue(PUT_CALL_FIELD, LoaderUtils::parsePutCall);
+    double strike = row.getValue(STRIKE_FIELD, LoaderUtils::parseDouble);
+    Currency ccy1 = row.getValue(LEG_1_CURRENCY_FIELD, LoaderUtils::parseCurrency);
+    Currency ccy2 = row.getValue(LEG_2_CURRENCY_FIELD, LoaderUtils::parseCurrency);
+    LocalDate paymentDate = row.getValue(PAYMENT_DATE_FIELD, LoaderUtils::parseDate);
+    double notional1 = row.getValue(LEG_1_NOTIONAL_FIELD, LoaderUtils::parseDouble);
+
+    FxVanillaOption option = FxVanillaOption.of(
+        longShort,
+        expiryDate.atTime(expiryTime).atZone(expiryZone),
+        CurrencyPair.of(ccy1, ccy2),
+        putCall,
+        strike,
+        notional1,
+        paymentDate);
     return FxVanillaOptionTrade.builder()
         .info(info)
         .product(option)
