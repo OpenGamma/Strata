@@ -9,13 +9,8 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_DATE_FIELD
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_TIME_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_ZONE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_CURRENCY_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_DIRECTION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_NOTIONAL_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_PAYMENT_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_CURRENCY_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_DIRECTION_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_NOTIONAL_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_PAYMENT_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LONG_SHORT_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CAL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CNV_FIELD;
@@ -33,6 +28,7 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -41,6 +37,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
@@ -67,6 +64,8 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
   /** The headers. */
   private static final ImmutableSet<String> HEADERS = ImmutableSet.of(
       LONG_SHORT_FIELD,
+      PUT_CALL_FIELD,
+      STRIKE_FIELD,
       EXPIRY_DATE_FIELD,
       EXPIRY_TIME_FIELD,
       EXPIRY_ZONE_FIELD,
@@ -76,14 +75,10 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
       PREMIUM_DIRECTION_FIELD,
       PREMIUM_CURRENCY_FIELD,
       PREMIUM_AMOUNT_FIELD,
-      LEG_1_DIRECTION_FIELD,
-      LEG_1_PAYMENT_DATE_FIELD,
       LEG_1_CURRENCY_FIELD,
       LEG_1_NOTIONAL_FIELD,
-      LEG_2_DIRECTION_FIELD,
-      LEG_2_PAYMENT_DATE_FIELD,
       LEG_2_CURRENCY_FIELD,
-      LEG_2_NOTIONAL_FIELD,
+      PAYMENT_DATE_FIELD,
       PAYMENT_DATE_CNV_FIELD,
       PAYMENT_DATE_CAL_FIELD);
 
@@ -170,15 +165,15 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
     Currency ccy2 = row.getValue(LEG_2_CURRENCY_FIELD, LoaderUtils::parseCurrency);
     LocalDate paymentDate = row.getValue(PAYMENT_DATE_FIELD, LoaderUtils::parseDate);
     double notional1 = row.getValue(LEG_1_NOTIONAL_FIELD, LoaderUtils::parseDouble);
+    Optional<BusinessDayAdjustment> paymentAdj = CsvLoaderUtils
+        .parseBusinessDayAdjustment(row, PAYMENT_DATE_CNV_FIELD, PAYMENT_DATE_CAL_FIELD)
+        .filter(adj -> !adj.equals(BusinessDayAdjustment.NONE));
 
-    FxVanillaOption option = FxVanillaOption.of(
-        longShort,
-        expiryDate.atTime(expiryTime).atZone(expiryZone),
-        CurrencyPair.of(ccy1, ccy2),
-        putCall,
-        strike,
-        notional1,
-        paymentDate);
+    ZonedDateTime expiry = expiryDate.atTime(expiryTime).atZone(expiryZone);
+    CurrencyPair ccyPair = CurrencyPair.of(ccy1, ccy2);
+    FxVanillaOption option = paymentAdj
+        .map(adj -> FxVanillaOption.of(longShort, expiry, ccyPair, putCall, strike, notional1, paymentDate, adj))
+        .orElseGet(() -> FxVanillaOption.of(longShort, expiry, ccyPair, putCall, strike, notional1, paymentDate));
     return FxVanillaOptionTrade.builder()
         .info(info)
         .product(option)
@@ -202,11 +197,24 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
   }
 
   protected void writeFxVanillaOption(CsvOutput.CsvRowOutputWithHeaders csv, FxVanillaOption product) {
+    FxSingle underlying = product.getUnderlying();
+    PutCall putCall = underlying.getCounterCurrencyPayment().getAmount() > 0d ? PutCall.PUT : PutCall.CALL;
+    double strike = Math.abs(underlying.getCounterCurrencyPayment().getAmount() /
+        underlying.getBaseCurrencyPayment().getAmount());
     csv.writeCell(LONG_SHORT_FIELD, product.getLongShort());
+    csv.writeCell(PUT_CALL_FIELD, putCall);
+    csv.writeCell(STRIKE_FIELD, strike);
     csv.writeCell(EXPIRY_DATE_FIELD, product.getExpiryDate());
     csv.writeCell(EXPIRY_TIME_FIELD, product.getExpiryTime());
     csv.writeCell(EXPIRY_ZONE_FIELD, product.getExpiryZone());
-    CsvWriterUtils.writeFxSingle(csv, "", product.getUnderlying());
+    csv.writeCell(LEG_1_CURRENCY_FIELD, underlying.getBaseCurrencyPayment().getCurrency());
+    csv.writeCell(LEG_1_NOTIONAL_FIELD, Math.abs(underlying.getBaseCurrencyPayment().getAmount()));
+    csv.writeCell(LEG_2_CURRENCY_FIELD, underlying.getCounterCurrencyPayment().getCurrency());
+    csv.writeCell(PAYMENT_DATE_FIELD, underlying.getBaseCurrencyPayment().getDate());
+    underlying.getPaymentDateAdjustment().ifPresent(bda -> {
+      csv.writeCell(PAYMENT_DATE_CAL_FIELD, bda.getCalendar());
+      csv.writeCell(PAYMENT_DATE_CNV_FIELD, bda.getConvention());
+    });
   }
 
   //-------------------------------------------------------------------------
