@@ -2313,6 +2313,9 @@ public class TradeCsvLoaderTest {
     List<FxSingleBarrierOptionTrade> loadedTrades = loadedData.getValue();
     assertBeanEquals(loadedTrades.get(0), expectedFxSingleBarrierOptionWithRebate());
     assertBeanEquals(loadedTrades.get(1), expectedFxSingleBarrierOptionWithoutRebate());
+
+    // check trades same parsed from strike or inferred strike from notionals
+    assertBeanEquals(loadedTrades.get(1), loadedTrades.get(2));
   }
 
   @Test

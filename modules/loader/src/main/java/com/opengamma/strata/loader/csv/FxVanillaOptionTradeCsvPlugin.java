@@ -11,6 +11,7 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_ZONE_FIELD
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_CURRENCY_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_NOTIONAL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_NOTIONAL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LONG_SHORT_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CAL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CNV_FIELD;
@@ -160,11 +161,13 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
     LocalTime expiryTime = row.getValue(EXPIRY_TIME_FIELD, LoaderUtils::parseTime);
     ZoneId expiryZone = row.getValue(EXPIRY_ZONE_FIELD, LoaderUtils::parseZoneId);
     PutCall putCall = row.getValue(PUT_CALL_FIELD, LoaderUtils::parsePutCall);
-    double strike = row.getValue(STRIKE_FIELD, LoaderUtils::parseDouble);
     Currency ccy1 = row.getValue(LEG_1_CURRENCY_FIELD, LoaderUtils::parseCurrency);
     Currency ccy2 = row.getValue(LEG_2_CURRENCY_FIELD, LoaderUtils::parseCurrency);
     LocalDate paymentDate = row.getValue(PAYMENT_DATE_FIELD, LoaderUtils::parseDate);
     double notional1 = row.getValue(LEG_1_NOTIONAL_FIELD, LoaderUtils::parseDouble);
+
+    double strike = parseStrike(row, notional1);
+
     Optional<BusinessDayAdjustment> paymentAdj = CsvLoaderUtils
         .parseBusinessDayAdjustment(row, PAYMENT_DATE_CNV_FIELD, PAYMENT_DATE_CAL_FIELD)
         .filter(adj -> !adj.equals(BusinessDayAdjustment.NONE));
@@ -180,6 +183,16 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
         .premium(CsvLoaderUtils.tryParsePremiumFromDefaultFields(row)
             .orElse(AdjustablePayment.of(option.getCurrencyPair().getBase(), 0d, expiryDate)))
         .build();
+  }
+
+  private static double parseStrike(CsvRow row, double notional1) {
+    Optional<Double> strikeOpt = row.findValue(STRIKE_FIELD, LoaderUtils::parseDouble);
+    if (strikeOpt.isPresent()) {
+      return strikeOpt.get();
+    } else {
+      double notional2 = row.getValue(LEG_2_NOTIONAL_FIELD, LoaderUtils::parseDouble);
+      return Math.abs(notional2 / notional1);
+    }
   }
 
   //-------------------------------------------------------------------------
