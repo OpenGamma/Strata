@@ -98,7 +98,7 @@ public final class SabrHaganVolatilityFunctionProvider
     double cutoff = forward * CUTOFF_MONEYNESS;
     double k;
     if (strike < cutoff) {
-      log.info("Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}", new Object[] {
+      log.debug("Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}", new Object[] {
           strike, cutoff, cutoff});
       k = cutoff;
     } else {
@@ -210,7 +210,7 @@ public final class SabrHaganVolatilityFunctionProvider
     double cutoff = forward * CUTOFF_MONEYNESS;
     double k = strike;
     if (k < cutoff) {
-      log.info(
+      log.debug(
           "Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}",
           new Object[] {k, cutoff, cutoff});
       k = cutoff;
