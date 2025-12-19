@@ -55,9 +55,9 @@ public class DiscountingFxSingleProductPricer {
    * @return the present value in the two natural currencies
    */
   public MultiCurrencyAmount presentValue(ResolvedFxSingle fx, RatesProvider provider) {
-  if (!provider.getValuationDate().isBefore(fx.getPaymentDate())) {
-    return MultiCurrencyAmount.empty();
-  }
+    if (!provider.getValuationDate().isBefore(fx.getPaymentDate())) {
+      return MultiCurrencyAmount.empty();
+    }
     CurrencyAmount pv1 = paymentPricer.presentValue(fx.getBaseCurrencyPayment(), provider);
     CurrencyAmount pv2 = paymentPricer.presentValue(fx.getCounterCurrencyPayment(), provider);
     return MultiCurrencyAmount.of(pv1, pv2);
