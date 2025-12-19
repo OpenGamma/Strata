@@ -55,8 +55,7 @@ public class DiscountingFxSingleProductPricer {
    * @return the present value in the two natural currencies
    */
   public MultiCurrencyAmount presentValue(ResolvedFxSingle fx, RatesProvider provider) {
-    if (provider.getValuationDate().isAfter(fx.getPaymentDate()) ||
-        provider.getValuationDate().isEqual(fx.getPaymentDate())) {
+  if (!provider.getValuationDate().isBefore(fx.getPaymentDate())) {
       return MultiCurrencyAmount.empty();
     }
     CurrencyAmount pv1 = paymentPricer.presentValue(fx.getBaseCurrencyPayment(), provider);
@@ -75,8 +74,7 @@ public class DiscountingFxSingleProductPricer {
    * @return the point sensitivity of the present value
    */
   public PointSensitivities presentValueSensitivity(ResolvedFxSingle fx, RatesProvider provider) {
-    if (provider.getValuationDate().isAfter(fx.getPaymentDate()) ||
-        provider.getValuationDate().isEqual(fx.getPaymentDate())) {
+    if (!provider.getValuationDate().isBefore(fx.getPaymentDate())) {
       return PointSensitivities.empty();
     }
     PointSensitivityBuilder pvcs1 = paymentPricer.presentValueSensitivity(fx.getBaseCurrencyPayment(), provider);
