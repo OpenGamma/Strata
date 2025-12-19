@@ -34,6 +34,7 @@ public class DiscountingFxSingleProductPricerTest {
   private static final Currency USD = Currency.USD;
   private static final LocalDate PAYMENT_DATE = RatesProviderFxDataSets.VAL_DATE_2014_01_22.plusWeeks(8);
   private static final LocalDate PAYMENT_DATE_PAST = RatesProviderFxDataSets.VAL_DATE_2014_01_22.minusDays(1);
+  private static final LocalDate PAYMENT_DATE_SAME_AS_VAL_DATE = RatesProviderFxDataSets.VAL_DATE_2014_01_22;
   private static final double NOMINAL_USD = 100_000_000;
   private static final double FX_RATE = 1123.45;
   private static final ResolvedFxSingle FWD = ResolvedFxSingle.of(
@@ -55,10 +56,16 @@ public class DiscountingFxSingleProductPricerTest {
 
   @Test
   public void test_presentValue_ended() {
-    ResolvedFxSingle fwd =
+    ResolvedFxSingle fwdEnded =
         ResolvedFxSingle.of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE), PAYMENT_DATE_PAST);
-    MultiCurrencyAmount computed = PRICER.presentValue(fwd, PROVIDER);
-    assertThat(computed).isEqualTo(MultiCurrencyAmount.empty());
+    MultiCurrencyAmount computedEnded = PRICER.presentValue(fwdEnded, PROVIDER);
+    ResolvedFxSingle fwdSameDate = ResolvedFxSingle.of(
+        CurrencyAmount.of(USD, NOMINAL_USD),
+        FxRate.of(USD, KRW, FX_RATE),
+        PAYMENT_DATE_SAME_AS_VAL_DATE);
+    MultiCurrencyAmount computedSameDate = PRICER.presentValue(fwdSameDate, PROVIDER);
+    assertThat(computedEnded).isEqualTo(MultiCurrencyAmount.empty());
+    assertThat(computedSameDate).isEqualTo(MultiCurrencyAmount.empty());
   }
 
   @Test
