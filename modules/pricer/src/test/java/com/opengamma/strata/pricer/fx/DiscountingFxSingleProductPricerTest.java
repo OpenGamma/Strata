@@ -59,12 +59,16 @@ public class DiscountingFxSingleProductPricerTest {
     ResolvedFxSingle fwdEnded =
         ResolvedFxSingle.of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE), PAYMENT_DATE_PAST);
     MultiCurrencyAmount computedEnded = PRICER.presentValue(fwdEnded, PROVIDER);
+    assertThat(computedEnded).isEqualTo(MultiCurrencyAmount.empty());
+  }
+
+  @Test
+  public void test_presentValue_sameValDate() {
     ResolvedFxSingle fwdSameDate = ResolvedFxSingle.of(
         CurrencyAmount.of(USD, NOMINAL_USD),
         FxRate.of(USD, KRW, FX_RATE),
         PAYMENT_DATE_SAME_AS_VAL_DATE);
     MultiCurrencyAmount computedSameDate = PRICER.presentValue(fwdSameDate, PROVIDER);
-    assertThat(computedEnded).isEqualTo(MultiCurrencyAmount.empty());
     assertThat(computedSameDate).isEqualTo(MultiCurrencyAmount.empty());
   }
 
