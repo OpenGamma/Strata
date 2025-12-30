@@ -450,7 +450,7 @@ public class TradeCsvLoaderTest {
     assertThat(loadedData.getFailures().size()).as(loadedData.getFailures().toString()).isEqualTo(0);
 
     List<FxVanillaOptionTrade> loadedTrades = loadedData.getValue();
-    assertThat(loadedTrades).hasSize(1);
+    assertThat(loadedTrades).hasSize(2);
 
     FxVanillaOptionTrade expectedTrade0 = FxVanillaOptionTrade.builder()
         .info(TradeInfo.builder()
@@ -464,8 +464,8 @@ public class TradeCsvLoaderTest {
             .expiryTime(LocalTime.of(11, 0))
             .expiryZone(ZoneId.of("Europe/London"))
             .underlying(FxSingle.of(
-                CurrencyAmount.of(USD, 30000),
-                FxRate.of(USD, GBP, 1.31),
+                CurrencyAmount.of(USD, -30000),
+                FxRate.of(USD, GBP, 0.8),
                 LocalDate.of(2017, 1, 10)))
             .build())
         .premium(AdjustablePayment.of(
@@ -473,6 +473,7 @@ public class TradeCsvLoaderTest {
             AdjustableDate.of(LocalDate.of(2016, 12, 8))))
         .build();
     assertBeanEquals(loadedTrades.get(0), expectedTrade0);
+    assertBeanEquals(loadedTrades.get(1), expectedTrade0);
   }
 
   //-------------------------------------------------------------------------
