@@ -164,11 +164,9 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
     LocalTime expiryTime = row.getValue(EXPIRY_TIME_FIELD, LoaderUtils::parseTime);
     ZoneId expiryZone = row.getValue(EXPIRY_ZONE_FIELD, LoaderUtils::parseZoneId);
     PutCall putCall = row.getValue(PUT_CALL_FIELD, LoaderUtils::parsePutCall);
-    Currency ccy1 = row.getValue(LEG_1_CURRENCY_FIELD, LoaderUtils::parseCurrency);
-    Currency ccy2 = row.getValue(LEG_2_CURRENCY_FIELD, LoaderUtils::parseCurrency);
     LocalDate paymentDate = row.getValue(PAYMENT_DATE_FIELD, LoaderUtils::parseDate);
 
-    Triple<Double, Double, CurrencyPair> notionalStrike = parseNotionalAndStrike(row, putCall, ccy1, ccy2);
+    Triple<Double, Double, CurrencyPair> notionalStrike = parseNotionalAndStrike(row, putCall);
     Optional<BusinessDayAdjustment> paymentAdj = CsvLoaderUtils
         .parseBusinessDayAdjustment(row, PAYMENT_DATE_CNV_FIELD, PAYMENT_DATE_CAL_FIELD)
         .filter(adj -> !adj.equals(BusinessDayAdjustment.NONE));
@@ -201,13 +199,10 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
         .build();
   }
 
-  private static Triple<Double, Double, CurrencyPair> parseNotionalAndStrike(
-      CsvRow row,
-      PutCall putCall,
-      Currency ccy1,
-      Currency ccy2) {
-
+  private static Triple<Double, Double, CurrencyPair> parseNotionalAndStrike(CsvRow row, PutCall putCall) {
     double notional1 = row.getValue(LEG_1_NOTIONAL_FIELD, LoaderUtils::parseDouble);
+    Currency ccy1 = row.getValue(LEG_1_CURRENCY_FIELD, LoaderUtils::parseCurrency);
+    Currency ccy2 = row.getValue(LEG_2_CURRENCY_FIELD, LoaderUtils::parseCurrency);
     Optional<Double> strikeOpt = row.findValue(STRIKE_FIELD, LoaderUtils::parseDouble);
     if (strikeOpt.isPresent()) {
       return Triple.of(Math.abs(notional1), strikeOpt.get(), CurrencyPair.of(ccy1, ccy2));
