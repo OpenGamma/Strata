@@ -123,6 +123,9 @@ public final class ExchangeIds {
   /** Euronext Exchange - Paris MONEP */
   public static final ExchangeId XMON = ExchangeId.of("XMON");
 
+  /** Euronext Exchange - Amsterdam */
+  public static final ExchangeId XEUC = ExchangeId.of("XEUC");
+
   /** Korea Exchange (Futures Market) */
   public static final ExchangeId XKFE = ExchangeId.of("XKFE");
 
