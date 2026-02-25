@@ -180,6 +180,12 @@ public final class ExchangeIds {
   /** Borsa Istanbul Exchange. */
   public static final ExchangeId XIST = ExchangeId.of("XIST");
 
+  /** Bitnomial Exchange. */
+  public static final ExchangeId BTNL = ExchangeId.of("BTNL");
+
+  /** Dalian Exchange. */
+  public static final ExchangeId XDCE = ExchangeId.of("XDCE");
+
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
