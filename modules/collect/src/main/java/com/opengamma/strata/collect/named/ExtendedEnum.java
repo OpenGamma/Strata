@@ -171,7 +171,7 @@ public final class ExtendedEnum<T extends Named> {
     for (String key : section.keys()) {
       Class<?> cls;
       try {
-        cls = RenameHandler.INSTANCE.lookupType(key);
+        cls = Class.forName(key, true, ExtendedEnum.class.getClassLoader());
       } catch (Exception ex) {
         throw new IllegalArgumentException("Unable to find enum provider class: " + key, ex);
       }
