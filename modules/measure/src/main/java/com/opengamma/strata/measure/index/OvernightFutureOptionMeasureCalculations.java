@@ -27,6 +27,9 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.product.index.ResolvedOvernightFutureOptionTrade;
 
+/**
+ * Multi-scenario measure calculations for overnight rate future option trades.
+ */
 public class OvernightFutureOptionMeasureCalculations {
 
   /**

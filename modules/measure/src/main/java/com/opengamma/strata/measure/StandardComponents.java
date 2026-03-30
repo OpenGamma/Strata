@@ -36,6 +36,7 @@ import com.opengamma.strata.measure.fxopt.FxSingleBarrierOptionTradeCalculationF
 import com.opengamma.strata.measure.fxopt.FxVanillaOptionTradeCalculationFunction;
 import com.opengamma.strata.measure.index.IborFutureOptionTradeCalculationFunction;
 import com.opengamma.strata.measure.index.IborFutureTradeCalculationFunction;
+import com.opengamma.strata.measure.index.OvernightFutureOptionTradeCalculationFunction;
 import com.opengamma.strata.measure.index.OvernightFutureTradeCalculationFunction;
 import com.opengamma.strata.measure.payment.BulletPaymentTradeCalculationFunction;
 import com.opengamma.strata.measure.rate.RatesCurveGroupMarketDataFunction;
@@ -133,7 +134,9 @@ public final class StandardComponents {
       OvernightFutureTradeCalculationFunction.TRADE,
       OvernightFutureTradeCalculationFunction.POSITION,
       IborFutureOptionTradeCalculationFunction.TRADE,
-      IborFutureOptionTradeCalculationFunction.POSITION);
+      IborFutureOptionTradeCalculationFunction.POSITION,
+      OvernightFutureOptionTradeCalculationFunction.TRADE,
+      OvernightFutureOptionTradeCalculationFunction.POSITION);
 
   /**
    * Restricted constructor.
