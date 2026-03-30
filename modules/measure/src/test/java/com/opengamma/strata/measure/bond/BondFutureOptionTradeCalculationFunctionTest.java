@@ -31,18 +31,24 @@ import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.FieldName;
+import com.opengamma.strata.data.ImmutableMarketData;
+import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.CurveInfoType;
+import com.opengamma.strata.market.curve.CurveParameterSize;
 import com.opengamma.strata.market.curve.Curves;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
 import com.opengamma.strata.market.curve.LegalEntityGroup;
 import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.market.observable.QuoteId;
@@ -56,7 +62,6 @@ import com.opengamma.strata.market.surface.SurfaceName;
 import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
 import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 import com.opengamma.strata.measure.Measures;
-import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.pricer.bond.BlackBondFutureExpiryLogMoneynessVolatilities;
 import com.opengamma.strata.pricer.bond.BlackBondFutureOptionMarginedTradePricer;
 import com.opengamma.strata.pricer.bond.BondDataSets;
@@ -64,6 +69,7 @@ import com.opengamma.strata.pricer.bond.BondFutureVolatilitiesId;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.common.GenericVolatilitySurfaceYearFractionParameterMetadata;
 import com.opengamma.strata.pricer.datasets.LegalEntityDiscountingProviderDataSets;
+import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.bond.BondFutureOption;
@@ -152,24 +158,42 @@ public class BondFutureOptionTradeCalculationFunctionTest {
 
   @Test
   public void test_simpleMeasures() {
+    MarketQuoteSensitivityCalculator marketQuoteSensitivityCalculator = MarketQuoteSensitivityCalculator.DEFAULT;
     BondFutureOptionTradeCalculationFunction<BondFutureOptionTrade> function = BondFutureOptionTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
     LegalEntityDiscountingProvider provider = LED_LOOKUP.marketDataView(md.scenario(0)).discountingProvider();
     BlackBondFutureOptionMarginedTradePricer pricer = BlackBondFutureOptionMarginedTradePricer.DEFAULT;
     CurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, VOLS, SETTLE_PRICE);
     MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(RTRADE, provider, VOLS, SETTLE_PRICE);
+    CurrencyParameterSensitivities expectedMqDelta = marketQuoteSensitivityCalculator.sensitivity(
+        provider.parameterSensitivity(pricer.presentValueSensitivityRates(
+            RTRADE,
+            provider,
+            VOLS)),
+        provider).multipliedBy(1e-4);
+    CurrencyParameterSensitivities expectedVega = VOLS.parameterSensitivity(
+        pricer.presentValueSensitivityModelParamsVolatility(RTRADE, provider, VOLS));
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE,
         Measures.CURRENCY_EXPOSURE,
-        Measures.RESOLVED_TARGET);
+        Measures.RESOLVED_TARGET,
+        Measures.PV01_MARKET_QUOTE_SUM,
+        Measures.PV01_MARKET_QUOTE_BUCKETED,
+        Measures.VEGA_MARKET_QUOTE_BUCKETED);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
             Measures.CURRENCY_EXPOSURE, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure))))
         .containsEntry(
-            Measures.RESOLVED_TARGET, Result.success(RTRADE));
+            Measures.RESOLVED_TARGET, Result.success(RTRADE))
+        .containsEntry(
+            Measures.PV01_MARKET_QUOTE_SUM, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedMqDelta.total()))))
+        .containsEntry(
+            Measures.PV01_MARKET_QUOTE_BUCKETED, Result.success(ScenarioArray.of(ImmutableList.of(expectedMqDelta))))
+        .containsEntry(
+            Measures.VEGA_MARKET_QUOTE_BUCKETED, Result.success(ScenarioArray.of(ImmutableList.of(expectedVega))));
   }
 
   @Test
@@ -195,15 +219,35 @@ public class BondFutureOptionTradeCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   static ScenarioMarketData marketData() {
-    Curve curve = ConstantCurve.of(Curves.discountFactors("Test", ACT_360), 0.99);
-    return new TestMarketDataMap(
-        VAL_DATE,
+    Curve issuerCurve = InterpolatedNodalCurve.of(
+        Curves.zeroRates(ISSUER_CURVE_ID.getCurveName(), ACT_360).withInfo(
+            CurveInfoType.JACOBIAN,
+            JacobianCalibrationMatrix.of(
+                ImmutableList.of(
+                    CurveParameterSize.of(ISSUER_CURVE_ID.getCurveName(), 2),
+                    CurveParameterSize.of(REPO_CURVE_ID.getCurveName(), 2)),
+                DoubleMatrix.ofUnsafe(new double[][]{{0.95, 0.0, 0.0, 0.0}, {0.0, 0.95, 0.0, 0.0}}))),
+        DoubleArray.of(0.1, 0.2),
+        DoubleArray.of(0.01, 0.01),
+        LINEAR);
+    Curve repoCurve = InterpolatedNodalCurve.of(
+        Curves.zeroRates(REPO_CURVE_ID.getCurveName(), ACT_360).withInfo(
+            CurveInfoType.JACOBIAN,
+            JacobianCalibrationMatrix.of(
+                ImmutableList.of(
+                    CurveParameterSize.of(ISSUER_CURVE_ID.getCurveName(), 2),
+                    CurveParameterSize.of(REPO_CURVE_ID.getCurveName(), 2)),
+                DoubleMatrix.ofUnsafe(new double[][]{{0.0, 0.0, 0.95, 0.0}, {0.0, 0.0, 0.0, 0.95}}))),
+        DoubleArray.of(0.05, 0.15),
+        DoubleArray.of(0.01, 0.02),
+        LINEAR);
+    MarketData marketData = ImmutableMarketData.of(VAL_DATE,
         ImmutableMap.of(
-            REPO_CURVE_ID, curve,
-            ISSUER_CURVE_ID, curve,
+            REPO_CURVE_ID, issuerCurve,
+            ISSUER_CURVE_ID, repoCurve,
             QUOTE_ID, SETTLE_PRICE * 100,
-            VOLS_ID, VOLS),
-        ImmutableMap.of());
+            VOLS_ID, VOLS));
+    return ScenarioMarketData.of(1, marketData);
   }
 
 }
