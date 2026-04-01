@@ -46,6 +46,9 @@ import com.opengamma.strata.product.bond.ResolvedBondFutureOptionTrade;
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
+ *   <li>{@linkplain Measures#VEGA_MARKET_QUOTE_BUCKETED vega market quote bucketed on vol curves/surfaces}
  *   <li>{@linkplain Measures#UNIT_PRICE Unit price}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
@@ -81,6 +84,9 @@ public class BondFutureOptionTradeCalculationFunction<T extends SecuritizedProdu
           .put(Measures.PRESENT_VALUE, BondFutureOptionMeasureCalculations.DEFAULT::presentValue)
           .put(Measures.PV01_CALIBRATED_SUM, BondFutureOptionMeasureCalculations.DEFAULT::pv01CalibratedSum)
           .put(Measures.PV01_CALIBRATED_BUCKETED, BondFutureOptionMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
+          .put(Measures.PV01_MARKET_QUOTE_SUM, BondFutureOptionMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
+          .put(Measures.PV01_MARKET_QUOTE_BUCKETED, BondFutureOptionMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
+          .put(Measures.VEGA_MARKET_QUOTE_BUCKETED, BondFutureOptionMeasureCalculations.DEFAULT::vegaMarketQuoteBucketed)
           .put(Measures.UNIT_PRICE, BondFutureOptionMeasureCalculations.DEFAULT::unitPrice)
           .put(Measures.CURRENCY_EXPOSURE, BondFutureOptionMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.RESOLVED_TARGET, (rt, smd, m) -> rt)
