@@ -166,11 +166,8 @@ public class BondFutureOptionTradeCalculationFunctionTest {
     CurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, VOLS, SETTLE_PRICE);
     MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(RTRADE, provider, VOLS, SETTLE_PRICE);
     CurrencyParameterSensitivities expectedMqDelta = marketQuoteSensitivityCalculator.sensitivity(
-        provider.parameterSensitivity(pricer.presentValueSensitivityRates(
-            RTRADE,
-            provider,
-            VOLS)),
-        provider).multipliedBy(1e-4);
+        provider.parameterSensitivity(pricer.presentValueSensitivityRates(RTRADE, provider, VOLS)), provider)
+        .multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedVega = VOLS.parameterSensitivity(
         pricer.presentValueSensitivityModelParamsVolatility(RTRADE, provider, VOLS));
 

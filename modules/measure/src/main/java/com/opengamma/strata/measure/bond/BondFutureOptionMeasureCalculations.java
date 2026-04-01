@@ -170,9 +170,9 @@ final class BondFutureOptionMeasureCalculations {
     PointSensitivities pointSensitivity =
         tradePricer.presentValueSensitivityRates(trade, discountingProvider, blackVols);
     CurrencyParameterSensitivities parameterSensitivity = discountingProvider.parameterSensitivity(pointSensitivity);
-    return MARKET_QUOTE_SENS.sensitivity(
-        parameterSensitivity,
-        discountingProvider).total().multipliedBy(ONE_BASIS_POINT);
+    return MARKET_QUOTE_SENS.sensitivity(parameterSensitivity, discountingProvider)
+        .total()
+        .multipliedBy(ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------
