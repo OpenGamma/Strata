@@ -42,6 +42,11 @@ public final class StrikeType
    * @see LogMoneynessStrike
    */
   public static final StrikeType LOG_MONEYNESS = of("LogMoneyness");
+  /**
+   * The type of a strike based on simple moneyness, defined as the {@code strike-forward}.
+   * @see SimpleMoneynessStrike
+   */
+  public static final StrikeType SIMPLE_MONEYNESS = of("SimpleMoneyness");
 
   //-------------------------------------------------------------------------
   /**
