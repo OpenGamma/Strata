@@ -1057,7 +1057,7 @@ final class GlobalHolidayCalendars {
       // easter monday
       holidays.add(easter(year).plusDays(1));
       // anzac day
-      holidays.add(date(year, 4, 25));
+      holidays.add(bumpToMon(date(year, 4, 25)));
       // queen's birthday
       holidays.add(first(year, 6).with(dayOfWeekInMonth(2, MONDAY)));
       // bank holiday
