@@ -212,7 +212,8 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
     // parse fully now we know the number of legs and the default fixed leg day count
     List<SwapLeg> legs = parseLegs(row, indices, defaultFixedLegDayCount);
     Swap swap = Swap.of(legs);
-    return SwapTrade.of(info, swap);
+    SwapTrade trade = SwapTrade.of(info, swap);
+    return SwapTradeCsvPlugin.enhanceBrlCdiSwap(trade);
   }
 
   //-------------------------------------------------------------------------
