@@ -6,6 +6,7 @@
 package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.collect.Guavate.filtering;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.BUY_SELL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CONVENTION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DATE_ADJ_CAL_FIELD;
@@ -140,7 +141,7 @@ final class SwapTradeCsvPlugin implements TradeCsvParserPlugin {
 
     ImmutableList<SwapLeg> enhancedLegs = trade.getProduct().getLegs().stream()
         .map(SwapTradeCsvPlugin::addFvnToFixedLegIfNeeded)
-        .collect(ImmutableList.toImmutableList());
+        .collect(toImmutableList());
 
     return replaceLegs(trade, enhancedLegs);
   }
