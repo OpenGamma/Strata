@@ -213,7 +213,7 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
     List<SwapLeg> legs = parseLegs(row, indices, defaultFixedLegDayCount);
     Swap swap = Swap.of(legs);
     SwapTrade trade = SwapTrade.of(info, swap);
-    return SwapTradeCsvPlugin.enhanceBrlCdiSwap(trade);
+    return SwapTradeCsvPlugin.enhanceFutureValueNotional(trade);
   }
 
   //-------------------------------------------------------------------------

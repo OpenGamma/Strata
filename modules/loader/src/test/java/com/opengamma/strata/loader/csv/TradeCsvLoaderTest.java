@@ -168,7 +168,7 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
 public class TradeCsvLoaderTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final int NUMBER_SWAPS = 10;
+  private static final int NUMBER_SWAPS = 11;
 
   private static final ResourceLocator FILE =
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/trades.csv");
@@ -732,6 +732,7 @@ public class TradeCsvLoaderTest {
     SwapTrade expected7 = expectedSwap7();
     SwapTrade expected8 = expectedSwap8();
     SwapTrade expected9 = expectedSwap9();
+    SwapTrade expected10 = expectedSwap10();
 
     assertBeanEquals(expected0, filtered.get(0));
     assertBeanEquals(expected1, filtered.get(1));
@@ -743,6 +744,7 @@ public class TradeCsvLoaderTest {
     assertBeanEquals(expected7, filtered.get(7));
     assertBeanEquals(expected8, filtered.get(8));
     assertBeanEquals(expected9, filtered.get(9));
+    assertBeanEquals(expected10, filtered.get(10));
 
     checkRoundtrip(
         SwapTrade.class,
@@ -756,7 +758,8 @@ public class TradeCsvLoaderTest {
         expected6,
         expected7,
         expected8,
-        expected9);
+        expected9,
+        expected10);
   }
 
   private SwapTrade expectedSwap0() {
@@ -1070,7 +1073,10 @@ public class TradeCsvLoaderTest {
                     .paymentDateOffset(DaysAdjustment.NONE)
                     .build())
                 .notionalSchedule(NotionalSchedule.of(Currency.BRL, 1_000_000))
-                .calculation(OvernightRateCalculation.of(OvernightIndices.BRL_CDI))
+                .calculation(OvernightRateCalculation.builder()
+                    .index(OvernightIndices.BRL_CDI)
+                    .accrualMethod(OvernightAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE)
+                    .build())
                 .build())
         .build();
     return SwapTrade.builder()
@@ -1120,12 +1126,67 @@ public class TradeCsvLoaderTest {
                     .paymentDateOffset(DaysAdjustment.NONE)
                     .build())
                 .notionalSchedule(NotionalSchedule.of(Currency.BRL, 2_000_000))
-                .calculation(OvernightRateCalculation.of(OvernightIndices.BRL_CDI))
+                .calculation(OvernightRateCalculation.builder()
+                    .index(OvernightIndices.BRL_CDI)
+                    .accrualMethod(OvernightAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE)
+                    .build())
                 .build())
         .build();
     return SwapTrade.builder()
         .info(TradeInfo.builder()
             .id(StandardId.of("OG", "123420"))
+            .tradeDate(date(2017, 6, 1))
+            .build())
+        .product(expectedSwap)
+        .build();
+  }
+
+  private SwapTrade expectedSwap10() {
+    Swap expectedSwap = Swap.builder()
+        .legs(
+            RateCalculationSwapLeg.builder()
+                .payReceive(PAY)
+                .accrualSchedule(PeriodicSchedule.builder()
+                    .startDate(date(2017, 7, 1))
+                    .endDate(date(2018, 7, 1))
+                    .frequency(Frequency.TERM)
+                    .businessDayAdjustment(BusinessDayAdjustment.NONE)
+                    .stubConvention(StubConvention.SMART_INITIAL)
+                    .build())
+                .paymentSchedule(PaymentSchedule.builder()
+                    .paymentFrequency(Frequency.TERM)
+                    .paymentDateOffset(DaysAdjustment.NONE)
+                    .build())
+                .notionalSchedule(NotionalSchedule.of(Currency.BRL, 3_000_000))
+                .calculation(FixedRateCalculation.builder()
+                    .dayCount(DayCount.ofBus252(HolidayCalendarIds.BRBD))
+                    .rate(ValueSchedule.of(0.017))
+                    .build())
+                .build(),
+
+            RateCalculationSwapLeg.builder()
+                .payReceive(RECEIVE)
+                .accrualSchedule(PeriodicSchedule.builder()
+                    .startDate(date(2017, 7, 1))
+                    .endDate(date(2018, 7, 1))
+                    .frequency(Frequency.TERM)
+                    .businessDayAdjustment(BusinessDayAdjustment.NONE)
+                    .stubConvention(StubConvention.SMART_INITIAL)
+                    .build())
+                .paymentSchedule(PaymentSchedule.builder()
+                    .paymentFrequency(Frequency.TERM)
+                    .paymentDateOffset(DaysAdjustment.NONE)
+                    .build())
+                .notionalSchedule(NotionalSchedule.of(Currency.BRL, 3_000_000))
+                .calculation(OvernightRateCalculation.builder()
+                    .index(OvernightIndices.BRL_CDI)
+                    .accrualMethod(OvernightAccrualMethod.COMPOUNDED)
+                    .build())
+                .build())
+        .build();
+    return SwapTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123421"))
             .tradeDate(date(2017, 6, 1))
             .build())
         .product(expectedSwap)
@@ -2254,7 +2315,7 @@ public class TradeCsvLoaderTest {
         ImmutableList.of(FILE.getCharSource()), ImmutableList.of(FraTrade.class, TermDepositTrade.class));
 
     assertThat(trades.getValue()).hasSize(6);
-    assertThat(trades.getFailures()).hasSize(28);
+    assertThat(trades.getFailures()).hasSize(29);
     assertThat(trades.getFailures().get(0).getMessage()).isEqualTo(
         "Trade type not allowed " + SwapTrade.class.getName() + ", only these types are supported: FraTrade, TermDepositTrade");
   }

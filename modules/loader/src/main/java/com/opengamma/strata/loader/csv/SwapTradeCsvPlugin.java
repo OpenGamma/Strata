@@ -45,7 +45,6 @@ import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -62,6 +61,7 @@ import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.FutureValueNotional;
 import com.opengamma.strata.product.swap.KnownAmountSwapLeg;
 import com.opengamma.strata.product.swap.NotionalSchedule;
+import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 import com.opengamma.strata.product.swap.OvernightRateCalculation;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.SwapLeg;
@@ -126,16 +126,16 @@ final class SwapTradeCsvPlugin implements TradeCsvParserPlugin {
   // parses the swap without resolving it
   static SwapTrade parseSwap(CsvRow row, List<CsvRow> variableRows, TradeInfo info, ReferenceData refData) {
     SwapTrade trade = parseRow(row, info, refData);
-    trade = enhanceBrlCdiSwap(trade);
+    trade = enhanceFutureValueNotional(trade);
     trade = parseVariableNotional(trade, variableRows);
     trade = parseVariableFixedRate(trade, variableRows);
     trade = parseVariableKnownAmount(trade, variableRows);
     return trade;
   }
 
-  // enhances BRL-CDI swaps by adding FutureValueNotional to the fixed leg
-  static SwapTrade enhanceBrlCdiSwap(SwapTrade trade) {
-    if (!hasBrlCdiFloatingLeg(trade)) {
+  // adds the FutureValueNotional to the fixed leg if not present (for BRL swaps)
+  static SwapTrade enhanceFutureValueNotional(SwapTrade trade) {
+    if (!hasOvernightCompoundedAnnualRateLeg(trade)) {
       return trade;
     }
 
@@ -146,13 +146,13 @@ final class SwapTradeCsvPlugin implements TradeCsvParserPlugin {
     return replaceLegs(trade, enhancedLegs);
   }
 
-  // checks if the swap has a BRL-CDI floating leg
-  private static boolean hasBrlCdiFloatingLeg(SwapTrade trade) {
+  // checks if the swap has an overnight leg with annual compounding accrual method
+  private static boolean hasOvernightCompoundedAnnualRateLeg(SwapTrade trade) {
     return trade.getProduct().getLegs().stream()
         .flatMap(filtering(RateCalculationSwapLeg.class))
         .map(RateCalculationSwapLeg::getCalculation)
         .flatMap(filtering(OvernightRateCalculation.class))
-        .anyMatch(calc -> calc.getIndex().equals(OvernightIndices.BRL_CDI));
+        .anyMatch(calc -> calc.getAccrualMethod().equals(OvernightAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE));
   }
 
   // adds FutureValueNotional to a fixed leg if not already present
