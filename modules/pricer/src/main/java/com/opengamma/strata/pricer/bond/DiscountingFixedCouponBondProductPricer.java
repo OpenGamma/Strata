@@ -12,6 +12,7 @@ import static com.opengamma.strata.product.bond.FixedCouponBondYieldConvention.J
 import static com.opengamma.strata.product.bond.FixedCouponBondYieldConvention.US_STREET;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.function.Function;
 
 import com.google.common.collect.ImmutableList;
@@ -624,20 +625,32 @@ public class DiscountingFixedCouponBondProductPricer {
       LocalDate settlementDate,
       double yield) {
 
-    int nbCoupon = bond.getPeriodicPayments().size();
-    double factorOnPeriod = 1 + yield / ((double) bond.getFrequency().eventsPerYear());
+    List<FixedCouponBondPaymentPeriod> periodicPayments = bond.getPeriodicPayments();
+    int eventsPerYear = bond.getFrequency().eventsPerYear();
+    double factorOnPeriod = 1 + yield / ((double) eventsPerYear);
     double fixedRate = bond.getFixedRate();
     double pvAtFirstCoupon = 0;
-    int pow = 0;
-    for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
-      FixedCouponBondPaymentPeriod period = bond.getPeriodicPayments().get(loopcpn);
+    double factor = 1;
+    boolean first = true;
+    for (FixedCouponBondPaymentPeriod period : periodicPayments) {
       if ((period.hasExCouponPeriod() && !settlementDate.isAfter(period.getDetachmentDate())) ||
           (!period.hasExCouponPeriod() && period.getPaymentDate().isAfter(settlementDate))) {
-        pvAtFirstCoupon += fixedRate * period.getYearFraction() / Math.pow(factorOnPeriod, pow);
-        ++pow;
+        double yearFraction = period.getYearFraction();
+        if (first) {
+          first = false;
+          factor = 1;
+        } else {
+          if (period.isIsRegular()) {
+            factor *= factorOnPeriod;
+          } else {
+            factor *= Math.pow(factorOnPeriod, yearFraction * eventsPerYear);
+          }
+        }
+        pvAtFirstCoupon += yearFraction / factor;
       }
     }
-    pvAtFirstCoupon += 1d / Math.pow(factorOnPeriod, pow - 1);
+    pvAtFirstCoupon *= fixedRate;
+    pvAtFirstCoupon += 1d / factor;
     return pvAtFirstCoupon * Math.pow(factorOnPeriod, -factorToNextCoupon(bond, settlementDate));
   }
 
