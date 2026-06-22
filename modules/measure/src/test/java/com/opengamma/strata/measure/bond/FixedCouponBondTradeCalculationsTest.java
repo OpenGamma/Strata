@@ -8,20 +8,25 @@ package com.opengamma.strata.measure.bond;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
+import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.bond.DiscountingFixedCouponBondTradePricer;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
+import com.opengamma.strata.pricer.bond.RepoCurveDiscountFactors;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.product.bond.ResolvedFixedCouponBondTrade;
 
@@ -89,6 +94,29 @@ public class FixedCouponBondTradeCalculationsTest {
         1.0e-10)).isTrue();
     assertThat(bucketedComputed.getScenarioCount()).isEqualTo(1);
     assertThat(bucketedComputed.get(0).equalWithTolerance(expectedPv01CalBucketed, 1.0e-10)).isTrue();
+  }
+
+  @Test
+  public void test_cashflows() {
+    DiscountingPaymentPricer paymentPricer = new DiscountingPaymentPricer();
+    ScenarioMarketData md = FixedCouponBondTradeCalculationFunctionTest.marketData();
+    LegalEntityDiscountingProvider provider = LOOKUP.marketDataView(md.scenario(0)).discountingProvider();
+    FixedCouponBondMeasureCalculations pricer = FixedCouponBondMeasureCalculations.DEFAULT;
+    CashFlows cashFlows = pricer.cashFlows(RTRADE, provider);
+    double cashFlowsPV = cashFlows.getCashFlows()
+            .stream()
+            .map(c -> c.getPresentValue().getAmount())
+            .reduce(0.0, Double::sum);
+
+    RepoCurveDiscountFactors df = provider.repoCurveDiscountFactors(RTRADE.getProduct().getSecurityId(),
+            RTRADE.getProduct().getLegalEntityId(), RTRADE.getProduct().getCurrency());
+    DiscountingFixedCouponBondTradePricer pricer2 = DiscountingFixedCouponBondTradePricer.DEFAULT;
+    Payment test = pricer2.upfrontPayment(RTRADE);
+    CurrencyAmount presentValuePayment = paymentPricer.presentValue(test, df.getDiscountFactors());
+    cashFlowsPV += presentValuePayment.getAmount();
+
+    CurrencyAmount expectedPv = pricer2.presentValue(RTRADE, provider);
+    assertThat(expectedPv.getAmount()).isCloseTo(cashFlowsPV, Offset.offset(1.0e-10));
   }
 
 }
