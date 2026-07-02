@@ -1,0 +1,14 @@
+name: Claude PR Review
+
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+  pull_request_review_comment:
+    types: [created]
+  issue_comment:
+    types: [created]
+
+jobs:
+  review:
+    uses: OpenGamma/og-github-actions/.github/workflows/claude-pr-review.yml@v1
+    secrets: inherit
