@@ -83,6 +83,16 @@ final class StandardFixedIborSwapConventions {
           IborRateSwapLegConvention.of(IborIndices.EUR_EURIBOR_6M));
 
   /**
+   * EUR(>1Y) vanilla fixed vs Euribor 12M swap.
+   * The fixed leg pays yearly with day count '30U/360'.
+   */
+  public static final FixedIborSwapConvention EUR_FIXED_1Y_EURIBOR_12M =
+      ImmutableFixedIborSwapConvention.of(
+          "EUR-FIXED-1Y-EURIBOR-12M",
+          FixedRateSwapLegConvention.of(EUR, THIRTY_U_360, P12M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA)),
+          IborRateSwapLegConvention.of(IborIndices.EUR_EURIBOR_12M));
+
+  /**
    * EUR(1Y) vanilla fixed vs LIBOR 3M swap.
    * The fixed leg pays yearly with day count '30U/360'.
    */

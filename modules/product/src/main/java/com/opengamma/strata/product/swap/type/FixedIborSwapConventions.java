@@ -57,6 +57,15 @@ public final class FixedIborSwapConventions {
   public static final FixedIborSwapConvention EUR_FIXED_1Y_EURIBOR_6M =
       FixedIborSwapConvention.of(StandardFixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M.getName());
 
+  /**
+   * The 'EUR-FIXED-1Y-EURIBOR-12M' swap convention.
+   * <p>
+   * EUR(>1Y) vanilla fixed vs Euribor 12M swap.
+   * The fixed leg pays yearly with day count '30U/360'.
+   */
+  public static final FixedIborSwapConvention EUR_FIXED_1Y_EURIBOR_12M =
+      FixedIborSwapConvention.of(StandardFixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_12M.getName());
+
   //-------------------------------------------------------------------------
   /**
    * The 'EUR-FIXED-1Y-LIBOR-3M' swap convention.
