@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
 import com.opengamma.strata.calc.marketdata.MarketDataFunction;
@@ -29,6 +30,7 @@ import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.CurveDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.RatesCurveGroup;
 import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.RatesCurveGroupId;
@@ -326,7 +328,9 @@ public class RatesCurveGroupMarketDataFunction implements MarketDataFunction<Rat
       RatesCurveInputsId curveInputsId = RatesCurveInputsId.of(groupName, curveDefn.getName(), obsSource);
       return marketData.getValue(curveInputsId);
     } else {
-      return MarketDataBox.ofSingleValue(RatesCurveInputs.builder().build());
+      // Empty market-data map still requires non-null curve metadata (#2743).
+      return MarketDataBox.ofSingleValue(
+          RatesCurveInputs.of(ImmutableMap.of(), DefaultCurveMetadata.of(curveDefn.getName())));
     }
   }
 

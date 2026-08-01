@@ -365,6 +365,41 @@ public class RatesCurveGroupMarketDataFunctionTest {
         .withMessageMatching(msg);
   }
 
+  /**
+   * Curve definitions with no market-data requirements must not build RatesCurveInputs
+   * via an empty builder (curveMetadata is required). See #2743.
+   */
+  @Test
+  public void curveDefinitionWithoutMarketDataNodes() {
+    CurveGroupName groupName = CurveGroupName.of("Curve Group");
+    CurveName curveName = CurveName.of("Empty Curve");
+    InterpolatedNodalCurveDefinition curveDefn = InterpolatedNodalCurveDefinition.builder()
+        .name(curveName)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.ZERO_RATE)
+        .dayCount(ACT_360)
+        .interpolator(CurveInterpolators.LINEAR)
+        .extrapolatorLeft(CurveExtrapolators.FLAT)
+        .extrapolatorRight(CurveExtrapolators.FLAT)
+        .build();
+    RatesCurveGroupDefinition groupDefn = RatesCurveGroupDefinition.builder()
+        .name(groupName)
+        .addDiscountCurve(curveDefn, Currency.USD)
+        .build();
+
+    RatesCurveGroupMarketDataFunction function = new RatesCurveGroupMarketDataFunction();
+    LocalDate valuationDate = date(2011, 3, 8);
+    ScenarioMarketData inputMarketData = ImmutableScenarioMarketData.builder(valuationDate).build();
+
+    // Must not fail with "curveMetadata must not be null" when resolving empty inputs.
+    // Calibration of a zero-node curve may still fail for other reasons.
+    try {
+      function.buildCurveGroup(groupDefn, CALIBRATOR, inputMarketData, REF_DATA, ObservableSource.NONE);
+    } catch (RuntimeException ex) {
+      assertThat(ex.getMessage()).doesNotContain("curveMetadata");
+    }
+  }
+
   //-----------------------------------------------------------------------------------------------------------
 
   private void checkFraPvIsZero(
