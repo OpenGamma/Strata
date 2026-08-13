@@ -168,7 +168,7 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
 public class TradeCsvLoaderTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final int NUMBER_SWAPS = 11;
+  private static final int NUMBER_SWAPS = 12;
 
   private static final ResourceLocator FILE =
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/trades.csv");
@@ -745,6 +745,13 @@ public class TradeCsvLoaderTest {
     assertBeanEquals(expected8, filtered.get(8));
     assertBeanEquals(expected9, filtered.get(9));
     assertBeanEquals(expected10, filtered.get(10));
+    SwapTrade overnightSwap = filtered.get(11);
+    assertThat(overnightSwap.getInfo().getId().get().getValue()).isEqualTo("123422");
+    assertThat(overnightSwap.getProduct().getLegs()).hasSize(2);
+    assertThat(overnightSwap.getProduct().getLegs().get(0).getCurrency()).isEqualTo(EUR);
+    assertThat(overnightSwap.getProduct().getLegs().get(1).getCurrency()).isEqualTo(USD);
+    assertThat(overnightSwap.getProduct().getLegs().get(0).getPayReceive()).isEqualTo(PAY);
+    assertThat(overnightSwap.getProduct().getLegs().get(1).getPayReceive()).isEqualTo(RECEIVE);
 
     checkRoundtrip(
         SwapTrade.class,
@@ -759,7 +766,8 @@ public class TradeCsvLoaderTest {
         expected7,
         expected8,
         expected9,
-        expected10);
+        expected10,
+        overnightSwap);
   }
 
   private SwapTrade expectedSwap0() {
@@ -2315,7 +2323,7 @@ public class TradeCsvLoaderTest {
         ImmutableList.of(FILE.getCharSource()), ImmutableList.of(FraTrade.class, TermDepositTrade.class));
 
     assertThat(trades.getValue()).hasSize(6);
-    assertThat(trades.getFailures()).hasSize(29);
+    assertThat(trades.getFailures()).hasSize(30);
     assertThat(trades.getFailures().get(0).getMessage()).isEqualTo(
         "Trade type not allowed " + SwapTrade.class.getName() + ", only these types are supported: FraTrade, TermDepositTrade");
   }
