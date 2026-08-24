@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.measure.cms;
 
-import static com.opengamma.strata.market.ValueType.NORMAL_VOLATILITY;
-
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.collect.ArgChecker;
@@ -56,8 +54,10 @@ final class CmsMeasureCalculations {
     SabrExtrapolationReplicationCmsPeriodPricer periodPricer =
         SabrExtrapolationReplicationCmsPeriodPricer.of(cmsParams.getCutOffStrike(), cmsParams.getMu());
     SabrExtrapolationReplicationCmsLegPricer legPricer = new SabrExtrapolationReplicationCmsLegPricer(periodPricer);
-    SabrExtrapolationReplicationCmsProductPricer productPricer = new SabrExtrapolationReplicationCmsProductPricer(legPricer);
-    SabrExtrapolationReplicationCmsTradePricer tradePricer = new SabrExtrapolationReplicationCmsTradePricer(productPricer);
+    SabrExtrapolationReplicationCmsProductPricer productPricer =
+        new SabrExtrapolationReplicationCmsProductPricer(legPricer);
+    SabrExtrapolationReplicationCmsTradePricer tradePricer =
+        new SabrExtrapolationReplicationCmsTradePricer(productPricer);
     this.tradePricer = ArgChecker.notNull(tradePricer, "tradePricer");
   }
 
@@ -211,7 +211,7 @@ final class CmsMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
-  // calculates normal vega for all scenarios
+  // calculates vega for all scenarios
   ScenarioArray<CurrencyParameterSensitivities> vegaMarketQuoteBucketed(
       ResolvedCmsTrade trade,
       RatesScenarioMarketData ratesMarketData,
@@ -226,20 +226,17 @@ final class CmsMeasureCalculations {
             swaptionMarketData.scenario(i).volatilities(index)));
   }
 
-  //  normal vega for one scenario
+  //  vega for one scenario
   CurrencyParameterSensitivities vegaMarketQuoteBucketed(
       ResolvedCmsTrade trade,
       RatesProvider ratesProvider,
       SwaptionVolatilities volatilities) {
 
-    if (!volatilities.getVolatilityType().equals(NORMAL_VOLATILITY)) {
-      throw new IllegalArgumentException("Vega calculation requires normal volatilities");
-    }
     PointSensitivities pointSensitivity = pointSensitivityVega(trade, ratesProvider, volatilities);
     return volatilities.parameterSensitivity(pointSensitivity);
   }
 
-  //  normal vega point sensitivity
+  //  vega point sensitivity
   private PointSensitivities pointSensitivityVega(
       ResolvedCmsTrade trade,
       RatesProvider ratesProvider,

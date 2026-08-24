@@ -13,7 +13,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -54,10 +53,7 @@ import com.opengamma.strata.pricer.cms.SabrExtrapolationReplicationCmsLegPricer;
 import com.opengamma.strata.pricer.cms.SabrExtrapolationReplicationCmsPeriodPricer;
 import com.opengamma.strata.pricer.cms.SabrExtrapolationReplicationCmsProductPricer;
 import com.opengamma.strata.pricer.cms.SabrExtrapolationReplicationCmsTradePricer;
-import com.opengamma.strata.pricer.impl.volatility.smile.SabrHaganNormalVolatilityFormula;
-import com.opengamma.strata.pricer.model.SabrInterestRateParameters;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.swaption.NormalSabrParametersSwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.SabrParametersSwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.SwaptionSabrRateVolatilityDataSet;
 import com.opengamma.strata.pricer.swaption.SwaptionVolatilities;
@@ -122,8 +118,6 @@ public class CmsTradeCalculationFunctionTest {
   private static final LocalDate VAL_DATE = START.plusMonths(1);
   public static final SabrParametersSwaptionVolatilities VOLS =
       SwaptionSabrRateVolatilityDataSet.getVolatilitiesEur(VAL_DATE, false);
-  // the same SABR parameters, interpreted as normal volatilities, as required by vega
-  public static final NormalSabrParametersSwaptionVolatilities NORMAL_VOLS = normalVolatilities(VOLS);
   private static final SabrExtrapolationReplicationCmsTradePricer PRICER =
       new SabrExtrapolationReplicationCmsTradePricer(
           new SabrExtrapolationReplicationCmsProductPricer(
@@ -162,27 +156,16 @@ public class CmsTradeCalculationFunctionTest {
   @Test
   public void test_vegaMarketQuoteBucketed() {
     CmsTradeCalculationFunction function = new CmsTradeCalculationFunction();
-    ScenarioMarketData md = marketData(NORMAL_VOLS);
+    ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
-    PointSensitivities pointSens = PRICER.presentValueSensitivityModelParamsSabr(RTRADE, provider, NORMAL_VOLS);
-    CurrencyParameterSensitivities expectedVega = NORMAL_VOLS.parameterSensitivity(pointSens);
+    PointSensitivities pointSens = PRICER.presentValueSensitivityModelParamsSabr(RTRADE, provider, VOLS);
+    CurrencyParameterSensitivities expectedVega = VOLS.parameterSensitivity(pointSens);
 
     Set<Measure> measures = ImmutableSet.of(Measures.VEGA_MARKET_QUOTE_BUCKETED);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.VEGA_MARKET_QUOTE_BUCKETED,
             Result.success(ScenarioArray.of(ImmutableList.of(expectedVega))));
-  }
-
-  @Test
-  public void test_vegaMarketQuoteBucketed_requiresNormalVolatilities() {
-    CmsTradeCalculationFunction function = new CmsTradeCalculationFunction();
-    Set<Measure> measures = ImmutableSet.of(Measures.VEGA_MARKET_QUOTE_BUCKETED);
-    Map<Measure, Result<?>> results = function.calculate(TRADE, measures, PARAMS, marketData(), REF_DATA);
-
-    Result<?> vega = results.get(Measures.VEGA_MARKET_QUOTE_BUCKETED);
-    assertThat(vega.isFailure()).isTrue();
-    assertThat(vega.getFailure().getMessage()).isEqualTo("Vega calculation requires normal volatilities");
   }
 
   //-------------------------------------------------------------------------
@@ -201,24 +184,6 @@ public class CmsTradeCalculationFunctionTest {
         ImmutableMap.of(
             IndexQuoteId.of(SWAP_INDEX), ts));
     return md;
-  }
-
-  // the SABR parameters of the specified volatilities, restated using the normal SABR formula
-  private static NormalSabrParametersSwaptionVolatilities normalVolatilities(
-      SabrParametersSwaptionVolatilities volatilities) {
-
-    SabrInterestRateParameters parameters = volatilities.getParameters();
-    SabrInterestRateParameters normalParameters = SabrInterestRateParameters.of(
-        parameters.getAlphaSurface(),
-        parameters.getBetaSurface(),
-        parameters.getRhoSurface(),
-        parameters.getNuSurface(),
-        SabrHaganNormalVolatilityFormula.DEFAULT);
-    return NormalSabrParametersSwaptionVolatilities.of(
-        volatilities.getName(),
-        volatilities.getConvention(),
-        volatilities.getValuationDateTime(),
-        normalParameters);
   }
 
 }
