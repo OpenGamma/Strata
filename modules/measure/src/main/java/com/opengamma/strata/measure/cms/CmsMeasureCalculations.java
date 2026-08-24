@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.measure.cms;
 
+import static com.opengamma.strata.market.ValueType.NORMAL_VOLATILITY;
+
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.collect.ArgChecker;
@@ -47,7 +49,7 @@ final class CmsMeasureCalculations {
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param cmsParams  the CMS parameters
    */
   CmsMeasureCalculations(CmsSabrExtrapolationParams cmsParams) {
@@ -61,7 +63,7 @@ final class CmsMeasureCalculations {
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param tradePricer  the pricer function for {@link ResolvedCmsTrade}
    */
   CmsMeasureCalculations(SabrExtrapolationReplicationCmsTradePricer tradePricer) {
@@ -206,6 +208,44 @@ final class CmsMeasureCalculations {
       SwaptionVolatilities volatilities) {
 
     return tradePricer.presentValueSensitivityRates(trade, ratesProvider, checkSabr(volatilities));
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates normal vega for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> vegaMarketQuoteBucketed(
+      ResolvedCmsTrade trade,
+      RatesScenarioMarketData ratesMarketData,
+      SwaptionScenarioMarketData swaptionMarketData) {
+
+    RateIndex index = cmsLegRateIndex(trade);
+    return ScenarioArray.of(
+        ratesMarketData.getScenarioCount(),
+        i -> vegaMarketQuoteBucketed(
+            trade,
+            ratesMarketData.scenario(i).ratesProvider(),
+            swaptionMarketData.scenario(i).volatilities(index)));
+  }
+
+  //  normal vega for one scenario
+  CurrencyParameterSensitivities vegaMarketQuoteBucketed(
+      ResolvedCmsTrade trade,
+      RatesProvider ratesProvider,
+      SwaptionVolatilities volatilities) {
+
+    if (!volatilities.getVolatilityType().equals(NORMAL_VOLATILITY)) {
+      throw new IllegalArgumentException("Vega calculation requires normal volatilities");
+    }
+    PointSensitivities pointSensitivity = pointSensitivityVega(trade, ratesProvider, volatilities);
+    return volatilities.parameterSensitivity(pointSensitivity);
+  }
+
+  //  normal vega point sensitivity
+  private PointSensitivities pointSensitivityVega(
+      ResolvedCmsTrade trade,
+      RatesProvider ratesProvider,
+      SwaptionVolatilities volatilities) {
+
+    return tradePricer.presentValueSensitivityModelParamsSabr(trade, ratesProvider, checkSabr(volatilities));
   }
 
   //-------------------------------------------------------------------------

@@ -23,6 +23,7 @@ import com.opengamma.strata.pricer.cms.SabrExtrapolationReplicationCmsPeriodPric
 import com.opengamma.strata.pricer.cms.SabrExtrapolationReplicationCmsProductPricer;
 import com.opengamma.strata.pricer.cms.SabrExtrapolationReplicationCmsTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.swaption.NormalSabrParametersSwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.SabrSwaptionVolatilities;
 import com.opengamma.strata.product.cms.ResolvedCmsTrade;
 
@@ -36,6 +37,8 @@ public class CmsTradeCalculationsTest {
   private static final SwaptionMarketDataLookup SWAPTION_LOOKUP = CmsTradeCalculationFunctionTest.SWAPTION_LOOKUP;
   private static final CmsSabrExtrapolationParams CMS_MODEL = CmsTradeCalculationFunctionTest.CMS_MODEL;
   private static final SabrSwaptionVolatilities VOLS = CmsTradeCalculationFunctionTest.VOLS;
+  private static final NormalSabrParametersSwaptionVolatilities NORMAL_VOLS =
+      CmsTradeCalculationFunctionTest.NORMAL_VOLS;
 
   //-------------------------------------------------------------------------
   @Test
@@ -77,6 +80,22 @@ public class CmsTradeCalculationsTest {
         .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
     assertThat(calcs.pv01RatesCalibratedBucketed(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md))
         .isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+  }
+
+  @Test
+  public void test_vega() {
+    ScenarioMarketData md = CmsTradeCalculationFunctionTest.marketData(NORMAL_VOLS);
+    RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
+    SabrExtrapolationReplicationCmsTradePricer pricer = new SabrExtrapolationReplicationCmsTradePricer(
+        new SabrExtrapolationReplicationCmsProductPricer(
+            new SabrExtrapolationReplicationCmsLegPricer(
+                SabrExtrapolationReplicationCmsPeriodPricer.of(CMS_MODEL.getCutOffStrike(), CMS_MODEL.getMu()))));
+    PointSensitivities vegaPointSens = pricer.presentValueSensitivityModelParamsSabr(RTRADE, provider, NORMAL_VOLS);
+    CurrencyParameterSensitivities expectedVega = NORMAL_VOLS.parameterSensitivity(vegaPointSens);
+
+    CmsTradeCalculations calcs = CmsTradeCalculations.of(CMS_MODEL);
+    assertThat(calcs.vegaMarketQuoteBucketed(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md))
+        .isEqualTo(ScenarioArray.of(ImmutableList.of(expectedVega)));
   }
 
 }
