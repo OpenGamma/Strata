@@ -99,6 +99,32 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>verify-classloader-fix</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>java</executable>
+              <classpathScope>test</classpathScope>
+              <arguments>
+                <argument>-classpath</argument>
+                <classpath/>
+                <argument>com.opengamma.strata.collect.named.ExtendedEnumClassLoaderIsolationTest</argument>
+                <argument>${project.build.directory}/${project.build.finalName}.jar</argument>
+                <argument>${project.basedir}/../basics/target/strata-basics-${project.version}.jar</argument>
+                <argument>${project.basedir}/../data/target/strata-data-${project.version}.jar</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
