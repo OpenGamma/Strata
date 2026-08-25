@@ -43,6 +43,7 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
+import com.opengamma.strata.market.amount.CashFlow;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
@@ -165,6 +166,16 @@ public class DiscountingFixedCouponBondProductPricerTest {
     expected = expected.plus(pvCupon);
     assertThat(computed.getCurrency()).isEqualTo(EUR);
     assertThat(computed.getAmount()).isCloseTo(expected.getAmount(), offset(NOTIONAL * TOL));
+  }
+
+  @Test
+  public void test_cashFlows() {
+    List<CashFlow> cashFlows = PRICER.cashFlows(PRODUCT, DSC_FACTORS_ISSUER);
+
+    //
+    double pv = cashFlows.stream().map(c -> c.getPresentValue().getAmount()).reduce(0.0, Double::sum);
+    CurrencyAmount computed = PRICER.presentValue(PRODUCT, PROVIDER);
+    assertThat(computed.getAmount()).isCloseTo(pv, offset(NOTIONAL * TOL));
   }
 
   @Test
