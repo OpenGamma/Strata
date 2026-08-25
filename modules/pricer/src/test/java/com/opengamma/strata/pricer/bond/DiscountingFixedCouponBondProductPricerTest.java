@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -115,6 +116,27 @@ public class DiscountingFixedCouponBondProductPricerTest {
       .yieldConvention(YIELD_CONVENTION)
       .build()
       .resolve(REF_DATA);
+  private static final PeriodicSchedule PERIOD_SCHEDULE_WITH_FIRST_REGULAR_START_DATE = PeriodicSchedule.builder()
+      .startDate(LocalDate.of(2021, Month.JUNE, 30))
+      .firstRegularStartDate(LocalDate.of(2021, Month.OCTOBER, 15))
+      .endDate(LocalDate.of(2026, Month.JUNE, 30))
+      .frequency(Frequency.P6M)
+      .businessDayAdjustment(BUSINESS_ADJUST)
+      .stubConvention(StubConvention.SMART_FINAL)
+      .build();
+  private static final ResolvedFixedCouponBond PRODUCT_WITH_FIRST_REGULAR_START_DATE = FixedCouponBond.builder()
+      .securityId(SECURITY_ID)
+      .dayCount(DayCounts.THIRTY_E_360_ISDA)
+      .fixedRate(0.085)
+      .legalEntityId(ISSUER_ID)
+      .currency(EUR)
+      .notional(1_000_000)
+      .accrualSchedule(PERIOD_SCHEDULE_WITH_FIRST_REGULAR_START_DATE)
+      .settlementDateOffset(DaysAdjustment.ofBusinessDays(2, EUR_CALENDAR))
+      .yieldConvention(FixedCouponBondYieldConvention.DE_BONDS)
+      .exCouponPeriod(EX_COUPON)
+      .build()
+      .resolve(REF_DATA);
 
   // rates provider
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
@@ -150,6 +172,64 @@ public class DiscountingFixedCouponBondProductPricerTest {
       DiscountingFixedCouponBondPaymentPeriodPricer.DEFAULT;
   private static final RatesFiniteDifferenceSensitivityCalculator FD_CAL =
       new RatesFiniteDifferenceSensitivityCalculator(EPS);
+
+  @Test
+  public void test_yield_act_act_isda() {
+    PeriodicSchedule period = PeriodicSchedule.builder()
+          .startDate(LocalDate.of(2021, Month.JUNE, 30))
+          .endDate(LocalDate.of(2026, Month.JUNE, 30))
+          .frequency(Frequency.P6M)
+          .businessDayAdjustment(BUSINESS_ADJUST)
+          .build();
+    ResolvedFixedCouponBond bond = FixedCouponBond.builder()
+          .securityId(SECURITY_ID)
+          .dayCount(DayCounts.ACT_ACT_ISDA)
+          .fixedRate(0.085)
+          .legalEntityId(ISSUER_ID)
+          .currency(EUR)
+          .notional(100)
+          .accrualSchedule(period)
+          .settlementDateOffset(DaysAdjustment.ofBusinessDays(2, EUR_CALENDAR))
+          .yieldConvention(FixedCouponBondYieldConvention.DE_BONDS)
+          .exCouponPeriod(EX_COUPON)
+          .build()
+          .resolve(REF_DATA);
+    double cleanPrice = 1.05;
+    LocalDate settlementDate = period.getStartDate();
+    double dirtyPrice = PRICER.dirtyPriceFromCleanPrice(bond, settlementDate, cleanPrice);
+    assertThat(dirtyPrice).isCloseTo(cleanPrice, offset(TOL)); // 2.x.
+    double yield = PRICER.yieldFromDirtyPrice(bond, settlementDate, dirtyPrice);
+    assertThat(yield).isCloseTo(0.07286881667273096, offset(TOL)); // 2.x.œœ
+  }
+
+  @Test
+  public void test_yield_act_act_icma() {
+    PeriodicSchedule period = PeriodicSchedule.builder()
+          .startDate(LocalDate.of(2021, Month.JUNE, 30))
+          .endDate(LocalDate.of(2026, Month.JUNE, 30))
+          .frequency(Frequency.P6M)
+          .businessDayAdjustment(BUSINESS_ADJUST)
+          .build();
+    ResolvedFixedCouponBond bond = FixedCouponBond.builder()
+          .securityId(SECURITY_ID)
+          .dayCount(DayCounts.ACT_ACT_ICMA)
+          .fixedRate(0.085)
+          .legalEntityId(ISSUER_ID)
+          .currency(EUR)
+          .notional(100)
+          .accrualSchedule(period)
+          .settlementDateOffset(DaysAdjustment.ofBusinessDays(2, EUR_CALENDAR))
+          .yieldConvention(FixedCouponBondYieldConvention.DE_BONDS)
+          .exCouponPeriod(EX_COUPON)
+          .build()
+          .resolve(REF_DATA);
+    double cleanPrice = 1.05;
+    LocalDate settlementDate = period.getStartDate();
+    double dirtyPrice = PRICER.dirtyPriceFromCleanPrice(bond, settlementDate, cleanPrice);
+    assertThat(dirtyPrice).isCloseTo(cleanPrice, offset(TOL)); // 2.x.
+    double yield = PRICER.yieldFromDirtyPrice(bond, settlementDate, dirtyPrice);
+    assertThat(yield).isCloseTo(0.07288818170674201, offset(TOL)); // 2.x.œœ
+  }
 
   //-------------------------------------------------------------------------
   @Test
@@ -328,6 +408,21 @@ public class DiscountingFixedCouponBondProductPricerTest {
     double cleanPrice = PRICER.cleanPriceFromDirtyPrice(bond, settlement, dirtyPrice);
     double accruedInterest = PRICER.accruedInterest(bond, settlement);
     assertThat(cleanPrice).isCloseTo(dirtyPrice - accruedInterest / NOTIONAL, offset(NOTIONAL * TOL));
+  }
+
+  @Test
+  public void test_yieldWithFirstRegularStartDate() {
+    double cleanPrice = 1.0009;
+    LocalDate settlementDate = LocalDate.of(2023, Month.JUNE, 6);
+    double dirtyPrice = PRICER.dirtyPriceFromCleanPrice(PRODUCT_WITH_FIRST_REGULAR_START_DATE, settlementDate, cleanPrice);
+    assertThat(dirtyPrice).isCloseTo(1.0129416666666667, offset(TOL)); // 2.x.
+    double yield = PRICER.yieldFromDirtyPrice(PRODUCT_WITH_FIRST_REGULAR_START_DATE, settlementDate, dirtyPrice);
+    assertThat(yield).isCloseTo(0.08465593560577835, offset(TOL));
+    settlementDate = LocalDate.of(2024, Month.APRIL, 26);
+    double dirtyPriceRbt = PRICER.dirtyPriceFromYield(PRODUCT_WITH_FIRST_REGULAR_START_DATE, settlementDate, yield);
+    double cleanPriceRbt = PRICER.cleanPriceFromDirtyPrice(PRODUCT_WITH_FIRST_REGULAR_START_DATE, settlementDate, dirtyPriceRbt);
+    double delta = (cleanPriceRbt - cleanPrice) * PRODUCT_WITH_FIRST_REGULAR_START_DATE.getNotional();
+    assertThat(delta).isCloseTo(-100.27459341377387, offset(TOL));
   }
 
   //-------------------------------------------------------------------------
