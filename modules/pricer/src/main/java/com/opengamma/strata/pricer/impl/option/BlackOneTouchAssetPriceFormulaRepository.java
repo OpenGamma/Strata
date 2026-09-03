@@ -75,7 +75,33 @@ public class BlackOneTouchAssetPriceFormulaRepository {
     double xE = isKnockIn ?
         getF(spot, z, lognormalVolT, h, mu, lambda, eta, h) :
         getE(spot, df1, x2, y2, h, mu, eta);
-    return xE;
+    // The Haug series is ill-conditioned at very low volatility: mu scales with 1/vol^2, so the (h/spot)^(2*(mu+1)) and
+    // (h/spot)^(mu+-lambda) power terms diverge and the truncated value can fall outside its theoretical range or
+    // overflow to a non-finite value. Bound the artefact against the no-arbitrage range.
+    double df2 = Math.exp(-rate * timeToExpiry);
+    return boundPrice(xE, isKnockIn, spot, df1, df2, h);
+  }
+
+  // Bounds the price against its theoretical no-arbitrage range. A finite value is clamped to that range: the no-touch
+  // leg delivers the asset at expiry, so its value is bounded by the discounted forward asset price spot*df1 (surviving
+  // is a subset of all paths and the payoff is non-negative); the one-touch leg delivers the barrier level at the hit
+  // time, so its discounted value is bounded in [0, barrier*max(1, df2)] (max covers a negative rate, df2 the discount
+  // factor). A non-finite value means the series has overflowed at near-zero volatility; it is replaced with the
+  // deterministic zero-volatility limit, consistent with the near-zero-volatility branch (no-touch delivers the
+  // discounted forward asset, one-touch delivers nothing).
+  private static double boundPrice(
+      double price,
+      boolean isKnockIn,
+      double spot,
+      double df1,
+      double df2,
+      double barrier) {
+
+    double upper = isKnockIn ? barrier * Math.max(1.0d, df2) : spot * df1;
+    if (Double.isFinite(price)) {
+      return Math.min(upper, Math.max(0.0d, price));
+    }
+    return isKnockIn ? 0.0d : spot * df1;
   }
 
   /**
@@ -187,7 +213,17 @@ public class BlackOneTouchAssetPriceFormulaRepository {
     derivatives[4] = +(costOfCarry - rate) * df1 * df1Bar + lognormalVolTBar * lognormalVolT * 0.5 / timeToExpiry;
     derivatives[5] += -dxyds * x2Bar / spot + dxyds * y2Bar / spot + dxyds * zBar / spot + dxyds * dxyds * x2SqBar +
         2d * dxyds * x2sBar + dxyds * dxyds * y2SqBar - 2d * dxyds * y2sBar + dxyds * dxyds * zSqBar - 2d * dxyds * zsBar;
-    return ValueDerivatives.of(price, DoubleArray.ofUnsafe(derivatives));
+    // When the ill-conditioned series pushes the value outside its theoretical range, or leaves the value finite while
+    // the divergent power terms overflow the accumulated derivatives, the sensitivities are numerical noise. Bound the
+    // value and treat it as locally flat (zero sensitivities), keeping it consistent with price and preventing the
+    // artefact from propagating into PV01/vega. The negated conditions also trap NaN, which no ordered comparison catches.
+    double df2 = Math.exp(-rate * timeToExpiry);
+    double upper = isKnockIn ? h * Math.max(1.0d, df2) : spot * df1;
+    DoubleArray derivativesArray = DoubleArray.ofUnsafe(derivatives);
+    if (!(price >= 0.0d && price <= upper) || !derivativesArray.stream().allMatch(Double::isFinite)) {
+      return ValueDerivatives.of(boundPrice(price, isKnockIn, spot, df1, df2, h), DoubleArray.filled(6));
+    }
+    return ValueDerivatives.of(price, derivativesArray);
   }
 
   //-------------------------------------------------------------------------
