@@ -171,6 +171,32 @@ public class BlackOneTouchCashPriceFormulaRepositoryTest {
             COST_OF_CARRY, RATE_DOM, VOLATILITY, BARRIER_DOWN_OUT));
   }
 
+  /**
+   * At very low volatility the Haug series is ill-conditioned and diverges (the (h/spot)^(2*mu) power terms overflow);
+   * a cash-or-nothing one-touch/no-touch pays at most one unit, so its discounted value must stay in its no-arbitrage
+   * range with finite AD sensitivities.
+   */
+  @Test
+  public void lowVolatilityBounded() {
+    double noiseTolerance = 1.0e-9;
+    double time = 0.05;
+    double df2 = Math.exp(-RATE_DOM * time);
+    // Without the bound the raw series overflows to +/-Inf in this low-volatility band, above the near-zero cut-off.
+    double[] sigma = {0.02, 0.01, 0.005, 0.002, 0.0015};
+    for (SimpleConstantContinuousBarrier barrier : BARRIERS) {
+      double upper = barrier.getKnockType().isKnockIn() ? Math.max(1d, df2) : df2;
+      for (double vol : sigma) {
+        double price = PRICER.price(SPOT, time, COST_OF_CARRY, RATE_DOM, vol, barrier);
+        assertThat(price).isBetween(-noiseTolerance, upper);
+        ValueDerivatives priceAd = PRICER.priceAdjoint(SPOT, time, COST_OF_CARRY, RATE_DOM, vol, barrier);
+        assertThat(priceAd.getValue()).isBetween(-noiseTolerance, upper);
+        for (int i = 0; i < priceAd.getDerivatives().size(); i++) {
+          assertThat(priceAd.getDerivative(i)).isFinite();
+        }
+      }
+    }
+  }
+
   //-------------------------------------------------------------------------
   private void assertRelative(double val1, double val2) {
     assertThat(val1).isCloseTo(val2, offset(Math.max(Math.abs(val2), 1d) * TOL));
