@@ -11,6 +11,7 @@ import static org.assertj.core.data.Offset.offset;
 
 import java.time.ZonedDateTime;
 
+import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.date.DayCounts;
@@ -194,6 +195,36 @@ public class BlackOneTouchCashPriceFormulaRepositoryTest {
           assertThat(priceAd.getDerivative(i)).isFinite();
         }
       }
+    }
+  }
+
+  /**
+   * In the divergent regime the raw series overflows to a non-finite value and the price is replaced with its
+   * deterministic zero-volatility limit: the no-touch leg pays the discounted unit exp(-rT), whose only non-zero
+   * sensitivities are to rate and time, while the one-touch leg pays nothing with zero sensitivities.
+   */
+  @Test
+  public void lowVolatilityFallbackGreeks() {
+    double time = 0.05;
+    double vol = 0.0015; // low enough to force the series non-finite, so the deterministic-limit branch is taken
+    Offset<Double> tol = offset(1.0e-12);
+    double df2 = Math.exp(-RATE_DOM * time);
+
+    // no-touch pays the discounted unit exp(-rT).
+    ValueDerivatives noTouch = PRICER.priceAdjoint(SPOT, time, COST_OF_CARRY, RATE_DOM, vol, BARRIER_UP_OUT);
+    assertThat(noTouch.getValue()).isEqualTo(df2, tol);
+    assertThat(noTouch.getDerivative(0)).isEqualTo(0.0d, tol);            // spot
+    assertThat(noTouch.getDerivative(1)).isEqualTo(-time * df2, tol);     // rate
+    assertThat(noTouch.getDerivative(2)).isEqualTo(0.0d, tol);            // costOfCarry
+    assertThat(noTouch.getDerivative(3)).isEqualTo(0.0d, tol);            // volatility
+    assertThat(noTouch.getDerivative(4)).isEqualTo(-RATE_DOM * df2, tol); // timeToExpiry
+    assertThat(noTouch.getDerivative(5)).isEqualTo(0.0d, tol);            // spot twice
+
+    // one-touch is worthless with zero sensitivities.
+    ValueDerivatives oneTouch = PRICER.priceAdjoint(SPOT, time, COST_OF_CARRY, RATE_DOM, vol, BARRIER_UP_IN);
+    assertThat(oneTouch.getValue()).isEqualTo(0.0d);
+    for (int i = 0; i < oneTouch.getDerivatives().size(); i++) {
+      assertThat(oneTouch.getDerivative(i)).isEqualTo(0.0d);
     }
   }
 

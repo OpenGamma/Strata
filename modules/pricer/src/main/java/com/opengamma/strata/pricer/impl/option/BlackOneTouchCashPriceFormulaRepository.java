@@ -94,6 +94,29 @@ public class BlackOneTouchCashPriceFormulaRepository {
     return isKnockIn ? 0.0d : df;
   }
 
+  // Bounds the price and returns the sensitivities consistent with the bounded value. A finite value has merely been
+  // clamped to its no-arbitrage range, so it is locally flat with zero sensitivities. A non-finite value is replaced
+  // with its deterministic zero-volatility limit: the one-touch leg pays nothing (zero value and sensitivities), while
+  // the no-touch leg pays the discounted unit exp(-rT), whose only non-zero derivatives are with respect to rate and
+  // time. This matches the deterministic near-zero-volatility branch of priceAdjoint.
+  private static ValueDerivatives boundPriceAdjoint(
+      double price,
+      boolean isKnockIn,
+      double rate,
+      double timeToExpiry,
+      double df) {
+
+    double value = boundPrice(price, isKnockIn, df);
+    if (Double.isFinite(price) || isKnockIn) {
+      return ValueDerivatives.of(value, DoubleArray.filled(6));
+    }
+    // Derivatives order: 0) spot, 1) rate, 2) costOfCarry, 3) volatility, 4) timeToExpiry, 5) spot twice.
+    double[] derivatives = new double[6];
+    derivatives[1] = -timeToExpiry * value;
+    derivatives[4] = -rate * value;
+    return ValueDerivatives.of(value, DoubleArray.ofUnsafe(derivatives));
+  }
+
   /**
    * Computes the price and derivatives of a one-touch/no-touch option.
    * <p>
@@ -202,12 +225,12 @@ public class BlackOneTouchCashPriceFormulaRepository {
         dxyds * dxyds * y2SqBar - 2d * dxyds * y2sBar + dxyds * dxyds * zSqBar - 2d * dxyds * zsBar;
     // When the ill-conditioned series pushes the value outside its theoretical range, or leaves the value finite while
     // the divergent power terms overflow the accumulated derivatives, the sensitivities are numerical noise. Bound the
-    // value and treat it as locally flat (zero sensitivities), keeping it consistent with price and preventing the
-    // artefact from propagating into PV01/vega. The negated conditions also trap NaN, which no ordered comparison catches.
+    // value and return the sensitivities consistent with it (see boundPriceAdjoint), preventing the artefact from
+    // propagating into PV01/vega. The negated conditions also trap NaN, which no ordered comparison catches.
     double upper = isKnockIn ? Math.max(1.0d, df2) : df2;
     DoubleArray derivativesArray = DoubleArray.ofUnsafe(derivatives);
     if (!(price >= 0.0d && price <= upper) || !derivativesArray.stream().allMatch(Double::isFinite)) {
-      return ValueDerivatives.of(boundPrice(price, isKnockIn, df2), DoubleArray.filled(6));
+      return boundPriceAdjoint(price, isKnockIn, rate, timeToExpiry, df2);
     }
     return ValueDerivatives.of(price, derivativesArray);
   }

@@ -104,6 +104,35 @@ public class BlackOneTouchAssetPriceFormulaRepository {
     return isKnockIn ? 0.0d : spot * df1;
   }
 
+  // Bounds the price and returns the sensitivities consistent with the bounded value. A finite value has merely been
+  // clamped to its no-arbitrage range, so it is locally flat with zero sensitivities. A non-finite value is replaced
+  // with its deterministic zero-volatility limit: the one-touch leg delivers nothing (zero value and sensitivities),
+  // while the no-touch leg delivers the discounted forward asset spot*df1 (df1 the carry factor exp((b-r)T)). This
+  // matches the deterministic near-zero-volatility branch of priceAdjoint.
+  private static ValueDerivatives boundPriceAdjoint(
+      double price,
+      boolean isKnockIn,
+      double spot,
+      double timeToExpiry,
+      double costOfCarry,
+      double rate,
+      double df1,
+      double df2,
+      double barrier) {
+
+    double value = boundPrice(price, isKnockIn, spot, df1, df2, barrier);
+    if (Double.isFinite(price) || isKnockIn) {
+      return ValueDerivatives.of(value, DoubleArray.filled(6));
+    }
+    // Derivatives order: 0) spot, 1) rate, 2) costOfCarry, 3) volatility, 4) timeToExpiry, 5) spot twice.
+    double[] derivatives = new double[6];
+    derivatives[0] = df1;
+    derivatives[1] = -timeToExpiry * value;
+    derivatives[2] = timeToExpiry * value;
+    derivatives[4] = (costOfCarry - rate) * value;
+    return ValueDerivatives.of(value, DoubleArray.ofUnsafe(derivatives));
+  }
+
   /**
    * Computes the price and derivatives of a one-touch/no-touch option.
    * <p>
@@ -215,13 +244,13 @@ public class BlackOneTouchAssetPriceFormulaRepository {
         2d * dxyds * x2sBar + dxyds * dxyds * y2SqBar - 2d * dxyds * y2sBar + dxyds * dxyds * zSqBar - 2d * dxyds * zsBar;
     // When the ill-conditioned series pushes the value outside its theoretical range, or leaves the value finite while
     // the divergent power terms overflow the accumulated derivatives, the sensitivities are numerical noise. Bound the
-    // value and treat it as locally flat (zero sensitivities), keeping it consistent with price and preventing the
-    // artefact from propagating into PV01/vega. The negated conditions also trap NaN, which no ordered comparison catches.
+    // value and return the sensitivities consistent with it (see boundPriceAdjoint), preventing the artefact from
+    // propagating into PV01/vega. The negated conditions also trap NaN, which no ordered comparison catches.
     double df2 = Math.exp(-rate * timeToExpiry);
     double upper = isKnockIn ? h * Math.max(1.0d, df2) : spot * df1;
     DoubleArray derivativesArray = DoubleArray.ofUnsafe(derivatives);
     if (!(price >= 0.0d && price <= upper) || !derivativesArray.stream().allMatch(Double::isFinite)) {
-      return ValueDerivatives.of(boundPrice(price, isKnockIn, spot, df1, df2, h), DoubleArray.filled(6));
+      return boundPriceAdjoint(price, isKnockIn, spot, timeToExpiry, costOfCarry, rate, df1, df2, h);
     }
     return ValueDerivatives.of(price, derivativesArray);
   }
