@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2026 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -15,7 +15,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.CalculationFunction;
 import com.opengamma.strata.calc.runner.CalculationParameters;
@@ -31,17 +31,17 @@ import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
 import com.opengamma.strata.product.SecuritizedProductPortfolioItem;
-import com.opengamma.strata.product.index.IborFutureOption;
-import com.opengamma.strata.product.index.IborFutureOptionPosition;
-import com.opengamma.strata.product.index.IborFutureOptionTrade;
-import com.opengamma.strata.product.index.ResolvedIborFutureOptionTrade;
+import com.opengamma.strata.product.index.OvernightFutureOption;
+import com.opengamma.strata.product.index.OvernightFutureOptionPosition;
+import com.opengamma.strata.product.index.OvernightFutureOptionTrade;
+import com.opengamma.strata.product.index.ResolvedOvernightFutureOptionTrade;
 
 /**
- * Perform calculations on a single {@code IborFutureOptionTrade} or {@code IborFutureOptionPosition}
+ * Perform calculations on a single {@code OvernightFutureOptionTrade} or {@code OvernightFutureOptionPosition}
  * for each of a set of scenarios.
  * <p>
  * This uses Normal pricing.
- * An instance of {@link RatesMarketDataLookup} and {@link IborFutureOptionMarketDataLookup} must be specified.
+ * An instance of {@link RatesMarketDataLookup} and {@link OvernightFutureOptionMarketDataLookup} must be specified.
  * The supported built-in measures are:
  * <ul>
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
@@ -53,47 +53,47 @@ import com.opengamma.strata.product.index.ResolvedIborFutureOptionTrade;
  *   <li>{@linkplain Measures#UNIT_PRICE Unit price}
  *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  * </ul>
- * 
+ *
  * <h4>Price</h4>
- * The price of an Ibor future option is based on the price of the underlying future, the volatility
+ * The price of an overnight future option is based on the price of the underlying future, the volatility
  * and the time to expiry. The price of the at-the-money option tends to zero as expiry approaches.
  * <p>
- * Strata uses <i>decimal prices</i> for Ibor future options in the trade model, pricers and market data.
+ * Strata uses <i>decimal prices</i> for Overnight future options in the trade model, pricers and market data.
  * The decimal price is based on the decimal rate equivalent to the percentage.
  * For example, an option price of 0.2 is related to a futures price of 99.32 that implies an
  * interest rate of 0.68%. Strata represents the price of the future as 0.9932 and thus
  * represents the price of the option as 0.002.
- * 
+ *
  * @param <T> the trade or position type
  */
 //CSOFF: LineLengthCheck
-public class IborFutureOptionTradeCalculationFunction<T extends SecuritizedProductPortfolioItem<IborFutureOption> & Resolvable<ResolvedIborFutureOptionTrade>>
+public class OvernightFutureOptionTradeCalculationFunction<T extends SecuritizedProductPortfolioItem<OvernightFutureOption> & Resolvable<ResolvedOvernightFutureOptionTrade>>
     implements CalculationFunction<T> {
-//CSON: LineLengthCheck
+  //CSON: LineLengthCheck
 
   /**
    * The trade instance
    */
-  public static final IborFutureOptionTradeCalculationFunction<IborFutureOptionTrade> TRADE =
-      new IborFutureOptionTradeCalculationFunction<>(IborFutureOptionTrade.class);
+  public static final OvernightFutureOptionTradeCalculationFunction<OvernightFutureOptionTrade> TRADE =
+      new OvernightFutureOptionTradeCalculationFunction<>(OvernightFutureOptionTrade.class);
   /**
    * The position instance
    */
-  public static final IborFutureOptionTradeCalculationFunction<IborFutureOptionPosition> POSITION =
-      new IborFutureOptionTradeCalculationFunction<>(IborFutureOptionPosition.class);
+  public static final OvernightFutureOptionTradeCalculationFunction<OvernightFutureOptionPosition> POSITION =
+      new OvernightFutureOptionTradeCalculationFunction<>(OvernightFutureOptionPosition.class);
 
   /**
    * The calculations by measure.
    */
-  private static final ImmutableMap<Measure, SingleMeasureCalculation> CALCULATORS =
-      ImmutableMap.<Measure, SingleMeasureCalculation>builder()
-          .put(Measures.PRESENT_VALUE, IborFutureOptionMeasureCalculations.DEFAULT::presentValue)
-          .put(Measures.PV01_CALIBRATED_SUM, IborFutureOptionMeasureCalculations.DEFAULT::pv01CalibratedSum)
-          .put(Measures.PV01_CALIBRATED_BUCKETED, IborFutureOptionMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
-          .put(Measures.PV01_MARKET_QUOTE_SUM, IborFutureOptionMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
-          .put(Measures.PV01_MARKET_QUOTE_BUCKETED, IborFutureOptionMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
-          .put(Measures.VEGA_MARKET_QUOTE_BUCKETED, IborFutureOptionMeasureCalculations.DEFAULT::vegaMarketQuoteBucketed)
-          .put(Measures.UNIT_PRICE, IborFutureOptionMeasureCalculations.DEFAULT::unitPrice)
+  private static final ImmutableMap<Measure, OvernightFutureOptionTradeCalculationFunction.SingleMeasureCalculation> CALCULATORS =
+      ImmutableMap.<Measure, OvernightFutureOptionTradeCalculationFunction.SingleMeasureCalculation>builder()
+          .put(Measures.PRESENT_VALUE, OvernightFutureOptionMeasureCalculations.DEFAULT::presentValue)
+          .put(Measures.PV01_CALIBRATED_SUM, OvernightFutureOptionMeasureCalculations.DEFAULT::pv01CalibratedSum)
+          .put(Measures.PV01_CALIBRATED_BUCKETED, OvernightFutureOptionMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
+          .put(Measures.PV01_MARKET_QUOTE_SUM, OvernightFutureOptionMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
+          .put(Measures.PV01_MARKET_QUOTE_BUCKETED, OvernightFutureOptionMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
+          .put(Measures.VEGA_MARKET_QUOTE_BUCKETED, OvernightFutureOptionMeasureCalculations.DEFAULT::vegaMarketQuoteBucketed)
+          .put(Measures.UNIT_PRICE, OvernightFutureOptionMeasureCalculations.DEFAULT::unitPrice)
           .put(Measures.RESOLVED_TARGET, (rt, smd, m) -> rt)
           .build();
 
@@ -106,10 +106,10 @@ public class IborFutureOptionTradeCalculationFunction<T extends SecuritizedProdu
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param targetType  the trade or position type
    */
-  private IborFutureOptionTradeCalculationFunction(Class<T> targetType) {
+  private OvernightFutureOptionTradeCalculationFunction(Class<T> targetType) {
     this.targetType = ArgChecker.notNull(targetType, "targetType");
   }
 
@@ -143,15 +143,15 @@ public class IborFutureOptionTradeCalculationFunction<T extends SecuritizedProdu
       ReferenceData refData) {
 
     // extract data from product
-    IborFutureOption option = target.getProduct();
+    OvernightFutureOption option = target.getProduct();
     QuoteId optionQuoteId = QuoteId.of(option.getSecurityId().getStandardId(), FieldName.SETTLEMENT_PRICE);
     Currency currency = option.getCurrency();
-    IborIndex index = option.getIndex();
+    OvernightIndex index = option.getIndex();
 
     // use lookup to build requirements
     RatesMarketDataLookup ratesLookup = parameters.getParameter(RatesMarketDataLookup.class);
     FunctionRequirements ratesReqs = ratesLookup.requirements(currency, index);
-    IborFutureOptionMarketDataLookup optionLookup = parameters.getParameter(IborFutureOptionMarketDataLookup.class);
+    OvernightFutureOptionMarketDataLookup optionLookup = parameters.getParameter(OvernightFutureOptionMarketDataLookup.class);
     FunctionRequirements optionReqs = optionLookup.requirements(index);
     ImmutableSet<MarketDataId<?>> valueReqs = ImmutableSet.<MarketDataId<?>>builder()
         .add(optionQuoteId)
@@ -171,13 +171,13 @@ public class IborFutureOptionTradeCalculationFunction<T extends SecuritizedProdu
       ReferenceData refData) {
 
     // resolve the trade once for all measures and all scenarios
-    ResolvedIborFutureOptionTrade resolved = target.resolve(refData);
+    ResolvedOvernightFutureOptionTrade resolved = target.resolve(refData);
 
     // use lookup to query market data
     RatesMarketDataLookup ratesLookup = parameters.getParameter(RatesMarketDataLookup.class);
     RatesScenarioMarketData ratesMarketData = ratesLookup.marketDataView(scenarioMarketData);
-    IborFutureOptionMarketDataLookup optionLookup = parameters.getParameter(IborFutureOptionMarketDataLookup.class);
-    IborFutureOptionScenarioMarketData optionMarketData = optionLookup.marketDataView(scenarioMarketData);
+    OvernightFutureOptionMarketDataLookup optionLookup = parameters.getParameter(OvernightFutureOptionMarketDataLookup.class);
+    OvernightFutureOptionScenarioMarketData optionMarketData = optionLookup.marketDataView(scenarioMarketData);
 
     // loop around measures, calculating all scenarios for one measure
     Map<Measure, Result<?>> results = new HashMap<>();
@@ -190,13 +190,13 @@ public class IborFutureOptionTradeCalculationFunction<T extends SecuritizedProdu
   // calculate one measure
   private Result<?> calculate(
       Measure measure,
-      ResolvedIborFutureOptionTrade resolved,
+      ResolvedOvernightFutureOptionTrade resolved,
       RatesScenarioMarketData ratesMarketData,
-      IborFutureOptionScenarioMarketData optionMarketData) {
+      OvernightFutureOptionScenarioMarketData optionMarketData) {
 
-    SingleMeasureCalculation calculator = CALCULATORS.get(measure);
+    OvernightFutureOptionTradeCalculationFunction.SingleMeasureCalculation calculator = CALCULATORS.get(measure);
     if (calculator == null) {
-      return Result.failure(FailureReason.UNSUPPORTED, "Unsupported measure for IborFutureOption: {}", measure);
+      return Result.failure(FailureReason.UNSUPPORTED, "Unsupported measure for OvernightFutureOption: {}", measure);
     }
     return Result.of(() -> calculator.calculate(resolved, ratesMarketData, optionMarketData));
   }
@@ -205,9 +205,9 @@ public class IborFutureOptionTradeCalculationFunction<T extends SecuritizedProdu
   @FunctionalInterface
   interface SingleMeasureCalculation {
     public abstract Object calculate(
-        ResolvedIborFutureOptionTrade resolved,
+        ResolvedOvernightFutureOptionTrade resolved,
         RatesScenarioMarketData ratesMarketData,
-        IborFutureOptionScenarioMarketData optionMarketData);
+        OvernightFutureOptionScenarioMarketData optionMarketData);
   }
 
 }

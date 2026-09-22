@@ -22,6 +22,7 @@ import com.opengamma.strata.pricer.bond.BlackBondFutureOptionMarginedTradePricer
 import com.opengamma.strata.pricer.bond.BlackBondFutureVolatilities;
 import com.opengamma.strata.pricer.bond.BondFutureVolatilities;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
+import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.bond.ResolvedBondFutureOptionTrade;
 
@@ -37,6 +38,10 @@ final class BondFutureOptionMeasureCalculations {
    */
   public static final BondFutureOptionMeasureCalculations DEFAULT = new BondFutureOptionMeasureCalculations(
       BlackBondFutureOptionMarginedTradePricer.DEFAULT);
+  /**
+   * The market quote sensitivity calculator.
+   */
+  private static final MarketQuoteSensitivityCalculator MARKET_QUOTE_SENS = MarketQuoteSensitivityCalculator.DEFAULT;
   /**
    * One basis point, expressed as a {@code double}.
    */
@@ -137,6 +142,94 @@ final class BondFutureOptionMeasureCalculations {
     BlackBondFutureVolatilities normalVols = checkBlackVols(volatilities);
     PointSensitivities pointSensitivity = tradePricer.presentValueSensitivityRates(trade, discountingProvider, normalVols);
     return discountingProvider.parameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates market quote sum PV01 for all scenarios
+  MultiCurrencyScenarioArray pv01MarketQuoteSum(
+      ResolvedBondFutureOptionTrade trade,
+      LegalEntityDiscountingScenarioMarketData legalEntityMarketData,
+      BondFutureOptionScenarioMarketData optionMarketData) {
+
+    SecurityId securityId = trade.getProduct().getUnderlyingFuture().getSecurityId();
+    return MultiCurrencyScenarioArray.of(
+        legalEntityMarketData.getScenarioCount(),
+        i -> pv01MarketQuoteSum(
+            trade,
+            legalEntityMarketData.scenario(i).discountingProvider(),
+            optionMarketData.scenario(i).volatilities(securityId)));
+  }
+
+  // market quote sum PV01 for one scenario
+  MultiCurrencyAmount pv01MarketQuoteSum(
+      ResolvedBondFutureOptionTrade trade,
+      LegalEntityDiscountingProvider discountingProvider,
+      BondFutureVolatilities volatilities) {
+
+    BlackBondFutureVolatilities blackVols = checkBlackVols(volatilities);
+    PointSensitivities pointSensitivity =
+        tradePricer.presentValueSensitivityRates(trade, discountingProvider, blackVols);
+    CurrencyParameterSensitivities parameterSensitivity = discountingProvider.parameterSensitivity(pointSensitivity);
+    return MARKET_QUOTE_SENS.sensitivity(parameterSensitivity, discountingProvider)
+        .total()
+        .multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates market quote bucketed PV01 for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> pv01MarketQuoteBucketed(
+      ResolvedBondFutureOptionTrade trade,
+      LegalEntityDiscountingScenarioMarketData legalEntityMarketData,
+      BondFutureOptionScenarioMarketData optionMarketData) {
+
+    SecurityId securityId = trade.getProduct().getUnderlyingFuture().getSecurityId();
+    return ScenarioArray.of(
+        legalEntityMarketData.getScenarioCount(),
+        i -> pv01MarketQuoteBucketed(
+            trade,
+            legalEntityMarketData.scenario(i).discountingProvider(),
+            optionMarketData.scenario(i).volatilities(securityId)));
+  }
+
+  // market quote bucketed PV01 for one scenario
+  CurrencyParameterSensitivities pv01MarketQuoteBucketed(
+      ResolvedBondFutureOptionTrade trade,
+      LegalEntityDiscountingProvider discountingProvider,
+      BondFutureVolatilities volatilities) {
+
+    BlackBondFutureVolatilities blackVols = checkBlackVols(volatilities);
+    PointSensitivities pointSensitivity =
+        tradePricer.presentValueSensitivityRates(trade, discountingProvider, blackVols);
+    CurrencyParameterSensitivities parameterSensitivity = discountingProvider.parameterSensitivity(pointSensitivity);
+    return MARKET_QUOTE_SENS.sensitivity(parameterSensitivity, discountingProvider).multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates market quote bucketed vega for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> vegaMarketQuoteBucketed(
+      ResolvedBondFutureOptionTrade trade,
+      LegalEntityDiscountingScenarioMarketData legalEntityMarketData,
+      BondFutureOptionScenarioMarketData optionMarketData) {
+
+    SecurityId securityId = trade.getProduct().getUnderlyingFuture().getSecurityId();
+    return ScenarioArray.of(
+        legalEntityMarketData.getScenarioCount(),
+        i -> vegaMarketQuoteBucketed(
+            trade,
+            legalEntityMarketData.scenario(i).discountingProvider(),
+            optionMarketData.scenario(i).volatilities(securityId)));
+  }
+
+  // market quote bucketed vega for one scenario
+  CurrencyParameterSensitivities vegaMarketQuoteBucketed(
+      ResolvedBondFutureOptionTrade trade,
+      LegalEntityDiscountingProvider discountingProvider,
+      BondFutureVolatilities volatilities) {
+
+    BlackBondFutureVolatilities blackVols = checkBlackVols(volatilities);
+    PointSensitivities pointSensitivity =
+        tradePricer.presentValueSensitivityModelParamsVolatility(trade, discountingProvider, blackVols).build();
+    return volatilities.parameterSensitivity(pointSensitivity);
   }
 
   //-------------------------------------------------------------------------
