@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.collect.Guavate.filtering;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.BUY_SELL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CONVENTION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DATE_ADJ_CAL_FIELD;
@@ -56,8 +58,11 @@ import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.FutureValueNotional;
 import com.opengamma.strata.product.swap.KnownAmountSwapLeg;
 import com.opengamma.strata.product.swap.NotionalSchedule;
+import com.opengamma.strata.product.swap.OvernightAccrualMethod;
+import com.opengamma.strata.product.swap.OvernightRateCalculation;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -121,10 +126,54 @@ final class SwapTradeCsvPlugin implements TradeCsvParserPlugin {
   // parses the swap without resolving it
   static SwapTrade parseSwap(CsvRow row, List<CsvRow> variableRows, TradeInfo info, ReferenceData refData) {
     SwapTrade trade = parseRow(row, info, refData);
+    trade = enhanceFutureValueNotional(trade);
     trade = parseVariableNotional(trade, variableRows);
     trade = parseVariableFixedRate(trade, variableRows);
     trade = parseVariableKnownAmount(trade, variableRows);
     return trade;
+  }
+
+  // adds the FutureValueNotional to the fixed leg if not present (for BRL swaps)
+  static SwapTrade enhanceFutureValueNotional(SwapTrade trade) {
+    if (!hasOvernightCompoundedAnnualRateLeg(trade)) {
+      return trade;
+    }
+
+    ImmutableList<SwapLeg> enhancedLegs = trade.getProduct().getLegs().stream()
+        .map(SwapTradeCsvPlugin::addFvnToFixedLegIfNeeded)
+        .collect(toImmutableList());
+
+    return replaceLegs(trade, enhancedLegs);
+  }
+
+  // checks if the swap has an overnight leg with annual compounding accrual method
+  private static boolean hasOvernightCompoundedAnnualRateLeg(SwapTrade trade) {
+    return trade.getProduct().getLegs().stream()
+        .flatMap(filtering(RateCalculationSwapLeg.class))
+        .map(RateCalculationSwapLeg::getCalculation)
+        .flatMap(filtering(OvernightRateCalculation.class))
+        .anyMatch(calc -> calc.getAccrualMethod().equals(OvernightAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE));
+  }
+
+  // adds FutureValueNotional to a fixed leg if not already present
+  private static SwapLeg addFvnToFixedLegIfNeeded(SwapLeg leg) {
+    if (!(leg instanceof RateCalculationSwapLeg)) {
+      return leg;
+    }
+    RateCalculationSwapLeg rateLeg = (RateCalculationSwapLeg) leg;
+    if (!(rateLeg.getCalculation() instanceof FixedRateCalculation)) {
+      return leg;
+    }
+    FixedRateCalculation fixedCalc = (FixedRateCalculation) rateLeg.getCalculation();
+    if (fixedCalc.getFutureValueNotional().isPresent()) {
+      return leg;
+    }
+
+    return rateLeg.toBuilder()
+        .calculation(fixedCalc.toBuilder()
+            .futureValueNotional(FutureValueNotional.autoCalculate())
+            .build())
+        .build();
   }
 
   // variable notional

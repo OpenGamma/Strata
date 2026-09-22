@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2026 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -7,7 +7,7 @@ package com.opengamma.strata.measure.index;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_2M;
+import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +26,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.CalculationParametersId;
@@ -58,21 +58,21 @@ import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
 import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
-import com.opengamma.strata.pricer.index.IborFutureDummyData;
-import com.opengamma.strata.pricer.index.IborFutureOptionVolatilitiesId;
-import com.opengamma.strata.pricer.index.NormalIborFutureOptionExpirySimpleMoneynessVolatilities;
-import com.opengamma.strata.pricer.index.NormalIborFutureOptionMarginedTradePricer;
+import com.opengamma.strata.pricer.index.NormalOvernightFutureOptionExpirySimpleMoneynessVolatilities;
+import com.opengamma.strata.pricer.index.NormalOvernightFutureOptionMarginedTradePricer;
+import com.opengamma.strata.pricer.index.OvernightFutureDummyData;
+import com.opengamma.strata.pricer.index.OvernightFutureOptionVolatilitiesId;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.index.IborFutureOption;
-import com.opengamma.strata.product.index.IborFutureOptionTrade;
-import com.opengamma.strata.product.index.ResolvedIborFutureOptionTrade;
+import com.opengamma.strata.product.index.OvernightFutureOption;
+import com.opengamma.strata.product.index.OvernightFutureOptionTrade;
+import com.opengamma.strata.product.index.ResolvedOvernightFutureOptionTrade;
 
 /**
- * Test {@link IborFutureOptionTradeCalculationFunction}.
+ * Test {@link OvernightFutureOptionTradeCalculationFunction}.
  */
-public class IborFutureOptionTradeCalculationFunctionTest {
+public class OvernightFutureOptionTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
@@ -95,15 +95,15 @@ public class IborFutureOptionTradeCalculationFunctionTest {
   private static final ZoneId LONDON_ZONE = ZoneId.of("Europe/London");
   private static final ZonedDateTime VAL_DATE_TIME = VAL_DATE.atTime(VAL_TIME).atZone(LONDON_ZONE);
 
-  private static final NormalIborFutureOptionExpirySimpleMoneynessVolatilities VOL_SIMPLE_MONEY_PRICE =
-      NormalIborFutureOptionExpirySimpleMoneynessVolatilities.of(GBP_LIBOR_2M, VAL_DATE_TIME, PARAMETERS_PRICE);
+  private static final NormalOvernightFutureOptionExpirySimpleMoneynessVolatilities VOL_SIMPLE_MONEY_PRICE =
+      NormalOvernightFutureOptionExpirySimpleMoneynessVolatilities.of(GBP_SONIA, VAL_DATE_TIME, PARAMETERS_PRICE);
 
-  private static final IborFutureOption OPTION = IborFutureDummyData.IBOR_FUTURE_OPTION_2;
+  private static final OvernightFutureOption OPTION = OvernightFutureDummyData.OVERNIGHT_FUTURE_OPTION_2;
   private static final LocalDate TRADE_DATE = date(2015, 2, 16);
   private static final long OPTION_QUANTITY = 12345;
   private static final double TRADE_PRICE = 0.0100;
   private static final double SETTLEMENT_PRICE = 0.0120;
-  private static final IborFutureOptionTrade TRADE = IborFutureOptionTrade.builder()
+  private static final OvernightFutureOptionTrade TRADE = OvernightFutureOptionTrade.builder()
       .info(TradeInfo.builder()
           .tradeDate(TRADE_DATE)
           .build())
@@ -113,29 +113,30 @@ public class IborFutureOptionTradeCalculationFunctionTest {
       .build();
 
   private static final Currency CURRENCY = Currency.GBP;
-  private static final IborIndex INDEX = GBP_LIBOR_2M;
+  private static final OvernightIndex INDEX = GBP_SONIA;
 
-  private static final CurveId DISCOUNT_CURVE_ID = CurveId.of("Default", "Discount");
-  private static final CurveId FORWARD_CURVE_ID = CurveId.of("Default", "Forward");
-  private static final IborFutureOptionVolatilitiesId VOL_ID =
-      IborFutureOptionVolatilitiesId.of("IborFutureOptionVols.Normal.USD");
+  private static final CurveId OIS_CURVE_ID = CurveId.of("Default", "OIS");
+  private static final OvernightFutureOptionVolatilitiesId VOL_ID =
+      OvernightFutureOptionVolatilitiesId.of("OvernightFutureOptionVols.Normal.GBP");
   private static final QuoteId QUOTE_ID_OPTION =
       QuoteId.of(TRADE.getSecurityId().getStandardId(), FieldName.SETTLEMENT_PRICE);
   static final RatesMarketDataLookup RATES_LOOKUP = RatesMarketDataLookup.of(
-      ImmutableMap.of(CURRENCY, DISCOUNT_CURVE_ID),
-      ImmutableMap.of(INDEX, FORWARD_CURVE_ID));
-  static final IborFutureOptionMarketDataLookup OPTION_LOOKUP = IborFutureOptionMarketDataLookup.of(INDEX, VOL_ID);
+      ImmutableMap.of(CURRENCY, OIS_CURVE_ID),
+      ImmutableMap.of(INDEX, OIS_CURVE_ID));
+  static final OvernightFutureOptionMarketDataLookup OPTION_LOOKUP =
+      OvernightFutureOptionMarketDataLookup.of(INDEX, VOL_ID);
   private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP, OPTION_LOOKUP);
 
   //-------------------------------------------------------------------------
   @Test
   public void test_requirementsAndCurrency() {
-    IborFutureOptionTradeCalculationFunction<IborFutureOptionTrade> function = IborFutureOptionTradeCalculationFunction.TRADE;
+    OvernightFutureOptionTradeCalculationFunction<OvernightFutureOptionTrade> function =
+        OvernightFutureOptionTradeCalculationFunction.TRADE;
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
     assertThat(reqs.getValueRequirements()).isEqualTo(
-        ImmutableSet.of(DISCOUNT_CURVE_ID, FORWARD_CURVE_ID, VOL_ID, QUOTE_ID_OPTION));
+        ImmutableSet.of(OIS_CURVE_ID, VOL_ID, QUOTE_ID_OPTION));
     assertThat(reqs.getTimeSeriesRequirements()).isEqualTo(ImmutableSet.of(IndexQuoteId.of(INDEX)));
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
@@ -143,11 +144,12 @@ public class IborFutureOptionTradeCalculationFunctionTest {
   @Test
   public void test_simpleMeasures() {
     MarketQuoteSensitivityCalculator marketQuoteSensitivityCalculator = MarketQuoteSensitivityCalculator.DEFAULT;
-    IborFutureOptionTradeCalculationFunction<IborFutureOptionTrade> function = IborFutureOptionTradeCalculationFunction.TRADE;
+    OvernightFutureOptionTradeCalculationFunction<OvernightFutureOptionTrade> function =
+        OvernightFutureOptionTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
     RatesProvider provider = RATES_LOOKUP.ratesProvider(md.scenario(0));
-    NormalIborFutureOptionMarginedTradePricer pricer = NormalIborFutureOptionMarginedTradePricer.DEFAULT;
-    ResolvedIborFutureOptionTrade resolved = TRADE.resolve(REF_DATA);
+    NormalOvernightFutureOptionMarginedTradePricer pricer = NormalOvernightFutureOptionMarginedTradePricer.DEFAULT;
+    ResolvedOvernightFutureOptionTrade resolved = TRADE.resolve(REF_DATA);
     CurrencyAmount expectedPv = pricer.presentValue(resolved, provider, VOL_SIMPLE_MONEY_PRICE, SETTLEMENT_PRICE);
     CurrencyParameterSensitivities expectedMqDelta = marketQuoteSensitivityCalculator.sensitivity(
         provider.parameterSensitivity(pricer.presentValueSensitivityRates(
@@ -179,32 +181,20 @@ public class IborFutureOptionTradeCalculationFunctionTest {
 
   //-------------------------------------------------------------------------
   static ScenarioMarketData marketData() {
-    Curve discountCurve = InterpolatedNodalCurve.of(
-        Curves.zeroRates(DISCOUNT_CURVE_ID.getCurveName(), ACT_360).withInfo(
+    Curve oisCurve = InterpolatedNodalCurve.of(
+        Curves.zeroRates(OIS_CURVE_ID.getCurveName(), ACT_360).withInfo(
             CurveInfoType.JACOBIAN,
             JacobianCalibrationMatrix.of(
                 ImmutableList.of(
-                    CurveParameterSize.of(DISCOUNT_CURVE_ID.getCurveName(), 2),
-                    CurveParameterSize.of(FORWARD_CURVE_ID.getCurveName(), 2)),
-                DoubleMatrix.ofUnsafe(new double[][]{{0.95, 0.0, 0.0, 0.0}, {0.0, 0.95, 0.0, 0.0}}))),
+                    CurveParameterSize.of(OIS_CURVE_ID.getCurveName(), 2)),
+                DoubleMatrix.ofUnsafe(new double[][]{{0.95, 0.0}, {0.0, 0.95}}))),
         DoubleArray.of(0.1, 0.2),
         DoubleArray.of(0.01, 0.01),
         LINEAR);
-    Curve forwardCurve = InterpolatedNodalCurve.of(
-        Curves.zeroRates(FORWARD_CURVE_ID.getCurveName(), ACT_360).withInfo(
-            CurveInfoType.JACOBIAN,
-            JacobianCalibrationMatrix.of(
-                ImmutableList.of(
-                    CurveParameterSize.of(DISCOUNT_CURVE_ID.getCurveName(), 2),
-                    CurveParameterSize.of(FORWARD_CURVE_ID.getCurveName(), 2)),
-                DoubleMatrix.ofUnsafe(new double[][]{{0.0, 0.0, 0.95, 0.0}, {0.0, 0.0, 0.0, 0.95}}))),
-        DoubleArray.of(0.05, 0.15),
-        DoubleArray.of(0.01, 0.02),
-        LINEAR);
-    MarketData marketData = ImmutableMarketData.of(VAL_DATE,
+    MarketData marketData = ImmutableMarketData.of(
+        VAL_DATE,
         ImmutableMap.of(
-            DISCOUNT_CURVE_ID, discountCurve,
-            FORWARD_CURVE_ID, forwardCurve,
+            OIS_CURVE_ID, oisCurve,
             VOL_ID, VOL_SIMPLE_MONEY_PRICE,
             QUOTE_ID_OPTION, SETTLEMENT_PRICE,
             CalculationParametersId.STANDARD, PARAMS));

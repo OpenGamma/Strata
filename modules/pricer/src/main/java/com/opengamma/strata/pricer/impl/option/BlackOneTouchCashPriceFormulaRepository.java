@@ -75,7 +75,46 @@ public class BlackOneTouchCashPriceFormulaRepository {
     double xE = isKnockIn ?
         getF(spot, z, lognormalVolT, h, mu, lambda, eta) :
         getE(spot, df2, x2, y2, lognormalVolT, h, mu, eta);
-    return xE;
+    // The Haug series is ill-conditioned at very low volatility: mu scales with 1/vol^2, so the (h/spot)^(2*mu) and
+    // (h/spot)^(mu+-lambda) power terms diverge and the truncated value can fall outside its theoretical range or
+    // overflow to a non-finite value. Bound the artefact against the no-arbitrage range.
+    return boundPrice(xE, isKnockIn, df2);
+  }
+
+  // Bounds the price against its theoretical no-arbitrage range. A finite value is clamped to that range: the no-touch
+  // leg is a discounted survival payment bounded in [0, df] (df the discount factor); the one-touch leg pays one unit
+  // at the hit time, so its discounted value is bounded in [0, max(1, df)] (max covers a negative rate). A non-finite
+  // value means the series has overflowed at near-zero volatility; it is replaced with the deterministic zero-volatility
+  // limit, consistent with the near-zero-volatility branch (no-touch pays the discounted unit, one-touch pays nothing).
+  private static double boundPrice(double price, boolean isKnockIn, double df) {
+    double upper = isKnockIn ? Math.max(1.0d, df) : df;
+    if (Double.isFinite(price)) {
+      return Math.min(upper, Math.max(0.0d, price));
+    }
+    return isKnockIn ? 0.0d : df;
+  }
+
+  // Bounds the price and returns the sensitivities consistent with the bounded value. A finite value has merely been
+  // clamped to its no-arbitrage range, so it is locally flat with zero sensitivities. A non-finite value is replaced
+  // with its deterministic zero-volatility limit: the one-touch leg pays nothing (zero value and sensitivities), while
+  // the no-touch leg pays the discounted unit exp(-rT), whose only non-zero derivatives are with respect to rate and
+  // time. This matches the deterministic near-zero-volatility branch of priceAdjoint.
+  private static ValueDerivatives boundPriceAdjoint(
+      double price,
+      boolean isKnockIn,
+      double rate,
+      double timeToExpiry,
+      double df) {
+
+    double value = boundPrice(price, isKnockIn, df);
+    if (Double.isFinite(price) || isKnockIn) {
+      return ValueDerivatives.of(value, DoubleArray.filled(6));
+    }
+    // Derivatives order: 0) spot, 1) rate, 2) costOfCarry, 3) volatility, 4) timeToExpiry, 5) spot twice.
+    double[] derivatives = new double[6];
+    derivatives[1] = -timeToExpiry * value;
+    derivatives[4] = -rate * value;
+    return ValueDerivatives.of(value, DoubleArray.ofUnsafe(derivatives));
   }
 
   /**
@@ -184,7 +223,16 @@ public class BlackOneTouchCashPriceFormulaRepository {
     derivatives[4] = -rate * df2 * df2Bar + lognormalVolTBar * lognormalVolT * 0.5 / timeToExpiry;
     derivatives[5] += -dxyds * x2Bar / spot + dxyds * y2Bar / spot + dxyds * zBar / spot + dxyds * dxyds * x2SqBar +
         dxyds * dxyds * y2SqBar - 2d * dxyds * y2sBar + dxyds * dxyds * zSqBar - 2d * dxyds * zsBar;
-    return ValueDerivatives.of(price, DoubleArray.ofUnsafe(derivatives));
+    // When the ill-conditioned series pushes the value outside its theoretical range, or leaves the value finite while
+    // the divergent power terms overflow the accumulated derivatives, the sensitivities are numerical noise. Bound the
+    // value and return the sensitivities consistent with it (see boundPriceAdjoint), preventing the artefact from
+    // propagating into PV01/vega. The negated conditions also trap NaN, which no ordered comparison catches.
+    double upper = isKnockIn ? Math.max(1.0d, df2) : df2;
+    DoubleArray derivativesArray = DoubleArray.ofUnsafe(derivatives);
+    if (!(price >= 0.0d && price <= upper) || !derivativesArray.stream().allMatch(Double::isFinite)) {
+      return boundPriceAdjoint(price, isKnockIn, rate, timeToExpiry, df2);
+    }
+    return ValueDerivatives.of(price, derivativesArray);
   }
 
   //-------------------------------------------------------------------------

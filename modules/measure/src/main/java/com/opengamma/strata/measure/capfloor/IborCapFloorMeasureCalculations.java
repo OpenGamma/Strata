@@ -196,6 +196,41 @@ final class IborCapFloorMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
+  // calculates normal vega for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> vegaMarketQuoteBucketed(
+      ResolvedIborCapFloorTrade trade,
+      RatesScenarioMarketData ratesMarketData,
+      IborCapFloorScenarioMarketData capFloorMarketData) {
+
+    IborIndex index = trade.getProduct().getCapFloorLeg().getIndex();
+    return ScenarioArray.of(
+        ratesMarketData.getScenarioCount(),
+        i -> vegaMarketQuoteBucketed(
+            trade,
+            ratesMarketData.scenario(i).ratesProvider(),
+            capFloorMarketData.scenario(i).volatilities(index)));
+  }
+
+  //  vega for one scenario
+  CurrencyParameterSensitivities vegaMarketQuoteBucketed(
+      ResolvedIborCapFloorTrade trade,
+      RatesProvider ratesProvider,
+      IborCapletFloorletVolatilities volatilities) {
+
+    PointSensitivities pointSensitivity = pointSensitivityVega(trade, ratesProvider, volatilities);
+    return volatilities.parameterSensitivity(pointSensitivity);
+  }
+
+  //  vega point sensitivity
+  private PointSensitivities pointSensitivityVega(
+      ResolvedIborCapFloorTrade trade,
+      RatesProvider ratesProvider,
+      IborCapletFloorletVolatilities volatilities) {
+
+    return tradePricer.presentValueSensitivityModelParamsVolatility(trade, ratesProvider, volatilities).build();
+  }
+
+  //-------------------------------------------------------------------------
   // calculates currency exposure for all scenarios
   MultiCurrencyScenarioArray currencyExposure(
       ResolvedIborCapFloorTrade trade,

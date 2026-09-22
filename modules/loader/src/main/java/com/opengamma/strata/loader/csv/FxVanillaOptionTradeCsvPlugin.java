@@ -9,6 +9,7 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_DATE_FIELD
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_TIME_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_ZONE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_DIRECTION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_NOTIONAL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_CURRENCY_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_NOTIONAL_FIELD;
@@ -42,10 +43,12 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.collect.tuple.Triple;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.LongShort;
+import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSingleTrade;
@@ -161,22 +164,33 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
     LocalTime expiryTime = row.getValue(EXPIRY_TIME_FIELD, LoaderUtils::parseTime);
     ZoneId expiryZone = row.getValue(EXPIRY_ZONE_FIELD, LoaderUtils::parseZoneId);
     PutCall putCall = row.getValue(PUT_CALL_FIELD, LoaderUtils::parsePutCall);
-    Currency ccy1 = row.getValue(LEG_1_CURRENCY_FIELD, LoaderUtils::parseCurrency);
-    Currency ccy2 = row.getValue(LEG_2_CURRENCY_FIELD, LoaderUtils::parseCurrency);
     LocalDate paymentDate = row.getValue(PAYMENT_DATE_FIELD, LoaderUtils::parseDate);
-    double notional1 = row.getValue(LEG_1_NOTIONAL_FIELD, LoaderUtils::parseDouble);
 
-    double strike = parseStrike(row, notional1);
-
+    Triple<Double, Double, CurrencyPair> notionalStrike = parseNotionalAndStrike(row, putCall);
     Optional<BusinessDayAdjustment> paymentAdj = CsvLoaderUtils
         .parseBusinessDayAdjustment(row, PAYMENT_DATE_CNV_FIELD, PAYMENT_DATE_CAL_FIELD)
         .filter(adj -> !adj.equals(BusinessDayAdjustment.NONE));
 
     ZonedDateTime expiry = expiryDate.atTime(expiryTime).atZone(expiryZone);
-    CurrencyPair ccyPair = CurrencyPair.of(ccy1, ccy2);
     FxVanillaOption option = paymentAdj
-        .map(adj -> FxVanillaOption.of(longShort, expiry, ccyPair, putCall, strike, notional1, paymentDate, adj))
-        .orElseGet(() -> FxVanillaOption.of(longShort, expiry, ccyPair, putCall, strike, notional1, paymentDate));
+        .map(adj -> FxVanillaOption.of(
+            longShort,
+            expiry,
+            notionalStrike.getThird(),
+            putCall,
+            notionalStrike.getSecond(),
+            notionalStrike.getFirst(),
+            paymentDate,
+            adj))
+        .orElseGet(() -> FxVanillaOption.of(
+            longShort,
+            expiry,
+            notionalStrike.getThird(),
+            putCall,
+            notionalStrike.getSecond(),
+            notionalStrike.getFirst(),
+            paymentDate));
+
     return FxVanillaOptionTrade.builder()
         .info(info)
         .product(option)
@@ -185,13 +199,36 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
         .build();
   }
 
-  private static double parseStrike(CsvRow row, double notional1) {
+  private static Triple<Double, Double, CurrencyPair> parseNotionalAndStrike(CsvRow row, PutCall putCall) {
+    double notional1 = row.getValue(LEG_1_NOTIONAL_FIELD, LoaderUtils::parseDouble);
+    Currency ccy1 = row.getValue(LEG_1_CURRENCY_FIELD, LoaderUtils::parseCurrency);
+    Currency ccy2 = row.getValue(LEG_2_CURRENCY_FIELD, LoaderUtils::parseCurrency);
     Optional<Double> strikeOpt = row.findValue(STRIKE_FIELD, LoaderUtils::parseDouble);
     if (strikeOpt.isPresent()) {
-      return strikeOpt.get();
+      return Triple.of(Math.abs(notional1), strikeOpt.get(), CurrencyPair.of(ccy1, ccy2));
     } else {
       double notional2 = row.getValue(LEG_2_NOTIONAL_FIELD, LoaderUtils::parseDouble);
-      return Math.abs(notional2 / notional1);
+      PayReceive direction1 = row.getValue(LEG_1_DIRECTION_FIELD, LoaderUtils::parsePayReceive);
+      double payNotional = notional1;
+      double receiveNotional = notional2;
+      Currency payCcy = ccy1;
+      Currency receiveCcy = ccy2;
+      if (direction1.isReceive()) {
+        payNotional = notional2;
+        receiveNotional = notional1;
+        payCcy = ccy2;
+        receiveCcy = ccy1;
+      }
+      if (putCall.isCall()) {
+        return Triple.of(
+            Math.abs(receiveNotional),
+            Math.abs(payNotional / receiveNotional),
+            CurrencyPair.of(receiveCcy, payCcy));
+      }
+      return Triple.of(
+          Math.abs(payNotional),
+          Math.abs(receiveNotional / payNotional),
+          CurrencyPair.of(payCcy, receiveCcy));
     }
   }
 

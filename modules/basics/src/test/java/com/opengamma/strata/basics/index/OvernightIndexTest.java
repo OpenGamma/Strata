@@ -325,6 +325,20 @@ public class OvernightIndexTest {
   }
 
   @Test
+  public void test_plnPolstr() {
+    OvernightIndex test = OvernightIndex.of("PLN-POLSTR");
+    assertThat(test.getName()).isEqualTo("PLN-POLSTR");
+    assertThat(test.getCurrency()).isEqualTo(PLN);
+    assertThat(test.isActive()).isEqualTo(true);
+    assertThat(test.getFixingCalendar()).isEqualTo(PLWA);
+    assertThat(test.getPublicationDateOffset()).isEqualTo(0);
+    assertThat(test.getEffectiveDateOffset()).isEqualTo(0);
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.toString()).isEqualTo("PLN-POLSTR");
+  }
+
+  @Test
   public void test_sekOis() {
     OvernightIndex test = OvernightIndex.of("SEK-SIOR");
     assertThat(test.getName()).isEqualTo("SEK-SIOR");
