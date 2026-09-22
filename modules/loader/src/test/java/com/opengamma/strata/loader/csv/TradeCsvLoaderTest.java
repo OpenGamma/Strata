@@ -1541,6 +1541,91 @@ public class TradeCsvLoaderTest {
   }
 
   @Test
+  public void test_roundtrip_swap_step_schedule() {
+
+    // test all types of adjustment
+    NotionalSchedule notionalSchedule = NotionalSchedule.of(
+        GBP,
+        ValueSchedule.of(
+            5_000_000,
+            ValueStep.of(date(2018, 8, 1), ValueAdjustment.ofDeltaAmount(-1_000_000)),
+            ValueStep.of(date(2019, 8, 1), ValueAdjustment.ofMultiplier(0.5)),
+            ValueStep.of(date(2020, 8, 1), ValueAdjustment.ofDeltaMultiplier(0.5))));
+
+    ValueSchedule fixedRatedSchedule = ValueSchedule.of(
+        0.01,
+        ValueStep.of(date(2018, 8, 1), ValueAdjustment.ofDeltaAmount(0.002)),
+        ValueStep.of(date(2019, 8, 1), ValueAdjustment.ofMultiplier(2)),
+        ValueStep.of(date(2020, 8, 1), ValueAdjustment.ofDeltaMultiplier(-0.5)));
+
+    PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
+        .startDate(date(2017, 8, 1))
+        .endDate(date(2022, 9, 1))
+        .frequency(Frequency.P6M)
+        .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))
+        .stubConvention(StubConvention.LONG_FINAL)
+        .build();
+    PaymentSchedule paymentSchedule = PaymentSchedule.builder()
+        .paymentFrequency(Frequency.P6M)
+        .paymentDateOffset(DaysAdjustment.NONE)
+        .build();
+
+    RateCalculationSwapLeg fixedLeg = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(accrualSchedule)
+        .paymentSchedule(paymentSchedule)
+        .notionalSchedule(notionalSchedule)
+        .calculation(FixedRateCalculation.builder()
+            .rate(fixedRatedSchedule)
+            .dayCount(DayCounts.ACT_365F)
+            .build())
+        .build();
+
+    RateCalculationSwapLeg floatLeg = RateCalculationSwapLeg.builder()
+        .payReceive(RECEIVE)
+        .accrualSchedule(accrualSchedule)
+        .paymentSchedule(paymentSchedule)
+        .notionalSchedule(notionalSchedule)
+        .calculation(IborRateCalculation.of(IborIndices.GBP_LIBOR_6M))
+        .build();
+
+    Swap originalSwap = Swap.of(fixedLeg, floatLeg);
+    SwapTrade originalTrade = SwapTrade.of(TradeInfo.empty(), originalSwap);
+
+    // csv writer converts all step value types to replacements
+    NotionalSchedule expectedNotionalSchedule = NotionalSchedule.of(
+        GBP,
+        ValueSchedule.of(
+            5_000_000,
+            ValueStep.of(date(2018, 8, 1), ValueAdjustment.ofReplace(4_000_000)),
+            ValueStep.of(date(2019, 8, 1), ValueAdjustment.ofReplace(2_000_000)),
+            ValueStep.of(date(2020, 8, 1), ValueAdjustment.ofReplace(3_000_000))));
+
+    ValueSchedule expectedRateSchedule = ValueSchedule.of(
+        0.01,
+        ValueStep.of(date(2018, 8, 1), ValueAdjustment.ofReplace(0.012)),
+        ValueStep.of(date(2019, 8, 1), ValueAdjustment.ofReplace(0.024)),
+        ValueStep.of(date(2020, 8, 1), ValueAdjustment.ofReplace(0.012)));
+
+    RateCalculationSwapLeg expectedFixedLeg = fixedLeg.toBuilder()
+        .notionalSchedule(expectedNotionalSchedule)
+        .calculation(FixedRateCalculation.builder()
+            .rate(expectedRateSchedule)
+            .dayCount(DayCounts.ACT_365F)
+            .build())
+        .build();
+
+    RateCalculationSwapLeg expectedFloatLeg = floatLeg.toBuilder()
+        .notionalSchedule(expectedNotionalSchedule)
+        .build();
+
+    Swap expectedSwap = Swap.of(expectedFixedLeg, expectedFloatLeg);
+    SwapTrade expectedTrade = SwapTrade.of(TradeInfo.empty(), expectedSwap);
+
+    checkRoundtrip(SwapTrade.class, ImmutableList.of(originalTrade), expectedTrade);
+  }
+
+  @Test
   public void test_load_swap_defaultFixedLegDayCount() {
     ImmutableMap<String, String> csvMap = ImmutableMap.<String, String>builder()
         .put("Strata Trade Type", "Swap")
