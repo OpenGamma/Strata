@@ -1111,14 +1111,17 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
       reset.getInitialNotionalValue().ifPresent(val -> csv.writeCell(prefix + FX_RESET_INITIAL_NOTIONAL_FIELD, val));
     });
 
-    // ignore variable notional step sequence and non-replace types
+    // steps are resolved in order against a running value, starting from the base notional,
+    // adjustment types are written as the resulting absolute value
     if (!notional.getAmount().getSteps().isEmpty()) {
+      double currentValue = notional.getAmount().getInitialValue();
       for (ValueStep step : notional.getAmount().getSteps()) {
-        if (step.getDate().isPresent() && step.getValue().getType() == ValueAdjustmentType.REPLACE) {
+        currentValue = step.getValue().adjust(currentValue);
+        if (step.getDate().isPresent()) {
           mutableVariable.add(
               step.getDate().get(),
               prefix + NOTIONAL_FIELD,
-              formattedDouble(step.getValue().getModifyingValue()));
+              formattedDouble(currentValue));
         }
       }
     }
@@ -1154,14 +1157,17 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
           csv.writeCell(prefix + FINAL_STUB_AMOUNT_CURRENCY_FIELD, amount.getCurrency());
         });
       });
-      // ignore variable fixed rate step sequence and non-replace types
+      // steps are resolved in order against a running value, starting from the base rate,
+      // adjustment types are written as the resulting absolute value
       if (!fixed.getRate().getSteps().isEmpty()) {
+        double currentValue = fixed.getRate().getInitialValue();
         for (ValueStep step : fixed.getRate().getSteps()) {
-          if (step.getDate().isPresent() && step.getValue().getType() == ValueAdjustmentType.REPLACE) {
+          currentValue = step.getValue().adjust(currentValue);
+          if (step.getDate().isPresent()) {
             mutableVariable.add(
                 step.getDate().get(),
                 prefix + FIXED_RATE_FIELD,
-                formattedPercentage(step.getValue().getModifyingValue()));
+                formattedPercentage(currentValue));
           }
         }
       }
