@@ -68,6 +68,7 @@ import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
 import com.opengamma.strata.product.swap.type.XCcyIborIborSwapConvention;
+import com.opengamma.strata.product.swap.type.XCcyOvernightOvernightSwapConvention;
 
 /**
  * Loads Swap trades from CSV files.
@@ -357,10 +358,9 @@ final class SwapTradeCsvPlugin implements TradeCsvParserPlugin {
       Period periodToStart = periodToStartOpt.get();
       Tenor tenor = tenorOpt.get();
       if (fxRateOpt.isPresent()) {
-        XCcyIborIborSwapConvention convention = XCcyIborIborSwapConvention.of(conventionStr);
-        double notionalFlat = notional * fxRateOpt.get();
-        SwapTrade trade = convention.createTrade(
-            tradeDate, periodToStart, tenor, buySell, notional, notionalFlat, fixedRate, refData);
+        SwapTrade trade = createCrossCurrencySwap(
+            conventionStr, tradeDate, periodToStart, tenor, buySell, notional,
+            notional * fxRateOpt.get(), fixedRate, refData);
         trade = trade.toBuilder().info(info).build();
         return adjustTrade(trade, rollCnvOpt, stubCnvOpt, firstRegStartDateOpt, lastRegEndDateOpt, dateCnv, dateCalOpt);
       } else {
@@ -396,13 +396,50 @@ final class SwapTradeCsvPlugin implements TradeCsvParserPlugin {
       Optional<Double> fxRateOpt) {
 
     if (fxRateOpt.isPresent()) {
-      XCcyIborIborSwapConvention convention = XCcyIborIborSwapConvention.of(conventionStr);
-      double notionalFlat = notional * fxRateOpt.get();
-      return convention.toTrade(info, startDate, endDate, buySell, notional, notionalFlat, fixedRate);
+      return createCrossCurrencySwap(
+          conventionStr, info, startDate, endDate, buySell, notional,
+          notional * fxRateOpt.get(), fixedRate);
     } else {
       SingleCurrencySwapConvention convention = SingleCurrencySwapConvention.of(conventionStr);
       return convention.toTrade(info, startDate, endDate, buySell, notional, fixedRate);
     }
+  }
+
+  private static SwapTrade createCrossCurrencySwap(
+      String conventionStr,
+      LocalDate tradeDate,
+      Period periodToStart,
+      Tenor tenor,
+      BuySell buySell,
+      double notionalSpreadLeg,
+      double notionalFlatLeg,
+      double spread,
+      ReferenceData refData) {
+
+    if (XCcyIborIborSwapConvention.extendedEnum().lookupAll().containsKey(conventionStr)) {
+      return XCcyIborIborSwapConvention.of(conventionStr).createTrade(
+          tradeDate, periodToStart, tenor, buySell, notionalSpreadLeg, notionalFlatLeg, spread, refData);
+    }
+    return XCcyOvernightOvernightSwapConvention.of(conventionStr).createTrade(
+        tradeDate, periodToStart, tenor, buySell, notionalSpreadLeg, notionalFlatLeg, spread, refData);
+  }
+
+  private static SwapTrade createCrossCurrencySwap(
+      String conventionStr,
+      TradeInfo info,
+      LocalDate startDate,
+      LocalDate endDate,
+      BuySell buySell,
+      double notionalSpreadLeg,
+      double notionalFlatLeg,
+      double spread) {
+
+    if (XCcyIborIborSwapConvention.extendedEnum().lookupAll().containsKey(conventionStr)) {
+      return XCcyIborIborSwapConvention.of(conventionStr).toTrade(
+          info, startDate, endDate, buySell, notionalSpreadLeg, notionalFlatLeg, spread);
+    }
+    return XCcyOvernightOvernightSwapConvention.of(conventionStr).toTrade(
+        info, startDate, endDate, buySell, notionalSpreadLeg, notionalFlatLeg, spread);
   }
 
   // adjust trade based on additional fields specified
