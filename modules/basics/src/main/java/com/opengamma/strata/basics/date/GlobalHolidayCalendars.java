@@ -337,7 +337,7 @@ final class GlobalHolidayCalendars {
     }
     // juneteenth (seems like it wasn't widely applied in 2021)
     if (year >= 2022) {
-      holidays.add(bumpToFriOrMon(date(year, 6, 19)));
+      holidays.add(bumpBack ? bumpToFriOrMon(date(year, 6, 19)) : bumpSunToMon(date(year, 6, 19)));
     }
     // labor day
     holidays.add(date(year, 9, 1).with(firstInMonth(MONDAY)));
