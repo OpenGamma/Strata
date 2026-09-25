@@ -12,7 +12,10 @@ import static com.opengamma.strata.product.bond.FixedCouponBondYieldConvention.J
 import static com.opengamma.strata.product.bond.FixedCouponBondYieldConvention.US_STREET;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -21,11 +24,14 @@ import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.amount.CashFlow;
+import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.math.impl.rootfinding.BracketRoot;
 import com.opengamma.strata.math.impl.rootfinding.BrentSingleRootFinder;
 import com.opengamma.strata.math.impl.rootfinding.RealSingleRootFinder;
 import com.opengamma.strata.pricer.CompoundedRateType;
+import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 import com.opengamma.strata.product.Security;
@@ -1209,6 +1215,41 @@ public class DiscountingFixedCouponBondProductPricer {
   // extracts the issuer curve discount factors for the bond
   static IssuerCurveDiscountFactors issuerCurveDf(ResolvedFixedCouponBond bond, LegalEntityDiscountingProvider provider) {
     return provider.issuerCurveDiscountFactors(bond.getLegalEntityId(), bond.getCurrency());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the future cash flow of the bond.
+   * <p>
+   * There are two cash flows on the final date.
+   *
+   * @param bond  the trade
+   * @param discountFactor  the provider
+   * @return List of cash flows of a single trade
+   */
+  public List<CashFlow> cashFlows(ResolvedFixedCouponBond bond, DiscountFactors discountFactor) {
+    ImmutableList<FixedCouponBondPaymentPeriod> bondPayments = bond.getPeriodicPayments();
+    List<CashFlow> listCashFlow = new ArrayList<>();
+
+    for (int i = 0; i < bondPayments.size(); ++i) {
+      FixedCouponBondPaymentPeriod payment = bondPayments.get(i);
+      LocalDate date = payment.getPaymentDate();
+      if (date.isAfter(discountFactor.getValuationDate()) || date.isEqual(discountFactor.getValuationDate())) {
+        CurrencyAmount amount = CurrencyAmount.of(payment.getCurrency(), payment.getNotional()
+                * payment.getYearFraction() * payment.getFixedRate());
+        if (amount.getAmount() != 0) {
+          listCashFlow.add(CashFlow.ofForecastValue(date, amount, discountFactor.discountFactor(date)));
+        }
+      }
+    }
+
+    if (bond.getNominalPayment().getDate().isAfter(discountFactor.getValuationDate())
+            || bond.getNominalPayment().getDate().isEqual(discountFactor.getValuationDate())) {
+      listCashFlow.add(CashFlow.ofForecastValue(bond.getNominalPayment().getDate(),
+              CurrencyAmount.of(bond.getNominalPayment().getCurrency(), bond.getNominalPayment().getAmount()),
+              discountFactor.discountFactor(bond.getNominalPayment().getDate())));
+    }
+    return listCashFlow;
   }
 
 }
