@@ -94,7 +94,7 @@ public final class CombinedExtendedEnum<T extends Named> {
     for (String key : section.keys()) {
       Class<?> cls;
       try {
-        cls = RenameHandler.INSTANCE.lookupType(key);
+        cls = Class.forName(key, true, CombinedExtendedEnum.class.getClassLoader());
       } catch (Exception ex) {
         throw new IllegalArgumentException("Unable to find extended enum class: " + key, ex);
       }
