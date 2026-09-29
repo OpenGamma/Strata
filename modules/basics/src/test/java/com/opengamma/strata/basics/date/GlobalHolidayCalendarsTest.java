@@ -623,6 +623,15 @@ public class GlobalHolidayCalendarsTest {
     }
   }
 
+  @Test
+  public void test_usJuneteenthSaturdayObservance() {
+    LocalDate observedDate = LocalDate.of(2027, 6, 18);
+    assertThat(USGS.isHoliday(observedDate)).isTrue();
+    assertThat(NYSE.isHoliday(observedDate)).isTrue();
+    assertThat(USNY.isHoliday(observedDate)).isFalse();
+    assertThat(NYFD.isHoliday(observedDate)).isFalse();
+  }
+
   //-------------------------------------------------------------------------
   private static final HolidayCalendar JPTO = GlobalHolidayCalendars.generateTokyo();
 
