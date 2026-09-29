@@ -134,6 +134,12 @@ public final class OvernightIndices {
    */
   public static final OvernightIndex PLN_POLONIA = OvernightIndex.of("PLN-POLONIA");
   /**
+   * The POLSTR index for PLN.
+   * <p>
+   * The "Polish Short Term Rate".
+   */
+  public static final OvernightIndex PLN_POLSTR = OvernightIndex.of("PLN-POLSTR");
+  /**
    * The SIOR index for SEK.
    * <p>
    * The "STIBOR T/N" index.

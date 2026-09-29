@@ -99,6 +99,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.primitives.Ints;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
@@ -119,11 +120,14 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.schedule.Schedule;
+import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueAdjustmentType;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.collect.Guavate;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.result.ParseFailureException;
@@ -171,7 +175,7 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
   //-------------------------------------------------------------------------
   /**
    * Parses from the CSV row.
-   * 
+   *
    * @param row  the CSV row
    * @param info  the trade info
    * @return the parsed trade
@@ -212,7 +216,8 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
     // parse fully now we know the number of legs and the default fixed leg day count
     List<SwapLeg> legs = parseLegs(row, indices, defaultFixedLegDayCount);
     Swap swap = Swap.of(legs);
-    return SwapTrade.of(info, swap);
+    SwapTrade trade = SwapTrade.of(info, swap);
+    return SwapTradeCsvPlugin.enhanceFutureValueNotional(trade);
   }
 
   //-------------------------------------------------------------------------
@@ -868,11 +873,11 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
         if (leg instanceof RateCalculationSwapLeg) {
           RateCalculationSwapLeg rcLeg = (RateCalculationSwapLeg) leg;
           fxReset |= rcLeg.getNotionalSchedule().getFxReset().isPresent();
-          variable |= !rcLeg.getNotionalSchedule().getAmount().getSteps().isEmpty();
+          variable |= hasSteps(rcLeg.getNotionalSchedule().getAmount());
           if (rcLeg.getCalculation() instanceof FixedRateCalculation) {
             FixedRateCalculation calc = (FixedRateCalculation) rcLeg.getCalculation();
             fvNotional |= calc.getFutureValueNotional().isPresent();
-            variable |= !calc.getRate().getSteps().isEmpty();
+            variable |= hasSteps(calc.getRate());
           }
           if (rcLeg.getCalculation() instanceof IborRateCalculation) {
             IborRateCalculation calc = (IborRateCalculation) rcLeg.getCalculation();
@@ -1111,14 +1116,28 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
       reset.getInitialNotionalValue().ifPresent(val -> csv.writeCell(prefix + FX_RESET_INITIAL_NOTIONAL_FIELD, val));
     });
 
-    // ignore variable notional step sequence and non-replace types
-    if (!notional.getAmount().getSteps().isEmpty()) {
-      for (ValueStep step : notional.getAmount().getSteps()) {
-        if (step.getDate().isPresent() && step.getValue().getType() == ValueAdjustmentType.REPLACE) {
+    // steps are resolved in order against a running value, starting from the base notional,
+    // adjustment types are written as the resulting absolute value
+    ValueSchedule notionalSchedule = notional.getAmount();
+    if (hasSteps(notionalSchedule)) {
+
+      // writer doesn't have access to reference data, so use default calendars
+      Schedule accrualSchedule = leg.getAccrualSchedule().createSchedule(ReferenceData.standard());
+      List<SchedulePeriod> periods = accrualSchedule.getPeriods();
+      DoubleArray periodNotionals = notionalSchedule.resolveValues(accrualSchedule);
+
+      double currentNotional = notionalSchedule.getInitialValue();
+      for (int i = 0; i < periods.size(); i++) {
+        SchedulePeriod schedulePeriod = periods.get(i);
+        double periodNotional = periodNotionals.get(i);
+
+        // if notional has not changed then no need to include as a step
+        if (periodNotional != currentNotional) {
           mutableVariable.add(
-              step.getDate().get(),
+              schedulePeriod.getUnadjustedStartDate(),
               prefix + NOTIONAL_FIELD,
-              formattedDouble(step.getValue().getModifyingValue()));
+              formattedDouble(periodNotional));
+          currentNotional = periodNotional;
         }
       }
     }
@@ -1154,14 +1173,28 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
           csv.writeCell(prefix + FINAL_STUB_AMOUNT_CURRENCY_FIELD, amount.getCurrency());
         });
       });
-      // ignore variable fixed rate step sequence and non-replace types
-      if (!fixed.getRate().getSteps().isEmpty()) {
-        for (ValueStep step : fixed.getRate().getSteps()) {
-          if (step.getDate().isPresent() && step.getValue().getType() == ValueAdjustmentType.REPLACE) {
+      // steps are resolved in order against a running value, starting from the base rate,
+      // adjustment types are written as the resulting absolute value
+      ValueSchedule rateSchedule = fixed.getRate();
+      if (hasSteps(rateSchedule)) {
+
+        // writer doesn't have access to reference data, so use default calendars
+        Schedule accrualSchedule = leg.getAccrualSchedule().createSchedule(ReferenceData.standard());
+        List<SchedulePeriod> periods = accrualSchedule.getPeriods();
+        DoubleArray periodRates = rateSchedule.resolveValues(accrualSchedule);
+
+        double currentRate = rateSchedule.getInitialValue();
+        for (int i = 0; i < periods.size(); i++) {
+          SchedulePeriod schedulePeriod = periods.get(i);
+          double periodRate = periodRates.get(i);
+
+          // if rate has not changed then no need to include as a step
+          if (periodRate != currentRate) {
             mutableVariable.add(
-                step.getDate().get(),
+                schedulePeriod.getUnadjustedStartDate(),
                 prefix + FIXED_RATE_FIELD,
-                formattedPercentage(step.getValue().getModifyingValue()));
+                formattedPercentage(periodRate));
+            currentRate = periodRate;
           }
         }
       }
@@ -1256,6 +1289,10 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
     }
   }
 
+  private boolean hasSteps(ValueSchedule schedule) {
+    return !schedule.getSteps().isEmpty() || schedule.getStepSequence().isPresent();
+  }
+
   //-------------------------------------------------------------------------
   // Restricted constructor.
   private FullSwapTradeCsvPlugin() {
@@ -1264,6 +1301,7 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
   //-------------------------------------------------------------------------
   // class to simplify variable elements
   static class VariableElements {
+
     private final Map<LocalDate, Map<String, String>> entries = new TreeMap<>();
 
     private VariableElements() {

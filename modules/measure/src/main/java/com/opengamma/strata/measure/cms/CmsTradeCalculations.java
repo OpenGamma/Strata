@@ -39,7 +39,7 @@ public class CmsTradeCalculations {
 
   /**
    * Obtains an instance specifying the SABR extrapolation parameters.
-   * 
+   *
    * @param cmsParams  the parameters for SABR pricing of CMS
    * @return the trade calculations
    */
@@ -50,7 +50,7 @@ public class CmsTradeCalculations {
   //-------------------------------------------------------------------------
   /**
    * Creates an instance specifying the SABR extrapolation parameters.
-   * 
+   *
    * @param cmsParams  the parameters for SABR pricing of CMS
    */
   private CmsTradeCalculations(CmsSabrExtrapolationParams cmsParams) {
@@ -59,7 +59,7 @@ public class CmsTradeCalculations {
 
   /**
    * Creates an instance specifying the SABR pricer.
-   * 
+   *
    * @param tradePricer  the pricer for {@link ResolvedCmsTrade}
    */
   public CmsTradeCalculations(
@@ -70,7 +70,7 @@ public class CmsTradeCalculations {
   //-------------------------------------------------------------------------
   /**
    * Calculates present value across one or more scenarios.
-   * 
+   *
    * @param trade  the trade
    * @param ratesLookup  the lookup used to query the market data
    * @param swaptionLookup  the lookup used to query the swaption market data
@@ -91,7 +91,7 @@ public class CmsTradeCalculations {
 
   /**
    * Calculates present value for a single set of market data.
-   * 
+   *
    * @param trade  the trade
    * @param ratesProvider  the market data
    * @param volatilities  the swaption volatilities
@@ -111,7 +111,7 @@ public class CmsTradeCalculations {
    * <p>
    * This is the sensitivity of present value to a one basis point shift in the calibrated curves.
    * The result is the sum of the sensitivities of all affected curves.
-   * 
+   *
    * @param trade  the trade
    * @param ratesLookup  the lookup used to query the market data
    * @param swaptionLookup  the lookup used to query the swaption market data
@@ -135,7 +135,7 @@ public class CmsTradeCalculations {
    * <p>
    * This is the sensitivity of present value to a one basis point shift in the calibrated curves.
    * The result is the sum of the sensitivities of all affected curves.
-   * 
+   *
    * @param trade  the trade
    * @param ratesProvider  the market data
    * @param volatilities  the swaption volatilities
@@ -155,7 +155,7 @@ public class CmsTradeCalculations {
    * <p>
    * This is the sensitivity of present value to a one basis point shift in the calibrated curves.
    * The result is provided for each affected curve and currency, bucketed by curve node.
-   * 
+   *
    * @param trade  the trade
    * @param ratesLookup  the lookup used to query the market data
    * @param swaptionLookup  the lookup used to query the swaption market data
@@ -179,7 +179,7 @@ public class CmsTradeCalculations {
    * <p>
    * This is the sensitivity of present value to a one basis point shift in the calibrated curves.
    * The result is provided for each affected curve and currency, bucketed by curve node.
-   * 
+   *
    * @param trade  the trade
    * @param ratesProvider  the market data
    * @param volatilities  the swaption volatilities
@@ -200,7 +200,7 @@ public class CmsTradeCalculations {
    * This is the sensitivity of present value to a one basis point shift in
    * the market quotes used to calibrate the curves.
    * The result is the sum of the sensitivities of all affected curves.
-   * 
+   *
    * @param trade  the trade
    * @param ratesLookup  the lookup used to query the market data
    * @param swaptionLookup  the lookup used to query the swaption market data
@@ -225,7 +225,7 @@ public class CmsTradeCalculations {
    * This is the sensitivity of present value to a one basis point shift in
    * the market quotes used to calibrate the curves.
    * The result is the sum of the sensitivities of all affected curves.
-   * 
+   *
    * @param trade  the trade
    * @param ratesProvider  the market data
    * @param volatilities  the swaption volatilities
@@ -246,7 +246,7 @@ public class CmsTradeCalculations {
    * This is the sensitivity of present value to a one basis point shift in
    * the market quotes used to calibrate the curves.
    * The result is provided for each affected curve and currency, bucketed by curve node.
-   * 
+   *
    * @param trade  the trade
    * @param ratesLookup  the lookup used to query the market data
    * @param marketData  the market data
@@ -271,7 +271,7 @@ public class CmsTradeCalculations {
    * This is the sensitivity of present value to a one basis point shift in
    * the market quotes used to calibrate the curves.
    * The result is provided for each affected curve and currency, bucketed by curve node.
-   * 
+   *
    * @param trade  the trade
    * @param ratesProvider  the market data
    * @param volatilities  the swaption volatilities
@@ -287,10 +287,56 @@ public class CmsTradeCalculations {
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates present value vega sensitivity across one or more scenarios.
+   * <p>
+   * This is the sensitivity of present value to the SABR model parameters, alpha, beta, rho and nu,
+   * of the normal swaption volatilities.
+   * The result is provided for each affected surface and currency, bucketed by surface node.
+   *
+   * @param trade  the trade
+   * @param ratesLookup  the lookup used to query the market data
+   * @param swaptionLookup  the lookup used to query the swaption market data
+   * @param marketData  the market data
+   * @return the present value vega sensitivity, one entry per scenario
+   */
+  public ScenarioArray<CurrencyParameterSensitivities> vegaMarketQuoteBucketed(
+      ResolvedCmsTrade trade,
+      RatesMarketDataLookup ratesLookup,
+      SwaptionMarketDataLookup swaptionLookup,
+      ScenarioMarketData marketData) {
+
+    return calc.vegaMarketQuoteBucketed(
+        trade,
+        ratesLookup.marketDataView(marketData),
+        swaptionLookup.marketDataView(marketData));
+  }
+
+  /**
+   * Calculates present value vega sensitivity for a single set of market data.
+   * <p>
+   * This is the sensitivity of present value to the SABR model parameters, alpha, beta, rho and nu,
+   * of the normal swaption volatilities.
+   * The result is provided for each affected surface and currency, bucketed by surface node.
+   *
+   * @param trade  the trade
+   * @param ratesProvider  the market data
+   * @param volatilities  the swaption volatilities
+   * @return the present value vega sensitivity
+   */
+  public CurrencyParameterSensitivities vegaMarketQuoteBucketed(
+      ResolvedCmsTrade trade,
+      RatesProvider ratesProvider,
+      SwaptionVolatilities volatilities) {
+
+    return calc.vegaMarketQuoteBucketed(trade, ratesProvider, volatilities);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates currency exposure across one or more scenarios.
    * <p>
    * The currency risk, expressed as the equivalent amount in each currency.
-   * 
+   *
    * @param trade  the trade
    * @param ratesLookup  the lookup used to query the market data
    * @param swaptionLookup  the lookup used to query the swaption market data
@@ -313,7 +359,7 @@ public class CmsTradeCalculations {
    * Calculates currency exposure for a single set of market data.
    * <p>
    * The currency risk, expressed as the equivalent amount in each currency.
-   * 
+   *
    * @param trade  the trade
    * @param ratesProvider  the market data
    * @param volatilities  the swaption volatilities
@@ -332,7 +378,7 @@ public class CmsTradeCalculations {
    * Calculates current cash across one or more scenarios.
    * <p>
    * The sum of all cash flows paid on the valuation date.
-   * 
+   *
    * @param trade  the trade
    * @param ratesLookup  the lookup used to query the market data
    * @param swaptionLookup  the lookup used to query the swaption market data
@@ -355,7 +401,7 @@ public class CmsTradeCalculations {
    * Calculates current cash for a single set of market data.
    * <p>
    * The sum of all cash flows paid on the valuation date.
-   * 
+   *
    * @param trade  the trade
    * @param ratesProvider  the market data
    * @param volatilities  the swaption volatilities
