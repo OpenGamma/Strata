@@ -1,3 +1,6 @@
+merge_queue:
+  max_parallel_checks: 1
+
 queue_rules:
   - name: default
     merge_conditions:
@@ -18,9 +21,3 @@ pull_request_rules:
       queue:
         name: default
 
-  - name: Delete-Branch
-    description: Delete branch once PR merged
-    conditions:
-      - "merged"
-    actions:
-      delete_head_branch: {}

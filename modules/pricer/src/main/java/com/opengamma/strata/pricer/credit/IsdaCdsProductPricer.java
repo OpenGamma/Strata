@@ -320,6 +320,39 @@ public class IsdaCdsProductPricer {
     return protectionLeg(cds, rates.getFirst(), rates.getSecond(), referenceDate, effectiveStartDate, recoveryRate);
   }
 
+  /**
+   * Calculates the price sensitivity of the protection leg of the product.
+   * <p>
+   * Empty sensitivity is returned if the CDS already expired.
+   *
+   * @param cds  the product
+   * @param ratesProvider  the rates provider
+   * @param referenceDate  the reference date
+   * @param refData  the reference data
+   * @return the protection leg price sensitivity
+   */
+  public PointSensitivityBuilder protectionLegSensitivity(
+      ResolvedCds cds,
+      CreditRatesProvider ratesProvider,
+      LocalDate referenceDate,
+      ReferenceData refData) {
+
+    if (isExpired(cds, ratesProvider)) {
+      return PointSensitivityBuilder.none();
+    }
+    LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+    LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
+    double recoveryRate = recoveryRate(cds, ratesProvider);
+    Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
+    return protectionLegSensitivity(
+        cds,
+        rates.getFirst(),
+        rates.getSecond(),
+        referenceDate,
+        effectiveStartDate,
+        recoveryRate);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Calculates the risky annuity, which is RPV01 per unit notional.

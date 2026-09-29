@@ -534,6 +534,168 @@ public class IsdaCdsProductPricerTest {
   }
 
   @Test
+  public void protectionLegSensitivityTest() {
+    PointSensitivities pointNext = PRICER.protectionLegSensitivity(
+        PRODUCT_NEXTDAY,
+        RATES_PROVIDER,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA),
+        REF_DATA).build();
+    CurrencyParameterSensitivities resNext = RATES_PROVIDER.parameterSensitivity(pointNext);
+    CurrencyParameterSensitivities expNext = CALC_FD.sensitivity(
+        RATES_PROVIDER,
+        p -> CurrencyAmount.of(
+            USD,
+            PRICER.protectionLeg(
+                PRODUCT_NEXTDAY,
+                p,
+                PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA),
+                REF_DATA)));
+    equalWithRelativeTolerance(resNext, expNext, 10d * EPS);
+
+    PointSensitivities pointBefore = PRICER.protectionLegSensitivity(
+        PRODUCT_BEFORE,
+        RATES_PROVIDER,
+        PRODUCT_BEFORE.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA),
+        REF_DATA).build();
+    CurrencyParameterSensitivities resBefore = RATES_PROVIDER.parameterSensitivity(pointBefore);
+    CurrencyParameterSensitivities expBefore = CALC_FD.sensitivity(
+        RATES_PROVIDER,
+        p -> CurrencyAmount.of(
+            USD,
+            PRICER.protectionLeg(
+                PRODUCT_BEFORE,
+                p,
+                PRODUCT_BEFORE.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA),
+                REF_DATA)));
+    equalWithRelativeTolerance(resBefore, expBefore, 10d * EPS);
+
+    PointSensitivities pointAfter = PRICER.protectionLegSensitivity(
+        PRODUCT_AFTER,
+        RATES_PROVIDER,
+        PRODUCT_AFTER.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA),
+        REF_DATA).build();
+    CurrencyParameterSensitivities resAfter = RATES_PROVIDER.parameterSensitivity(pointAfter);
+    CurrencyParameterSensitivities expAfter = CALC_FD.sensitivity(
+        RATES_PROVIDER,
+        p -> CurrencyAmount.of(
+            USD,
+            PRICER.protectionLeg(
+                PRODUCT_AFTER,
+                p,
+                PRODUCT_AFTER.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA),
+                REF_DATA)));
+    equalWithRelativeTolerance(resAfter, expAfter, 20d * EPS);
+  }
+
+  @Test
+  public void protectionLegSensitivityFixTest() {
+    PointSensitivities pointNext = PRICER_FIX.protectionLegSensitivity(
+        PRODUCT_NEXTDAY,
+        RATES_PROVIDER,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA),
+        REF_DATA).build();
+    CurrencyParameterSensitivities resNext = RATES_PROVIDER.parameterSensitivity(pointNext);
+    CurrencyParameterSensitivities expNext = CALC_FD.sensitivity(
+        RATES_PROVIDER,
+        p -> CurrencyAmount.of(
+            USD,
+            PRICER_FIX.protectionLeg(
+                PRODUCT_NEXTDAY,
+                p,
+                PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA),
+                REF_DATA)));
+    equalWithRelativeTolerance(resNext, expNext, 10d * EPS);
+
+    PointSensitivities pointBefore = PRICER_FIX.protectionLegSensitivity(
+        PRODUCT_BEFORE,
+        RATES_PROVIDER,
+        PRODUCT_BEFORE.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA),
+        REF_DATA).build();
+    CurrencyParameterSensitivities resBefore = RATES_PROVIDER.parameterSensitivity(pointBefore);
+    CurrencyParameterSensitivities expBefore = CALC_FD.sensitivity(
+        RATES_PROVIDER,
+        p -> CurrencyAmount.of(
+            USD,
+            PRICER_FIX.protectionLeg(
+                PRODUCT_BEFORE,
+                p,
+                PRODUCT_BEFORE.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA),
+                REF_DATA)));
+    equalWithRelativeTolerance(resBefore, expBefore, 10d * EPS);
+
+    PointSensitivities pointAfter = PRICER_FIX.protectionLegSensitivity(
+        PRODUCT_AFTER,
+        RATES_PROVIDER,
+        PRODUCT_AFTER.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA),
+        REF_DATA).build();
+    CurrencyParameterSensitivities resAfter = RATES_PROVIDER.parameterSensitivity(pointAfter);
+    CurrencyParameterSensitivities expAfter = CALC_FD.sensitivity(
+        RATES_PROVIDER,
+        p -> CurrencyAmount.of(
+            USD,
+            PRICER_FIX.protectionLeg(
+                PRODUCT_AFTER,
+                p,
+                PRODUCT_AFTER.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA),
+                REF_DATA)));
+    equalWithRelativeTolerance(resAfter, expAfter, 20d * EPS);
+  }
+
+  @Test
+  public void protectionLegSensitivityCorrectTest() {
+    PointSensitivities pointNext = PRICER_CORRECT.protectionLegSensitivity(
+        PRODUCT_NEXTDAY,
+        RATES_PROVIDER,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA),
+        REF_DATA).build();
+    CurrencyParameterSensitivities resNext = RATES_PROVIDER.parameterSensitivity(pointNext);
+    CurrencyParameterSensitivities expNext = CALC_FD.sensitivity(
+        RATES_PROVIDER,
+        p -> CurrencyAmount.of(
+            USD,
+            PRICER_CORRECT.protectionLeg(
+                PRODUCT_NEXTDAY,
+                p,
+                PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA),
+                REF_DATA)));
+    equalWithRelativeTolerance(resNext, expNext, 10d * EPS);
+
+    PointSensitivities pointBefore = PRICER_CORRECT.protectionLegSensitivity(
+        PRODUCT_BEFORE,
+        RATES_PROVIDER,
+        PRODUCT_BEFORE.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA),
+        REF_DATA).build();
+    CurrencyParameterSensitivities resBefore = RATES_PROVIDER.parameterSensitivity(pointBefore);
+    CurrencyParameterSensitivities expBefore = CALC_FD.sensitivity(
+        RATES_PROVIDER,
+        p -> CurrencyAmount.of(
+            USD,
+            PRICER_CORRECT.protectionLeg(
+                PRODUCT_BEFORE,
+                p,
+                PRODUCT_BEFORE.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA),
+                REF_DATA)));
+    equalWithRelativeTolerance(resBefore, expBefore, 10d * EPS);
+
+    PointSensitivities pointAfter = PRICER_CORRECT.protectionLegSensitivity(
+        PRODUCT_AFTER,
+        RATES_PROVIDER,
+        PRODUCT_AFTER.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA),
+        REF_DATA).build();
+    CurrencyParameterSensitivities resAfter = RATES_PROVIDER.parameterSensitivity(pointAfter);
+    CurrencyParameterSensitivities expAfter = CALC_FD.sensitivity(
+        RATES_PROVIDER,
+        p -> CurrencyAmount.of(
+            USD,
+            PRICER_CORRECT.protectionLeg(
+                PRODUCT_AFTER,
+                p,
+                PRODUCT_AFTER.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA),
+                REF_DATA)));
+    equalWithRelativeTolerance(resAfter, expAfter, 20d * EPS);
+  }
+
+  @Test
   public void riskyAnnuitySensitivityTest() {
     PointSensitivities pointNext = PRICER.riskyAnnuitySensitivity(PRODUCT_NEXTDAY, RATES_PROVIDER,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA).build();

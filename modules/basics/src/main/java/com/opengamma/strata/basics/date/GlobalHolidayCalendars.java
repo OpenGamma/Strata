@@ -337,7 +337,7 @@ final class GlobalHolidayCalendars {
     }
     // juneteenth (seems like it wasn't widely applied in 2021)
     if (year >= 2022) {
-      holidays.add(bumpToFriOrMon(date(year, 6, 19)));
+      holidays.add(bumpBack ? bumpToFriOrMon(date(year, 6, 19)) : bumpSunToMon(date(year, 6, 19)));
     }
     // labor day
     holidays.add(date(year, 9, 1).with(firstInMonth(MONDAY)));
@@ -658,6 +658,10 @@ final class GlobalHolidayCalendars {
       holidays.add(bumpToMon(date(year, 7, 1)));
       // labour
       holidays.add(first(year, 9).with(dayOfWeekInMonth(1, MONDAY)));
+      // national day for truth and reconciliation
+      if (year >= 2021) {
+        holidays.add(date(year, 9, 30));
+      }
       // thanksgiving
       holidays.add(first(year, 10).with(dayOfWeekInMonth(2, MONDAY)));
       // christmas
@@ -694,6 +698,10 @@ final class GlobalHolidayCalendars {
       holidays.add(first(year, 8).with(dayOfWeekInMonth(1, MONDAY)));
       // labour (public)
       holidays.add(first(year, 9).with(dayOfWeekInMonth(1, MONDAY)));
+      // national day for truth and reconciliation
+      if (year >= 2021) {
+        holidays.add(date(year, 9, 30));
+      }
       // thanksgiving (public)
       holidays.add(first(year, 10).with(dayOfWeekInMonth(2, MONDAY)));
       // remembrance
@@ -849,6 +857,79 @@ final class GlobalHolidayCalendars {
     }
     // queen's birthday
     holidays.add(first(year, 6).with(firstInMonth(MONDAY)));
+    // matariki day
+    // https://www.legislation.govt.nz/act/public/2022/0014/latest/whole.html#LMS557893
+    if (year >= 2022 && year <= 2052) {
+      switch (year) {
+        case 2022:
+        case 2033:
+        case 2044:
+          holidays.add(date(year, 6, 24));
+          break;
+        case 2023:
+        case 2028:
+          holidays.add(date(year, 7, 14));
+          break;
+        case 2024:
+          holidays.add(date(year, 6, 28));
+          break;
+        case 2025:
+          holidays.add(date(year, 6, 20));
+          break;
+        case 2026:
+        case 2037:
+          holidays.add(date(year, 7, 10));
+          break;
+        case 2027:
+        case 2038:
+        case 2049:
+          holidays.add(date(year, 6, 25));
+          break;
+        case 2029:
+        case 2040:
+          holidays.add(date(year, 7, 6));
+          break;
+        case 2030:
+        case 2052:
+          holidays.add(date(year, 6, 21));
+          break;
+        case 2031:
+        case 2042:
+          holidays.add(date(year, 7, 11));
+          break;
+        case 2032:
+          holidays.add(date(year, 7, 2));
+          break;
+        case 2034:
+        case 2045:
+          holidays.add(date(year, 7, 7));
+          break;
+        case 2035:
+        case 2046:
+          holidays.add(date(year, 6, 29));
+          break;
+        case 2036:
+          holidays.add(date(year, 7, 18));
+          break;
+        case 2039:
+        case 2050:
+          holidays.add(date(year, 7, 15));
+          break;
+        case 2041:
+        case 2047:
+          holidays.add(date(year, 7, 19));
+          break;
+        case 2043:
+        case 2048:
+          holidays.add(date(year, 7, 3));
+          break;
+        case 2051:
+          holidays.add(date(year, 6, 30));
+          break;
+        default:
+          break;
+      }
+    }
     // queen's funeral
     if (year == 2022) {
       holidays.add(date(year, 9, 26));
@@ -976,7 +1057,11 @@ final class GlobalHolidayCalendars {
       // easter monday
       holidays.add(easter(year).plusDays(1));
       // anzac day
-      holidays.add(date(year, 4, 25));
+      if (year >= 2026) {
+        holidays.add(bumpToMon(date(year, 4, 25)));
+      } else {
+        holidays.add(date(year, 4, 25));
+      }
       // queen's birthday
       holidays.add(first(year, 6).with(dayOfWeekInMonth(2, MONDAY)));
       // bank holiday

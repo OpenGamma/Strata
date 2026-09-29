@@ -161,7 +161,7 @@ public interface DayCount
    * the two dates, but the '30/360 ISDA' will return a value based on 30 day months.
    * 
    * @param firstDate  the first date
-   * @param secondDate  the second date, which may be before the first date
+   * @param secondDate  the second date
    * @return the number of days, as determined by the day count
    */
   public abstract int days(LocalDate firstDate, LocalDate secondDate);

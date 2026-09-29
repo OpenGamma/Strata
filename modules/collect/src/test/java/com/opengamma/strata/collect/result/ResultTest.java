@@ -6,11 +6,12 @@
 package com.opengamma.strata.collect.result;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
+import static com.opengamma.strata.collect.Guavate.concatToList;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.result.FailureReason.CALCULATION_FAILED;
 import static com.opengamma.strata.collect.result.FailureReason.ERROR;
 import static com.opengamma.strata.collect.result.FailureReason.INVALID;
 import static com.opengamma.strata.collect.result.FailureReason.MISSING_DATA;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.fail;
@@ -22,6 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
@@ -675,6 +677,36 @@ public class ResultTest {
     assertThat(combined)
         .isFailure(ERROR)
         .hasFailureMessageMatching("Ooops");
+  }
+
+  //-------------------------------------------------------------------------
+
+  @Test
+  public void toCombinedResult_allSuccesses() {
+    Result<Integer> success1 = Result.success(1);
+    Result<Integer> success2 = Result.success(2);
+    Result<Integer> success3 = Result.success(3);
+
+    Result<ImmutableList<Integer>> combinedResult = Stream.of(success1, success2, success3)
+        .collect(Result.toCombinedResult(toImmutableList()));
+
+    assertThat(combinedResult.isSuccess()).isTrue();
+    assertThat(combinedResult.getValue()).isEqualTo(ImmutableList.of(1, 2, 3));
+  }
+
+  @Test
+  public void toCombinedResult_withFailures() {
+    Result<Integer> success1 = Result.success(1);
+    Result<Integer> failure1 = Result.failure(MISSING_DATA, "failure 1");
+    Result<Integer> failure2 = Result.failure(ERROR, "failure 2");
+
+    Result<ImmutableList<Integer>> combinedResult = Stream.of(success1, failure1, failure2)
+        .collect(Result.toCombinedResult(toImmutableList()));
+
+    assertThat(combinedResult.isFailure()).isTrue();
+    assertThat(combinedResult.getFailure()).isEqualTo(Failure.of(concatToList(
+        failure1.getFailure().getItems(),
+        failure2.getFailure().getItems())));
   }
 
   //-------------------------------------------------------------------------

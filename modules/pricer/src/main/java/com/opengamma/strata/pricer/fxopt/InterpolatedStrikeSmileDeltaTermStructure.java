@@ -65,6 +65,12 @@ public final class InterpolatedStrikeSmileDeltaTermStructure
     implements SmileDeltaTermStructure, ParameterizedData, ImmutableBean, Serializable {
 
   /**
+   * The relative shift used for calculating sensitivities of the volatility values to input parameters by the finite
+   * difference approximation.
+   */
+  private static final double EPS = 1e-6;
+
+  /**
    * The smile description at the different time to expiry. All item should have the same deltas.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
@@ -685,30 +691,43 @@ public final class InterpolatedStrikeSmileDeltaTermStructure
     BoundCurveInterpolator volBound = strikeInterpolator.bind(
         strikes, smile.getVolatility(), strikeExtrapolatorLeft, strikeExtrapolatorRight);
     double vol = volBound.interpolate(strike);
-
-    // vol derivative to strike
     double dVoldStrike = volBound.firstDerivative(strike);
 
-    DoubleArray smileVolsDerivativeToExpiry = smileVolsDerivativeToExpiry(expiry);
-    BoundCurveInterpolator smileVolDerivativeBound = strikeInterpolator.bind(
-        strikes, smileVolsDerivativeToExpiry, strikeExtrapolatorLeft, strikeExtrapolatorRight);
-    double dSmileVoldExpiry = smileVolDerivativeBound.interpolate(strike);
+    DoubleArray dNodeStrikesdExpiryDirect = smile.impliedStrikesDerivativeToExpiry(forward);
+    DoubleArray dNodeStrikesdNodeVols = smile.impliedStrikesDerivativeToSmileVols(forward);
+    DoubleArray dNodeVolsdExpiry = smileVolsDerivativeToExpiry(expiry);
+    DoubleArray dNodeStrikesdExpiry = dNodeStrikesdExpiryDirect.plus(dNodeStrikesdNodeVols.multipliedBy(dNodeVolsdExpiry));
+    DoubleArray dVoldNodeStrikes = DoubleArray.of(
+        strikes.size(),
+        index -> dVoldNodeStrike(strikes, smile.getVolatility(), strike, index));
+    DoubleArray dVoldSmileVols = volBound.parameterSensitivity(strike);
+    double dVoldExpiry = dNodeStrikesdExpiry.multipliedBy(dVoldNodeStrikes).sum() +
+        dVoldSmileVols.multipliedBy(dNodeVolsdExpiry).sum();
+    double dVoldForward = smile.impliedStrikesDerivativeToForward(forward).multipliedBy(dVoldNodeStrikes).sum();
 
-    // strike derivative to time
-    DoubleArray impliedStrikesDerivativeToTime = smile.impliedStrikesDerivativeToExpiry(forward);
-    DoubleArray impliedStrikesDerivativeToSmileVols = smile.impliedStrikesDerivativeToSmileVols(forward);
-    BoundCurveInterpolator impliedVolDerivativeTimeBound = strikeInterpolator.bind(
-        strikes, impliedStrikesDerivativeToTime, strikeExtrapolatorLeft, strikeExtrapolatorRight);
-    BoundCurveInterpolator impliedVolDerivativeSmileVolBound = strikeInterpolator.bind(
-        strikes, impliedStrikesDerivativeToSmileVols, strikeExtrapolatorLeft, strikeExtrapolatorRight);
-    double dImpliedStrikedExpiry = impliedVolDerivativeTimeBound.interpolate(strike);
-    double dImpliedStrikedSmileVol = impliedVolDerivativeSmileVolBound.interpolate(strike);
+    return ValueDerivatives.of(vol, DoubleArray.of(dVoldExpiry, dVoldStrike, dVoldForward));
+  }
 
-    double dStrikedExpiry = dImpliedStrikedSmileVol * dSmileVoldExpiry + dImpliedStrikedExpiry;
-    // take negative of dVoldStrike as increase in x when plotted with same y values is equivalent of negative x shift
-    double negativedVoldStrike = -1d * dVoldStrike;
-    double dVoldExpiry = dStrikedExpiry * negativedVoldStrike + dSmileVoldExpiry;
-    return ValueDerivatives.of(vol, DoubleArray.of(dVoldExpiry, dVoldStrike));
+  // calculates sensitivity of volatility value at {@code strike} to {@code index}-th element of {@code strikes}.
+  private double dVoldNodeStrike(
+      DoubleArray strikes,
+      DoubleArray volatilities,
+      double strike,
+      int index) {
+
+    DoubleArray upStrikes = strikes.with(index, strikes.get(index) * (1d + EPS));
+    BoundCurveInterpolator boundUp = strikeInterpolator.bind(
+        upStrikes,
+        volatilities,
+        strikeExtrapolatorLeft,
+        strikeExtrapolatorRight);
+    DoubleArray downStrikes = strikes.with(index, strikes.get(index) * (1d - EPS));
+    BoundCurveInterpolator boundDown = strikeInterpolator.bind(
+        downStrikes,
+        volatilities,
+        strikeExtrapolatorLeft,
+        strikeExtrapolatorRight);
+    return 0.5 * (boundUp.interpolate(strike) - boundDown.interpolate(strike)) / (strikes.get(index) * EPS);
   }
 
   //-------------------------------------------------------------------------

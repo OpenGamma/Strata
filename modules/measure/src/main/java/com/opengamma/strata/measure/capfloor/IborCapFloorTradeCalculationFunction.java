@@ -43,8 +43,8 @@ import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorTrade;
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed on rate curves}
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum on rate curves}
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed on rate curves}
+ *   <li>{@linkplain Measures#VEGA_MARKET_QUOTE_BUCKETED vega market quote bucketed on vol surfaces}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
- *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
  *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  * </ul>
@@ -64,6 +64,7 @@ public class IborCapFloorTradeCalculationFunction
           .put(Measures.PV01_CALIBRATED_BUCKETED, IborCapFloorMeasureCalculations.DEFAULT::pv01RatesCalibratedBucketed)
           .put(Measures.PV01_MARKET_QUOTE_SUM, IborCapFloorMeasureCalculations.DEFAULT::pv01RatesMarketQuoteSum)
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, IborCapFloorMeasureCalculations.DEFAULT::pv01RatesMarketQuoteBucketed)
+          .put(Measures.VEGA_MARKET_QUOTE_BUCKETED, IborCapFloorMeasureCalculations.DEFAULT::vegaMarketQuoteBucketed)
           .put(Measures.CURRENCY_EXPOSURE, IborCapFloorMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, IborCapFloorMeasureCalculations.DEFAULT::currentCash)
           .put(Measures.RESOLVED_TARGET, (rt, smd, m) -> rt)

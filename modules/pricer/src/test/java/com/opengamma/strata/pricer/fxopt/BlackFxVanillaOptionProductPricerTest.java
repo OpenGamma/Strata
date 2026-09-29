@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -199,31 +200,65 @@ public class BlackFxVanillaOptionProductPricerTest {
   }
 
   @Test
+  public void test_smileAdjustedDelta() {
+    double deltaCall = PRICER.smileAdjustedDelta(CALL_OTM, RATES_PROVIDER, VOLS);
+    double deltaPut = PRICER.smileAdjustedDelta(PUT_ITM, RATES_PROVIDER, VOLS);
+    double eurUsdBase = RATES_PROVIDER.fxRate(EUR, USD);
+    double eps = 1e-6;
+    FxMatrix fxMatrixUp = FxMatrix.builder().addRate(USD, EUR, 1.0d / (eurUsdBase + eps)).build();
+    FxMatrix fxMatrixDw = FxMatrix.builder().addRate(USD, EUR, 1.0d / (eurUsdBase - eps)).build();
+    RatesProvider ratesProviderUp = RATES_PROVIDER.toImmutableRatesProvider().toBuilder()
+        .fxRateProvider(fxMatrixUp)
+        .build();
+    RatesProvider ratesProviderDw = RATES_PROVIDER.toImmutableRatesProvider().toBuilder()
+        .fxRateProvider(fxMatrixDw)
+        .build();
+    double callPriceUp = PRICER.price(CALL_OTM, ratesProviderUp, VOLS);
+    double callPriceDw = PRICER.price(CALL_OTM, ratesProviderDw, VOLS);
+    double putPriceUp = PRICER.price(PUT_ITM, ratesProviderUp, VOLS);
+    double putPriceDw = PRICER.price(PUT_ITM, ratesProviderDw, VOLS);
+    double expectedDeltaCall = 0.5 * (callPriceUp - callPriceDw) / eps;
+    double expectedDeltaPut = 0.5 * (putPriceUp - putPriceDw) / eps;
+    assertThat(deltaCall).isCloseTo(expectedDeltaCall, offset(eps));
+    assertThat(deltaPut).isCloseTo(expectedDeltaPut, offset(eps));
+  }
+
+  @Test
   public void test_delta_presentValueDelta_atExpiry() {
     double dfFor = RATES_PROVIDER_EXPIRY.discountFactor(EUR, PAYMENT_DATE);
     double deltaCallOtm = PRICER.delta(CALL_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
+    double adjDeltaCallOtm = PRICER.smileAdjustedDelta(CALL_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvDeltaCallOtm = PRICER.presentValueDelta(CALL_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     assertThat(deltaCallOtm).isCloseTo(0d, offset(TOL));
+    assertThat(adjDeltaCallOtm).isCloseTo(0d, offset(TOL));
     assertThat(pvDeltaCallOtm.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
     double deltaCallItm = PRICER.delta(CALL_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
+    double adjDeltaCallItm = PRICER.smileAdjustedDelta(CALL_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvDeltaCallItm = PRICER.presentValueDelta(CALL_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     assertThat(deltaCallItm).isCloseTo(dfFor, offset(TOL));
+    assertThat(adjDeltaCallItm).isCloseTo(dfFor, offset(TOL));
     assertThat(pvDeltaCallItm.getAmount()).isCloseTo(NOTIONAL * dfFor, offset(NOTIONAL * TOL));
     double deltaPutItm = PRICER.delta(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
+    double adjDeltaPutItm = PRICER.smileAdjustedDelta(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvDeltaPutItm = PRICER.presentValueDelta(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     assertThat(deltaPutItm).isCloseTo(-dfFor, offset(TOL));
+    assertThat(adjDeltaPutItm).isCloseTo(-dfFor, offset(TOL));
     assertThat(pvDeltaPutItm.getAmount()).isCloseTo(-NOTIONAL * dfFor, offset(NOTIONAL * TOL));
     double deltaPutOtm = PRICER.delta(PUT_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
+    double adjDeltaPutOtm = PRICER.smileAdjustedDelta(PUT_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvDeltaPutOtm = PRICER.presentValueDelta(PUT_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     assertThat(deltaPutOtm).isCloseTo(0d, offset(TOL));
+    assertThat(adjDeltaPutOtm).isCloseTo(0d, offset(TOL));
     assertThat(pvDeltaPutOtm.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
   @Test
   public void test_delta_presentValueDelta_afterExpiry() {
     double delta = PRICER.delta(CALL_OTM, RATES_PROVIDER_AFTER, VOLS_AFTER);
+    double adjDelta = PRICER.smileAdjustedDelta(CALL_OTM, RATES_PROVIDER_AFTER, VOLS_AFTER);
     CurrencyAmount pvDelta = PRICER.presentValueDelta(CALL_OTM, RATES_PROVIDER_AFTER, VOLS_AFTER);
     assertThat(delta).isCloseTo(0d, offset(TOL));
+    assertThat(adjDelta).isCloseTo(0d, offset(TOL));
     assertThat(pvDelta.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
@@ -466,6 +501,27 @@ public class BlackFxVanillaOptionProductPricerTest {
     MultiCurrencyAmount computedPoint = RATES_PROVIDER.currencyExposure(point).plus(pv);
     assertThat(computedPricer.getAmount(EUR).getAmount()).isCloseTo(computedPoint.getAmount(EUR).getAmount(), offset(NOTIONAL * TOL));
     assertThat(computedPricer.getAmount(USD).getAmount()).isCloseTo(computedPoint.getAmount(USD).getAmount(), offset(NOTIONAL * TOL));
+  }
+
+  @Test
+  public void test_smileAdjustedCurrencyExposure() {
+    MultiCurrencyAmount computedPricer = PRICER.smileAdjustedCurrencyExposure(CALL_OTM, RATES_PROVIDER, VOLS);
+    CurrencyAmount pv = PRICER.presentValue(CALL_OTM, RATES_PROVIDER, VOLS);
+    double fwdSpotSensi = PRICER.getDiscountingFxSingleProductPricer().forwardFxRateSpotSensitivity(
+        FX_PRODUCT_HIGH,
+        RATES_PROVIDER);
+    PointSensitivities point = PRICER.getDiscountingFxSingleProductPricer().forwardFxRatePointSensitivity(
+            FX_PRODUCT_HIGH,
+            RATES_PROVIDER)
+        .multipliedBy(-NOTIONAL * PRICER.smileAdjustedDelta(CALL_OTM, RATES_PROVIDER, VOLS) / fwdSpotSensi)
+        .build();
+    MultiCurrencyAmount computedPoint = RATES_PROVIDER.currencyExposure(point).plus(pv);
+    assertThat(computedPricer.getAmount(EUR).getAmount()).isCloseTo(
+        computedPoint.getAmount(EUR).getAmount(),
+        offset(NOTIONAL * TOL));
+    assertThat(computedPricer.getAmount(USD).getAmount()).isCloseTo(
+        computedPoint.getAmount(USD).getAmount(),
+        offset(NOTIONAL * TOL));
   }
 
 }

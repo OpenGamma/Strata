@@ -68,6 +68,7 @@ public class FxVanillaOptionTradeCalculationFunction
           .put(Measures.PV01_MARKET_QUOTE_SUM, FxVanillaOptionMeasureCalculations.DEFAULT::pv01RatesMarketQuoteSum)
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, FxVanillaOptionMeasureCalculations.DEFAULT::pv01RatesMarketQuoteBucketed)
           .put(Measures.CURRENCY_EXPOSURE, FxVanillaOptionMeasureCalculations.DEFAULT::currencyExposure)
+          .put(Measures.OPTION_DELTA, FxVanillaOptionMeasureCalculations.DEFAULT::delta)
           .put(Measures.CURRENT_CASH, FxVanillaOptionMeasureCalculations.DEFAULT::currentCash)
           .put(Measures.VEGA_MARKET_QUOTE_BUCKETED, FxVanillaOptionMeasureCalculations.DEFAULT::vegaMarketQuoteBucketed)
           .put(Measures.RESOLVED_TARGET, (rt, smd, m, meth) -> rt)

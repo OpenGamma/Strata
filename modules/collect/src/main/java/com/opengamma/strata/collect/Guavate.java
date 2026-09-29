@@ -50,6 +50,7 @@ import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MoreCollectors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -179,6 +180,24 @@ public final class Guavate {
 
     return Stream.concat(first.entrySet().stream(), second.entrySet().stream())
         .collect(entriesToImmutableMap(mergeFn));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Combines two list multimaps into a single list multimap.
+   *
+   * @param first  the first list multimap
+   * @param second  the second list multimap
+   * @param <K>  the type of the keys
+   * @param <V>  the type of the values
+   * @return a combined list multi map
+   */
+  public static <K, V> ImmutableListMultimap<K, V> combineListMultimaps(
+      ListMultimap<? extends K, ? extends V> first,
+      ListMultimap<? extends K, ? extends V> second) {
+
+    return Stream.concat(first.entries().stream(), second.entries().stream())
+        .collect(toImmutableListMultimap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
   //-------------------------------------------------------------------------

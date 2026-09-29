@@ -623,6 +623,15 @@ public class GlobalHolidayCalendarsTest {
     }
   }
 
+  @Test
+  public void test_usJuneteenthSaturdayObservance() {
+    LocalDate observedDate = LocalDate.of(2027, 6, 18);
+    assertThat(USGS.isHoliday(observedDate)).isTrue();
+    assertThat(NYSE.isHoliday(observedDate)).isTrue();
+    assertThat(USNY.isHoliday(observedDate)).isFalse();
+    assertThat(NYFD.isHoliday(observedDate)).isFalse();
+  }
+
   //-------------------------------------------------------------------------
   private static final HolidayCalendar JPTO = GlobalHolidayCalendars.generateTokyo();
 
@@ -706,6 +715,8 @@ public class GlobalHolidayCalendarsTest {
             md(4, 25), md(6, 12), md(8, 7), md(10, 2), md(12, 25), md(12, 26))},
         {2022, mds(2022, md(1, 3), md(1, 26), md(4, 15), md(4, 18),
             md(4, 25), md(6, 13), md(8, 1), md(9, 22), md(10, 3), md(12, 26), md(12, 27))},
+        {2026, mds(2026, md(1, 1), md(1, 26), md(4, 3), md(4, 6),
+            md(4, 27), md(6, 8), md(8, 3), md(10, 5), md(12, 25), md(12, 28))},
     };
   }
 
@@ -765,7 +776,7 @@ public class GlobalHolidayCalendarsTest {
         {2018, mds(2018, md(1, 1), md(3, 30),
             md(5, 21), md(6, 25), md(7, 2), md(9, 3), md(10, 8), md(12, 25))},
         {2022, mds(2022, md(1, 3), md(4, 15),
-            md(5, 23), md(6, 24), md(7, 1), md(9, 5), md(10, 10), md(12, 26))},
+            md(5, 23), md(6, 24), md(7, 1), md(9, 5), md(9, 30), md(10, 10), md(12, 26))},
     };
   }
 
@@ -802,6 +813,8 @@ public class GlobalHolidayCalendarsTest {
             md(5, 18), md(7, 1), md(8, 3), md(9, 7), md(10, 12), md(11, 11), md(12, 25), md(12, 28))},
         {2016, mds(2016, md(1, 1), md(2, 15), md(3, 25),
             md(5, 23), md(7, 1), md(8, 1), md(9, 5), md(10, 10), md(11, 11), md(12, 26), md(12, 27))},
+        {2025, mds(2025, md(1, 1), md(2, 17), md(4, 18), md(5, 19),
+            md(7, 1), md(8, 4), md(9, 1), md(9, 30), md(10, 13), md(11, 11), md(12, 25), md(12, 26))}
     };
   }
 
@@ -1075,6 +1088,8 @@ public class GlobalHolidayCalendarsTest {
             md(4, 25), md(6, 5), md(10, 23), md(12, 25), md(12, 26))},
         {2018, mds(2018, md(1, 1), md(1, 2), md(2, 6), md(3, 30), md(4, 2),
             md(4, 25), md(6, 4), md(10, 22), md(12, 25), md(12, 26))},
+        {2025, mds(2025, md(1, 1), md(1, 2), md(2, 6), md(4, 18),
+            md(4, 21), md(4, 25), md(6, 2), md(6, 20), md(10, 27), md(12, 25), md(12, 26))},
     };
   }
 

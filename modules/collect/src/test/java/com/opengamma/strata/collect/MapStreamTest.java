@@ -6,6 +6,7 @@
 package com.opengamma.strata.collect;
 
 import static com.opengamma.strata.collect.Guavate.entry;
+import static com.opengamma.strata.collect.Guavate.in;
 import static com.opengamma.strata.collect.Guavate.pairsToImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.list;
@@ -158,6 +159,26 @@ public class MapStreamTest {
         ImmutableMap.of("one - 1", (short) 0, "two - 1", (short) 1, "three - 1", (short) 2, "four - 1", (short) 3);
     Map<String, Short> result = MapStream.of(map).mapBoth((k, v) -> entry(k + " - 1", (short) (v - 1))).toMap();
     assertThat(result).isEqualTo(expected);
+  }
+
+  @Test
+  public void flatMapBoth() {
+    Map<String, ImmutableMap<String, Short>> initialMap = ImmutableMap.of(
+        "one - 1", ImmutableMap.of("sub-one", (short) 0),
+        "two - 1", ImmutableMap.of("sub-two", (short) 1),
+        "three - 1", ImmutableMap.of("sub-three", (short) 2),
+        "four - 1", ImmutableMap.of("sub-four", (short) 3, "sub-five", (short) 4));
+    Map<String, Short> expectedResult = ImmutableMap.of(
+        "sub-one", (short) 0,
+        "sub-two", (short) 1,
+        "sub-three", (short) 2,
+        "sub-four", (short) 3,
+        "sub-five", (short) 4);
+
+    Map<String, Short> result = MapStream.of(initialMap)
+        .flatMapBoth((k, v) -> v.entrySet().stream())
+        .toMap();
+    assertThat(result).isEqualTo(expectedResult);
   }
 
   @Test

@@ -5,11 +5,15 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.collect.Guavate.boxed;
+import static com.opengamma.strata.collect.Guavate.filteringOptional;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CPTY_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CPTY_SCHEME_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ID_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ID_SCHEME_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.POSITION_TYPE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SENSITIVITY_TYPE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SETTLEMENT_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TIME_FIELD;
@@ -25,10 +29,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharSource;
+import com.google.common.primitives.Booleans;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.StandardSchemes;
@@ -80,7 +88,7 @@ import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
  *   such as 'Europe/London'
  * <li>The 'Settlement Date' column is optional, and is the date that the trade settles, such as '2017-08-01'
  * </ul>
- * Note that positions may be included in the same file as trades.
+ * Note that positions and sensitivities may be included in the same file as trades.
  * The 'Strata Trade Type' column must either be empty or have the value 'Position'.
  * 
  * <h4>Fra</h4>
@@ -423,15 +431,18 @@ public final class TradeCsvLoader {
       // handle mixed trade/position files
       Optional<String> tradeTypeOpt = row.findValue(TRADE_TYPE_FIELD).filter(str -> !str.equalsIgnoreCase("POSITION"));
       Optional<String> positionTypeOpt = row.findValue(POSITION_TYPE_FIELD).filter(str -> !str.equalsIgnoreCase("TRADE"));
-      if (tradeTypeOpt.isPresent() && positionTypeOpt.isPresent()) {
-        failures.add(FailureItem.of(
-            FailureReason.PARSING,
-            "CSV position file '{fileName}' contained row with mixed trade/position type '{type}' at line {lineNumber}",
-            CharSources.extractFileName(charSource),
-            tradeTypeOpt.get() + "/" + positionTypeOpt.get(),
-            row.lineNumber()));
-        continue; // ignore bad row
-      } else if (positionTypeOpt.isPresent()) {
+      Optional<String> sensitivityTypeOpt = row.findValue(SENSITIVITY_TYPE_FIELD).filter(str -> !str.equalsIgnoreCase("TRADE"));
+
+      if (positionTypeOpt.isPresent() || sensitivityTypeOpt.isPresent()) {
+        if (tradeTypeOpt.isPresent()) {
+          failures.add(FailureItem.of(
+              FailureReason.PARSING,
+              "CSV position file '{fileName}' contained row with mixed trade/position/sensitivity type '{type}' at line {lineNumber}",
+              CharSources.extractFileName(charSource),
+              tradeTypeOpt.get() + "/" + positionTypeOpt.orElse("-") + "/" + sensitivityTypeOpt.orElse("-"),
+              row.lineNumber()));
+          continue; // ignore bad row
+        }
         continue; // quietly ignore a position row
       }
 

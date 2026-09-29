@@ -120,7 +120,8 @@ public class PositionCsvLoaderTest {
     ValueWithFailures<List<Position>> loadedData = standard.parse(charSources);
     assertThat(loadedData.getFailures().size()).as(loadedData.getFailures().toString()).isEqualTo(1);
     assertThat(loadedData.getFailures()).first().hasToString(
-        "PARSING: CSV position file 'mixed-trades-positions.csv' contained row with mixed trade/position type 'FX/EtdFuture' at line 6");
+        "PARSING: CSV position file 'mixed-trades-positions.csv' contained row with mixed " +
+            "trade/position/sensitivity type 'FX/EtdFuture/CRIF' at line 6");
 
     List<Position> loadedPositions = loadedData.getValue();
     assertThat(loadedPositions).hasSize(2).allMatch(position -> position instanceof SecurityPosition);

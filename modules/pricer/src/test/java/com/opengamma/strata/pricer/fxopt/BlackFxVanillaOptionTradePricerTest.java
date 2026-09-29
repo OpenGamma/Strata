@@ -129,6 +129,22 @@ public class BlackFxVanillaOptionTradePricerTest {
   }
 
   @Test
+  public void test_smileAdjustedCurrencyExposure() {
+    MultiCurrencyAmount ceComputed = PRICER_TRADE.smileAdjustedCurrencyExposure(OPTION_TRADE, RATES_PROVIDER, VOLS);
+    double fwdSpotSensi = PRICER_PRODUCT.getDiscountingFxSingleProductPricer().forwardFxRateSpotSensitivity(
+        OPTION_PRODUCT.getPutCall().isCall() ? FX_PRODUCT : FX_PRODUCT.inverse(), RATES_PROVIDER);
+    PointSensitivities point = PRICER_PRODUCT.getDiscountingFxSingleProductPricer().forwardFxRatePointSensitivity(
+            OPTION_PRODUCT.getPutCall().isCall() ? FX_PRODUCT : FX_PRODUCT.inverse(), RATES_PROVIDER)
+        .multipliedBy(-NOTIONAL * PRICER_PRODUCT.smileAdjustedDelta(OPTION_PRODUCT, RATES_PROVIDER, VOLS) / fwdSpotSensi)
+        .build();
+    MultiCurrencyAmount pv = PRICER_TRADE.presentValue(OPTION_TRADE, RATES_PROVIDER, VOLS);
+    MultiCurrencyAmount ceExpected = RATES_PROVIDER.currencyExposure(point).plus(pv);
+    assertThat(ceComputed.size()).isEqualTo(2);
+    assertThat(ceComputed.getAmount(EUR).getAmount()).isCloseTo(ceExpected.getAmount(EUR).getAmount(), offset(TOL * NOTIONAL));
+    assertThat(ceComputed.getAmount(USD).getAmount()).isCloseTo(ceExpected.getAmount(USD).getAmount(), offset(TOL * NOTIONAL));
+  }
+
+  @Test
   public void test_currentCash_zero() {
     assertThat(PRICER_TRADE.currentCash(OPTION_TRADE, VAL_DATE)).isEqualTo(CurrencyAmount.zero(PREMIUM.getCurrency()));
   }
@@ -150,6 +166,14 @@ public class BlackFxVanillaOptionTradePricerTest {
     double impVolComputed = PRICER_TRADE.impliedVolatility(OPTION_TRADE, RATES_PROVIDER, VOLS);
     double imlVolExpected = PRICER_PRODUCT.impliedVolatility(OPTION_PRODUCT, RATES_PROVIDER, VOLS);
     assertThat(impVolComputed).isEqualTo(imlVolExpected);
+  }
+
+  @Test
+  public void test_delta() {
+    double delta = PRICER_TRADE.delta(OPTION_TRADE, RATES_PROVIDER, VOLS);
+    double deltaExpected = PRICER_PRODUCT.delta(OPTION_PRODUCT, RATES_PROVIDER, VOLS);
+
+    assertThat(delta).isEqualTo(deltaExpected);
   }
 
 }

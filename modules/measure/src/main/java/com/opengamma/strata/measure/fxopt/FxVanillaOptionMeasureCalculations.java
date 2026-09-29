@@ -15,6 +15,7 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -306,6 +307,39 @@ final class FxVanillaOptionMeasureCalculations {
       return vannaVolgaPricer.currencyExposure(trade, ratesProvider, checkVannaVolgaVolatilities(volatilities));
     } else {
       return blackPricer.currencyExposure(trade, ratesProvider, checkBlackVolatilities(volatilities));
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates delta for all scenarios
+  DoubleScenarioArray delta(
+      ResolvedFxVanillaOptionTrade trade,
+      RatesScenarioMarketData ratesMarketData,
+      FxOptionScenarioMarketData optionMarketData,
+      FxVanillaOptionMethod method) {
+
+    CurrencyPair currencyPair = trade.getProduct().getCurrencyPair();
+    return DoubleScenarioArray.of(
+        ratesMarketData.getScenarioCount(),
+        i -> delta(
+            trade,
+            ratesMarketData.scenario(i).ratesProvider(),
+            optionMarketData.scenario(i).volatilities(currencyPair),
+            method));
+  }
+
+  // delta for one scenario
+  double delta(
+      ResolvedFxVanillaOptionTrade trade,
+      RatesProvider ratesProvider,
+      FxOptionVolatilities volatilities,
+      FxVanillaOptionMethod method) {
+
+    if (method == FxVanillaOptionMethod.VANNA_VOLGA) {
+      throw new IllegalArgumentException(
+          "FX vanilla option Vanna Volga pricer does not currently support delta calculation");
+    } else {
+      return blackPricer.delta(trade, ratesProvider, checkBlackVolatilities(volatilities));
     }
   }
 

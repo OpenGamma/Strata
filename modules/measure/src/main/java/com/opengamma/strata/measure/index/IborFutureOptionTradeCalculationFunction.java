@@ -49,6 +49,7 @@ import com.opengamma.strata.product.index.ResolvedIborFutureOptionTrade;
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum}
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
+ *   <li>{@linkplain Measures#VEGA_MARKET_QUOTE_BUCKETED vega market quote bucketed on vol curves/surfaces}
  *   <li>{@linkplain Measures#UNIT_PRICE Unit price}
  *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  * </ul>
@@ -91,6 +92,7 @@ public class IborFutureOptionTradeCalculationFunction<T extends SecuritizedProdu
           .put(Measures.PV01_CALIBRATED_BUCKETED, IborFutureOptionMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
           .put(Measures.PV01_MARKET_QUOTE_SUM, IborFutureOptionMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, IborFutureOptionMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
+          .put(Measures.VEGA_MARKET_QUOTE_BUCKETED, IborFutureOptionMeasureCalculations.DEFAULT::vegaMarketQuoteBucketed)
           .put(Measures.UNIT_PRICE, IborFutureOptionMeasureCalculations.DEFAULT::unitPrice)
           .put(Measures.RESOLVED_TARGET, (rt, smd, m) -> rt)
           .build();

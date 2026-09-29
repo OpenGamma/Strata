@@ -32,12 +32,14 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.observable.IndexQuoteId;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
@@ -116,18 +118,23 @@ public class IborCapFloorTradeCalculationFunctionTest {
     MultiCurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, VOLS);
     MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(RTRADE, provider, VOLS);
     MultiCurrencyAmount expectedCurrentCash = pricer.currentCash(RTRADE, provider, VOLS);
+    CurrencyParameterSensitivities expectedVegaBucketed =
+        VOLS.parameterSensitivity(pricer.presentValueSensitivityModelParamsVolatility(RTRADE, provider, VOLS).build());
 
     Set<Measure> measures = ImmutableSet.of(
         Measures.PRESENT_VALUE,
         Measures.CURRENCY_EXPOSURE,
-        Measures.CURRENT_CASH);
+        Measures.CURRENT_CASH,
+        Measures.VEGA_MARKET_QUOTE_BUCKETED);
     assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA))
         .containsEntry(
             Measures.PRESENT_VALUE, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv))))
         .containsEntry(
             Measures.CURRENCY_EXPOSURE, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure))))
         .containsEntry(
-            Measures.CURRENT_CASH, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash))));
+            Measures.CURRENT_CASH, Result.success(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash))))
+        .containsEntry(
+            Measures.VEGA_MARKET_QUOTE_BUCKETED, Result.success(ScenarioArray.of(ImmutableList.of(expectedVegaBucketed))));
   }
 
   //-------------------------------------------------------------------------

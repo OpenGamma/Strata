@@ -166,6 +166,10 @@ public final class FloatingRateNames {
    */
   public static final FloatingRateName PLN_POLONIA = FloatingRateName.of("PLN-POLONIA");
   /**
+   * Constant for PLN-POLSTR Overnight index.
+   */
+  public static final FloatingRateName PLN_POLSTR = FloatingRateName.of("PLN-POLSTR");
+  /**
    * Constant for SEK-SIOR Overnight index.
    */
   public static final FloatingRateName SEK_SIOR = FloatingRateName.of("SEK-SIOR");

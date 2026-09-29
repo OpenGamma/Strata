@@ -202,6 +202,34 @@ final class IborFutureOptionMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
+  // calculates market quote bucketed vega for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> vegaMarketQuoteBucketed(
+      ResolvedIborFutureOptionTrade trade,
+      RatesScenarioMarketData ratesMarketData,
+      IborFutureOptionScenarioMarketData optionMarketData) {
+
+    IborIndex index = trade.getProduct().getUnderlyingFuture().getIndex();
+    return ScenarioArray.of(
+        ratesMarketData.getScenarioCount(),
+        i -> vegaMarketQuoteBucketed(
+            trade,
+            ratesMarketData.scenario(i).ratesProvider(),
+            optionMarketData.scenario(i).volatilities(index)));
+  }
+
+  // market quote bucketed vega for one scenario
+  CurrencyParameterSensitivities vegaMarketQuoteBucketed(
+      ResolvedIborFutureOptionTrade trade,
+      RatesProvider ratesProvider,
+      IborFutureOptionVolatilities volatilities) {
+
+    NormalIborFutureOptionVolatilities normalVols = checkNormalVols(volatilities);
+    PointSensitivities pointSensitivity =
+        tradePricer.presentValueSensitivityModelParamsVolatility(trade, ratesProvider, normalVols).build();
+    return volatilities.parameterSensitivity(pointSensitivity);
+  }
+
+  //-------------------------------------------------------------------------
   // calculates unit price for all scenarios
   DoubleScenarioArray unitPrice(
       ResolvedIborFutureOptionTrade trade,

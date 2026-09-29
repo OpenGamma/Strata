@@ -340,6 +340,40 @@ public final class SmileDeltaParameters
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates the derivatives of the implied strikes to forward.
+   *
+   * @param forward  the forward
+   * @return the derivatives of the implied strikes
+   */
+  public DoubleArray impliedStrikesDerivativeToForward(double forward) {
+    int nbDelta = delta.size();
+    double[] dStrikedForward = new double[2 * nbDelta + 1];
+    double atmVol = volatility.get(nbDelta);
+    dStrikedForward[nbDelta] = Math.exp(atmVol * atmVol * expiry / 2.0);
+    for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {
+      double[] valueDerivatives = new double[4];
+      BlackFormulaRepository.impliedStrike(
+          -delta.get(loopdelta),
+          false,
+          forward,
+          expiry,
+          volatility.get(loopdelta),
+          valueDerivatives); // Put
+      dStrikedForward[loopdelta] = valueDerivatives[1];
+      BlackFormulaRepository.impliedStrike(
+          delta.get(loopdelta),
+          true,
+          forward,
+          expiry,
+          volatility.get(2 * nbDelta - loopdelta),
+          valueDerivatives); // Call
+      dStrikedForward[2 * nbDelta - loopdelta] = valueDerivatives[1];
+    }
+    return DoubleArray.ofUnsafe(dStrikedForward);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the derivatives of the implied strikes to volatility.
    *
    * @param forward  the forward

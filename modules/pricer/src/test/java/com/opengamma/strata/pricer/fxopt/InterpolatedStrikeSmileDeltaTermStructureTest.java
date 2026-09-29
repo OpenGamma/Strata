@@ -301,6 +301,9 @@ public class InterpolatedStrikeSmileDeltaTermStructureTest {
     double strikeDerivativeExpected = (volHighStrike - volExpected) / eps;
     assertThat(valueDerivativesComputed.getDerivative(1)).isCloseTo(strikeDerivativeExpected, DERIV_TOL);
 
+    double volHighForward = SMILE_TERM.volatility(timeToExpiry, strike, forward + eps);
+    double forwardDerivativeExpected = (volHighForward - volExpected) / eps;
+    assertThat(valueDerivativesComputed.getDerivative(2)).isCloseTo(forwardDerivativeExpected, DERIV_TOL);
   }
 
   //-------------------------------------------------------------------------

@@ -8,6 +8,7 @@ package com.opengamma.strata.loader.csv;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ID_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ID_SCHEME_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.POSITION_TYPE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SENSITIVITY_TYPE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 import static java.util.stream.Collectors.toList;
 
@@ -73,7 +74,7 @@ import com.opengamma.strata.product.etd.EtdSettlementType;
  * <li>The 'Id' column is optional, and is the identifier of the position,
  *   such as 'POS12345'.
  * </ul>
- * Note that trades may be included in the same file as positions.
+ * Note that trades or sensitivities may be included in the same file as positions.
  * The 'Strata Position Type' column must either be empty or have the value 'Position'.
  * 
  * <h4>SEC/Security</h4>
@@ -354,17 +355,23 @@ public final class PositionCsvLoader {
     List<FailureItem> failures = new ArrayList<>();
     for (CsvRow row : csv.asIterable()) {
       // handle mixed trade/position files
-      Optional<String> tradeTypeOpt = row.findValue(TRADE_TYPE_FIELD).filter(str -> !str.equalsIgnoreCase("POSITION"));
-      Optional<String> positionTypeOpt = row.findValue(POSITION_TYPE_FIELD).filter(str -> !str.equalsIgnoreCase("TRADE"));
-      if (tradeTypeOpt.isPresent() && positionTypeOpt.isPresent()) {
-        failures.add(FailureItem.of(
-            FailureReason.PARSING,
-            "CSV position file '{fileName}' contained row with mixed trade/position type '{type}' at line {lineNumber}",
-            CharSources.extractFileName(charSource),
-            tradeTypeOpt.get() + "/" + positionTypeOpt.get(),
-            row.lineNumber()));
-        continue; // ignore bad row
-      } else if (tradeTypeOpt.isPresent()) {
+      Optional<String> tradeTypeOpt = row.findValue(TRADE_TYPE_FIELD)
+          .filter(str -> !str.equalsIgnoreCase("POSITION"));
+      Optional<String> positionTypeOpt = row.findValue(POSITION_TYPE_FIELD)
+          .filter(str -> !str.equalsIgnoreCase("TRADE"));
+      Optional<String> sensitivityTypeOpt = row.findValue(SENSITIVITY_TYPE_FIELD)
+          .filter(str -> !str.equalsIgnoreCase("POSITION"));
+
+      if (tradeTypeOpt.isPresent() || sensitivityTypeOpt.isPresent()) {
+        if (positionTypeOpt.isPresent()) {
+          failures.add(FailureItem.of(
+              FailureReason.PARSING,
+              "CSV position file '{fileName}' contained row with mixed trade/position/sensitivity type '{type}' at line {lineNumber}",
+              CharSources.extractFileName(charSource),
+              tradeTypeOpt.orElse("-") + "/" + positionTypeOpt.get() + "/" + sensitivityTypeOpt.orElse("-"),
+              row.lineNumber()));
+          continue; // ignore bad row
+        }
         continue; // quietly ignore a trade row
       }
 

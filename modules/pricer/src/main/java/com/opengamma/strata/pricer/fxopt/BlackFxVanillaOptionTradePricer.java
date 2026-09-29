@@ -146,6 +146,43 @@ public class BlackFxVanillaOptionTradePricer {
     return productPricer.currencyExposure(product, ratesProvider, volatilities).plus(pvPremium);
   }
 
+  /**
+   * Calculates the smile adjusted currency exposure of the FX vanilla option trade.
+   *
+   * @param trade  the option trade
+   * @param ratesProvider  the rates provider
+   * @param volatilities  the Black volatility provider
+   * @return the currency exposure
+   */
+  public MultiCurrencyAmount smileAdjustedCurrencyExposure(
+      ResolvedFxVanillaOptionTrade trade,
+      RatesProvider ratesProvider,
+      BlackFxOptionVolatilities volatilities) {
+
+    Payment premium = trade.getPremium();
+    CurrencyAmount pvPremium = paymentPricer.presentValue(premium, ratesProvider);
+    ResolvedFxVanillaOption product = trade.getProduct();
+    return productPricer.smileAdjustedCurrencyExposure(product, ratesProvider, volatilities).plus(pvPremium);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the delta of the FX vanilla option trade.
+   *
+   * @param trade  the option trade
+   * @param ratesProvider  the rates provider
+   * @param volatilities  the Black volatility provider
+   * @return the delta
+   */
+  public double delta(
+      ResolvedFxVanillaOptionTrade trade,
+      RatesProvider ratesProvider,
+      BlackFxOptionVolatilities volatilities) {
+
+    ResolvedFxVanillaOption product = trade.getProduct();
+    return productPricer.delta(product, ratesProvider, volatilities);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Calculates the current of the FX vanilla option trade.

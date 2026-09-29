@@ -15,6 +15,7 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
+import com.opengamma.strata.data.scenario.DoubleScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -307,6 +308,39 @@ final class FxSingleBarrierOptionMeasureCalculations {
       return trinomialTreePricer.currencyExposure(trade, ratesProvider, checkTrinomialTreeVolatilities(volatilities));
     } else {
       return blackPricer.currencyExposure(trade, ratesProvider, checkBlackVolatilities(volatilities));
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates delta for all scenarios
+  DoubleScenarioArray delta(
+      ResolvedFxSingleBarrierOptionTrade trade,
+      RatesScenarioMarketData ratesMarketData,
+      FxOptionScenarioMarketData optionMarketData,
+      FxSingleBarrierOptionMethod method) {
+
+    CurrencyPair currencyPair = trade.getProduct().getCurrencyPair();
+    return DoubleScenarioArray.of(
+        ratesMarketData.getScenarioCount(),
+        i -> delta(
+            trade,
+            ratesMarketData.scenario(i).ratesProvider(),
+            optionMarketData.scenario(i).volatilities(currencyPair),
+            method));
+  }
+
+  // delta for one scenario
+  double delta(
+      ResolvedFxSingleBarrierOptionTrade trade,
+      RatesProvider ratesProvider,
+      FxOptionVolatilities volatilities,
+      FxSingleBarrierOptionMethod method) {
+
+    if (method == FxSingleBarrierOptionMethod.TRINOMIAL_TREE) {
+      throw new IllegalArgumentException(
+          "FX single barrier option Trinomial Tree pricer does not currently support delta calculation");
+    } else {
+      return blackPricer.delta(trade, ratesProvider, checkBlackVolatilities(volatilities));
     }
   }
 

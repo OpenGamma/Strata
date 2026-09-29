@@ -22,6 +22,7 @@ import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -93,6 +94,20 @@ public class BlackFxOptionFlatVolatilitiesTest {
         double volExpected = CURVE.yValue(expiryTime);
         double volComputed = VOLS.volatility(CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i]);
         assertThat(volComputed).isCloseTo(volExpected, offset(TOLERANCE));
+        // test derivatives of volatility
+        double volExpiryUp = VOLS.volatility(CURRENCY_PAIR, expiryTime + EPS, TEST_STRIKE[j], FORWARD[i]);
+        double volExpiryDw = VOLS.volatility(CURRENCY_PAIR, expiryTime - EPS, TEST_STRIKE[j], FORWARD[i]);
+        double expiryDerivExp = 0.5 * (volExpiryUp - volExpiryDw) / EPS;
+        double volStrikeUp = VOLS.volatility(CURRENCY_PAIR, expiryTime, TEST_STRIKE[j] + EPS, FORWARD[i]);
+        double volStrikeDw = VOLS.volatility(CURRENCY_PAIR, expiryTime, TEST_STRIKE[j] - EPS, FORWARD[i]);
+        double strikeDerivExp = 0.5 * (volStrikeUp - volStrikeDw) / EPS;
+        double volForwardUp = VOLS.volatility(CURRENCY_PAIR, expiryTime, TEST_STRIKE[j], FORWARD[i] + EPS);
+        double volForwardDw = VOLS.volatility(CURRENCY_PAIR, expiryTime, TEST_STRIKE[j], FORWARD[i] - EPS);
+        double forwardDerivExp = 0.5 * (volForwardUp - volForwardDw) / EPS;
+        ValueDerivatives volDerivatives = VOLS.firstPartialDerivatives(CURRENCY_PAIR, expiryTime, TEST_STRIKE[j], FORWARD[i]);
+        assertThat(volDerivatives.getDerivative(0)).isCloseTo(expiryDerivExp, offset(EPS));
+        assertThat(volDerivatives.getDerivative(1)).isCloseTo(strikeDerivExp, offset(EPS));
+        assertThat(volDerivatives.getDerivative(2)).isCloseTo(forwardDerivExp, offset(EPS));
       }
     }
   }
@@ -106,6 +121,27 @@ public class BlackFxOptionFlatVolatilitiesTest {
         double volComputed = VOLS
             .volatility(CURRENCY_PAIR.inverse(), TEST_EXPIRY[i], 1d / TEST_STRIKE[j], 1d / FORWARD[i]);
         assertThat(volComputed).isCloseTo(volExpected, offset(TOLERANCE));
+        // test derivatives of volatility
+        double volExpiryUp = VOLS.volatility(
+            CURRENCY_PAIR.inverse(), expiryTime + EPS, 1d / TEST_STRIKE[j], 1d / FORWARD[i]);
+        double volExpiryDw = VOLS.volatility(
+            CURRENCY_PAIR.inverse(), expiryTime - EPS, 1d / TEST_STRIKE[j], 1d / FORWARD[i]);
+        double expiryDerivExp = 0.5 * (volExpiryUp - volExpiryDw) / EPS;
+        double volStrikeUp = VOLS.volatility(
+            CURRENCY_PAIR.inverse(), expiryTime, 1d / TEST_STRIKE[j] + EPS, 1d / FORWARD[i]);
+        double volStrikeDw = VOLS.volatility(
+            CURRENCY_PAIR.inverse(), expiryTime, 1d / TEST_STRIKE[j] - EPS, 1d / FORWARD[i]);
+        double strikeDerivExp = 0.5 * (volStrikeUp - volStrikeDw) / EPS;
+        double volForwardUp = VOLS.volatility(
+            CURRENCY_PAIR.inverse(), expiryTime, 1d / TEST_STRIKE[j], 1d / FORWARD[i] + EPS);
+        double volForwardDw = VOLS.volatility(
+            CURRENCY_PAIR.inverse(), expiryTime, 1d / TEST_STRIKE[j], 1d / FORWARD[i] - EPS);
+        double forwardDerivExp = 0.5 * (volForwardUp - volForwardDw) / EPS;
+        ValueDerivatives volDerivatives = VOLS.firstPartialDerivatives(
+            CURRENCY_PAIR.inverse(), expiryTime, 1d / TEST_STRIKE[j], 1d / FORWARD[i]);
+        assertThat(volDerivatives.getDerivative(0)).isCloseTo(expiryDerivExp, offset(EPS));
+        assertThat(volDerivatives.getDerivative(1)).isCloseTo(strikeDerivExp, offset(EPS));
+        assertThat(volDerivatives.getDerivative(2)).isCloseTo(forwardDerivExp, offset(EPS));
       }
     }
   }

@@ -111,7 +111,7 @@ public final class ExchangeIds {
   /** Tokyo Stock Exchange. */
   public static final ExchangeId XTKS = ExchangeId.of("XTKS");
 
-  /** Borsa Istanbul Exchange */
+  /** Borsa Istanbul Exchange - Futures and Options Segment. */
   public static final ExchangeId XFNO = ExchangeId.of("XFNO");
 
   /** Euronext Exchange - Paris MATIF */
@@ -122,6 +122,9 @@ public final class ExchangeIds {
 
   /** Euronext Exchange - Paris MONEP */
   public static final ExchangeId XMON = ExchangeId.of("XMON");
+
+  /** Euronext Commodities Futures And Options */
+  public static final ExchangeId XEUC = ExchangeId.of("XEUC");
 
   /** Korea Exchange (Futures Market) */
   public static final ExchangeId XKFE = ExchangeId.of("XKFE");
@@ -167,6 +170,75 @@ public final class ExchangeIds {
 
   /** NSE International Exchange. */
   public static final ExchangeId INSE = ExchangeId.of("INSE");
+
+  /** TAIWAN Futures Exchange. */
+  public static final ExchangeId XTAF = ExchangeId.of("XTAF");
+
+  /** Thailand Futures Exchange. */
+  public static final ExchangeId TFEX = ExchangeId.of("TFEX");
+
+  /** Borsa Istanbul Exchange. */
+  public static final ExchangeId XIST = ExchangeId.of("XIST");
+
+  /** Bitnomial Exchange. */
+  public static final ExchangeId BTNL = ExchangeId.of("BTNL");
+
+  /** Dalian Exchange. */
+  public static final ExchangeId XDCE = ExchangeId.of("XDCE");
+
+  /** European Energy Exchange - Regulated Market. */
+  public static final ExchangeId XEER = ExchangeId.of("XEER");
+
+  /** Euronext Lisbon - Futures and Options Market. */
+  public static final ExchangeId MFOX = ExchangeId.of("MFOX");
+
+  /** Euronext Brussels - Derivatives. */
+  public static final ExchangeId XBRD = ExchangeId.of("XBRD");
+
+  /** Euronext Brussels. */
+  public static final ExchangeId XBRU = ExchangeId.of("XBRU");
+
+  /** Euronext - Equities and Indices Derivatives. */
+  public static final ExchangeId XEUE = ExchangeId.of("XEUE");
+
+  /** Oslo Bors - Derivatives Market. */
+  public static final ExchangeId XOBD = ExchangeId.of("XOBD");
+
+  /** Osaka Dojima Commodity Exchange. */
+  public static final ExchangeId XKAC = ExchangeId.of("XKAC");
+
+  /** Shanghai Futures Exchange. */
+  public static final ExchangeId XSGE = ExchangeId.of("XSGE");
+
+  /** Borsa Italiana. */
+  public static final ExchangeId XMIL = ExchangeId.of("XMIL");
+
+  /** Mexican Derivatives Exchange (MexDer). */
+  public static final ExchangeId XEMD = ExchangeId.of("XEMD");
+
+  /** Borsa Italiana - Italian Derivatives Market (IDEM). */
+  public static final ExchangeId XDMI = ExchangeId.of("XDMI");
+
+  /** Nasdaq Stockholm. */
+  public static final ExchangeId XSTO = ExchangeId.of("XSTO");
+
+  /** Nasdaq Copenhagen. */
+  public static final ExchangeId XCSE = ExchangeId.of("XCSE");
+
+  /** Shanghai International Energy Exchange. */
+  public static final ExchangeId XINE = ExchangeId.of("XINE");
+
+  /** China Financial Futures Exchange. */
+  public static final ExchangeId CCFX = ExchangeId.of("CCFX");
+
+  /** B3 - Brasil Bolsa Balcao. */
+  public static final ExchangeId BVMF = ExchangeId.of("BVMF");
+
+  /** Guangzhou Futures Exchange. */
+  public static final ExchangeId GFEX = ExchangeId.of("GFEX");
+
+  /** Coinbase Derivatives. */
+  public static final ExchangeId FREX = ExchangeId.of("FREX");
 
   //-------------------------------------------------------------------------
   /**
