@@ -42,9 +42,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -80,6 +84,7 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
+import com.opengamma.strata.basics.value.ValueStepSequence;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.result.FailureItem;
@@ -1538,6 +1543,252 @@ public class TradeCsvLoaderTest {
     assertBeanEquals(expected, result.getValue().get(0));
 
     checkRoundtrip(SwapTrade.class, result.getValue(), expected);
+  }
+
+  @Test
+  public void test_roundtrip_swap_step_schedule() {
+
+    // test all types of adjustment
+    NotionalSchedule notionalSchedule = NotionalSchedule.of(
+        GBP,
+        ValueSchedule.of(
+            5_000_000,
+            ValueStep.of(date(2018, 8, 1), ValueAdjustment.ofDeltaAmount(-1_000_000)),
+            ValueStep.of(date(2019, 8, 1), ValueAdjustment.ofMultiplier(0.5)),
+            ValueStep.of(date(2020, 8, 1), ValueAdjustment.ofDeltaMultiplier(0.5))));
+
+    ValueSchedule fixedRatedSchedule = ValueSchedule.of(
+        0.01,
+        ValueStep.of(date(2018, 8, 1), ValueAdjustment.ofDeltaAmount(0.002)),
+        ValueStep.of(date(2019, 8, 1), ValueAdjustment.ofMultiplier(2)),
+        ValueStep.of(date(2020, 8, 1), ValueAdjustment.ofDeltaMultiplier(-0.5)));
+
+    PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
+        .startDate(date(2017, 8, 1))
+        .endDate(date(2022, 9, 1))
+        .frequency(Frequency.P6M)
+        .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))
+        .stubConvention(StubConvention.LONG_FINAL)
+        .build();
+    PaymentSchedule paymentSchedule = PaymentSchedule.builder()
+        .paymentFrequency(Frequency.P6M)
+        .paymentDateOffset(DaysAdjustment.NONE)
+        .build();
+
+    RateCalculationSwapLeg fixedLeg = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(accrualSchedule)
+        .paymentSchedule(paymentSchedule)
+        .notionalSchedule(notionalSchedule)
+        .calculation(FixedRateCalculation.builder()
+            .rate(fixedRatedSchedule)
+            .dayCount(DayCounts.ACT_365F)
+            .build())
+        .build();
+
+    RateCalculationSwapLeg floatLeg = RateCalculationSwapLeg.builder()
+        .payReceive(RECEIVE)
+        .accrualSchedule(accrualSchedule)
+        .paymentSchedule(paymentSchedule)
+        .notionalSchedule(notionalSchedule)
+        .calculation(IborRateCalculation.of(IborIndices.GBP_LIBOR_6M))
+        .build();
+
+    Swap originalSwap = Swap.of(fixedLeg, floatLeg);
+    SwapTrade originalTrade = SwapTrade.of(TradeInfo.empty(), originalSwap);
+
+    // csv writer converts all step value types to replacements
+    NotionalSchedule expectedNotionalSchedule = NotionalSchedule.of(
+        GBP,
+        ValueSchedule.of(
+            5_000_000,
+            ValueStep.of(date(2018, 8, 1), ValueAdjustment.ofReplace(4_000_000)),
+            ValueStep.of(date(2019, 8, 1), ValueAdjustment.ofReplace(2_000_000)),
+            ValueStep.of(date(2020, 8, 1), ValueAdjustment.ofReplace(3_000_000))));
+
+    ValueSchedule expectedRateSchedule = ValueSchedule.of(
+        0.01,
+        ValueStep.of(date(2018, 8, 1), ValueAdjustment.ofReplace(0.012)),
+        ValueStep.of(date(2019, 8, 1), ValueAdjustment.ofReplace(0.024)),
+        ValueStep.of(date(2020, 8, 1), ValueAdjustment.ofReplace(0.012)));
+
+    RateCalculationSwapLeg expectedFixedLeg = fixedLeg.toBuilder()
+        .notionalSchedule(expectedNotionalSchedule)
+        .calculation(FixedRateCalculation.builder()
+            .rate(expectedRateSchedule)
+            .dayCount(DayCounts.ACT_365F)
+            .build())
+        .build();
+
+    RateCalculationSwapLeg expectedFloatLeg = floatLeg.toBuilder()
+        .notionalSchedule(expectedNotionalSchedule)
+        .build();
+
+    Swap expectedSwap = Swap.of(expectedFixedLeg, expectedFloatLeg);
+    SwapTrade expectedTrade = SwapTrade.of(TradeInfo.empty(), expectedSwap);
+
+    checkRoundtrip(SwapTrade.class, ImmutableList.of(originalTrade), expectedTrade);
+  }
+
+  public static Stream<Arguments> data_swap_notional_step_sequence() {
+    // starting notional is 5,000,000
+    // each test case contains the adjustment to apply and the two notionals after the adjustment is applied
+    return Stream.of(
+        Arguments.argumentSet("Delta Amount", ValueAdjustment.ofDeltaAmount(500_000d), 5_500_000, 6_000_000),
+        Arguments.argumentSet("Delta", ValueAdjustment.ofDeltaMultiplier(0.1), 5_500_000, 6_050_000),
+        Arguments.argumentSet("Multiplier", ValueAdjustment.ofMultiplier(0.9), 4_500_000, 4_050_000));
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_swap_notional_step_sequence")
+  public void test_roundtrip_swap_notional_step_sequence(
+      ValueAdjustment notionalAdjustment,
+      double notionalAfterStep1,
+      double notionalAfterStep2) {
+
+    double initialNotional = 5_000_000;
+    LocalDate firstStepDate = date(2018, 8, 1);
+    LocalDate lastStepDate = date(2019, 2, 1);
+
+    NotionalSchedule notionalSchedule = NotionalSchedule.of(
+        GBP,
+        ValueSchedule.of(
+            initialNotional,
+            ValueStepSequence.of(firstStepDate, lastStepDate, Frequency.P6M, notionalAdjustment)));
+
+    PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
+        .startDate(date(2017, 8, 1))
+        .endDate(date(2022, 9, 1))
+        .frequency(Frequency.P6M)
+        .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))
+        .stubConvention(StubConvention.LONG_FINAL)
+        .build();
+    PaymentSchedule paymentSchedule = PaymentSchedule.builder()
+        .paymentFrequency(Frequency.P6M)
+        .paymentDateOffset(DaysAdjustment.NONE)
+        .build();
+
+    RateCalculationSwapLeg fixedLeg = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(accrualSchedule)
+        .paymentSchedule(paymentSchedule)
+        .notionalSchedule(notionalSchedule)
+        .calculation(FixedRateCalculation.builder()
+            .rate(ValueSchedule.of(0.01))
+            .dayCount(DayCounts.ACT_365F)
+            .build())
+        .build();
+
+    RateCalculationSwapLeg floatLeg = RateCalculationSwapLeg.builder()
+        .payReceive(RECEIVE)
+        .accrualSchedule(accrualSchedule)
+        .paymentSchedule(paymentSchedule)
+        .notionalSchedule(notionalSchedule)
+        .calculation(IborRateCalculation.of(IborIndices.GBP_LIBOR_6M))
+        .build();
+
+    Swap originalSwap = Swap.of(fixedLeg, floatLeg);
+    SwapTrade originalTrade = SwapTrade.of(TradeInfo.empty(), originalSwap);
+
+    // csv writer resolves the step sequence against the schedule and writes each changed
+    // period as an explicit replacement value
+    NotionalSchedule expectedNotionalSchedule = NotionalSchedule.of(
+        GBP,
+        ValueSchedule.of(
+            initialNotional,
+            ValueStep.of(firstStepDate, ValueAdjustment.ofReplace(notionalAfterStep1)),
+            ValueStep.of(lastStepDate, ValueAdjustment.ofReplace(notionalAfterStep2))));
+
+    RateCalculationSwapLeg expectedFixedLeg = fixedLeg.toBuilder()
+        .notionalSchedule(expectedNotionalSchedule)
+        .build();
+
+    RateCalculationSwapLeg expectedFloatLeg = floatLeg.toBuilder()
+        .notionalSchedule(expectedNotionalSchedule)
+        .build();
+
+    Swap expectedSwap = Swap.of(expectedFixedLeg, expectedFloatLeg);
+    SwapTrade expectedTrade = SwapTrade.of(TradeInfo.empty(), expectedSwap);
+
+    checkRoundtrip(SwapTrade.class, ImmutableList.of(originalTrade), expectedTrade);
+  }
+
+  public static Stream<Arguments> data_swap_rate_step_sequence() {
+    // starting rate is 0.01
+    // each test case contains the adjustment to apply and the two rates after the adjustment is applied
+    return Stream.of(
+        Arguments.argumentSet("Delta Amount", ValueAdjustment.ofDeltaAmount(0.001), 0.011, 0.012),
+        Arguments.argumentSet("Delta", ValueAdjustment.ofDeltaMultiplier(0.1), 0.011, 0.0121),
+        Arguments.argumentSet("Multiplier", ValueAdjustment.ofMultiplier(0.5), 0.005, 0.0025));
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_swap_rate_step_sequence")
+  public void test_roundtrip_swap_rate_step_sequence(
+      ValueAdjustment rateAdjustment,
+      double rateAfterStep1,
+      double rateAfterStep2) {
+
+    double initialRate = 0.01;
+    LocalDate firstStepDate = date(2018, 8, 1);
+    LocalDate lastStepDate = date(2019, 2, 1);
+
+    ValueSchedule fixedRateSchedule = ValueSchedule.of(
+        initialRate,
+        ValueStepSequence.of(firstStepDate, lastStepDate, Frequency.P6M, rateAdjustment));
+
+    PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
+        .startDate(date(2017, 8, 1))
+        .endDate(date(2022, 9, 1))
+        .frequency(Frequency.P6M)
+        .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))
+        .stubConvention(StubConvention.LONG_FINAL)
+        .build();
+    PaymentSchedule paymentSchedule = PaymentSchedule.builder()
+        .paymentFrequency(Frequency.P6M)
+        .paymentDateOffset(DaysAdjustment.NONE)
+        .build();
+
+    RateCalculationSwapLeg fixedLeg = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(accrualSchedule)
+        .paymentSchedule(paymentSchedule)
+        .notionalSchedule(NotionalSchedule.of(GBP, 1_000_000))
+        .calculation(FixedRateCalculation.builder()
+            .rate(fixedRateSchedule)
+            .dayCount(DayCounts.ACT_365F)
+            .build())
+        .build();
+
+    RateCalculationSwapLeg floatLeg = RateCalculationSwapLeg.builder()
+        .payReceive(RECEIVE)
+        .accrualSchedule(accrualSchedule)
+        .paymentSchedule(paymentSchedule)
+        .notionalSchedule(NotionalSchedule.of(GBP, 1_000_000))
+        .calculation(IborRateCalculation.of(IborIndices.GBP_LIBOR_6M))
+        .build();
+
+    Swap originalSwap = Swap.of(fixedLeg, floatLeg);
+    SwapTrade originalTrade = SwapTrade.of(TradeInfo.empty(), originalSwap);
+
+    // csv writer resolves the step sequence against the schedule and writes each changed
+    // period as an explicit replacement value
+    ValueSchedule expectedRateSchedule = ValueSchedule.of(
+        initialRate,
+        ValueStep.of(firstStepDate, ValueAdjustment.ofReplace(rateAfterStep1)),
+        ValueStep.of(lastStepDate, ValueAdjustment.ofReplace(rateAfterStep2)));
+
+    RateCalculationSwapLeg expectedFixedLeg = fixedLeg.toBuilder()
+        .calculation(FixedRateCalculation.builder()
+            .rate(expectedRateSchedule)
+            .dayCount(DayCounts.ACT_365F)
+            .build())
+        .build();
+
+    Swap expectedSwap = Swap.of(expectedFixedLeg, floatLeg);
+    SwapTrade expectedTrade = SwapTrade.of(TradeInfo.empty(), expectedSwap);
+
+    checkRoundtrip(SwapTrade.class, ImmutableList.of(originalTrade), expectedTrade);
   }
 
   @Test

@@ -141,32 +141,47 @@ public final class EtdVariant
     switch (code.length()) {
       case 0:
         return MONTHLY;
-      case 2: {
+      case 2:
         if (code.charAt(0) == 'W') {
-          return ofWeekly(Integer.parseInt(code.substring(1)));
+          return ofWeekly(parseDigits(code, 1, 1));
         } else {
-          return ofDaily(Integer.parseInt(code));
+          return ofDaily(parseDigits(code, 0, 2));
         }
-      }
       case 3: {
-        int dom = parseDay(code);
+        int dayOfMonth = parseDayOfMonth(code);
         EtdSettlementType settlementType = EtdSettlementType.parseCode(code.substring(2));
-        return ofFlexFuture(dom, settlementType);
+        return ofFlexFuture(dayOfMonth, settlementType);
       }
       case 4: {
-        int dom = parseDay(code);
+        int dayOfMonth = parseDayOfMonth(code);
         EtdSettlementType settlementType = EtdSettlementType.parseCode(code.substring(2, 3));
         EtdOptionType optionType = EtdOptionType.parseCode(code.substring(3, 4));
-        return ofFlexOption(dom, settlementType, optionType);
+        return ofFlexOption(dayOfMonth, settlementType, optionType);
       }
       default:
         throw new IllegalArgumentException("Invalid EtdVariant code: " + code);
     }
   }
 
-  // parses the day of month
-  private static int parseDay(String code) {
-    return code.charAt(0) == '0' ? Integer.parseInt(code.substring(1, 2)) : Integer.parseInt(code.substring(0, 2));
+  // parses the day-of-month, such as "09" or "26" - a leading '0' means the day-of-month is only
+  // the second digit, matching the encoding produced by the constructor
+  private static int parseDayOfMonth(String code) {
+    return code.charAt(0) == '0' ? parseDigits(code, 1, 1) : parseDigits(code, 0, 2);
+  }
+
+  // parses 'length' consecutive digit characters starting at offset into an int, avoiding the
+  // substring() + Integer.parseInt() allocation - this is called from EtdIdUtils.splitId(SecurityId)'s
+  // hot loop via EtdVariant.parse(String)
+  private static int parseDigits(String code, int offset, int length) {
+    int result = 0;
+    for (int i = offset; i < offset + length; i++) {
+      char ch = code.charAt(i);
+      if (ch < '0' || ch > '9') {
+        throw new IllegalArgumentException("Invalid EtdVariant code: " + code);
+      }
+      result = result * 10 + (ch - '0');
+    }
+    return result;
   }
 
   //-------------------------------------------------------------------------
