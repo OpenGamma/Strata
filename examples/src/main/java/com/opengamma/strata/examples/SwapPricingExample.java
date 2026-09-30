@@ -62,7 +62,12 @@ import com.opengamma.strata.report.trade.TradeReportTemplate;
 /**
  * Example to illustrate using the calculation API to price a swap.
  * <p>
- * This makes use of the example market data environment.
+ * This makes use of the example market data environment. The example uses a
+ * multi-curve setup: the USD discount curve is used for discounting and the
+ * USD-LIBOR-3M curve is used for floating-rate projection. The resulting NPV
+ * is therefore not directly comparable with a single flat risk-free-rate curve
+ * used by another pricing library unless the market data and conventions are
+ * aligned first.
  */
 public class SwapPricingExample {
 
@@ -95,7 +100,9 @@ public class SwapPricingExample {
         Column.of(Measures.PV01_CALIBRATED_BUCKETED),
         Column.of(AdvancedMeasures.PV01_SEMI_PARALLEL_GAMMA_BUCKETED));
 
-    // use the built-in example market data
+    // Use the built-in multi-curve example market data. USD-Disc is used for
+    // discounting and USD-3ML for USD-LIBOR-3M projection. This is not a flat
+    // 1% risk-free-rate setup.
     LocalDate valuationDate = LocalDate.of(2014, 1, 22);
     ExampleMarketDataBuilder marketDataBuilder = ExampleMarketData.builder();
     MarketData marketData = marketDataBuilder.buildSnapshot(valuationDate);
