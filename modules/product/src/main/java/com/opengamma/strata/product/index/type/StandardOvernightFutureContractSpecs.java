@@ -78,10 +78,10 @@ final class StandardOvernightFutureContractSpecs {
       ImmutableOvernightFutureContractSpec.builder()
           .name("EUR-ESTR-1M-IMM-ICE")
           .index(EUR_ESTR)
-          .dateSequence(MONTHLY_IMM)
-          .accrualMethod(COMPOUNDED)
+          .dateSequence(MONTHLY_1ST)
+          .accrualMethod(AVERAGED_DAILY)
           .lastTradeDateAdjustment(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, EUTA)))
-          .notional(1_000_000d)
+          .notional(3_000_000d)
           .build();
 
   /**
