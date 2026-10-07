@@ -162,17 +162,6 @@ commands:
       - store_maven_cache
 
 #----------------------------------------------------------------------------
-  find_version:
-    description: "Finding project version"
-    steps:
-      - run:
-          name: Finding project version
-          command: |
-            PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-            echo "Found version ${PROJECT_VERSION}"
-            echo "export POM_VERSION=$PROJECT_VERSION" >> $BASH_ENV
-
-#----------------------------------------------------------------------------
 # this works with gpg v2.1 as currently installed on CircleCI
   setup_gpg:
     description: "Setup GPG"
@@ -219,18 +208,6 @@ commands:
             mvn package -N -X -Ddist -DskipTests -Dcheckstyle.skip=true
 
 #----------------------------------------------------------------------------
-  maven_deploy_snapshot:
-    description: "Deploy snapshot"
-    steps:
-      - run:
-          name: Deploy snapshot
-          command: |
-            if [ "$CIRCLE_BRANCH" == "main" ] && [[ "${POM_VERSION}" =~ "-SNAPSHOT" ]]
-            then
-              mvn deploy -DaltSnapshotDeploymentRepository="opengamma-repo::https://opengamma.jfrog.io/opengamma/libs-snapshots-local/" -DskipTests -Dcheckstyle.skip=true
-            fi
-
-#----------------------------------------------------------------------------
   maven_github_releases:
     description: "Deploy files to GitHub Releases"
     steps:
@@ -250,8 +227,6 @@ jobs:
           actions:
             - maven_install
             - maven_test
-            - find_version
-            - maven_deploy_snapshot
 
   build11:
     executor: jdk11
