@@ -12,6 +12,8 @@ import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.RollConvention;
+import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 
@@ -243,6 +245,17 @@ public interface DayCount
      */
     public default Frequency getFrequency() {
       throw new UnsupportedOperationException("The frequency of the schedule is required");
+    }
+
+    /**
+     * Gets the roll convention of the schedule.
+     * <p>
+     * This defaults to 'EOM' if the end-of-month convention is in use, otherwise 'None'.
+     *
+     * @return the roll convention
+     */
+    public default RollConvention getRollConvention() {
+      return isEndOfMonthConvention() ? RollConventions.EOM : RollConventions.NONE;
     }
 
     /**
