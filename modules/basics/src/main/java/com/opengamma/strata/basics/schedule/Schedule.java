@@ -69,7 +69,7 @@ public final class Schedule
    * <p>
    * If the schedule was not built from a regular periodic frequency, then the convention should be 'None'.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final RollConvention rollConvention;
 
   //-------------------------------------------------------------------------
@@ -646,6 +646,7 @@ public final class Schedule
    * If the schedule was not built from a regular periodic frequency, then the convention should be 'None'.
    * @return the value of the property, not null
    */
+  @Override
   public RollConvention getRollConvention() {
     return rollConvention;
   }

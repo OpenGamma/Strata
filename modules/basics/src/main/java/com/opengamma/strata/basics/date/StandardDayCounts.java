@@ -12,6 +12,8 @@ import static java.lang.Math.toIntExact;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.RollConvention;
+import com.opengamma.strata.basics.schedule.RollConventions;
 
 /**
  * Standard day count convention implementations.
@@ -71,45 +73,46 @@ enum StandardDayCounts implements DayCount {
       LocalDate scheduleEndDate = scheduleInfo.getEndDate();
       LocalDate nextCouponDate = scheduleInfo.getPeriodEndDate(firstDate);
       Frequency freq = scheduleInfo.getFrequency();
-      boolean eom = scheduleInfo.isEndOfMonthConvention();
+      RollConvention roll = scheduleInfo.getRollConvention();
       // final period, also handling single period schedules
       if (nextCouponDate.equals(scheduleEndDate)) {
-        return finalPeriod(firstDate, secondDate, freq, eom);
+        return finalPeriod(firstDate, secondDate, freq, roll);
       }
       // handle initial period, and all other cases where need to determine the previous coupon date
       // whether that is real or nominal
-      return initPeriod(firstDate, secondDate, nextCouponDate, freq, eom);
+      return initPeriod(firstDate, secondDate, nextCouponDate, freq, roll);
     }
 
     // calculate nominal periods backwards from couponDate
-    private double initPeriod(LocalDate startDate, LocalDate endDate, LocalDate couponDate, Frequency freq, boolean eom) {
+    private double initPeriod(
+        LocalDate startDate, LocalDate endDate, LocalDate couponDate, Frequency freq, RollConvention roll) {
       LocalDate currentNominal = couponDate;
-      LocalDate prevNominal = eom(couponDate, currentNominal.minus(freq), eom);
+      LocalDate prevNominal = roll(couponDate, currentNominal.minus(freq), roll);
       double result = 0;
       while (prevNominal.isAfter(startDate)) {
         result += calc(prevNominal, currentNominal, startDate, endDate, freq);
         currentNominal = prevNominal;
-        prevNominal = eom(couponDate, currentNominal.minus(freq), eom);
+        prevNominal = roll(couponDate, currentNominal.minus(freq), roll);
       }
       return result + calc(prevNominal, currentNominal, startDate, endDate, freq);
     }
 
     // calculate nominal periods forwards from couponDate
-    private double finalPeriod(LocalDate couponDate, LocalDate endDate, Frequency freq, boolean eom) {
+    private double finalPeriod(LocalDate couponDate, LocalDate endDate, Frequency freq, RollConvention roll) {
       LocalDate curNominal = couponDate;
-      LocalDate nextNominal = eom(couponDate, curNominal.plus(freq), eom);
+      LocalDate nextNominal = roll(couponDate, curNominal.plus(freq), roll);
       double result = 0;
       while (nextNominal.isBefore(endDate)) {
         result += calc(curNominal, nextNominal, curNominal, endDate, freq);
         curNominal = nextNominal;
-        nextNominal = eom(couponDate, curNominal.plus(freq), eom);
+        nextNominal = roll(couponDate, curNominal.plus(freq), roll);
       }
       return result + calc(curNominal, nextNominal, curNominal, endDate, freq);
     }
 
-    // apply eom convention
-    private LocalDate eom(LocalDate base, LocalDate calc, boolean eom) {
-      return (eom && base.getDayOfMonth() == base.lengthOfMonth() ? calc.withDayOfMonth(calc.lengthOfMonth()) : calc);
+    // apply roll convention, only applying EOM if the base date is at the end of the month
+    private LocalDate roll(LocalDate base, LocalDate calc, RollConvention roll) {
+      return (roll == RollConventions.EOM && !roll.matches(base) ? calc : roll.adjust(calc));
     }
 
     // calculate the result
