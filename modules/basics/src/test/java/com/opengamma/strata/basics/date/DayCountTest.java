@@ -50,8 +50,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.DayCount.ScheduleInfo;
 import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.basics.schedule.RollConvention;
+import com.opengamma.strata.basics.schedule.RollConventions;
+import com.opengamma.strata.basics.schedule.Schedule;
+import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**
@@ -913,6 +919,39 @@ public class DayCountTest {
   }
 
   //-------------------------------------------------------------------------
+  public static Object[][] data_actActIcma_numericRoll() {
+    return new Object[][] {
+        {date(2023, 8, 30), date(2025, 8, 30), P6M, RollConventions.DAY_30},
+        {date(2024, 8, 30), date(2026, 8, 30), P6M, RollConventions.DAY_30},
+        {date(2023, 8, 29), date(2025, 8, 29), P6M, RollConventions.DAY_29},
+        {date(2024, 8, 29), date(2026, 8, 29), P6M, RollConventions.DAY_29},
+        {date(2024, 2, 29), date(2024, 8, 30), P6M, RollConventions.DAY_30},
+        {date(2025, 2, 28), date(2025, 8, 30), P6M, RollConventions.DAY_30},
+        {date(2024, 11, 30), date(2025, 5, 30), P3M, RollConventions.DAY_30},
+        {date(2025, 1, 30), date(2025, 3, 30), Frequency.P1M, RollConventions.DAY_30},
+    };
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_actActIcma_numericRoll")
+  public void test_actActIcma_numericRoll(LocalDate start, LocalDate end, Frequency freq, RollConvention roll) {
+    Schedule schedule = PeriodicSchedule.builder()
+        .startDate(start)
+        .endDate(end)
+        .frequency(freq)
+        .stubConvention(StubConvention.NONE)
+        .rollConvention(roll)
+        .businessDayAdjustment(BusinessDayAdjustment.NONE)
+        .build()
+        .createSchedule(ReferenceData.standard());
+    assertThat(schedule.getPeriods()).allSatisfy(period -> {
+      assertThat(period.isRegular(freq, roll)).isTrue();
+      assertThat(period.yearFraction(ACT_ACT_ICMA, schedule)).isEqualTo(1d / freq.eventsPerYear());
+      assertThat(ACT_ACT_ICMA.yearFraction(period.getStartDate(), period.getEndDate().minusDays(1), schedule))
+          .isEqualTo((period.lengthInDays() - 1d) / (freq.eventsPerYear() * period.lengthInDays()));
+    });
+  }
+
   @Test
   public void test_actActIcma_singlePeriod() {
     LocalDate start = LocalDate.of(2003, 11, 1);
@@ -1345,6 +1384,8 @@ public class DayCountTest {
   public void test_scheduleInfo() {
     ScheduleInfo test = new ScheduleInfo() {};
     assertThat(test.isEndOfMonthConvention()).isEqualTo(true);
+    assertThat(test.getRollConvention()).isEqualTo(RollConventions.EOM);
+    assertThat(new Info(false).getRollConvention()).isEqualTo(RollConventions.NONE);
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> test.getStartDate());
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> test.getEndDate());
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> test.getFrequency());

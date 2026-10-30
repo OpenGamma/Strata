@@ -64,7 +64,7 @@ public final class DayCounts {
    * <p>
    * Second, if the period is a stub, then nominal regular periods are created matching the
    * schedule frequency, working forwards or backwards from the known regular schedule date.
-   * An end-of-month flag is used to handle month-ends.
+   * The roll convention is used to handle month-ends.
    * If the period is not a stub then the schedule period is treated as a nominal period below.
    * <p>
    * Third, the result is calculated as the sum of a calculation for each nominal period.
