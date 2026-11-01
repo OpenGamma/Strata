@@ -16,10 +16,13 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * C2 cubic spline interpolator with Clamped/Not-A-Knot endpoint conditions.
+ * <p>
+ * The latest ordered one-dimensional result is retained to reuse coefficients when node sensitivities are requested.
+ * Sensitivities and matrix decompositions are not cached.
  */
 public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
 
-  private CubicSplineSolver _solver;
+  private volatile SplineInterpolationResultCache _resultCache;
 
   /**
    * If (xValues length) = (yValues length), Not-A-Knot endpoint conditions are used.
@@ -52,23 +55,24 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
       ArgChecker.isFalse(Double.isInfinite(yValues[i]), "yData containing Infinity");
     }
 
+    CubicSplineSolver solver;
     double[] xValuesSrt = Arrays.copyOf(xValues, nDataPts);
     double[] yValuesSrt;
 
     if (xValues.length + 2 == yValues.length) {
-      _solver = new CubicSplineClampedSolver(yValues[0], yValues[nDataPts + 1]);
+      solver = new CubicSplineClampedSolver(yValues[0], yValues[nDataPts + 1]);
       yValuesSrt = Arrays.copyOfRange(yValues, 1, nDataPts + 1);
     } else {
-      _solver = new CubicSplineNakSolver();
+      solver = new CubicSplineNakSolver();
       yValuesSrt = Arrays.copyOf(yValues, nDataPts);
     }
     DoubleArrayMath.sortPairs(xValuesSrt, yValuesSrt);
     ArgChecker.noDuplicatesSorted(xValuesSrt, "xValues");
 
-    final DoubleMatrix coefMatrix = _solver.solve(xValuesSrt, yValuesSrt);
+    final DoubleMatrix coefMatrix = solver.solve(xValuesSrt, yValuesSrt);
     final int nCoefs = coefMatrix.columnCount();
 
-    DoubleArray knotsMat1D = _solver.getKnotsMat1D(xValuesSrt);
+    DoubleArray knotsMat1D = solver.getKnotsMat1D(xValuesSrt);
     for (int i = 0; i < knotsMat1D.size() - 1; ++i) {
       for (int j = 0; j < nCoefs; ++j) {
         ArgChecker.isFalse(Double.isNaN(coefMatrix.get(i, j)), "Too large input");
@@ -76,7 +80,11 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    return new PiecewisePolynomialResult(knotsMat1D, coefMatrix, nCoefs, 1);
+    PiecewisePolynomialResult result = new PiecewisePolynomialResult(knotsMat1D, coefMatrix, nCoefs, 1);
+    double[] cachedYValues = xValues.length == yValues.length ? yValuesSrt : yValues.clone();
+    _resultCache = Arrays.equals(xValues, xValuesSrt) ?
+        new SplineInterpolationResultCache(xValuesSrt, cachedYValues, result) : null;
+    return result;
 
   }
 
@@ -113,6 +121,7 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
+    CubicSplineSolver solver;
     double[] xValuesSrt = Arrays.copyOf(xValues, nDataPts);
     double[][] yValuesMatrixSrt = new double[dim][nDataPts];
 
@@ -126,19 +135,19 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
         iniConds[i] = yValuesMatrix[i][0];
         finConds[i] = yValuesMatrix[i][nDataPts + 1];
       }
-      _solver = new CubicSplineClampedSolver(iniConds, finConds);
+      solver = new CubicSplineClampedSolver(iniConds, finConds);
       for (int i = 0; i < dim; ++i) {
         double[] yValuesSrt = Arrays.copyOfRange(yValuesMatrix[i], 1, nDataPts + 1);
         yValuesMatrixSrt[i] = DoubleArrayMath.reorderedCopy(yValuesSrt, sortedPositions);
       }
     } else {
-      _solver = new CubicSplineNakSolver();
+      solver = new CubicSplineNakSolver();
       for (int i = 0; i < dim; ++i) {
         yValuesMatrixSrt[i] = DoubleArrayMath.reorderedCopy(yValuesMatrix[i], sortedPositions);
       }
     }
 
-    DoubleMatrix[] coefMatrix = _solver.solveMultiDim(xValuesSrt, DoubleMatrix.copyOf(yValuesMatrixSrt));
+    DoubleMatrix[] coefMatrix = solver.solveMultiDim(xValuesSrt, DoubleMatrix.copyOf(yValuesMatrixSrt));
 
     final int nIntervals = coefMatrix[0].rowCount();
     final int nCoefs = coefMatrix[0].columnCount();
@@ -157,7 +166,7 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    return new PiecewisePolynomialResult(_solver.getKnotsMat1D(xValuesSrt), DoubleMatrix.copyOf(resMatrix), nCoefs, dim);
+    return new PiecewisePolynomialResult(solver.getKnotsMat1D(xValuesSrt), DoubleMatrix.copyOf(resMatrix), nCoefs, dim);
   }
 
   @Override
@@ -184,17 +193,23 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
 
     ArgChecker.noDuplicates(xValues, "xValues");
 
+    CubicSplineSolver solver;
     double[] yValuesSrt;
 
     if (xValues.length + 2 == yValues.length) {
-      _solver = new CubicSplineClampedSolver(yValues[0], yValues[nDataPts + 1]);
+      solver = new CubicSplineClampedSolver(yValues[0], yValues[nDataPts + 1]);
       yValuesSrt = Arrays.copyOfRange(yValues, 1, nDataPts + 1);
     } else {
-      _solver = new CubicSplineNakSolver();
+      solver = new CubicSplineNakSolver();
       yValuesSrt = Arrays.copyOf(yValues, nDataPts);
     }
 
-    final DoubleMatrix[] resMatrix = _solver.solveWithSensitivity(xValues, yValuesSrt);
+    SplineInterpolationResultCache cached = _resultCache;
+    if (cached != null && cached.matches(xValues, yValues)) {
+      return cached.withSensitivity(solver.solveCoefficientSensitivity(xValues, yValuesSrt));
+    }
+
+    final DoubleMatrix[] resMatrix = solver.solveWithSensitivity(xValues, yValuesSrt);
     final int len = resMatrix.length;
     for (int k = 0; k < len; k++) {
       DoubleMatrix m = resMatrix[k];
@@ -212,6 +227,6 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
     System.arraycopy(resMatrix, 1, coefSenseMatrix, 0, len - 1);
     final int nCoefs = coefMatrix.columnCount();
 
-    return new PiecewisePolynomialResultsWithSensitivity(_solver.getKnotsMat1D(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
+    return new PiecewisePolynomialResultsWithSensitivity(solver.getKnotsMat1D(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
   }
 }

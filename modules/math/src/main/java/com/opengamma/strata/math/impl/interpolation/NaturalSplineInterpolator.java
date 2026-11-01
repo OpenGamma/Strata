@@ -18,10 +18,14 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
  * <p>
  * C2 cubic spline interpolator with the natural endpoint condition, i.e., the second derivative values are zero 
  * at the first data point and the last data point. 
+ * <p>
+ * The latest ordered one-dimensional result is retained to reuse coefficients when node sensitivities are requested.
+ * Sensitivities and matrix decompositions are not cached.
  */
 public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
 
-  private CubicSplineSolver _solver;
+  private final CubicSplineSolver _solver;
+  private volatile SplineInterpolationResultCache _resultCache;
 
   /**
    * Constructor.
@@ -78,7 +82,12 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
       }
     }
 
-    return new PiecewisePolynomialResult(this._solver.getKnotsMat1D(xValuesSrt), coefMatrix, nCoefs, 1);
+    PiecewisePolynomialResult result = new PiecewisePolynomialResult(
+        this._solver.getKnotsMat1D(xValuesSrt), coefMatrix, nCoefs, 1);
+    // Only built-in solvers can bypass solveWithSensitivity; custom solver hooks must still be invoked.
+    _resultCache = _solver.getClass() == CubicSplineNaturalSolver.class && Arrays.equals(xValues, xValuesSrt) ?
+        new SplineInterpolationResultCache(xValuesSrt, yValuesSrt, result) : null;
+    return result;
 
   }
 
@@ -163,6 +172,11 @@ public class NaturalSplineInterpolator extends PiecewisePolynomialInterpolator {
     }
 
     ArgChecker.noDuplicates(xValues, "xValues");
+
+    SplineInterpolationResultCache cached = _resultCache;
+    if (cached != null && cached.matches(xValues, yValues)) {
+      return cached.withSensitivity(_solver.solveCoefficientSensitivity(xValues, yValues));
+    }
 
     final DoubleMatrix[] resMatrix = this._solver.solveWithSensitivity(xValues, yValues);
     final int len = resMatrix.length;
