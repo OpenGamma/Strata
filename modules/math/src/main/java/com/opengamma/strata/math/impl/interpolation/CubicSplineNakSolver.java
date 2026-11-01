@@ -35,6 +35,28 @@ public class CubicSplineNakSolver extends CubicSplineSolver {
   }
 
   @Override
+  DoubleMatrix[] solveCoefficientSensitivity(double[] xValues, double[] yValues) {
+    double[] intervals = getDiffs(xValues);
+    if (xValues.length == 2) {
+      // Preserve the existing two-point sensitivity behavior rather than changing it through a cache hit.
+      return super.solveCoefficientSensitivity(xValues, yValues);
+    }
+    double[][] sensitivities = matrixEqnSensitivitySolver(getMatrix(intervals), getVectorSensitivity(intervals));
+    if (xValues.length == 3) {
+      double[][] coefficients = new double[3][3];
+      for (int col = 0; col < 3; col++) {
+        coefficients[0][col] = sensitivities[0][col] / 2d;
+        coefficients[1][col] = -intervals[0] * sensitivities[0][col] / 2d;
+      }
+      coefficients[1][0] -= 1d / intervals[0];
+      coefficients[1][1] += 1d / intervals[0];
+      coefficients[2][0] = 1d;
+      return new DoubleMatrix[] {DoubleMatrix.copyOf(coefficients)};
+    }
+    return getCommonSensitivityCoeffs(intervals, sensitivities);
+  }
+
+  @Override
   public DoubleMatrix[] solveMultiDim(final double[] xValues, final DoubleMatrix yValuesMatrix) {
     final int dim = yValuesMatrix.rowCount();
     final DoubleMatrix[] coefMatrix = new DoubleMatrix[dim];

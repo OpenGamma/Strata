@@ -49,6 +49,12 @@ abstract class CubicSplineSolver {
    */
   public abstract DoubleMatrix[] solveWithSensitivity(double[] xValues, double[] yValues);
 
+  // Default preserves the behavior of custom solvers; built-in solvers override this to avoid solving for coefficients.
+  DoubleMatrix[] solveCoefficientSensitivity(double[] xValues, double[] yValues) {
+    DoubleMatrix[] combined = solveWithSensitivity(xValues, yValues);
+    return Arrays.copyOfRange(combined, 1, combined.length);
+  }
+
   /**
    * Multi-dimensional cubic spline
    * If (xValues length) = (yValuesMatrix NumberOfColumn), Not-A-Knot endpoint conditions are used
@@ -277,6 +283,31 @@ abstract class CubicSplineSolver {
       res[i + 1] = DoubleArray.copyOf(backSubstitution(uMat, forwardSubstitution(lMat, doubVecMod2)));
     }
     return res;
+  }
+
+  /**
+   * Solves only the sensitivity systems, without solving the coefficient right-hand side.
+   *
+   * @param matrix  the common matrix
+   * @param rightHandSides  the sensitivity right-hand sides
+   * @return the node sensitivities of the second derivatives
+   */
+  protected double[][] matrixEqnSensitivitySolver(double[][] matrix, double[][] rightHandSides) {
+    int size = rightHandSides.length;
+    LUDecompositionResult decomposition = _luObj.apply(DoubleMatrix.copyOf(matrix));
+    double[][] lower = decomposition.getL().toArray();
+    double[][] upper = decomposition.getU().toArray();
+    DoubleMatrix permutation = decomposition.getP();
+    DoubleMatrix rhs = DoubleMatrix.copyOf(rightHandSides);
+    double[][] sensitivities = new double[size][size];
+    for (int col = 0; col < size; col++) {
+      DoubleArray permuted = (DoubleArray) OG_ALGEBRA.multiply(permutation, rhs.column(col));
+      double[] solution = backSubstitution(upper, forwardSubstitution(lower, permuted));
+      for (int row = 0; row < size; row++) {
+        sensitivities[row][col] = solution[row];
+      }
+    }
+    return sensitivities;
   }
 
   /**

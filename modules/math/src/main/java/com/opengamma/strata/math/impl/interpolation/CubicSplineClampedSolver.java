@@ -58,6 +58,13 @@ public class CubicSplineClampedSolver extends CubicSplineSolver {
   }
 
   @Override
+  DoubleMatrix[] solveCoefficientSensitivity(double[] xValues, double[] yValues) {
+    double[] intervals = getDiffs(xValues);
+    double[][] sensitivities = matrixEqnSensitivitySolver(getMatrix(intervals), getVectorSensitivity(intervals));
+    return getCommonSensitivityCoeffs(intervals, sensitivities);
+  }
+
+  @Override
   public DoubleMatrix[] solveMultiDim(final double[] xValues, final DoubleMatrix yValuesMatrix) {
     final int dim = yValuesMatrix.rowCount();
     DoubleMatrix[] coefMatrix = new DoubleMatrix[dim];
