@@ -1,0 +1,12 @@
+name: TT Margin PR Automation
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  merge_group:
+
+permissions: {}
+
+jobs:
+  jira:
+    uses: tradingtechnologies/tt-pipeline-github-actions/.github/workflows/jira-reference-check.yml@main

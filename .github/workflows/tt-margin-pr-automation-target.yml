@@ -1,0 +1,16 @@
+name: TT Margin PR Automation (target)
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, ready_for_review, labeled, unlabeled]
+
+permissions: {}
+
+jobs:
+  approve-bot-prs:
+    uses: tradingtechnologies/tt-pipeline-github-actions/.github/workflows/approve-bot-prs.yml@main
+    secrets: inherit
+
+  auto-merge:
+    uses: tradingtechnologies/tt-pipeline-github-actions/.github/workflows/auto-merge-label.yml@main
+    secrets: inherit

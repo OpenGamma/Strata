@@ -1,0 +1,16 @@
+name: Claude PR Address Feedback
+
+on:
+  pull_request_review_comment:
+    types: [created]
+  issue_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  fix:
+    uses: tradingtechnologies/tt-pipeline-github-actions/.github/workflows/claude_pr_fix.yaml@main
+    secrets:
+      GH_BEDROCK_IAM: ${{ secrets.GH_BEDROCK_IAM }}
+      STANDARDS_READ_TOKEN: ${{ secrets.STANDARDS_READ_TOKEN }}
