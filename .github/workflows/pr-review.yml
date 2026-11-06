@@ -1,0 +1,16 @@
+name: Claude PR Review
+
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+  pull_request_review_comment:
+    types: [created]
+  issue_comment:
+    types: [created]
+
+jobs:
+  review:
+    uses: tradingtechnologies/tt-pipeline-github-actions/.github/workflows/claude_pr_review.yaml@main
+    secrets:
+      GH_BEDROCK_IAM: ${{ secrets.GH_BEDROCK_IAM }}
+      STANDARDS_READ_TOKEN: ${{ secrets.STANDARDS_READ_TOKEN }}
