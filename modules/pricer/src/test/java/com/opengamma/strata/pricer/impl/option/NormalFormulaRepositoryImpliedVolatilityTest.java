@@ -9,7 +9,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.data.Offset.offset;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.product.common.PutCall;
@@ -72,6 +77,66 @@ public class NormalFormulaRepositoryImpliedVolatilityTest {
       double ivComputed = NormalFormulaRepository
           .impliedVolatility(price, forward, strikes[i], timesToExpiry[i], volatilitiesStart[i], 1.0d, putCall[i]);
       assertThat(ivComputed).isCloseTo(volatilities[i], offset(1e-8));   
+    }
+  }
+
+  public static Object[][] data_initial_guess_atm() {
+    double[][] markets = {
+        {-0.005, 5d, 0.87, 0.01},
+        {0d, 0.25, 2d, 0.0075},
+        {100d, 1d, 1d, Math.sqrt(2d * Math.PI)},
+        {0.03, 4.5, 0.87, 0.2}};
+    double[] initialGuesses = {0d, 1e-20, 1e-16, 1e-10, 0.0001, -0.1, 10d};
+    List<Object[]> cases = new ArrayList<>();
+    for (double[] market : markets) {
+      for (double initialGuess : initialGuesses) {
+        for (PutCall putCall : PutCall.values()) {
+          cases.add(new Object[] {market[0], market[1], market[2], market[3], initialGuess, putCall});
+        }
+      }
+    }
+    return cases.toArray(new Object[0][]);
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_initial_guess_atm")
+  public void implied_volatility_initial_guess_atm(
+      double forward,
+      double timeToExpiry,
+      double numeraire,
+      double volatility,
+      double initialGuess,
+      PutCall putCall) {
+
+    // Independent ATM Bachelier identity, including negative and zero forwards.
+    double price = numeraire * volatility * Math.sqrt(timeToExpiry) / Math.sqrt(2d * Math.PI);
+    double computed = NormalFormulaRepository.impliedVolatility(
+        price, forward, forward, timeToExpiry, initialGuess, numeraire, putCall);
+    assertThat(computed).isCloseTo(volatility, offset(1e-12));
+    assertThat(numeraire * NormalFormulaRepository.price(forward, forward, timeToExpiry, computed, putCall))
+        .isCloseTo(price, offset(1e-12));
+  }
+
+  @Test
+  public void implied_volatility_zero_start_negative_forward() {
+    double[] strikes = {0.015, -0.010, -0.005, 0d};
+    double[] volatilities = {0.0075, 0.010, 0.005, 0.020};
+    double[] times = {1d, 5d, 0.25, 1d};
+    PutCall[] putCalls = {PutCall.PUT, PutCall.CALL, PutCall.CALL, PutCall.PUT};
+    for (int i = 0; i < strikes.length; i++) {
+      double price = NormalFormulaRepository.price(-0.005, strikes[i], times[i], volatilities[i], putCalls[i]);
+      double computed = NormalFormulaRepository.impliedVolatility(
+          price, -0.005, strikes[i], times[i], 0d, 1d, putCalls[i]);
+      assertThat(computed).isCloseTo(volatilities[i], offset(1e-8));
+    }
+  }
+
+  @Test
+  public void implied_volatility_intrinsic_zero_start() {
+    for (PutCall putCall : PutCall.values()) {
+      double price = putCall.isCall() ? 10d : 0d;
+      assertThat(NormalFormulaRepository.impliedVolatility(price, 110d, 100d, 1d, 0d, 1d, putCall))
+          .isZero();
     }
   }
 
