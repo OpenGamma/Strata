@@ -220,6 +220,15 @@ public final class BlackFormulaRepository {
       double timeToExpiry,
       double lognormalVol,
       boolean isCall) {
+
+    if (lognormalVol == 0d &&
+        forward > 0d && forward <= LARGE &&
+        strike > 0d && strike <= LARGE &&
+        timeToExpiry > 0d && Double.isFinite(timeToExpiry) &&
+        Math.abs(forward - strike) >= SMALL) {
+      // Away from the payoff kink, the deterministic price has a zero Hessian.
+      return Pair.of(priceAdjoint(forward, strike, timeToExpiry, lognormalVol, isCall), new double[3][3]);
+    }
     // Forward sweep
     double discountFactor = 1.0;
     double sqrttheta = Math.sqrt(timeToExpiry);

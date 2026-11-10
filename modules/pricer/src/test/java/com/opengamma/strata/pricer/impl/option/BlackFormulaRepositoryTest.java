@@ -8833,6 +8833,50 @@ public class BlackFormulaRepositoryTest {
   private static final double TOLERANCE_PRICE_DELTA = 1.0E-6;
 
   @Test
+  public void priceAdjoint2_zeroVolatility() {
+    for (double forward : new double[] {0.03, 1d, 100d, 110d}) {
+      for (double strike : new double[] {0.015, 0.09, 90d, 100d, 120d}) {
+        if (forward == strike) {
+          continue;
+        }
+        for (double expiry : new double[] {0.25, 1d, 5d}) {
+          for (boolean isCall : new boolean[] {false, true}) {
+            Pair<ValueDerivatives, double[][]> result =
+                BlackFormulaRepository.priceAdjoint2(forward, strike, expiry, 0d, isCall);
+            double sign = isCall ? 1d : -1d;
+            double intrinsic = sign * (forward - strike);
+            double delta = intrinsic > 0d ? sign : 0d;
+            assertThat(result.getFirst().getValue()).isEqualTo(Math.max(intrinsic, 0d));
+            assertThat(result.getFirst().getDerivative(0)).isCloseTo(delta, offset(1e-14));
+            assertThat(result.getFirst().getDerivative(1)).isCloseTo(-delta, offset(1e-14));
+            assertThat(result.getFirst().getDerivative(2)).isZero();
+            assertThat(result.getFirst().getDerivative(3)).isZero();
+            for (double[] row : result.getSecond()) {
+              for (double value : row) {
+                assertThat(value).isZero();
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Test
+  public void priceAdjoint2_negativeZeroVolatility() {
+    Pair<ValueDerivatives, double[][]> result =
+        BlackFormulaRepository.priceAdjoint2(110d, 100d, 1d, -0d, true);
+    assertThat(result.getFirst().getValue()).isEqualTo(10d);
+    assertThat(result.getFirst().getDerivative(0)).isEqualTo(1d);
+    assertThat(result.getFirst().getDerivative(1)).isEqualTo(-1d);
+    for (double[] row : result.getSecond()) {
+      for (double value : row) {
+        assertThat(value).isZero();
+      }
+    }
+  }
+
+  @Test
   public void priceAdjoint() {
     // Price
     double price = BlackFormulaRepository.price(F, F - DELTA_F, T, SIGMA, true);

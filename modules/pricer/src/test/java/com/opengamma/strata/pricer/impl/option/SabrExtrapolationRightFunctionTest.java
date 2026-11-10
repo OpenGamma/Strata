@@ -8,6 +8,8 @@ package com.opengamma.strata.pricer.impl.option;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
 
+import java.util.Arrays;
+
 import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
@@ -34,6 +36,42 @@ public class SabrExtrapolationRightFunctionTest {
       SabrExtrapolationRightFunction.of(FORWARD, TIME_TO_EXPIRY, SABR_DATA, CUT_OFF_STRIKE, MU);
   private static final SabrHaganVolatilityFunctionProvider SABR_FUNCTION = SabrHaganVolatilityFunctionProvider.DEFAULT;
   private static final double TOLERANCE_PRICE = 1.0E-10;
+
+  @Test
+  public void customZeroVolatilityProvider() {
+    VolatilityFunctionProvider<SabrFormulaData> provider = new VolatilityFunctionProvider<SabrFormulaData>() {
+      @Override
+      public double volatility(double forward, double strike, double expiry, SabrFormulaData data) {
+        return 0d;
+      }
+
+      @Override
+      public double volatilityAdjoint2(
+          double forward,
+          double strike,
+          double expiry,
+          SabrFormulaData data,
+          double[] firstDerivatives,
+          double[][] secondDerivatives) {
+
+        Arrays.fill(firstDerivatives, 0d);
+        for (double[] row : secondDerivatives) {
+          Arrays.fill(row, 0d);
+        }
+        return 0d;
+      }
+    };
+    SabrExtrapolationRightFunction function =
+        SabrExtrapolationRightFunction.of(0.03, SABR_DATA, 0.06, 1d, MU, provider);
+    assertThat(function.price(0.015, PutCall.CALL)).isCloseTo(0.015, offset(1e-12));
+    assertThat(function.price(0.09, PutCall.PUT)).isCloseTo(0.06, offset(1e-12));
+    for (double strike : new double[] {0.015, 0.06, 0.09}) {
+      double call = function.price(strike, PutCall.CALL);
+      double put = function.price(strike, PutCall.PUT);
+      assertThat(call).isFinite().isGreaterThanOrEqualTo(0d);
+      assertThat(put - call).isCloseTo(strike - 0.03, offset(1e-12));
+    }
+  }
 
   /**
    * Tests getter.
