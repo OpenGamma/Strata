@@ -11,6 +11,7 @@ import static org.assertj.core.data.Offset.offset;
 
 import java.time.ZonedDateTime;
 
+import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.date.DayCounts;
@@ -172,6 +173,66 @@ public class BlackOneTouchAssetPriceFormulaRepositoryTest {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.priceAdjoint(BARRIER_DOWN_OUT.getBarrierLevel() - 0.1, EXPIRY_TIME,
             COST_OF_CARRY, RATE_DOM, VOLATILITY, BARRIER_DOWN_OUT));
+  }
+
+  /**
+   * At very low volatility the Haug series is ill-conditioned and diverges (the (h/spot)^(2*(mu+1)) power terms
+   * overflow); an asset-or-nothing one-touch/no-touch value must stay in its no-arbitrage range with finite AD
+   * sensitivities.
+   */
+  @Test
+  public void lowVolatilityBounded() {
+    double noiseTolerance = 1.0e-9;
+    double time = 0.05;
+    double df1 = Math.exp(time * (COST_OF_CARRY - RATE_DOM));
+    double df2 = Math.exp(-RATE_DOM * time);
+    // Without the bound the raw series overflows to +/-Inf in this low-volatility band, above the near-zero cut-off.
+    double[] sigma = {0.02, 0.01, 0.005, 0.002, 0.0015};
+    for (SimpleConstantContinuousBarrier barrier : BARRIERS) {
+      double upper = barrier.getKnockType().isKnockIn() ?
+          barrier.getBarrierLevel() * Math.max(1d, df2) :
+          SPOT * df1;
+      for (double vol : sigma) {
+        double price = PRICER.price(SPOT, time, COST_OF_CARRY, RATE_DOM, vol, barrier);
+        assertThat(price).isBetween(-noiseTolerance, upper);
+        ValueDerivatives priceAd = PRICER.priceAdjoint(SPOT, time, COST_OF_CARRY, RATE_DOM, vol, barrier);
+        assertThat(priceAd.getValue()).isBetween(-noiseTolerance, upper);
+        for (int i = 0; i < priceAd.getDerivatives().size(); i++) {
+          assertThat(priceAd.getDerivative(i)).isFinite();
+        }
+      }
+    }
+  }
+
+  /**
+   * In the divergent regime the raw series overflows to a non-finite value and the price is replaced with its
+   * deterministic zero-volatility limit: the no-touch leg delivers the discounted forward asset spot*df1, while the
+   * one-touch leg delivers nothing with zero sensitivities.
+   */
+  @Test
+  public void lowVolatilityFallbackGreeks() {
+    double time = 0.05;
+    double vol = 0.0015; // low enough to force the series non-finite, so the deterministic-limit branch is taken
+    Offset<Double> tol = offset(1.0e-12);
+    double df1 = Math.exp(time * (COST_OF_CARRY - RATE_DOM));
+    double value = SPOT * df1;
+
+    // no-touch delivers the discounted forward asset spot*df1.
+    ValueDerivatives noTouch = PRICER.priceAdjoint(SPOT, time, COST_OF_CARRY, RATE_DOM, vol, BARRIER_UP_OUT);
+    assertThat(noTouch.getValue()).isEqualTo(value, tol);
+    assertThat(noTouch.getDerivative(0)).isEqualTo(df1, tol);                             // spot
+    assertThat(noTouch.getDerivative(1)).isEqualTo(-time * value, tol);                   // rate
+    assertThat(noTouch.getDerivative(2)).isEqualTo(time * value, tol);                    // costOfCarry
+    assertThat(noTouch.getDerivative(3)).isEqualTo(0.0d, tol);                            // volatility
+    assertThat(noTouch.getDerivative(4)).isEqualTo((COST_OF_CARRY - RATE_DOM) * value, tol); // timeToExpiry
+    assertThat(noTouch.getDerivative(5)).isEqualTo(0.0d, tol);                            // spot twice
+
+    // one-touch is worthless with zero sensitivities.
+    ValueDerivatives oneTouch = PRICER.priceAdjoint(SPOT, time, COST_OF_CARRY, RATE_DOM, vol, BARRIER_UP_IN);
+    assertThat(oneTouch.getValue()).isEqualTo(0.0d);
+    for (int i = 0; i < oneTouch.getDerivatives().size(); i++) {
+      assertThat(oneTouch.getDerivative(i)).isEqualTo(0.0d);
+    }
   }
 
   //-------------------------------------------------------------------------

@@ -12,16 +12,13 @@ import java.text.NumberFormat;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import com.google.common.base.Splitter;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.common.ExchangeId;
 import com.opengamma.strata.product.common.PutCall;
@@ -37,19 +34,13 @@ import com.opengamma.strata.product.common.PutCall;
 public final class EtdIdUtils {
 
   /**
-   * Separator that is always present between the contract details and expiry + option details.
-   * Only applies to identifiers with {@link StandardSchemes#OG_ETD_SCHEME}.
+   * The length of the year-month digit block, "202304", that starts the expiry and option details group.
    * <p>
-   * Example separator "-202304" in "F-IFEN-ABC-202304" or "O-IFEN-ABC-202304-PM12.34-U202309"
+   * The separator between the contract details and expiry + option details is the last '-' in the
+   * identifier that is immediately followed by 6 digits.
+   * Example separator "-202304" in "F-IFEN-ABC-202304" or "O-IFEN-ABC-202304-PM12.34-U202309".
    */
-  private static final String GROUPS_SEPARATOR = "-(?=\\d{6})";
-  private static final String CONTRACT_DETAILS_REGEX_GROUP_NAME = "contractDetails";
-  private static final String EXPIRY_AND_OPTION_DETAILS_GROUP_NAME = "expiryAndOptionDetails";
-  private static final Pattern SECURITY_ID_PATTERN = Pattern.compile(Messages.format(
-      "^(?<{}>.*){}(?<{}>.*)$",
-      CONTRACT_DETAILS_REGEX_GROUP_NAME,
-      GROUPS_SEPARATOR,
-      EXPIRY_AND_OPTION_DETAILS_GROUP_NAME));
+  private static final int YEAR_MONTH_DIGITS = 6;
 
   /**
    * Scheme used for ETDs.
@@ -262,11 +253,9 @@ public final class EtdIdUtils {
       throw new IllegalArgumentException("ETD ID cannot be parsed: " + specId);
     }
     String value = specId.getStandardId().getValue();
-    List<String> split = Splitter.on('-')
-        // sometimes a contract code can have "-" in the name, like F-IFEN-BAJAJ-AUTO, so we need
-        // limit the split to 3: type, exchangeId, and contract code
-        .limit(3)
-        .splitToList(value);
+    // sometimes a contract code can have "-" in the name, like F-IFEN-BAJAJ-AUTO, so we need to
+    // limit the split to 3: type, exchangeId, and contract code
+    List<String> split = splitOnDash(value, 0, value.length(), 3);
     if (split.size() < 3) {
       throw new IllegalArgumentException("ETD ID cannot be parsed: " + specId);
     }
@@ -303,14 +292,11 @@ public final class EtdIdUtils {
       throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
     }
 
-    Matcher matcher = SECURITY_ID_PATTERN.matcher(standardId.getValue());
-    if (!matcher.matches()) {
-      throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
-    }
+    String value = standardId.getValue();
+    int separatorIndex = findExpiryGroupSeparatorIndex(value, securityId);
 
     // Example: F-IFEN-ABC or F-IFEN-ABC-XYZ
-    String contractDetailsSubstring = matcher.group(CONTRACT_DETAILS_REGEX_GROUP_NAME);
-    List<String> contractDetailsSplit = Splitter.on('-').limit(3).splitToList(contractDetailsSubstring);
+    List<String> contractDetailsSplit = splitOnDash(value, 0, separatorIndex, 3);
     if (contractDetailsSplit.size() != 3) {
       throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
     }
@@ -320,13 +306,13 @@ public final class EtdIdUtils {
     EtdContractCode contractCode = EtdContractCode.of(contractDetailsSplit.get(2));
 
     // Example: 20230412 for futures or 202304-V3-PM12.43-U202304 for options
-    String expiryAndOptionDetailsSubstring = matcher.group(EXPIRY_AND_OPTION_DETAILS_GROUP_NAME);
-    List<String> expiryAndOptionDetailsSplit = Splitter.on("-").splitToList(expiryAndOptionDetailsSubstring);
+    List<String> expiryAndOptionDetailsSplit =
+        splitOnDash(value, separatorIndex + 1, value.length(), Integer.MAX_VALUE);
     String dateStr = expiryAndOptionDetailsSplit.get(0);
     if (dateStr.length() < 6) {
       throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
     }
-    YearMonth month = YearMonth.parse(dateStr.substring(0, 6), YM_FORMAT);
+    YearMonth month = parseYearMonth(dateStr, 0, securityId);
     EtdVariant variant = EtdVariant.parse(dateStr.substring(6));
     SplitEtdId.Builder parsed = SplitEtdId.builder()
         .securityId(securityId)
@@ -339,8 +325,7 @@ public final class EtdIdUtils {
     if (standardId.getValue().startsWith(FUT_PREFIX) && expiryAndOptionDetailsSplit.size() == 1) {
       return parsed.build();
     } else if (standardId.getValue().startsWith(OPT_PREFIX) && expiryAndOptionDetailsSplit.size() > 1) {
-      List<String> optionDetailsSplit = expiryAndOptionDetailsSplit.subList(1, expiryAndOptionDetailsSplit.size());
-      SplitEtdOption parsedOption = parseEtdOptionId(optionDetailsSplit, securityId);
+      SplitEtdOption parsedOption = parseEtdOptionId(expiryAndOptionDetailsSplit, securityId);
       return parsed.option(parsedOption).build();
     } else {
       throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
@@ -361,14 +346,11 @@ public final class EtdIdUtils {
       throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
     }
 
-    Matcher matcher = SECURITY_ID_PATTERN.matcher(standardId.getValue());
-    if (!matcher.matches()) {
-      throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
-    }
+    String value = standardId.getValue();
+    int separatorIndex = findExpiryGroupSeparatorIndex(value, securityId);
 
     // Example: F-IFEN-ABC or F-IFEN-ABC-XYZ
-    String contractDetailsSubstring = matcher.group(CONTRACT_DETAILS_REGEX_GROUP_NAME);
-    List<String> contractDetailsSplit = Splitter.on('-').limit(3).splitToList(contractDetailsSubstring);
+    List<String> contractDetailsSplit = splitOnDash(value, 0, separatorIndex, 3);
     if (contractDetailsSplit.size() != 3) {
       throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
     }
@@ -377,11 +359,81 @@ public final class EtdIdUtils {
     return ExchangeId.of(contractDetailsSplit.get(1));
   }
 
+  // splits value.substring(fromIndex, toIndex) on '-', stopping once maxTokens tokens have been
+  // produced (the last token keeps any remaining, unsplit content) - splitting directly against
+  // the bounds of the original string avoids having to first carve out a wrapper substring, which
+  // is a regex/Guava-free equivalent of Splitter.on('-').limit(n)
+  private static List<String> splitOnDash(String value, int fromIndex, int toIndex, int maxTokens) {
+    List<String> tokens = new ArrayList<>(4);
+    int start = fromIndex;
+    int tokenCount = 1;
+    int dash = value.indexOf('-', start);
+    while (dash >= 0 && dash < toIndex && tokenCount < maxTokens) {
+      tokens.add(value.substring(start, dash));
+      start = dash + 1;
+      tokenCount++;
+      dash = value.indexOf('-', start);
+    }
+    tokens.add(value.substring(start, toIndex));
+    return tokens;
+  }
+
+  // parses the 4-digit year and 2-digit month starting at offset, such as "202304" at offset 0,
+  // without going through DateTimeFormatter's general-purpose (and much costlier) parse/resolve
+  private static YearMonth parseYearMonth(String value, int offset, SecurityId securityId) {
+    int year = parseDigits(value, offset, 4, securityId);
+    int month = parseDigits(value, offset + 4, 2, securityId);
+    if (month < 1 || month > 12) {
+      throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
+    }
+    return YearMonth.of(year, month);
+  }
+
+  // parses 'length' consecutive digit characters starting at offset into an int
+  private static int parseDigits(String value, int offset, int length, SecurityId securityId) {
+    int result = 0;
+    for (int i = offset; i < offset + length; i++) {
+      char ch = value.charAt(i);
+      if (ch < '0' || ch > '9') {
+        throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
+      }
+      result = result * 10 + (ch - '0');
+    }
+    return result;
+  }
+
+  // finds the index of the '-' that separates the contract details from the expiry and option
+  // details, which is the last '-' in the value immediately followed by 6 digits, such as the
+  // '-' before "202304" in "F-IFEN-ABC-202304" or "O-IFEN-ABC-202304-PM12.34-U202309"
+  private static int findExpiryGroupSeparatorIndex(String value, SecurityId securityId) {
+    for (int i = value.length() - YEAR_MONTH_DIGITS - 1; i >= 0; i--) {
+      if (value.charAt(i) == '-' && isSixDigitsFrom(value, i + 1)) {
+        return i;
+      }
+    }
+    throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
+  }
+
+  // checks if the 6 characters starting at fromIndex are all digits
+  private static boolean isSixDigitsFrom(String value, int fromIndex) {
+    for (int i = fromIndex; i < fromIndex + YEAR_MONTH_DIGITS; i++) {
+      char ch = value.charAt(i);
+      if (ch < '0' || ch > '9') {
+        return false;
+      }
+    }
+    return true;
+  }
+
   // parses an option
-  private static SplitEtdOption parseEtdOptionId(List<String> optionDetailsSplit, SecurityId securityId) {
-    String versionStr = optionDetailsSplit.get(0);
-    String putCallStrikeStr = optionDetailsSplit.size() > 1 ? optionDetailsSplit.get(1) : "";
-    String underlyingMonthStr = optionDetailsSplit.size() > 2 ? optionDetailsSplit.get(2) : "";
+  private static SplitEtdOption parseEtdOptionId(
+      List<String> expiryAndOptionDetailsSplit,
+      SecurityId securityId) {
+
+    int optionTokenCount = expiryAndOptionDetailsSplit.size() - 1;
+    String versionStr = expiryAndOptionDetailsSplit.get(1);
+    String putCallStrikeStr = optionTokenCount > 1 ? expiryAndOptionDetailsSplit.get(1 + 1) : "";
+    String underlyingMonthStr = optionTokenCount > 2 ? expiryAndOptionDetailsSplit.get(1 + 2) : "";
     int version = 0;
     if (versionStr.startsWith("V")) {
       version = Integer.parseInt(versionStr.substring(1));
@@ -397,14 +449,15 @@ public final class EtdIdUtils {
     } else {
       throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
     }
-    String strikeStr = putCallStrikeStr.substring(1).replace('M', '-');
-    double strike = Double.parseDouble(strikeStr);
+    boolean strikeNegative = putCallStrikeStr.length() > 1 && putCallStrikeStr.charAt(1) == 'M';
+    String strikeStr = putCallStrikeStr.substring(strikeNegative ? 2 : 1);
+    double strike = strikeNegative ? -Double.parseDouble(strikeStr) : Double.parseDouble(strikeStr);
     YearMonth underlyingMonth = null;
     if (!underlyingMonthStr.isEmpty()) {
       if (!underlyingMonthStr.startsWith("U") || underlyingMonthStr.length() != 7) {
         throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
       }
-      underlyingMonth = YearMonth.parse(underlyingMonthStr.substring(1), YM_FORMAT);
+      underlyingMonth = parseYearMonth(underlyingMonthStr, 1, securityId);
     }
     return SplitEtdOption.of(version, putCall, strike, underlyingMonth);
   }

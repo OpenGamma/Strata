@@ -47,21 +47,23 @@ final class CmsMeasureCalculations {
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param cmsParams  the CMS parameters
    */
   CmsMeasureCalculations(CmsSabrExtrapolationParams cmsParams) {
     SabrExtrapolationReplicationCmsPeriodPricer periodPricer =
         SabrExtrapolationReplicationCmsPeriodPricer.of(cmsParams.getCutOffStrike(), cmsParams.getMu());
     SabrExtrapolationReplicationCmsLegPricer legPricer = new SabrExtrapolationReplicationCmsLegPricer(periodPricer);
-    SabrExtrapolationReplicationCmsProductPricer productPricer = new SabrExtrapolationReplicationCmsProductPricer(legPricer);
-    SabrExtrapolationReplicationCmsTradePricer tradePricer = new SabrExtrapolationReplicationCmsTradePricer(productPricer);
+    SabrExtrapolationReplicationCmsProductPricer productPricer =
+        new SabrExtrapolationReplicationCmsProductPricer(legPricer);
+    SabrExtrapolationReplicationCmsTradePricer tradePricer =
+        new SabrExtrapolationReplicationCmsTradePricer(productPricer);
     this.tradePricer = ArgChecker.notNull(tradePricer, "tradePricer");
   }
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param tradePricer  the pricer function for {@link ResolvedCmsTrade}
    */
   CmsMeasureCalculations(SabrExtrapolationReplicationCmsTradePricer tradePricer) {
@@ -206,6 +208,41 @@ final class CmsMeasureCalculations {
       SwaptionVolatilities volatilities) {
 
     return tradePricer.presentValueSensitivityRates(trade, ratesProvider, checkSabr(volatilities));
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates vega for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> vegaMarketQuoteBucketed(
+      ResolvedCmsTrade trade,
+      RatesScenarioMarketData ratesMarketData,
+      SwaptionScenarioMarketData swaptionMarketData) {
+
+    RateIndex index = cmsLegRateIndex(trade);
+    return ScenarioArray.of(
+        ratesMarketData.getScenarioCount(),
+        i -> vegaMarketQuoteBucketed(
+            trade,
+            ratesMarketData.scenario(i).ratesProvider(),
+            swaptionMarketData.scenario(i).volatilities(index)));
+  }
+
+  //  vega for one scenario
+  CurrencyParameterSensitivities vegaMarketQuoteBucketed(
+      ResolvedCmsTrade trade,
+      RatesProvider ratesProvider,
+      SwaptionVolatilities volatilities) {
+
+    PointSensitivities pointSensitivity = pointSensitivityVega(trade, ratesProvider, volatilities);
+    return volatilities.parameterSensitivity(pointSensitivity);
+  }
+
+  //  vega point sensitivity
+  private PointSensitivities pointSensitivityVega(
+      ResolvedCmsTrade trade,
+      RatesProvider ratesProvider,
+      SwaptionVolatilities volatilities) {
+
+    return tradePricer.presentValueSensitivityModelParamsSabr(trade, ratesProvider, checkSabr(volatilities));
   }
 
   //-------------------------------------------------------------------------

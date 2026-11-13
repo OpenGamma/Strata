@@ -79,4 +79,20 @@ public class CmsTradeCalculationsTest {
         .isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
   }
 
+  @Test
+  public void test_vega() {
+    ScenarioMarketData md = CmsTradeCalculationFunctionTest.marketData();
+    RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
+    SabrExtrapolationReplicationCmsTradePricer pricer = new SabrExtrapolationReplicationCmsTradePricer(
+        new SabrExtrapolationReplicationCmsProductPricer(
+            new SabrExtrapolationReplicationCmsLegPricer(
+                SabrExtrapolationReplicationCmsPeriodPricer.of(CMS_MODEL.getCutOffStrike(), CMS_MODEL.getMu()))));
+    PointSensitivities vegaPointSens = pricer.presentValueSensitivityModelParamsSabr(RTRADE, provider, VOLS);
+    CurrencyParameterSensitivities expectedVega = VOLS.parameterSensitivity(vegaPointSens);
+
+    CmsTradeCalculations calcs = CmsTradeCalculations.of(CMS_MODEL);
+    assertThat(calcs.vegaMarketQuoteBucketed(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md))
+        .isEqualTo(ScenarioArray.of(ImmutableList.of(expectedVega)));
+  }
+
 }
