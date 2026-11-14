@@ -158,7 +158,7 @@ public final class DiscountingBondFutureProductPricer {
     int size = basket.size();
     double[] priceBonds = new double[size];
     int indexCTD = 0;
-    double priceMin = 2d;
+    double priceMin = Double.POSITIVE_INFINITY;
     for (int i = 0; i < size; i++) {
       ResolvedFixedCouponBond bond = basket.get(i);
       double dirtyPrice = bondPricer.dirtyPriceFromCurves(bond, discountingProvider, future.getLastDeliveryDate());
@@ -203,7 +203,7 @@ public final class DiscountingBondFutureProductPricer {
     int size = basket.size();
     double[] priceBonds = new double[size];
     int indexCTD = 0;
-    double priceMin = 2d;
+    double priceMin = Double.POSITIVE_INFINITY;
     for (int i = 0; i < size; i++) {
       ResolvedFixedCouponBond bond = basket.get(i);
       double dirtyPrice = bondPricer.dirtyPriceFromCurvesWithZSpread(
