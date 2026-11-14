@@ -125,6 +125,45 @@ public class DiscountingBondFutureProductPricerTest {
     assertThat(computed.equalWithTolerance(expected, EPS * 10.0)).isTrue();
   }
 
+  @Test
+  public void test_priceSensitivity_cheapestAdjustedPriceAboveTwo() {
+    ResolvedBondFuture future = FUTURE_PRODUCT.toBuilder()
+        .deliveryBasket(FUTURE_PRODUCT.getDeliveryBasket().get(1), BOND)
+        .conversionFactors(0.3, 0.4)
+        .build();
+    double price = FUTURE_PRICER.price(future, PROVIDER);
+    assertThat(price).isGreaterThan(2d);
+    assertThat(price).isCloseTo(FUTURE_PRICER.price(singleDeliverable(future), PROVIDER), offset(TOL));
+
+    CurrencyParameterSensitivities computed =
+        PROVIDER.parameterSensitivity(FUTURE_PRICER.priceSensitivity(future, PROVIDER));
+    CurrencyParameterSensitivities expected =
+        FD_CAL.sensitivity(PROVIDER, p -> CurrencyAmount.of(USD, FUTURE_PRICER.price(future, p)));
+    assertThat(computed.equalWithTolerance(expected, EPS * 40.0)).isTrue();
+  }
+
+  @Test
+  public void test_priceSensitivityWithZSpread_cheapestAdjustedPriceAboveTwo() {
+    ResolvedBondFuture future = FUTURE_PRODUCT.toBuilder()
+        .deliveryBasket(FUTURE_PRODUCT.getDeliveryBasket().get(1), BOND)
+        .conversionFactors(0.3, 0.4)
+        .build();
+    double price = FUTURE_PRICER.priceWithZSpread(future, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
+    assertThat(price).isGreaterThan(2d);
+    assertThat(price).isCloseTo(FUTURE_PRICER.priceWithZSpread(
+        singleDeliverable(future), PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR), offset(TOL));
+
+    CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(
+        FUTURE_PRICER.priceSensitivityWithZSpread(future, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR));
+    CurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, p -> CurrencyAmount.of(
+        USD, FUTURE_PRICER.priceWithZSpread(future, p, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR)));
+    assertThat(computed.equalWithTolerance(expected, EPS * 40.0)).isTrue();
+  }
+
+  private static ResolvedBondFuture singleDeliverable(ResolvedBondFuture future) {
+    return future.toBuilder().deliveryBasket(BOND).conversionFactors(0.4).build();
+  }
+
   //-------------------------------------------------------------------------
   // regression to 2.x
   @Test
